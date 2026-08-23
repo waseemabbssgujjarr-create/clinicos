@@ -1,0 +1,22 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const superadmin_controller_1 = require("../controllers/superadmin.controller");
+const adminAuth_middleware_1 = require("../middleware/adminAuth.middleware");
+const router = (0, express_1.Router)();
+router.use(adminAuth_middleware_1.adminAuth);
+router.get('/stats', superadmin_controller_1.getPlatformStats);
+router.get('/clinics', superadmin_controller_1.listClinics);
+router.get('/clinics/:id', superadmin_controller_1.getClinicDetail);
+router.patch('/clinics/:id/status', superadmin_controller_1.updateClinicStatus);
+router.delete('/clinics/:id', superadmin_controller_1.deleteClinic);
+router.patch('/clinics/:id/plan', superadmin_controller_1.overridePlan);
+router.get('/revenue', superadmin_controller_1.getRevenue);
+router.post('/announce', superadmin_controller_1.sendAnnouncement);
+router.get('/integrations', superadmin_controller_1.getIntegrations);
+router.put('/integrations', superadmin_controller_1.saveIntegrations);
+router.post('/integrations/test-email', superadmin_controller_1.testIntegrationsEmail);
+router.get('/whatsapp/clinics', superadmin_controller_1.listWhatsAppClinics);
+router.delete('/whatsapp/clinics/:id', superadmin_controller_1.revokeWhatsAppClinic);
+exports.default = router;
+//# sourceMappingURL=superadmin.routes.js.map

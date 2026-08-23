@@ -1,0 +1,419 @@
+/**
+ * ClinicOS / Doctors My Agency — global UI polish
+ * Loaded on /dashboard/, /staff/, /superadmin/ via dashboard-bootstrap.js
+ * Cards, borders, hovers, readable buttons, section hierarchy
+ */
+:root {
+  --plat-accent: #f97316;
+  --plat-accent-dark: #ea580c;
+  --plat-accent-soft: rgba(249, 115, 22, 0.1);
+  --plat-accent-border: rgba(249, 115, 22, 0.28);
+  --plat-page-bg: #e8eef5;
+  --plat-page-bg-top: #eef2f7;
+  --plat-card-bg: #ffffff;
+  --plat-card-border: #d0d7e2;
+  --plat-card-border-hover: rgba(249, 115, 22, 0.35);
+  --plat-text: #0f172a;
+  --plat-muted: #64748b;
+  --plat-radius: 16px;
+  --plat-radius-sm: 12px;
+  --plat-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 28px rgba(15, 23, 42, 0.07);
+  --plat-shadow-hover: 0 4px 18px rgba(15, 23, 42, 0.1), 0 12px 32px rgba(249, 115, 22, 0.08);
+  --plat-transition: 0.18s ease;
+}
+
+/* ── Page canvas ─────────────────────────────────────────────────────────── */
+body.min-h-screen.bg-app,
+body.min-h-screen > div.flex.min-h-screen,
+body.min-h-screen [class*="flex-1"][class*="bg-gray"],
+body.min-h-screen [class*="flex-1"][class*="bg-slate"],
+body.min-h-screen main.flex-1,
+main.flex-1,
+.bg-app {
+  background: linear-gradient(180deg, var(--plat-page-bg-top) 0%, var(--plat-page-bg) 100%) !important;
+}
+
+/* Top utility bar (user name, logout) */
+body.min-h-screen header,
+body.min-h-screen [class*="border-b"][class*="bg-white"],
+body.min-h-screen main > div > div[class*="border-b"]:first-child,
+body.min-h-screen [class*="sticky"][class*="top-0"][class*="bg-white"] {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-bottom: 1px solid var(--plat-card-border) !important;
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.04) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* ── Cards & panels ──────────────────────────────────────────────────────── */
+body.min-h-screen main .bg-white,
+body.min-h-screen main [class*="rounded-card"],
+body.min-h-screen main [class*="shadow-card"],
+body.min-h-screen main [class*="rounded-2xl"],
+body.min-h-screen main [class*="rounded-xl"][class*="border"],
+body.min-h-screen main [class*="rounded-[18px]"],
+body.min-h-screen main [class*="rounded-lg"][class*="border"][class*="p-"],
+body.min-h-screen main [class*="grid"] > [class*="rounded"],
+body.min-h-screen main [class*="grid"] > [class*="shadow"],
+body.min-h-screen main [class*="grid"] > .bg-white,
+.dma-sig-card {
+  background: var(--plat-card-bg) !important;
+  border: 1px solid var(--plat-card-border) !important;
+  border-radius: var(--plat-radius) !important;
+  box-shadow: var(--plat-shadow) !important;
+  transition: box-shadow var(--plat-transition), border-color var(--plat-transition),
+    transform var(--plat-transition) !important;
+}
+
+@media (hover: hover) {
+  body.min-h-screen main .bg-white:hover,
+  body.min-h-screen main [class*="rounded-card"]:hover,
+  body.min-h-screen main [class*="shadow-card"]:hover,
+  body.min-h-screen main [class*="grid"] > [class*="rounded"]:hover,
+  body.min-h-screen main [class*="grid"] > .bg-white:hover {
+    border-color: var(--plat-card-border-hover) !important;
+    box-shadow: var(--plat-shadow-hover) !important;
+    transform: translateY(-2px);
+  }
+}
+
+/* Insight / brief banners */
+body.min-h-screen main [class*="bg-brand-light"],
+body.min-h-screen main [class*="border-brand"][class*="bg-"],
+body.min-h-screen main [class*="border-l-4"],
+.dma-sig-brief {
+  border-left: 4px solid var(--plat-accent) !important;
+  background: linear-gradient(90deg, rgba(249, 115, 22, 0.08) 0%, #fff 55%) !important;
+}
+
+body.min-h-screen main [class*="bg-amber-light"],
+body.min-h-screen main [class*="bg-amber-5"] {
+  border: 1px solid #fcd34d !important;
+  background: #fffbeb !important;
+  border-radius: var(--plat-radius-sm) !important;
+  box-shadow: var(--plat-shadow) !important;
+}
+
+/* ── Page titles ─────────────────────────────────────────────────────────── */
+body.min-h-screen main h1,
+body.min-h-screen main h1.text-2xl,
+body.min-h-screen main [class*="font-extrabold"][class*="text-2xl"] {
+  color: var(--plat-text) !important;
+  font-family: Montserrat, Inter, system-ui, sans-serif !important;
+  letter-spacing: -0.02em !important;
+  padding-bottom: 0.35rem !important;
+  margin-bottom: 0.5rem !important;
+  position: relative;
+}
+
+body.min-h-screen main h1::after,
+body.min-h-screen main h1.text-2xl::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 3px;
+  margin-top: 0.5rem;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--plat-accent), var(--plat-accent-dark));
+}
+
+body.min-h-screen main h2,
+body.min-h-screen main h3 {
+  color: var(--plat-text) !important;
+}
+
+body.min-h-screen main .text-muted,
+body.min-h-screen main [class*="text-gray-5"],
+body.min-h-screen main [class*="text-slate-5"] {
+  color: var(--plat-muted) !important;
+}
+
+/* Section labels inside cards */
+body.min-h-screen main [class*="uppercase"][class*="tracking-wider"],
+body.min-h-screen main [class*="text-xs"][class*="font-bold"][class*="text-"] {
+  color: #475569 !important;
+  letter-spacing: 0.06em !important;
+}
+
+/* ── Buttons — readable, prominent ───────────────────────────────────────── */
+body.min-h-screen main button,
+body.min-h-screen main a[class*="rounded-btn"],
+body.min-h-screen main a[class*="inline-flex"][class*="rounded"] {
+  transition: transform var(--plat-transition), box-shadow var(--plat-transition),
+    background var(--plat-transition), border-color var(--plat-transition),
+    color var(--plat-transition), filter var(--plat-transition) !important;
+  font-weight: 700 !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* Primary solid CTA */
+body.min-h-screen main button[class*="bg-brand"]:not([class*="bg-brand-light"]):not(.dma-live-badge):not(.dma-ai-status-live),
+body.min-h-screen main button[class*="bg-emerald"]:not(.dma-live-badge):not(.dma-ai-status-live),
+body.min-h-screen main button[class*="bg-green"]:not(.dma-live-badge):not(.dma-ai-status-live):not(.sa-clinic-btn-suspend),
+body.min-h-screen main a[class*="bg-brand"]:not([class*="bg-brand-light"]),
+body.min-h-screen main .bg-brand:not(.bg-brand-light):not(.dma-live-badge):not(.dma-ai-status-live),
+body.min-h-screen main button.rounded-btn[class*="bg-"]:not(.dma-live-badge) {
+  background: linear-gradient(135deg, var(--plat-accent), var(--plat-accent-dark)) !important;
+  background-image: linear-gradient(135deg, var(--plat-accent), var(--plat-accent-dark)) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 2px 10px rgba(249, 115, 22, 0.32) !important;
+  min-height: 40px !important;
+  padding: 0.5rem 1.125rem !important;
+}
+
+body.min-h-screen main button[class*="bg-brand"]:not([class*="bg-brand-light"]) *,
+body.min-h-screen main button[class*="bg-emerald"]:not(.dma-live-badge) *,
+body.min-h-screen main button[class*="bg-green"]:not(.dma-live-badge) * {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+  opacity: 1 !important;
+}
+
+@media (hover: hover) {
+  body.min-h-screen main button[class*="bg-brand"]:not([class*="bg-brand-light"]):not(.dma-live-badge):hover,
+  body.min-h-screen main button[class*="bg-emerald"]:not(.dma-live-badge):hover,
+  body.min-h-screen main button[class*="bg-green"]:not(.dma-live-badge):hover {
+    filter: brightness(1.06) !important;
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.38) !important;
+    transform: translateY(-2px) !important;
+  }
+}
+
+/* Outline / secondary */
+body.min-h-screen main button[class*="border-brand"]:not([class*="bg-brand"]):not([class*="bg-emerald"]),
+body.min-h-screen main button[class*="bg-white"][class*="border"],
+body.min-h-screen main button[class*="text-brand"]:not([class*="bg-brand"]):not([class*="bg-emerald"]):not([class*="bg-green"]) {
+  background: #ffffff !important;
+  color: var(--plat-accent-dark) !important;
+  -webkit-text-fill-color: var(--plat-accent-dark) !important;
+  border: 2px solid var(--plat-accent) !important;
+  box-shadow: 0 1px 4px rgba(249, 115, 22, 0.12) !important;
+}
+
+@media (hover: hover) {
+  body.min-h-screen main button[class*="border-brand"]:not([class*="bg-brand"]):hover,
+  body.min-h-screen main button[class*="bg-white"][class*="border"]:hover {
+    background: var(--plat-accent-soft) !important;
+    border-color: var(--plat-accent-dark) !important;
+    color: #c2410c !important;
+    transform: translateY(-1px) !important;
+  }
+}
+
+/* Destructive */
+body.min-h-screen main button[class*="bg-red"],
+body.min-h-screen main button[class*="text-red"][class*="border"] {
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2) !important;
+}
+
+/* Ghost icon buttons in header */
+body.min-h-screen main button[class*="p-2"]:not([class*="bg-brand"]):not([class*="bg-emerald"]),
+body.min-h-screen header button:not([class*="bg-"]) {
+  border-radius: 10px !important;
+}
+
+@media (hover: hover) {
+  body.min-h-screen main button[class*="p-2"]:not([class*="bg-brand"]):hover,
+  body.min-h-screen header button:not([class*="bg-"]):hover {
+    background: var(--plat-accent-soft) !important;
+  }
+}
+
+/* ── Sidebar navigation ──────────────────────────────────────────────────── */
+aside.bg-sidebar,
+aside[class*="w-[220px]"],
+aside[class*="w-\[220px\]"] {
+  border-right: 1px solid rgba(249, 115, 22, 0.12) !important;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+aside a,
+aside .nav-item {
+  border-left: 3px solid transparent !important;
+  transition: background var(--plat-transition), color var(--plat-transition),
+    border-color var(--plat-transition), transform var(--plat-transition) !important;
+}
+
+@media (hover: hover) {
+  aside a:hover,
+  aside .nav-item:hover {
+    transform: translateX(2px);
+  }
+}
+
+aside a[class*="bg-emerald"],
+aside a[class*="bg-green"],
+aside a.nav-item-active,
+aside a[class*="bg-sidebar-active"] {
+  border-left-color: var(--plat-accent) !important;
+  box-shadow: inset 0 0 0 1px rgba(249, 115, 22, 0.08);
+}
+
+/* Sidebar footer user pill */
+aside [class*="border-t"] {
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+body.min-h-screen main table {
+  border: 1px solid var(--plat-card-border) !important;
+  border-radius: var(--plat-radius-sm) !important;
+  overflow: hidden !important;
+  box-shadow: var(--plat-shadow) !important;
+  background: #fff !important;
+}
+
+body.min-h-screen main thead th {
+  background: linear-gradient(180deg, #f1f5f9 0%, #e8eef5 100%) !important;
+  color: #475569 !important;
+  font-size: 0.6875rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  border-bottom: 1px solid var(--plat-card-border) !important;
+  padding: 12px 14px !important;
+}
+
+body.min-h-screen main tbody td {
+  border-bottom: 1px solid #eef2f7 !important;
+  padding: 13px 14px !important;
+  color: #334155 !important;
+  transition: background var(--plat-transition) !important;
+}
+
+body.min-h-screen main tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+@media (hover: hover) {
+  body.min-h-screen main tbody tr:hover td {
+    background: #fff7ed !important;
+  }
+}
+
+/* ── Form inputs ─────────────────────────────────────────────────────────── */
+body.min-h-screen main input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+body.min-h-screen main textarea,
+body.min-h-screen main select,
+body.min-h-screen main .input {
+  background: #f8fafc !important;
+  border: 1.5px solid var(--plat-card-border) !important;
+  border-radius: var(--plat-radius-sm) !important;
+  color: var(--plat-text) !important;
+  transition: border-color var(--plat-transition), box-shadow var(--plat-transition),
+    background var(--plat-transition) !important;
+}
+
+@media (hover: hover) {
+  body.min-h-screen main input:not([type="checkbox"]):not([type="radio"]):hover,
+  body.min-h-screen main textarea:hover,
+  body.min-h-screen main select:hover {
+    border-color: #94a3b8 !important;
+    background: #fff !important;
+  }
+}
+
+body.min-h-screen main input:focus,
+body.min-h-screen main textarea:focus,
+body.min-h-screen main select:focus {
+  border-color: var(--plat-accent) !important;
+  background: #fff !important;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.16) !important;
+  outline: none !important;
+}
+
+/* ── Stat / KPI tiles ────────────────────────────────────────────────────── */
+body.min-h-screen main [class*="grid-cols"] > div[class*="p-4"],
+body.min-h-screen main [class*="grid-cols"] > div[class*="p-5"],
+body.min-h-screen main [class*="grid-cols"] > div[class*="p-6"] {
+  position: relative;
+}
+
+body.min-h-screen main [class*="grid-cols"] > div[class*="border-l-4"]::before {
+  content: none;
+}
+
+/* Status pills / badges */
+body.min-h-screen main [class*="rounded-full"][class*="px-"],
+body.min-h-screen main span[class*="badge"],
+body.min-h-screen main [class*="inline-flex"][class*="rounded-full"][class*="text-xs"] {
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  border: 1px solid transparent;
+}
+
+/* ── Links ───────────────────────────────────────────────────────────────── */
+body.min-h-screen main a.text-brand,
+body.min-h-screen main a[class*="text-brand"]:not([class*="bg-"]) {
+  color: var(--plat-accent-dark) !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  transition: color var(--plat-transition) !important;
+}
+
+@media (hover: hover) {
+  body.min-h-screen main a.text-brand:hover,
+  body.min-h-screen main a[class*="text-brand"]:not([class*="bg-"]):hover {
+    color: #c2410c !important;
+    text-decoration: underline !important;
+  }
+}
+
+/* ── Empty / list rows ───────────────────────────────────────────────────── */
+body.min-h-screen main [class*="divide-y"] > * {
+  border-color: #eef2f7 !important;
+  transition: background var(--plat-transition) !important;
+}
+
+@media (hover: hover) {
+  body.min-h-screen main [class*="divide-y"] > *:hover {
+    background: rgba(249, 115, 22, 0.03) !important;
+  }
+}
+
+/* ── Toast / alert banners ───────────────────────────────────────────────── */
+body.min-h-screen [class*="fixed"][class*="top-"],
+body.min-h-screen [role="alert"],
+body.min-h-screen [class*="toast"] {
+  border-radius: var(--plat-radius-sm) !important;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.14) !important;
+  border: 1px solid var(--plat-card-border) !important;
+}
+
+/* ── Billing plan cards (pricing tiers) ──────────────────────────────────── */
+body.min-h-screen main [class*="border-2"][class*="rounded"] {
+  transition: border-color var(--plat-transition), box-shadow var(--plat-transition),
+    transform var(--plat-transition) !important;
+}
+
+@media (hover: hover) {
+  body.min-h-screen main [class*="border-2"][class*="rounded"]:hover {
+    border-color: var(--plat-accent) !important;
+    box-shadow: var(--plat-shadow-hover) !important;
+    transform: translateY(-3px);
+  }
+}
+
+/* Checklist items in plan features */
+body.min-h-screen main li[class*="flex"][class*="items-center"],
+body.min-h-screen main [class*="space-y"] li {
+  padding: 0.25rem 0;
+}
+
+body.min-h-screen main svg[class*="text-brand"],
+body.min-h-screen main [class*="text-brand"] svg {
+  color: var(--plat-accent) !important;
+}
+
+/* ── Mobile spacing ──────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  body.min-h-screen main {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  body.min-h-screen main h1::after {
+    width: 36px;
+  }
+}

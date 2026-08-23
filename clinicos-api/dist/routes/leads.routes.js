@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const leads_controller_1 = require("../controllers/leads.controller");
+const auth_middleware_1 = require("../middleware/auth.middleware");
+const router = (0, express_1.Router)();
+router.get('/features', leads_controller_1.getFeatures);
+router.get('/platform-status', leads_controller_1.getPlatformStatus);
+router.get('/deploy-check', leads_controller_1.getDeployCheck);
+router.use(auth_middleware_1.authMiddleware, auth_middleware_1.doctorOrStaff);
+router.get('/', leads_controller_1.getLeads);
+router.patch('/:id', auth_middleware_1.doctorOnly, leads_controller_1.updateLead);
+router.get('/analytics/booking-conversion', leads_controller_1.getBookingConversion);
+router.get('/analytics/lead-scores', leads_controller_1.getLeadScores);
+router.get('/analytics/daily-brief', leads_controller_1.getDailyBrief);
+exports.default = router;

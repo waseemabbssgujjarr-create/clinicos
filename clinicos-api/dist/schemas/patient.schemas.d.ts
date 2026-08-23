@@ -1,0 +1,71 @@
+import { z } from 'zod';
+export declare const CreatePatientSchema: z.ZodObject<{
+    fullName: z.ZodString;
+    phone: z.ZodString;
+    email: z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>;
+    dateOfBirth: z.ZodOptional<z.ZodString>;
+    gender: z.ZodOptional<z.ZodEnum<["male", "female", "other"]>>;
+    bloodGroup: z.ZodOptional<z.ZodString>;
+    medicalNotes: z.ZodOptional<z.ZodString>;
+    allergies: z.ZodOptional<z.ZodString>;
+    emergencyName: z.ZodOptional<z.ZodString>;
+    emergencyPhone: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    fullName?: string;
+    phone?: string;
+    email?: string;
+    dateOfBirth?: string;
+    gender?: "other" | "male" | "female";
+    bloodGroup?: string;
+    medicalNotes?: string;
+    allergies?: string;
+    emergencyName?: string;
+    emergencyPhone?: string;
+}, {
+    fullName?: string;
+    phone?: string;
+    email?: string;
+    dateOfBirth?: string;
+    gender?: "other" | "male" | "female";
+    bloodGroup?: string;
+    medicalNotes?: string;
+    allergies?: string;
+    emergencyName?: string;
+    emergencyPhone?: string;
+}>;
+export declare const UpdatePatientSchema: z.ZodObject<{
+    fullName: z.ZodOptional<z.ZodString>;
+    phone: z.ZodOptional<z.ZodString>;
+    email: z.ZodOptional<z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>>;
+    dateOfBirth: z.ZodOptional<z.ZodOptional<z.ZodString>>;
+    gender: z.ZodOptional<z.ZodOptional<z.ZodEnum<["male", "female", "other"]>>>;
+    bloodGroup: z.ZodOptional<z.ZodOptional<z.ZodString>>;
+    medicalNotes: z.ZodOptional<z.ZodOptional<z.ZodString>>;
+    allergies: z.ZodOptional<z.ZodOptional<z.ZodString>>;
+    emergencyName: z.ZodOptional<z.ZodOptional<z.ZodString>>;
+    emergencyPhone: z.ZodOptional<z.ZodOptional<z.ZodString>>;
+}, "strip", z.ZodTypeAny, {
+    fullName?: string;
+    phone?: string;
+    email?: string;
+    dateOfBirth?: string;
+    gender?: "other" | "male" | "female";
+    bloodGroup?: string;
+    medicalNotes?: string;
+    allergies?: string;
+    emergencyName?: string;
+    emergencyPhone?: string;
+}, {
+    fullName?: string;
+    phone?: string;
+    email?: string;
+    dateOfBirth?: string;
+    gender?: "other" | "male" | "female";
+    bloodGroup?: string;
+    medicalNotes?: string;
+    allergies?: string;
+    emergencyName?: string;
+    emergencyPhone?: string;
+}>;
+export type CreatePatientInput = z.infer<typeof CreatePatientSchema>;
+export type UpdatePatientInput = z.infer<typeof UpdatePatientSchema>;

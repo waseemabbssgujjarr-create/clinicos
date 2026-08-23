@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=4" />
+  <link rel="stylesheet" href="/dma-dashboard.css?v=4" />
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="sa-content-card">
+        <h1>Settings</h1>
+        <p class="sa-subtitle">Platform overview. Connect third-party services from Integrations — no server code required.</p>
+        <div class="sa-field"><label>Platform name</label><input type="text" id="plat-name" value="Doctors My Agency" readonly /></div>
+        <div class="sa-field"><label>Product mode</label><input type="text" value="CRM for doctors, clinics & hospitals (no public marketplace)" readonly /></div>
+        <div class="sa-field"><label>Public site URL</label><input type="text" id="site-url" readonly /></div>
+        <div class="sa-field"><label>Trial length (days)</label><input type="text" id="trial-days" value="14" readonly /></div>
+        <p class="sa-hint">SMTP, AI keys, Twilio, Stripe, and Cloudinary are managed on the Integrations page. Values saved there override <code>.env</code> at runtime.</p>
+        <p style="margin-top:20px;display:flex;flex-wrap:wrap;gap:10px">
+          <a href="/superadmin/integrations/" class="sa-btn-primary">Open Integrations →</a>
+          <a href="/superadmin/stripe/" class="sa-btn-secondary">Stripe helper</a>
+          <a href="/debug-deploy.php" class="sa-btn-secondary" target="_blank" rel="noopener">Deploy diagnostics</a>
+        </p>
+      </div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=4"></script>
+  <script>
+    if (DmaAdminShell.initStaticPage('/superadmin/settings/')) {
+      document.getElementById('site-url').value = location.origin;
+      DmaAdminShell.api('/api/superadmin/integrations').then(function (data) {
+        try {
+          var app = data.groups && data.groups.app;
+          if (!app || !app.fields) return;
+          app.fields.forEach(function (f) {
+            if (f.key === 'APP_NAME') {
+              var name = f.value || 'Doctors My Agency';
+              if (/ClinicOS|MediCore/i.test(name)) name = 'Doctors My Agency';
+              document.getElementById('plat-name').value = name;
+            }
+            if (f.key === 'TRIAL_DAYS' && f.value) document.getElementById('trial-days').value = f.value;
+            if (f.key === 'APP_URL' && f.value) document.getElementById('site-url').value = f.value;
+          });
+        } catch (_) {}
+      }).catch(function () {});
+    }
+  </script>
+</body>
+</html>

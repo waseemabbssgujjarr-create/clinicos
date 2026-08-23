@@ -1,0 +1,5 @@
+RewriteEngine On
+RewriteRule ^$ /admin-login/ [R=302,L]
+RewriteRule ^login\.php$ /admin-login/ [R=302,L]
+RewriteRule ^index\.php$ /admin-login/ [R=302,L]
+RewriteRule ^login/?$ /admin-login/ [R=302,L]

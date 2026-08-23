@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctors My Agency — CRM & AI Receptionist for Clinics</title>
+  <meta name="description" content="Private CRM and 24/7 AI receptionist for doctors, clinics, and hospitals. WhatsApp, web chat, bookings, and lead tracking — not a public clinic directory." />
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/landing.css" />
+  <link rel="stylesheet" href="/portal.css" />
+  <link rel="stylesheet" href="/platform-hovers.css" />
+  <link rel="stylesheet" href="/dma-theme.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(_){}})();
+  </script>
+</head>
+<body>
+  <div class="glow glow-purple"></div>
+  <div class="glow glow-blue"></div>
+
+  <nav>
+    <div class="container nav-inner">
+      <div class="logo">
+        <div class="logo-icon">DM</div>
+        <span class="logo-text">Doctors My Agency</span>
+      </div>
+      <button type="button" class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+      <div class="nav-menu" id="navMenu">
+        <ul class="nav-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#signature">Signature Features</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+        <div class="nav-cta">
+          <button type="button" class="theme-toggle" aria-label="Switch theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+          <a href="/start/" class="btn btn-outline">Portal</a>
+          <a href="/demo/" class="btn btn-outline">AI Demo</a>
+          <a href="/doctor-login/" class="btn btn-outline">Sign In</a>
+          <a href="/register/" class="btn btn-primary">Start Free Trial</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <span class="badge">CRM for Doctors · Clinics · Hospitals</span>
+        <h1>AI Receptionist<br /><span>+ Clinic CRM</span></h1>
+        <p>Run your front desk and patient pipeline in one place. WhatsApp, web chat, bookings, leads, and staff follow-ups — private to your practice. No public clinic marketplace.</p>
+        <div class="hero-actions">
+          <a href="/register/" class="btn btn-primary">Start Free Trial →</a>
+          <a href="/demo/" class="btn btn-outline">Try Live AI Demo</a>
+        </div>
+        <ul class="hero-trust">
+          <li>Private booking &amp; chat links for your patients only</li>
+          <li>Leads, appointments, and activity tracked like a human receptionist</li>
+          <li>Built for solo doctors, multi-doctor clinics, and hospitals</li>
+        </ul>
+        <p style="margin-top:20px;font-size:0.9375rem;color:var(--muted)">
+          <a href="/start/" style="color:var(--accent);font-weight:600">Doctor · Staff · Patient portals →</a>
+        </p>
+      </div>
+      <div class="wa-phone-wrap">
+        <div class="wa-phone" aria-hidden="true">
+          <div class="wa-phone-frame">
+            <div class="wa-phone-notch"></div>
+            <div class="wa-screen">
+              <div class="wa-status-bar">
+                <span class="wa-status-time">9:41</span>
+                <span class="wa-status-icons">
+                  <svg width="16" height="10" viewBox="0 0 16 10" aria-hidden="true"><rect x="0" y="6" width="3" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="3" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="3" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="3" height="10" rx="0.5" fill="currentColor"/></svg>
+                  <svg width="14" height="10" viewBox="0 0 14 10" aria-hidden="true"><path d="M7 2C4.5 2 2.3 3.1 1 5c1.3 1.9 3.5 3 6 3s4.7-1.1 6-3C11.7 3.1 9.5 2 7 2z" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="5" r="1.5" fill="currentColor"/></svg>
+                  <svg width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0.5" y="0.5" width="18" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1"/><rect x="2" y="2" width="12" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+                </span>
+              </div>
+              <div class="wa-header">
+                <button type="button" class="wa-header-back" tabindex="-1" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <div class="wa-header-avatar">🦷</div>
+                <div class="wa-header-info">
+                  <div class="wa-header-name">Smile Dental Clinic</div>
+                  <div class="wa-header-status"><span class="wa-online-dot"></span> online</div>
+                </div>
+                <div class="wa-header-actions">
+                  <button type="button" class="wa-header-icon" tabindex="-1" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1v-3.5l4 4v-11l-4 4z"/></svg>
+                  </button>
+                  <button type="button" class="wa-header-icon" tabindex="-1" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.36 11.36 0 003.56.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.36 11.36 0 00.57 3.56 1 1 0 01-.25 1.01l-2.2 2.22z"/></svg>
+                  </button>
+                  <button type="button" class="wa-header-icon" tabindex="-1" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="wa-chat-area" id="waChatLoop"></div>
+              <div class="wa-input-bar">
+                <button type="button" class="wa-input-icon wa-input-emoji" tabindex="-1" aria-hidden="true">😊</button>
+                <div class="wa-input-fake">Message</div>
+                <button type="button" class="wa-input-icon" tabindex="-1" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                </button>
+                <button type="button" class="wa-input-icon" tabindex="-1" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                </button>
+                <button type="button" class="wa-mic-fab" tabindex="-1" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 003-3V5a3 3 0 10-6 0v6a3 3 0 003 3zm5-3a5 5 0 01-10 0H5a7 7 0 0014 0h-2zM11 19h2v3h-2v-3z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="stats-strip">
+    <div class="container stats-grid">
+      <div class="stat-item">
+        <div class="stats-value">24/7</div>
+        <div class="stat-label">AI Receptionist Always On</div>
+        <p class="stat-desc">Weekends, holidays, and lunch breaks — every enquiry gets an instant reply.</p>
+      </div>
+      <div class="stat-item">
+        <div class="stats-value">3×</div>
+        <div class="stat-label">More Enquiries Converted</div>
+        <p class="stat-desc">Clinics that reply within one minute convert far more chats into booked visits.</p>
+      </div>
+      <div class="stat-item">
+        <div class="stats-value">14</div>
+        <div class="stat-label">Day Free Trial</div>
+        <p class="stat-desc">Full platform access. No credit card. Cancel anytime before billing starts.</p>
+      </div>
+      <div class="stat-item">
+        <div class="stats-value">5 min</div>
+        <div class="stat-label">Setup Time</div>
+        <p class="stat-desc">Register your clinic, add hours, connect channels — go live the same day.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="container">
+      <div class="problem-box">
+        <h2>Your front desk is busy.<br />But <span class="accent">lost enquiries cost visits.</span></h2>
+        <p style="color:var(--muted);margin-top:16px;max-width:640px;margin-left:auto;margin-right:auto">Most patients message after hours or while your team is with another patient. If nobody answers within a few minutes, they move on — often to a competitor. Your AI receptionist handles WhatsApp, web chat, and booking links 24/7 — and logs every interaction in your clinic CRM like a human front-desk agent.</p>
+        <div class="pain-grid">
+          <div class="pain-item"><strong>Missed WhatsApp messages</strong><span>Enquiries sit unread when reception is overwhelmed or closed.</span></div>
+          <div class="pain-item"><strong>Slow follow-ups</strong><span>Leads go cold before staff have time to call back.</span></div>
+          <div class="pain-item"><strong>No-shows &amp; gaps</strong><span>Empty chair time because reminders and rebooking are manual.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container section-head">
+      <h2>One AI Receptionist.<br />Across Every Channel.</h2>
+      <p>WhatsApp, Instagram DM, and website chat — all handled by one intelligent assistant.</p>
+    </div>
+    <div class="container channels">
+      <div class="channel"><span class="channel-icon">💬</span><strong>WhatsApp AI</strong><span class="channel-desc">Answer booking questions, send confirmations, and capture leads on the channel patients already use every day.</span></div>
+      <div class="channel"><span class="channel-icon">📸</span><strong>Instagram DM</strong><span class="channel-desc">Turn social enquiries into appointments — price questions, treatment info, and slot offers handled automatically.</span></div>
+      <div class="channel"><span class="channel-icon">🌐</span><strong>Website Chat</strong><span class="channel-desc">Embed a live widget on your site so visitors never leave without a reply or a booking link.</span></div>
+    </div>
+  </section>
+
+  <section class="value-section">
+    <div class="container section-head">
+      <h2>Why Clinics Choose Doctors My Agency</h2>
+      <p>Built for real front-desk workflows — not generic chatbots that only answer FAQs.</p>
+    </div>
+    <div class="container value-grid">
+      <div class="value-card">
+        <div class="value-icon">⚡</div>
+        <h3>Instant First Response</h3>
+        <p>Every patient gets a helpful reply in seconds. No hold music, no “we’ll call you back,” no lost leads in the inbox.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">📅</div>
+        <h3>Books Real Appointments</h3>
+        <p>The AI checks your calendar, offers open slots, confirms treatment type, and notifies staff — not just a link to a form.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">🧠</div>
+        <h3>Knows Your Clinic</h3>
+        <p>Train it on your services, prices, doctors, and policies. Answers sound like your team, in the patient’s language.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">📊</div>
+        <h3>Owner-Ready Insights</h3>
+        <p>See conversion rates, hot leads, and daily briefs so you know exactly how many enquiries became paying visits.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="container">
+      <div class="section-head">
+        <h2>Everything Your Clinic Needs</h2>
+        <p>20 core V1 features + 4 signature capabilities — aligned with the live product.</p>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card"><div class="feature-icon">💬</div><h3>WhatsApp AI Receptionist</h3><p>24/7 patient queries ka reply — booking, FAQs, confirmations automatically.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(59,130,246,0.15)">🌐</div><h3>Website AI Chatbot</h3><p>Website visitors ko handle kare — capture leads and book appointments live.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(236,72,153,0.15)">📸</div><h3>Instagram DM AI</h3><p>Instagram messages ka automatic reply — never miss a social enquiry.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(139,92,246,0.15)">🎙️</div><h3>Voice Note Understanding</h3><p>Patient ka voice message samjhe aur text mein reply kare.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(239,68,68,0.15)">🔗</div><h3>Private Booking Link</h3><p>Har clinic ka apna booking page aur AI chat — sirf aapke patients ke liye. WhatsApp, website, ya direct link share karein.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(249,115,22,0.12)">🏥</div><h3>Clinic CRM</h3><p>Patients, appointments, leads, and AI activity — ek dashboard mein. Har doctor, clinic, aur hospital apna data manage kare.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(20,184,166,0.15)">📅</div><h3>Calendar Availability Check</h3><p>Free appointment slots check kare — real-time calendar sync.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(249,115,22,0.12)">✅</div><h3>Automatic Appointment Booking</h3><p>AI khud booking kare — treatment, date, time confirm karke.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(59,130,246,0.15)">🔄</div><h3>Rescheduling & Cancellation</h3><p>Patient ke kehne par date/time change ya cancel — calendar auto-update.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(245,158,11,0.15)">⏰</div><h3>Appointment Reminders</h3><p>24h aur 2h pehle automatic WhatsApp reminders — no-shows kam karein.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(239,68,68,0.15)">👤</div><h3>No-Show Follow-Up</h3><p>Jo patient appointment miss kare usko automatic message.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(139,92,246,0.15)">💊</div><h3>Patient Follow-Up & Feedback</h3><p>Visit ke baad contact, experience pooche, aur review link bheje.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(20,184,166,0.15)">🤝</div><h3>Human Handover & Summary</h3><p>Complex chats staff ko transfer — patient chat ka short summary.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(59,130,246,0.15)">🎯</div><h3>Lead Capture & Intent Detection</h3><p>Name, phone, email, enquiry reason save — booking, price, emergency identify.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(249,115,22,0.12)">📚</div><h3>FAQ & Knowledge Base</h3><p>Services, prices, timings, doctors, policies — AI se instant answers.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(245,158,11,0.15)">🌍</div><h3>Multi-Language Chat</h3><p>Patient jis language mein message kare us mein reply — EN, AR, Urdu, Hindi.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(139,92,246,0.15)">📥</div><h3>Unified Inbox & Dashboard</h3><p>WhatsApp, Instagram, website chats ek jagah — appointments, leads, AI activity.</p></div>
+        <div class="feature-card"><div class="feature-icon" style="background:rgba(20,184,166,0.15)">🏷️</div><h3>AI Auto-Tagging & Lead Pipeline</h3><p>Tags: New Patient, Botox, Urgent, Booking — pipeline: New → Booked → Converted.</p></div>
+        <div class="feature-card"><div class="feature-icon">⚙️</div><h3>Clinic Configuration</h3><p>Custom AI personality, multiple staff calendars, locations, working hours, opt-out.</p></div>
+        <div class="feature-card"><div class="feature-icon">📊</div><h3>Analytics & Reports</h3><p>Appointments, conversions, AI activity, and revenue trends — live dashboard reports.</p></div>
+        <div class="feature-card"><div class="feature-icon">🔔</div><h3>Staff Notifications</h3><p>Alert your team when patients need human help, new bookings arrive, or leads go cold.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="signature">
+    <div class="container">
+      <div class="section-head">
+        <h2>4 Signature Features</h2>
+        <p>What sets Doctors My Agency apart — built-in intelligence that turns enquiries into appointments.</p>
+      </div>
+      <div class="feature-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr))">
+        <div class="feature-card signature">
+          <span class="signature-tag">Signature #1</span>
+          <div class="feature-icon" style="background:rgba(34,197,94,0.2)">📈</div>
+          <h3>Booking Conversion Insights</h3>
+          <p>Dikhaye kitni patient enquiries appointments mein convert hui — conversion rate aur estimated revenue live dashboard mein.</p>
+        </div>
+        <div class="feature-card signature">
+          <span class="signature-tag">Signature #2</span>
+          <div class="feature-icon" style="background:rgba(239,68,68,0.2)">🔥</div>
+          <h3>AI Lead Score</h3>
+          <p>Hot / Warm / Cold patient bataye — priority enquiries pehle handle karein.</p>
+        </div>
+        <div class="feature-card signature">
+          <span class="signature-tag">Signature #3</span>
+          <div class="feature-icon" style="background:rgba(59,130,246,0.2)">📊</div>
+          <h3>AI Daily Clinic Brief</h3>
+          <p>Roz owner ko summary — appointments, chats, enquiries, conversions, action items.</p>
+        </div>
+        <div class="feature-card signature">
+          <span class="signature-tag">Signature #4</span>
+          <div class="feature-icon" style="background:rgba(139,92,246,0.2)">🛟</div>
+          <h3>Lost Lead Rescue</h3>
+          <p>24–48 hours baad un enquiries ko auto follow-up jo book nahi huin.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how-it-works">
+    <div class="container section-head">
+      <h2>From Enquiry to Appointment</h2>
+      <p>How Doctors My Agency turns a patient enquiry into a confirmed booking — no phone calls required.</p>
+    </div>
+    <div class="container workflow">
+      <div class="workflow-step"><div class="num">1</div><strong>Patient Enquires</strong><p>Website, chat, or booking page</p></div>
+      <span class="workflow-arrow">→</span>
+      <div class="workflow-step"><div class="num">2</div><strong>AI Responds</strong><p>Instant answer from knowledge base</p></div>
+      <span class="workflow-arrow">→</span>
+      <div class="workflow-step"><div class="num">3</div><strong>Lead Captured</strong><p>Name, phone, treatment saved</p></div>
+      <span class="workflow-arrow">→</span>
+      <div class="workflow-step"><div class="num">4</div><strong>Slot Offered</strong><p>AI checks live calendar</p></div>
+      <span class="workflow-arrow">→</span>
+      <div class="workflow-step"><div class="num">5</div><strong>Booked ✓</strong><p>Staff notified instantly</p></div>
+    </div>
+    <div class="container section-head" style="margin-top:56px">
+      <h2 style="font-size:clamp(1.25rem,2.5vw,1.625rem)">For patients — via your clinic's link</h2>
+      <p>Patients contact their clinic directly (WhatsApp, chat, or booking link). No public directory — each clinic owns their patient relationships.</p>
+    </div>
+    <div class="container workflow">
+      <div class="workflow-step"><div class="num">1</div><strong>Patient messages clinic</strong><p>WhatsApp, website chat, or booking link</p></div>
+      <span class="workflow-arrow">→</span>
+      <div class="workflow-step"><div class="num">2</div><strong>AI receptionist replies</strong><p>24/7 — books, answers FAQs, captures CRM data</p></div>
+      <span class="workflow-arrow">→</span>
+      <div class="workflow-step"><div class="num">3</div><strong>Appointment confirmed</strong><p>Synced to doctor's calendar &amp; staff dashboard</p></div>
+      <span class="workflow-arrow">→</span>
+      <div class="workflow-step"><div class="num">4</div><strong>Staff sees activity</strong><p>Leads, tags, and conversation summaries in CRM</p></div>
+      <span class="workflow-arrow">→</span>
+      <div class="workflow-step"><div class="num">5</div><strong>View or cancel</strong><p><a href="/my-appointments/">/my-appointments/</a> — phone + OTP</p></div>
+    </div>
+  </section>
+
+  <section class="voice-section">
+    <div class="container two-col">
+      <div class="voice-section-copy">
+        <h2>Patients don't always type.</h2>
+        <p>Many patients prefer sending a quick voice note — especially when driving, at work, or typing in another language. Doctors My Agency transcribes the message, understands the intent, and replies in text with available slots.</p>
+        <ul class="voice-benefits">
+          <li>Supports English, Arabic, Urdu, and Hindi voice input</li>
+          <li>Works alongside WhatsApp voice messages patients already send</li>
+          <li>Hands complex cases to staff with a full conversation summary</li>
+        </ul>
+        <a href="/register/" class="btn btn-primary">Try Voice AI →</a>
+      </div>
+      <div class="wa-phone-wrap wa-phone-wrap--voice">
+        <div class="wa-phone wa-phone--voice" aria-hidden="true">
+          <div class="wa-phone-frame">
+            <div class="wa-phone-notch"></div>
+            <div class="wa-screen">
+              <div class="wa-status-bar">
+                <span class="wa-status-time">2:14</span>
+                <span class="wa-status-icons">
+                  <svg width="16" height="10" viewBox="0 0 16 10" aria-hidden="true"><rect x="0" y="6" width="3" height="4" rx="0.5" fill="currentColor"/><rect x="4" y="4" width="3" height="6" rx="0.5" fill="currentColor"/><rect x="8" y="2" width="3" height="8" rx="0.5" fill="currentColor"/><rect x="12" y="0" width="3" height="10" rx="0.5" fill="currentColor"/></svg>
+                  <svg width="14" height="10" viewBox="0 0 14 10" aria-hidden="true"><path d="M7 2C4.5 2 2.3 3.1 1 5c1.3 1.9 3.5 3 6 3s4.7-1.1 6-3C11.7 3.1 9.5 2 7 2z" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="5" r="1.5" fill="currentColor"/></svg>
+                  <svg width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><rect x="0.5" y="0.5" width="18" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1"/><rect x="2" y="2" width="12" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+                </span>
+              </div>
+              <div class="wa-header">
+                <button type="button" class="wa-header-back" tabindex="-1" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <div class="wa-header-avatar">✨</div>
+                <div class="wa-header-info">
+                  <div class="wa-header-name">Aesthetics Clinic</div>
+                  <div class="wa-header-status"><span class="wa-online-dot"></span> online</div>
+                </div>
+                <div class="wa-header-actions">
+                  <button type="button" class="wa-header-icon" tabindex="-1" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1v-3.5l4 4v-11l-4 4z"/></svg>
+                  </button>
+                  <button type="button" class="wa-header-icon" tabindex="-1" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.36 11.36 0 003.56.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.36 11.36 0 00.57 3.56 1 1 0 01-.25 1.01l-2.2 2.22z"/></svg>
+                  </button>
+                  <button type="button" class="wa-header-icon" tabindex="-1" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="wa-chat-area" id="waVoiceChatLoop"></div>
+              <div class="wa-input-bar">
+                <button type="button" class="wa-input-icon wa-input-emoji" tabindex="-1" aria-hidden="true">😊</button>
+                <div class="wa-input-fake">Message</div>
+                <button type="button" class="wa-input-icon" tabindex="-1" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                </button>
+                <button type="button" class="wa-input-icon" tabindex="-1" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                </button>
+                <button type="button" class="wa-mic-fab" tabindex="-1" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 003-3V5a3 3 0 10-6 0v6a3 3 0 003 3zm5-3a5 5 0 01-10 0H5a7 7 0 0014 0h-2zM11 19h2v3h-2v-3z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container section-head">
+      <h2>Built for Every Kind of Clinic</h2>
+      <p>Whether you run a single-chair dental practice or a multi-location aesthetics group, the same AI receptionist adapts to your treatments, tone, and schedule.</p>
+    </div>
+    <div class="container clinic-tags">
+      <span class="clinic-tag">🦷 Dental</span>
+      <span class="clinic-tag">✨ Aesthetics</span>
+      <span class="clinic-tag">🏃 Physiotherapy</span>
+      <span class="clinic-tag">🐾 Veterinary</span>
+      <span class="clinic-tag">🩺 General Practice</span>
+      <span class="clinic-tag">👁️ Ophthalmology</span>
+      <span class="clinic-tag">🧴 Dermatology</span>
+    </div>
+    <p class="clinic-note">Each clinic gets a branded booking page, isolated patient data, and an AI trained only on your services — never shared with other practices.</p>
+  </section>
+
+  <section class="trust-section">
+    <div class="container trust-grid">
+      <div class="trust-block">
+        <h3>Secure by design</h3>
+        <p>Every clinic’s data is isolated. Messages, patient details, and calendar events stay in your account — encrypted in transit and at rest.</p>
+      </div>
+      <div class="trust-block">
+        <h3>Human when it matters</h3>
+        <p>When a patient needs a clinician’s judgment, the AI escalates to your team with a short summary — no re-reading long chat threads.</p>
+      </div>
+      <div class="trust-block">
+        <h3>Transparent pricing</h3>
+        <p>No hidden message fees on trial. Clear plan limits for patients, staff seats, and AI messages so you can budget with confidence.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="container">
+      <div class="section-head">
+        <h2>Simple, Transparent Pricing</h2>
+        <p>Start free for 14 days. Scale as your clinic grows.</p>
+      </div>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <h3>Starter</h3>
+          <div class="amount">$29<span style="font-size:1rem;color:var(--muted)">/mo</span></div>
+          <ul>
+            <li>WhatsApp AI Receptionist</li>
+            <li>500 patients · 1,000 AI messages</li>
+            <li>Appointment booking & reminders</li>
+            <li>Lead capture & unified inbox</li>
+            <li>1 staff account</li>
+          </ul>
+          <a href="/register/" class="btn btn-outline" style="width:100%">Start Free Trial</a>
+        </div>
+        <div class="price-card popular">
+          <span class="popular-badge">Most Popular</span>
+          <h3>Pro</h3>
+          <div class="amount">$59<span style="font-size:1rem;color:var(--muted)">/mo</span></div>
+          <ul>
+            <li>Everything in Starter</li>
+            <li>Booking Conversion Insights</li>
+            <li>AI Lead Score & Lost Lead Rescue</li>
+            <li>Instagram DM + Website Chat</li>
+            <li>AI Daily Clinic Brief</li>
+            <li>3 staff accounts</li>
+          </ul>
+          <a href="/register/" class="btn btn-primary" style="width:100%">Start Free Trial</a>
+        </div>
+        <div class="price-card">
+          <h3>Enterprise</h3>
+          <div class="amount">$99<span style="font-size:1rem;color:var(--muted)">/mo</span></div>
+          <ul>
+            <li>Everything in Pro</li>
+            <li>Multiple locations & staff calendars</li>
+            <li>Custom AI personality</li>
+            <li>Old lead reactivation campaigns</li>
+            <li>10 staff · unlimited messages</li>
+            <li>Priority support</li>
+          </ul>
+          <a href="/register/" class="btn btn-outline" style="width:100%">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="portal" style="padding-top:40px">
+    <div class="container section-head">
+      <h2>One platform.<br />Three simple entry points.</h2>
+      <p>Doctors, staff, and patients each get a clear, hassle-free path.</p>
+    </div>
+    <div class="container portal-grid" style="max-width:1000px">
+      <div class="portal-card featured">
+        <div class="icon">🩺</div>
+        <h2>Doctor / Clinic</h2>
+        <p class="portal-desc">Register your clinic, manage appointments and patients, run the AI receptionist, and track analytics from one dashboard.</p>
+        <div class="portal-card-actions">
+          <a href="/register/" class="btn btn-primary">Register — Free Trial</a>
+          <a href="/doctor-login/" class="btn btn-secondary">Doctor Sign In</a>
+          <p class="portal-card-footnote">&nbsp;</p>
+        </div>
+      </div>
+      <div class="portal-card">
+        <div class="icon">👥</div>
+        <h2>Staff</h2>
+        <p class="portal-desc">Receptionists and assistants — view appointments, messages, and patients for your clinic team in the staff portal.</p>
+        <div class="portal-card-actions">
+          <a href="/staff-login/" class="btn btn-primary">Staff Sign In</a>
+          <a href="/accept-invite/" class="btn btn-secondary">Accept Invite</a>
+          <p class="portal-card-footnote">Invite link required from your doctor</p>
+        </div>
+      </div>
+      <div class="portal-card">
+        <div class="icon">🧑‍⚕️</div>
+        <h2>Patient</h2>
+        <p class="portal-desc">Use the booking link or WhatsApp from your clinic. View or cancel visits with your phone number — no account needed.</p>
+        <div class="portal-card-actions">
+          <a href="/my-appointments/" class="btn btn-primary">My Appointments</a>
+          <a href="/patients/" class="btn btn-secondary">How patient access works</a>
+          <p class="portal-card-footnote"><a href="/demo/" style="color:#F97316;font-weight:600">Try AI receptionist demo →</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="container section-head">
+      <h2>Frequently Asked Questions</h2>
+      <p>Everything you need to know before getting started.</p>
+    </div>
+    <div class="container faq-list">
+      <div class="faq-item">
+        <button type="button" class="faq-question" aria-expanded="false">
+          Kitne time mein setup hota hai?
+          <span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer"><p>2–5 minutes mein clinic register karein, working hours set karein, aur WhatsApp connect karein. AI same day live ho sakta hai.</p></div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-question" aria-expanded="false">
+          Kya patient data secure hai?
+          <span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer"><p>Haan — har clinic 100% isolated. Data encrypted, HIPAA-ready infrastructure, consent &amp; opt-out management built in.</p></div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-question" aria-expanded="false">
+          AI staff ki jagah le leta hai?
+          <span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer"><p>Nahi — AI routine enquiries handle karta hai. Complex cases staff ko transfer hoti hain with conversation summary.</p></div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-question" aria-expanded="false">
+          Trial plan mein kitne staff allowed hain?
+          <span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer"><p>Free trial includes up to 2 staff accounts (including pending invites). Upgrade to Pro for 3 staff or Enterprise for 10.</p></div>
+      </div>
+      <div class="faq-item">
+        <button type="button" class="faq-question" aria-expanded="false">
+          Kya credit card chahiye trial ke liye?
+          <span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer"><p>Nahi — 14-day free trial ke liye koi card ki zaroorat nahi. Jab ready hon tab upgrade karein.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-head">
+        <h2>Trusted by Clinic Teams</h2>
+        <p>See what doctors and receptionists say about Doctors My Agency.</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <blockquote>"Before Doctors My Agency, we lost track of WhatsApp enquiries every weekend. Now the AI answers pricing and availability instantly, and our Monday inbox is full of confirmed bookings instead of missed messages."</blockquote>
+          <div class="author">Dr. Sarah Ahmed</div>
+          <div class="role">Smile Dental Clinic · Dubai</div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <blockquote>"Our reception team was drowning in Instagram DMs and website chat at the same time. The unified inbox and auto-tagging mean we see hot leads first and book them before they contact another clinic."</blockquote>
+          <div class="author">Maria Lopez</div>
+          <div class="role">Clinic Manager · Aesthetics Plus</div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <blockquote>"Lost Lead Rescue changed our conversion rate. Patients who asked about physio slots but didn’t confirm get a polite follow-up 24 hours later — we recovered dozens of appointments we would have forgotten."</blockquote>
+          <div class="author">Dr. James Chen</div>
+          <div class="role">PhysioCare Clinic · London</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="cta-banner">
+        <h2>Your Clinic is Open.<br />Your AI Receptionist Should Be Too.</h2>
+        <p>Join clinics using Doctors My Agency to convert more enquiries and book more patients.</p>
+        <a href="/register/" class="btn">Get Started Now →</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <div class="logo" style="margin-bottom:12px"><div class="logo-icon">DM</div> Doctors My Agency</div>
+        <p style="color:var(--muted);font-size:0.875rem;max-width:320px">AI receptionist platform for modern clinics. Capture every lead, book more appointments, and give your front desk breathing room — without hiring overnight staff.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="#features">Features</a>
+          <a href="#signature">Signature Features</a>
+          <a href="#pricing">Pricing</a>
+          <a href="/start/">Portal (Doctor / Staff / Patient)</a>
+          <a href="/demo/">AI Demo</a>
+          <a href="/patients/">Patient access info</a>
+          <a href="/my-appointments/">My Appointments</a>
+          <a href="/doctor-login/">Doctor Login</a>
+          <a href="/staff-login/">Staff Login</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#faq">FAQ</a>
+          <a href="/register/">Book a Demo</a>
+          <a href="mailto:support@doctorsmyagency.com">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="/privacy/">Privacy Policy</a>
+          <a href="/terms/">Terms of Service</a>
+          <a href="/data-processing/">Data Processing</a>
+        </div>
+      </div>
+    </div>
+    <div class="container footer-bottom">© 2026 Doctors My Agency. All rights reserved.</div>
+  </footer>
+  <script src="/portal.js"></script>
+  <script src="/landing-hero.js"></script>
+  <script src="/landing-voice.js"></script>
+  <script src="/salesbot-widget.js"></script>
+</body>
+</html>

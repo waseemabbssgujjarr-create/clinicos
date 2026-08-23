@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forgot Password — Doctors My Agency</title>
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/landing.css" />
+  <link rel="stylesheet" href="/portal.css" />
+  <link rel="stylesheet" href="/platform-hovers.css" />
+  <link rel="stylesheet" href="/dma-theme.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(_){}})();
+  </script>
+</head>
+<body class="portal-page">
+  <div class="glow glow-purple"></div>
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="logo" style="text-decoration:none;color:inherit"><div class="logo-icon">DM</div> Doctors My Agency</a>
+      <div class="nav-cta"></div>
+    </div>
+  </nav>
+  <main class="portal-main">
+    <div class="container">
+      <a href="/doctor-login/" class="back-link" id="backLink">← Back to sign in</a>
+      <div class="form-card">
+        <h1>Forgot password?</h1>
+        <p class="subtitle" id="subtitle">Enter your email and we'll send a reset link (valid for 1 hour).</p>
+
+        <div id="error" class="alert alert-error" style="display:none"></div>
+        <div id="success" class="alert alert-success" style="display:none"></div>
+
+        <form id="form">
+          <div class="field">
+            <label>Email address</label>
+            <input type="email" name="email" id="email" required placeholder="you@clinic.com" autocomplete="email" />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px">Send Reset Link →</button>
+        </form>
+
+        <p style="text-align:center;margin-top:20px;font-size:0.88rem;color:var(--muted)" id="footerLinks">
+          Doctor? <a href="/doctor-login/" style="color:#F97316;font-weight:700">Sign in</a> ·
+          Staff? <a href="/staff-login/" style="color:#F97316;font-weight:700">Staff login</a> ·
+          Admin? <a href="/admin-login/" style="color:#F97316;font-weight:700">Platform admin</a>
+        </p>
+      </div>
+    </div>
+  </main>
+  <script src="/portal.js"></script>
+  <script>
+    (function () {
+      var role = new URLSearchParams(location.search).get('role') || '';
+      if (role === 'admin') {
+        document.getElementById('backLink').href = '/admin-login/';
+        document.getElementById('backLink').textContent = '← Back to admin login';
+        document.getElementById('subtitle').textContent =
+          'Enter your platform admin email and we will send a reset link (valid for 1 hour). SMTP must be configured.';
+        document.getElementById('email').placeholder = 'admin@doctorsmyagency.com';
+      }
+    })();
+
+    document.getElementById('form').onsubmit = async (e) => {
+      e.preventDefault();
+      const err = document.getElementById('error');
+      const ok = document.getElementById('success');
+      err.style.display = 'none';
+      ok.style.display = 'none';
+      const email = new FormData(e.target).get('email');
+      try {
+        const r = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          const msg = data.error || data.message || 'Request failed';
+          throw new Error(msg);
+        }
+        if (data.found === false) {
+          err.innerHTML = (data.message || 'No account is registered with this email address.') +
+            ' <a href="/register/" style="color:#fca5a5;font-weight:700">Register a clinic →</a>';
+          err.style.display = 'block';
+          return;
+        }
+        ok.textContent = data.message || 'A password reset link has been sent. Check your inbox and spam folder.';
+        ok.style.display = 'block';
+        e.target.reset();
+      } catch (ex) {
+        err.textContent = ex.message;
+        err.style.display = 'block';
+      }
+    };
+  </script>
+</body>
+</html>

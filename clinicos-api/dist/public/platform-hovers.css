@@ -1,0 +1,80 @@
+/* Hover & interaction polish — portal pages + Next.js dashboard/staff/admin */
+a, button, [role="button"], .btn, input[type="submit"], input[type="button"] {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease,
+    border-color 0.18s ease, color 0.18s ease, opacity 0.18s ease, filter 0.18s ease;
+}
+
+@media (hover: hover) {
+  a:hover, button:not(:disabled):hover, [role="button"]:hover,
+  .btn:hover, input[type="submit"]:not(:disabled):hover {
+    transform: translateY(-1px);
+  }
+
+  /* Keep password eye toggle vertically centered (do not override translateY(-50%)) */
+  .password-toggle:hover,
+  .password-toggle:active,
+  button.password-toggle:hover,
+  button.password-toggle:active {
+    transform: translateY(-50%) !important;
+  }
+
+  button:active:not(:disabled):not(.password-toggle), .btn:active, a:active {
+    transform: translateY(0);
+  }
+
+  /* Sidebar links */
+  nav a:hover, aside a:hover, [class*="sidebar"] a:hover {
+    opacity: 1;
+  }
+
+  /* Table rows & clickable list items */
+  tbody tr:hover td {
+    background: #fff7ed !important;
+  }
+
+  tr:hover, [class*="cursor-pointer"]:hover {
+    filter: none;
+  }
+
+  /* Tailwind-style buttons in exported app */
+  button[class*="bg-"]:not(:disabled):not(.dma-live-badge):hover,
+  a[class*="bg-"]:hover {
+    filter: brightness(1.05);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Card lift on dashboard / admin */
+  body.min-h-screen main .bg-white:hover,
+  body.min-h-screen main [class*="rounded-card"]:hover,
+  body.min-h-screen main [class*="shadow-card"]:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Nav item slide */
+  aside a:hover,
+  aside .nav-item:hover {
+    transform: translateX(2px);
+  }
+
+  /* Input hover */
+  body.min-h-screen main input:not([type="checkbox"]):not([type="radio"]):hover,
+  body.min-h-screen main textarea:hover,
+  body.min-h-screen main select:hover {
+    border-color: #94a3b8 !important;
+  }
+
+  /* Link underline on hover */
+  body.min-h-screen main a[class*="text-brand"]:not([class*="bg-"]):hover {
+    text-decoration: underline !important;
+  }
+}
+
+/* Focus rings — keyboard accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #f97316 !important;
+  outline-offset: 2px !important;
+}

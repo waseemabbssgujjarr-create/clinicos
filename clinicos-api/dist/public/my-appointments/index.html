@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Appointments — Doctors My Agency</title>
+  <meta name="description" content="View or cancel your clinic appointments with your phone number — no account needed." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/landing.css" />
+  <link rel="stylesheet" href="/portal.css" />
+  <link rel="stylesheet" href="/platform-hovers.css" />
+  <link rel="stylesheet" href="/dma-theme.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(_){}})();
+  </script>
+  <style>
+    .appt-card { border:1px solid var(--border-subtle,rgba(15,23,42,0.1)); border-radius:14px; padding:16px; margin-bottom:12px; text-align:left; background:var(--card-bg,rgba(255,255,255,0.03)); }
+    .appt-card h3 { font-size:1rem; margin:0 0 6px; color:var(--text); }
+    .appt-meta { font-size:0.875rem; color:var(--muted); line-height:1.6; }
+    .appt-status { display:inline-block; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:999px; margin-top:8px; background:rgba(249,115,22,0.15); color:#F97316; }
+    .appt-status.cancelled { background:rgba(239,68,68,0.12); color:#ef4444; }
+    .appt-status.completed { background:rgba(34,197,94,0.12); color:#22c55e; }
+    .appt-actions { margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
+    .step-panel { display:none; }
+    .step-panel.active { display:block; }
+  </style>
+</head>
+<body class="portal-page">
+  <div class="glow glow-purple"></div>
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="logo" style="text-decoration:none;color:inherit"><div class="logo-icon">DM</div> Doctors My Agency</a>
+      <div class="nav-cta">
+        <a href="/my-appointments/" class="btn btn-outline">My Appointments</a>
+      </div>
+    </div>
+  </nav>
+  <main class="portal-main">
+    <div class="container">
+      <a href="/start/" class="back-link">← Back to portal</a>
+      <div class="form-card" style="max-width:520px;margin:0 auto">
+        <div id="error" class="alert alert-error" style="display:none"></div>
+        <div id="success" class="alert alert-success" style="display:none"></div>
+        <div id="step-phone" class="step-panel active">
+          <h1>My Appointments</h1>
+          <p class="subtitle">Enter the phone number you used when booking. We'll send a one-time code — no password needed.</p>
+          <form id="phone-form">
+            <div class="field">
+              <label>Phone number</label>
+              <input type="tel" id="phone" name="phone" required placeholder="+971 50 123 4567" autocomplete="tel" inputmode="tel" />
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px">Send OTP →</button>
+          </form>
+        </div>
+        <div id="step-otp" class="step-panel">
+          <h1>Enter verification code</h1>
+          <p class="subtitle">We sent a 6-digit code to <strong id="phone-display"></strong>.</p>
+          <form id="otp-form">
+            <div class="field">
+              <label>One-time code</label>
+              <input type="text" id="otp" name="otp" required placeholder="123456" maxlength="6" inputmode="numeric" autocomplete="one-time-code" style="text-align:center;letter-spacing:0.25em;font-size:1.25rem" />
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px">Verify &amp; View Appointments →</button>
+          </form>
+          <p style="text-align:center;margin-top:16px;font-size:0.88rem;color:var(--muted)">
+            <a href="#" id="change-phone" style="color:#F97316;font-weight:700">Use a different number</a>
+          </p>
+        </div>
+        <div id="step-list" class="step-panel">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:16px">
+            <div>
+              <h1 style="margin-bottom:4px">Your appointments</h1>
+              <p class="subtitle" style="margin:0" id="welcome-name"></p>
+            </div>
+            <button type="button" id="sign-out" class="btn btn-outline" style="font-size:0.82rem;padding:8px 14px">Sign out</button>
+          </div>
+          <div id="appt-loading" style="color:var(--muted);font-size:0.9rem;padding:12px 0">Loading appointments…</div>
+          <div id="appt-empty" style="display:none;color:var(--muted);font-size:0.9rem;padding:12px 0">
+            No upcoming appointments found for this number.
+            <span style="display:block;margin-top:8px;font-size:0.85rem">Book through your clinic's WhatsApp, website chat, or booking link.</span>
+            <a href="/patients/" style="color:#F97316;font-weight:700;display:block;margin-top:8px">How patient access works →</a>
+          </div>
+          <div id="appt-list"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="/portal.js"></script>
+  <script src="/patient-appointments.js"></script>
+  <script>
+    var P = window.DmaPatientAppts;
+    var errEl = document.getElementById('error');
+    var okEl = document.getElementById('success');
+    function showError(msg) { okEl.style.display = 'none'; errEl.textContent = msg; errEl.style.display = 'block'; }
+    function showSuccess(msg) { errEl.style.display = 'none'; okEl.textContent = msg; okEl.style.display = 'block'; }
+    function hideAlerts() { errEl.style.display = 'none'; okEl.style.display = 'none'; }
+    function showStep(name) {
+      ['step-phone', 'step-otp', 'step-list'].forEach(function (id) {
+        document.getElementById(id).classList.toggle('active', id === name);
+      });
+      hideAlerts();
+    }
+    function renderAppointments(list) {
+      var wrap = document.getElementById('appt-list');
+      var empty = document.getElementById('appt-empty');
+      document.getElementById('appt-loading').style.display = 'none';
+      wrap.innerHTML = '';
+      if (!list || !list.length) { empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      list.forEach(function (appt) {
+        var card = document.createElement('div');
+        card.className = 'appt-card';
+        var clinic = appt.clinic || {};
+        var status = (appt.status || '').toUpperCase();
+        var statusCls = status === 'CANCELLED' ? ' cancelled' : status === 'COMPLETED' ? ' completed' : '';
+        card.innerHTML = '<h3>' + (clinic.name || 'Clinic') + '</h3><div class="appt-meta">' + P.formatDateTime(appt.dateTime) + (appt.treatment ? '<br>' + appt.treatment : '') + (clinic.address ? '<br>' + clinic.address : '') + '</div><span class="appt-status' + statusCls + '">' + P.statusLabel(appt.status) + '</span><div class="appt-actions"></div>';
+        var actions = card.querySelector('.appt-actions');
+        if (P.canCancel(appt)) {
+          var btn = document.createElement('button');
+          btn.type = 'button'; btn.className = 'btn btn-outline'; btn.textContent = 'Cancel appointment';
+          btn.onclick = function () { cancelAppt(appt.id, btn); };
+          actions.appendChild(btn);
+        }
+        wrap.appendChild(card);
+      });
+    }
+    async function loadList() {
+      showStep('step-list');
+      var info = P.getPatientInfo();
+      document.getElementById('welcome-name').textContent = info && info.fullName ? 'Signed in as ' + info.fullName + (info.clinicName ? ' · ' + info.clinicName : '') : '';
+      document.getElementById('appt-loading').style.display = 'block';
+      document.getElementById('appt-empty').style.display = 'none';
+      document.getElementById('appt-list').innerHTML = '';
+      try { renderAppointments(await P.fetchAppointments()); }
+      catch (ex) { showError(ex.message); if (/expired|sign in/i.test(ex.message)) showStep('step-phone'); }
+    }
+    async function cancelAppt(id, btn) {
+      if (!confirm('Cancel this appointment?')) return;
+      btn.disabled = true;
+      try { await P.cancelAppointment(id); showSuccess('Appointment cancelled.'); await loadList(); }
+      catch (ex) { showError(ex.message); btn.disabled = false; }
+    }
+    document.getElementById('phone-form').onsubmit = async function (e) {
+      e.preventDefault(); hideAlerts();
+      var phone = document.getElementById('phone').value.trim();
+      var btn = e.target.querySelector('button[type=submit]'); btn.disabled = true;
+      try {
+        var data = await P.requestOtp(phone);
+        document.getElementById('phone-display').textContent = phone;
+        document.getElementById('otp').value = '';
+        if (P.getSessionToken()) showStep('step-otp');
+        showSuccess(data.message || 'If this number is registered, an OTP has been sent.');
+      } catch (ex) { showError(ex.message); } finally { btn.disabled = false; }
+    };
+    document.getElementById('otp-form').onsubmit = async function (e) {
+      e.preventDefault(); hideAlerts();
+      var otp = document.getElementById('otp').value.trim();
+      var sessionToken = P.getSessionToken();
+      if (!sessionToken) { showError('Session expired. Please enter your phone again.'); showStep('step-phone'); return; }
+      var btn = e.target.querySelector('button[type=submit]'); btn.disabled = true;
+      try { await P.verifyOtp(otp, sessionToken); await loadList(); }
+      catch (ex) { showError(ex.message); } finally { btn.disabled = false; }
+    };
+    document.getElementById('change-phone').onclick = function (e) { e.preventDefault(); P.clearAuth(); showStep('step-phone'); };
+    document.getElementById('sign-out').onclick = function () { P.clearAuth(); document.getElementById('phone').value = ''; showStep('step-phone'); };
+    (function init() {
+      var params = new URLSearchParams(location.search);
+      if (params.get('verified') === '1' && P.getToken()) { loadList(); return; }
+      if (P.getToken()) { loadList(); return; }
+      if (P.getSessionToken()) {
+        document.getElementById('phone-display').textContent = P.getStoredPhone();
+        document.getElementById('phone').value = P.getStoredPhone();
+        showStep('step-otp'); return;
+      }
+      showStep('step-phone');
+    })();
+  </script>
+</body>
+</html>

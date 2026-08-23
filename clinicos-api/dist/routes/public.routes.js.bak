@@ -1,0 +1,483 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const prisma_1 = require("../lib/prisma");
+const asyncHandler_1 = require("../lib/asyncHandler");
+const patient_schemas_1 = require("../schemas/patient.schemas");
+const reminder_service_1 = require("../services/reminder.service");
+const notification_service_1 = require("../services/notification.service");
+const ai_service_1 = require("../services/ai.service");
+const ai_client_1 = require("../lib/ai-client");
+const date_fns_1 = require("date-fns");
+const router = (0, express_1.Router)();
+function extractCity(address) {
+    if (!address)
+        return null;
+    const parts = String(address).split(',').map((p) => p.trim()).filter(Boolean);
+    if (parts.length >= 2)
+        return parts[parts.length - 1];
+    return parts[0] || null;
+}
+function parseWorkingHours(raw) {
+    try {
+        return JSON.parse(raw || '{}');
+    }
+    catch {
+        return {};
+    }
+}
+function formatHoursRange(dayConfig) {
+    if (!dayConfig?.isOpen)
+        return 'Closed';
+    return `${dayConfig.open || '09:00'} – ${dayConfig.close || '17:00'}`;
+}
+async function getClinicAvailability(clinicId, workingHoursRaw) {
+    const hours = parseWorkingHours(workingHoursRaw);
+    const now = new Date();
+    const dayName = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+    const todayConfig = hours[dayName];
+    if (!todayConfig?.isOpen) {
+        for (let i = 1; i <= 7; i++) {
+            const d = (0, date_fns_1.addDays)(now, i);
+            const dn = d.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+            const dc = hours[dn];
+            if (dc?.isOpen) {
+                return {
+                    status: 'next_day',
+                    label: 'Next: ' + d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
+                    hoursToday: 'Closed today',
+                    openToday: false,
+                };
+            }
+        }
+        return { status: 'closed', label: 'Closed', hoursToday: 'Closed today', openToday: false };
+    }
+    const [openH, openM] = (todayConfig.open || '09:00').split(':').map(Number);
+    const [closeH, closeM] = (todayConfig.close || '17:00').split(':').map(Number);
+    const durationMin = todayConfig.slotDuration || 30;
+    const targetDate = now;
+    const booked = await prisma_1.prisma.appointment.findMany({
+        where: {
+            clinicId,
+            dateTime: { gte: (0, date_fns_1.startOfDay)(targetDate), lte: (0, date_fns_1.endOfDay)(targetDate) },
+            status: { notIn: ['CANCELLED', 'NO_SHOW', 'RESCHEDULED'] },
+        },
+        select: { dateTime: true, durationMin: true },
+    });
+    let slotTime = (0, date_fns_1.setMinutes)((0, date_fns_1.setHours)(targetDate, openH), openM);
+    const closeTime = (0, date_fns_1.setMinutes)((0, date_fns_1.setHours)(targetDate, closeH), closeM);
+    let nextSlot = null;
+    while ((0, date_fns_1.isBefore)(slotTime, closeTime)) {
+        const slotEnd = (0, date_fns_1.addMinutes)(slotTime, durationMin);
+        const isBooked = booked.some((b) => {
+            const bEnd = (0, date_fns_1.addMinutes)(b.dateTime, b.durationMin);
+            return slotTime < bEnd && slotEnd > b.dateTime;
+        });
+        if (!isBooked && (0, date_fns_1.isAfter)(slotTime, now)) {
+            nextSlot = slotTime;
+            break;
+        }
+        slotTime = (0, date_fns_1.addMinutes)(slotTime, durationMin);
+    }
+    const hoursToday = formatHoursRange(todayConfig);
+    if (nextSlot) {
+        const timeLabel = nextSlot.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        return {
+            status: 'available_today',
+            label: 'Available today · ' + timeLabel,
+            nextSlot: nextSlot.toISOString(),
+            hoursToday,
+            openToday: true,
+        };
+    }
+    return {
+        status: 'full_today',
+        label: 'Fully booked today',
+        hoursToday,
+        openToday: true,
+    };
+}
+function staffRoleLabel(role) {
+    const map = { NURSE: 'Nurse / Specialist', MANAGER: 'Consultant', RECEPTIONIST: 'Reception', ASSISTANT: 'Assistant' };
+    return map[role] || role;
+}
+async function buildDoctorsList(clinic) {
+    const staff = await prisma_1.prisma.staffMember.findMany({
+        where: { clinicId: clinic.id, isActive: true },
+        select: { id: true, name: true, role: true, phone: true },
+        orderBy: { name: 'asc' },
+    });
+    const availability = await getClinicAvailability(clinic.id, clinic.workingHours);
+    const providerRoles = new Set(['NURSE', 'MANAGER']);
+    const doctors = [
+        {
+            id: 'owner',
+            name: clinic.ownerName,
+            role: 'Doctor',
+            specialty: clinic.specialty || 'General Practice',
+            isPrimary: true,
+            availability: availability.label,
+            availabilityStatus: availability.status,
+            hoursToday: availability.hoursToday,
+        },
+    ];
+    for (const s of staff) {
+        if (providerRoles.has(s.role)) {
+            doctors.push({
+                id: s.id,
+                name: s.name,
+                role: staffRoleLabel(s.role),
+                specialty: clinic.specialty || 'General Practice',
+                isPrimary: false,
+                availability: availability.label,
+                availabilityStatus: availability.status,
+                hoursToday: availability.hoursToday,
+            });
+        }
+    }
+    return { doctors, availability, staffCount: staff.length, isMultiProvider: doctors.length > 1 };
+}
+function clinicPublicWhere(extra) {
+    return {
+        isActive: true,
+        planStatus: { notIn: ['CANCELLED', 'SUSPENDED'] },
+        ...extra,
+    };
+}
+// ─── GET /api/public/clinics — directory for patients ───────────────────────
+router.get('/clinics', (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const q = String(req.query.q || '').trim();
+    const specialty = String(req.query.specialty || '').trim();
+    const city = String(req.query.city || '').trim();
+    const clinics = await prisma_1.prisma.clinic.findMany({
+        where: clinicPublicWhere({
+            ...(q ? {
+                OR: [
+                    { name: { contains: q } },
+                    { bookingSlug: { contains: q } },
+                    { specialty: { contains: q } },
+                    { address: { contains: q } },
+                    { ownerName: { contains: q } },
+                ],
+            } : {}),
+            ...(specialty ? { specialty: { contains: specialty } } : {}),
+            ...(city ? { address: { contains: city } } : {}),
+        }),
+        select: {
+            id: true,
+            name: true,
+            bookingSlug: true,
+            specialty: true,
+            address: true,
+            phone: true,
+            logoUrl: true,
+            ownerName: true,
+            workingHours: true,
+            _count: { select: { staff: { where: { isActive: true, role: { in: ['NURSE', 'MANAGER'] } } } } },
+        },
+        orderBy: { name: 'asc' },
+        take: 100,
+    });
+    const mapped = await Promise.all(clinics.map(async (c) => {
+        const availability = await getClinicAvailability(c.id, c.workingHours);
+        const providerCount = 1 + c._count.staff;
+        return {
+            name: c.name,
+            bookingSlug: c.bookingSlug,
+            slug: c.bookingSlug,
+            specialty: c.specialty,
+            address: c.address,
+            city: extractCity(c.address),
+            phone: c.phone,
+            logoUrl: c.logoUrl,
+            doctorCount: providerCount,
+            ownerName: c.ownerName,
+            availabilityLabel: availability.label,
+            availabilityStatus: availability.status,
+        };
+    }));
+    res.json({ count: mapped.length, clinics: mapped });
+}));
+// ─── GET /api/public/clinics/:slug — clinic detail + doctors ────────────────
+router.get('/clinics/:slug', (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const clinic = await prisma_1.prisma.clinic.findUnique({
+        where: { bookingSlug: req.params.slug },
+        select: {
+            id: true, name: true, ownerName: true, specialty: true,
+            address: true, phone: true, logoUrl: true, treatments: true,
+            workingHours: true, defaultFee: true, isActive: true, planStatus: true,
+            bookingSlug: true, aiPersonality: true, customIntroMsg: true,
+        },
+    });
+    if (!clinic) {
+        res.status(404).json({ error: 'Clinic not found', code: 'NOT_FOUND' });
+        return;
+    }
+    if (!clinic.isActive || clinic.planStatus === 'CANCELLED') {
+        res.status(403).json({
+            error: 'This clinic is not currently accepting online bookings.',
+            code: 'CLINIC_INACTIVE',
+        });
+        return;
+    }
+    const { doctors, availability, isMultiProvider } = await buildDoctorsList(clinic);
+    const hours = parseWorkingHours(clinic.workingHours);
+    const hoursSummary = Object.entries(hours).map(([day, cfg]) => ({
+        day,
+        label: day.charAt(0).toUpperCase() + day.slice(1),
+        hours: formatHoursRange(cfg),
+        isOpen: !!cfg?.isOpen,
+    }));
+    res.json({
+        ...clinic,
+        slug: clinic.bookingSlug,
+        city: extractCity(clinic.address),
+        doctors,
+        doctorCount: doctors.length,
+        isMultiProvider,
+        availability,
+        hoursSummary,
+    });
+}));
+// ─── POST /api/public/clinics/:slug/ai-chat — clinic-scoped AI ──────────────
+router.post('/clinics/:slug/ai-chat', (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const { message = '', conversationHistory = '' } = req.body;
+    if (!message || String(message).length > 500) {
+        res.status(400).json({ error: 'Message required (max 500 characters)' });
+        return;
+    }
+    const clinic = await prisma_1.prisma.clinic.findUnique({
+        where: { bookingSlug: req.params.slug },
+        select: {
+            id: true, name: true, ownerName: true, specialty: true,
+            address: true, phone: true, workingHours: true, treatments: true,
+            aiPersonality: true, customIntroMsg: true, isActive: true, planStatus: true,
+        },
+    });
+    if (!clinic || !clinic.isActive || clinic.planStatus === 'CANCELLED') {
+        res.status(404).json({ error: 'Clinic not found or not accepting inquiries.' });
+        return;
+    }
+    const { doctors } = await buildDoctorsList(clinic);
+    const doctorList = doctors.map((d) => `${d.name} (${d.role}${d.specialty ? ', ' + d.specialty : ''}) — ${d.availability}`).join('; ');
+    const history = String(conversationHistory || '').slice(0, 3000);
+    const branding = (0, ai_client_1.getPublicAIBranding)();
+    const result = await (0, ai_service_1.processInboundMessage)({
+        clinicId: clinic.id,
+        clinicName: clinic.name,
+        specialty: clinic.specialty || 'Medical clinic',
+        phone: clinic.phone,
+        address: clinic.address || '',
+        workingHours: clinic.workingHours || '{}',
+        treatments: (clinic.treatments || '') + (doctorList ? `\n\nDOCTORS / PROVIDERS:\n${doctorList}` : ''),
+        aiPersonality: clinic.aiPersonality || 'friendly',
+        customIntroMsg: clinic.customIntroMsg || `Welcome to ${clinic.name}! How can we help you today?`,
+        patientHistory: 'New patient (public web chat)',
+        conversationHistory: history,
+    }, String(message));
+    res.json({
+        demo: false,
+        clinicSlug: req.params.slug,
+        clinicName: clinic.name,
+        engine: branding.engine,
+        version: branding.version,
+        patientMessage: message,
+        aiReply: result.reply,
+        intent: result.intent,
+        leadScore: result.leadScore,
+        action: result.action,
+        tags: result.tags,
+    });
+}));
+// ─── GET /api/public/clinic/:slug — legacy alias (booking flow) ───────────────
+router.get('/clinic/:slug', (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const clinic = await prisma_1.prisma.clinic.findUnique({
+        where: { bookingSlug: req.params.slug },
+        select: {
+            id: true, name: true, ownerName: true, specialty: true,
+            address: true, phone: true, logoUrl: true, treatments: true,
+            workingHours: true, defaultFee: true, isActive: true, planStatus: true,
+            bookingSlug: true,
+        },
+    });
+    if (!clinic) {
+        res.status(404).json({ error: 'Clinic not found', code: 'NOT_FOUND' });
+        return;
+    }
+    if (!clinic.isActive || clinic.planStatus === 'CANCELLED') {
+        res.status(403).json({
+            error: 'This clinic is not currently accepting online bookings.',
+            code: 'CLINIC_INACTIVE',
+        });
+        return;
+    }
+    res.json(clinic);
+}));
+// ─── GET /api/public/slots/:slug ──────────────────────────────────────────────
+router.get('/slots/:slug', (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const { date, duration = '30' } = req.query;
+    if (!date) {
+        res.status(400).json({ error: 'date parameter is required' });
+        return;
+    }
+    const clinic = await prisma_1.prisma.clinic.findUnique({
+        where: { bookingSlug: req.params.slug },
+        select: { id: true, workingHours: true, isActive: true },
+    });
+    if (!clinic || !clinic.isActive) {
+        res.status(404).json({ error: 'Clinic not found' });
+        return;
+    }
+    const targetDate = (0, date_fns_1.parseISO)(date);
+    const hours = JSON.parse(clinic.workingHours ?? '{}');
+    const dayName = targetDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+    const dayConfig = hours[dayName];
+    if (!dayConfig?.isOpen) {
+        res.json({ slots: [] });
+        return;
+    }
+    const [openH, openM] = (dayConfig.open || '09:00').split(':').map(Number);
+    const [closeH, closeM] = (dayConfig.close || '17:00').split(':').map(Number);
+    const durationMin = parseInt(duration);
+    const booked = await prisma_1.prisma.appointment.findMany({
+        where: {
+            clinicId: clinic.id,
+            dateTime: { gte: (0, date_fns_1.startOfDay)(targetDate), lte: (0, date_fns_1.endOfDay)(targetDate) },
+            status: { notIn: ['CANCELLED', 'NO_SHOW', 'RESCHEDULED'] },
+        },
+        select: { dateTime: true, durationMin: true },
+    });
+    const slots = [];
+    let slotTime = (0, date_fns_1.setMinutes)((0, date_fns_1.setHours)(targetDate, openH), openM);
+    const closeTime = (0, date_fns_1.setMinutes)((0, date_fns_1.setHours)(targetDate, closeH), closeM);
+    while ((0, date_fns_1.isBefore)(slotTime, closeTime)) {
+        const slotEnd = (0, date_fns_1.addMinutes)(slotTime, durationMin);
+        const isBooked = booked.some((b) => {
+            const bEnd = (0, date_fns_1.addMinutes)(b.dateTime, b.durationMin);
+            return slotTime < bEnd && slotEnd > b.dateTime;
+        });
+        if (!isBooked && (0, date_fns_1.isAfter)(slotTime, new Date())) {
+            slots.push(slotTime.toISOString());
+        }
+        slotTime = (0, date_fns_1.addMinutes)(slotTime, durationMin);
+    }
+    res.json({ slots });
+}));
+// ─── POST /api/public/book/:slug ──────────────────────────────────────────────
+router.post('/book/:slug', (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const clinic = await prisma_1.prisma.clinic.findUnique({
+        where: { bookingSlug: req.params.slug },
+        select: { id: true, name: true, isActive: true, planStatus: true },
+    });
+    if (!clinic || !clinic.isActive || clinic.planStatus === 'CANCELLED') {
+        res.status(403).json({ error: 'This clinic is not currently accepting bookings.' });
+        return;
+    }
+    const patientData = patient_schemas_1.CreatePatientSchema.parse({
+        fullName: req.body.fullName,
+        phone: req.body.phone,
+        email: req.body.email,
+    });
+    // Find or create patient
+    let patient = await prisma_1.prisma.patient.findUnique({
+        where: { clinicId_phone: { clinicId: clinic.id, phone: patientData.phone } },
+    });
+    if (!patient) {
+        patient = await prisma_1.prisma.patient.create({
+            data: {
+                clinicId: clinic.id,
+                fullName: patientData.fullName,
+                phone: patientData.phone,
+                email: patientData.email || null,
+            },
+        });
+    }
+    const { treatment, dateTime, notes } = req.body;
+    if (!treatment || !dateTime) {
+        res.status(400).json({ error: 'Treatment and date/time are required' });
+        return;
+    }
+    const start = (0, date_fns_1.parseISO)(dateTime);
+    // Conflict check
+    const conflict = await prisma_1.prisma.appointment.findFirst({
+        where: {
+            clinicId: clinic.id,
+            dateTime: start,
+            status: { notIn: ['CANCELLED', 'NO_SHOW', 'RESCHEDULED'] },
+        },
+    });
+    if (conflict) {
+        res.status(409).json({
+            error: 'This time slot is no longer available. Please choose another time.',
+        });
+        return;
+    }
+    const appointment = await prisma_1.prisma.appointment.create({
+        data: {
+            clinicId: clinic.id,
+            patientId: patient.id,
+            treatment,
+            dateTime: start,
+            notes: notes || null,
+            channel: 'ONLINE_BOOKING',
+            bookedByAI: false,
+        },
+    });
+    // Non-blocking side effects
+    (0, reminder_service_1.sendAppointmentConfirmation)(appointment.id).catch(() => null);
+    (0, notification_service_1.createNotification)({
+        clinicId: clinic.id,
+        title: 'New Online Booking',
+        body: `${patient.fullName} booked via your booking page`,
+        type: 'new_patient',
+        link: '/dashboard/appointments',
+    }).catch(() => null);
+    res.status(201).json({
+        message: '✅ Your appointment request has been sent! You will receive a WhatsApp confirmation shortly.',
+        appointmentId: appointment.id,
+    });
+}));
+// ─── POST /api/public/ai-demo — public AI receptionist demo ───────────────
+router.post('/ai-demo', (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const { message = 'Hi, I want to book an appointment', conversationHistory = '' } = req.body;
+    if (!message || String(message).length > 500) {
+        res.status(400).json({ error: 'Message required (max 500 characters)' });
+        return;
+    }
+    const history = String(conversationHistory || '').slice(0, 3000);
+    const branding = (0, ai_client_1.getPublicAIBranding)();
+    const result = await (0, ai_service_1.processInboundMessage)({
+        clinicId: 'demo',
+        clinicName: 'City Clinic (Demo)',
+        specialty: 'Dental & General Practice',
+        phone: '+971 4 000 0000',
+        address: 'Dubai Healthcare City',
+        workingHours: JSON.stringify({
+            monday: { isOpen: true, open: '09:00', close: '18:00', slotDuration: 30 },
+            tuesday: { isOpen: true, open: '09:00', close: '18:00', slotDuration: 30 },
+            wednesday: { isOpen: true, open: '09:00', close: '18:00', slotDuration: 30 },
+            thursday: { isOpen: true, open: '09:00', close: '18:00', slotDuration: 30 },
+            friday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+            saturday: { isOpen: false },
+            sunday: { isOpen: false },
+        }),
+        treatments: 'Dental cleaning ($80), Consultation ($50), Teeth whitening ($200), Root canal ($350)',
+        aiPersonality: 'friendly',
+        customIntroMsg: 'Welcome to City Clinic! How can we help you today?',
+        patientHistory: 'New patient',
+        conversationHistory: history,
+    }, message);
+    res.json({
+        demo: true,
+        engine: branding.engine,
+        version: branding.version,
+        patientMessage: message,
+        aiReply: result.reply,
+        intent: result.intent,
+        leadScore: result.leadScore,
+        action: result.action,
+        tags: result.tags,
+    });
+}));
+exports.default = router;
+//# sourceMappingURL=public.routes.js.map

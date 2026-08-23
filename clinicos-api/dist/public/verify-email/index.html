@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify Email — Doctors My Agency</title>
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/landing.css" />
+  <link rel="stylesheet" href="/portal.css" />
+  <link rel="stylesheet" href="/platform-hovers.css" />
+  <link rel="stylesheet" href="/dma-theme.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(_){}})();
+  </script>
+</head>
+<body class="portal-page">
+  <div class="glow glow-purple"></div>
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="logo" style="text-decoration:none;color:inherit"><div class="logo-icon">DM</div> Doctors My Agency</a>
+    </div>
+  </nav>
+  <main class="portal-main">
+    <div class="container">
+      <div class="form-card" style="text-align:center">
+        <div class="logo-icon" style="margin:0 auto 16px;width:52px;height:52px;font-size:1.2rem">✉️</div>
+        <h1 id="title">Verifying your email…</h1>
+        <p id="emailHint" class="subtitle" style="margin-top:8px;font-size:0.9rem;color:var(--muted);display:none"></p>
+        <p id="msg" class="subtitle" style="margin-top:12px">Please wait.</p>
+        <div id="actions" style="margin-top:24px;display:none;flex-wrap:wrap;gap:10px;justify-content:center">
+          <a href="/doctor-login/" class="btn btn-primary">Doctor Sign In</a>
+          <a href="/staff-login/" class="btn btn-outline">Staff Sign In</a>
+        </div>
+        <div id="resend" style="margin-top:20px;display:none">
+          <p style="color:var(--muted);font-size:0.88rem">Didn't get the email?</p>
+          <button type="button" class="btn btn-outline" id="resendBtn">Resend verification email</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="/portal.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const token = params.get('token');
+    const email = params.get('email');
+    const next = params.get('next') || '';
+    const title = document.getElementById('title');
+    const msg = document.getElementById('msg');
+    const actions = document.getElementById('actions');
+    const resend = document.getElementById('resend');
+
+    function safeNext(url) {
+      if (!url || url.charAt(0) !== '/' || url.indexOf('//') === 0) return '';
+      return url;
+    }
+
+    function friendlyError(errMsg) {
+      var m = String(errMsg || '');
+      // found:false / unknown email — not a database outage
+      if (/No account is registered|not registered with this email/i.test(m)) {
+        return m + ' Double-check the exact address used at signup (typos like haydenak33 vs 53 vs 83).';
+      }
+      if (/API server unreachable|PROXY_ERROR|not reachable/i.test(m)) {
+        return 'API proxy could not reach Node. Upload latest api-proxy.php, run bash force-start-api.sh, then retry. ' + m;
+      }
+      if (/Can't reach database|P1001|P1000|Access denied for user|prisma\.|Database is temporarily|DB_UNAVAILABLE/i.test(m)) {
+        return 'Database unavailable — confirm clinicos-api/.env DATABASE_URL uses digitals_clinicuser (URL-encode special chars like ! only if the password contains them), kill excess node processes, then bash force-start-api.sh. Do not use cPanel Restart.';
+      }
+      if (/Email delivery failed|SMTP|ECONNREFUSED|Invalid login|535/i.test(m)) {
+        return m + ' — Fix SMTP in Integrations (From must include support@clinicos.workee.online).';
+      }
+      return m || 'Something went wrong.';
+    }
+
+    const emailHint = document.getElementById('emailHint');
+    if (email) {
+      emailHint.textContent = 'Verifying: ' + email;
+      emailHint.style.display = 'block';
+    }
+
+    async function verify() {
+      if (!token) {
+        title.textContent = email ? 'Verify your email' : 'Invalid link';
+        msg.textContent = email
+          ? 'Check your inbox for the verification link, or resend below.'
+          : 'This verification link is missing or invalid.';
+        if (email) resend.style.display = 'block';
+        var n = safeNext(next);
+        if (n) {
+          actions.style.display = 'flex';
+          actions.innerHTML = '<a href="' + n + '" class="btn btn-primary">Continue setup →</a>' +
+            '<a href="/doctor-login/" class="btn btn-outline">Doctor Sign In</a>';
+        }
+        return;
+      }
+      try {
+        const r = await fetch('/api/auth/verify-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, email }),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.detail || data.error || 'Verification failed');
+        if (data.email) {
+          try { sessionStorage.setItem('dma-verify-email', data.email); } catch (_) {}
+        }
+        title.textContent = 'Email verified!';
+        msg.textContent = (data.message || 'You can now continue to your dashboard.') +
+          (data.email ? ' (' + data.email + ')' : '');
+        actions.style.display = 'flex';
+        var dest = safeNext(next) || (data.role === 'STAFF' ? '/staff-login/' : '/register/plan/');
+        if (data.role !== 'STAFF' && data.email) {
+          dest += (dest.indexOf('?') >= 0 ? '&' : '?') + 'email=' + encodeURIComponent(data.email);
+        }
+        actions.innerHTML =
+          '<a href="' + dest + '" class="btn btn-primary">Continue →</a>' +
+          '<a href="/doctor-login/" class="btn btn-outline">Doctor Sign In</a>';
+      } catch (e) {
+        title.textContent = 'Verification failed';
+        msg.textContent = friendlyError(e.message);
+        if (email) resend.style.display = 'block';
+      }
+    }
+
+    document.getElementById('resendBtn')?.addEventListener('click', async () => {
+      if (!email) return;
+      const btn = document.getElementById('resendBtn');
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      try {
+        const r = await fetch('/api/auth/resend-verification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          var bits = [data.detail || data.error || data.message || 'Could not send email'];
+          if (data.errors && data.errors.length) bits.push('(' + data.errors.join('; ') + ')');
+          throw new Error(bits.join(' '));
+        }
+        // HTTP 200 + found:false is a normal "unknown email" response — not DB_UNAVAILABLE
+        if (data.found === false) {
+          msg.textContent = friendlyError(data.message || 'No account is registered with this email address.');
+          msg.style.color = '#fca5a5';
+          return;
+        }
+        msg.textContent = data.message || 'Verification email sent. Check your inbox and spam folder.';
+        msg.style.color = '#86efac';
+      } catch (e) {
+        msg.textContent = friendlyError(e.message);
+        msg.style.color = '#fca5a5';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Resend verification email';
+      }
+    });
+
+    verify();
+  </script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+/* Signature Dashboard UI — injected on /dashboard/ and /dashboard/analytics/ */
+#dma-signature-root,
+.dma-signature {
+  margin-bottom: 1.5rem;
+  font-family: Inter, system-ui, sans-serif;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Fallback if injected as direct main child (legacy) */
+body.min-h-screen main.flex-1 > #dma-signature-root {
+  max-width: min(1200px, 100%) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.dma-signature-loading {
+  padding: 1.5rem;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.dma-sig-header {
+  margin-bottom: 1rem;
+}
+
+.dma-sig-title {
+  font-family: Montserrat, Inter, sans-serif !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  margin: 0 0 0.25rem !important;
+}
+
+.dma-sig-subtitle {
+  color: #64748b;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.dma-sig-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.dma-sig-brief {
+  border-left: 4px solid #F97316;
+}
+
+.dma-sig-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.dma-sig-card-head h2 {
+  font-family: Montserrat, Inter, sans-serif !important;
+  font-size: 1.0625rem !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  color: #0f172a !important;
+}
+
+.dma-sig-tag {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(249, 115, 22, 0.12);
+  color: #ea580c;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.dma-sig-summary {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: #334155;
+  margin: 0 0 1rem;
+}
+
+.dma-sig-muted {
+  color: #64748b;
+  font-size: 0.8125rem;
+}
+
+.dma-sig-note {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+}
+
+.dma-sig-stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.dma-sig-stat-row-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.dma-sig-stat {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.dma-sig-stat-val {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  font-family: Montserrat, Inter, sans-serif;
+}
+
+.dma-sig-stat-lbl {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-top: 0.15rem;
+}
+
+.dma-sig-mini-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.8125rem;
+  color: #475569;
+}
+
+.dma-sig-mini-stats strong {
+  color: #F97316;
+}
+
+.dma-sig-actions {
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+  color: #b45309;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.dma-sig-actions li {
+  margin: 0.25rem 0;
+}
+
+.dma-sig-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .dma-sig-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .dma-sig-stat-row-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.dma-sig-score-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.dma-sig-score {
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dma-sig-score-num {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 800;
+  font-family: Montserrat, Inter, sans-serif;
+  line-height: 1.1;
+  margin-bottom: 0.15rem;
+}
+
+.dma-sig-hot-box {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.dma-sig-warm-box {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.dma-sig-cold-box {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.dma-sig-badge {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  letter-spacing: 0.03em;
+}
+
+.dma-sig-hot {
+  background: #fecaca;
+  color: #991b1b;
+}
+
+.dma-sig-warm {
+  background: #fde68a;
+  color: #92400e;
+}
+
+.dma-sig-cold {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.dma-sig-status {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.dma-sig-subhead {
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+  margin: 0 0 0.5rem !important;
+  color: #334155 !important;
+}
+
+.dma-sig-table-wrap {
+  overflow-x: auto;
+}
+
+.dma-sig-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.dma-sig-table th {
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dma-sig-table td {
+  padding: 0.65rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: top;
+}
+
+.dma-sig-pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dma-sig-pipe-stage {
+  flex: 1;
+  min-width: 80px;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 0.65rem;
+  text-align: center;
+}
+
+.dma-sig-pipe-count {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #F97316;
+  font-family: Montserrat, Inter, sans-serif;
+}
+
+.dma-sig-pipe-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.dma-sig-rescue {
+  border-left: 4px solid #22c55e;
+}
+
+.dma-sig-rescue-stat {
+  font-size: 1.125rem;
+  color: #15803d;
+  margin: 0.5rem 0;
+}
+
+.dma-sig-rescue-stat strong {
+  font-size: 1.75rem;
+  font-family: Montserrat, Inter, sans-serif;
+}
+
+.dma-sig-home-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: -0.5rem;
+}
+
+.dma-sig-cta {
+  display: inline-block;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #F97316 !important;
+  text-decoration: none;
+}
+
+.dma-sig-cta:hover {
+  color: #ea580c !important;
+  text-decoration: underline;
+}
+
+.dma-sig-home-meta {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.dma-sig-error {
+  border-left: 4px solid #ef4444;
+}
+
+.dma-signature-compact .dma-sig-card {
+  margin-bottom: 0.5rem;
+}

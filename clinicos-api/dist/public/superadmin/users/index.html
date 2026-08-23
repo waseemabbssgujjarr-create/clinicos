@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Management — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=4" />
+  <link rel="stylesheet" href="/dma-dashboard.css?v=4" />
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="sa-content-card">
+        <h1>User Management</h1>
+        <p class="sa-subtitle">Clinic owners registered on the platform.</p>
+        <p class="sa-status" id="status">Loading users…</p>
+        <div class="sa-table-wrap">
+          <table class="sa-data-table" id="table" style="display:none;border:none;box-shadow:none">
+            <thead><tr><th>Owner</th><th>Email</th><th>Clinic</th><th>Status</th><th>Joined</th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=4"></script>
+  <script>
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      try { return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); } catch (_) { return iso; }
+    }
+    if (DmaAdminShell.initStaticPage('/superadmin/users/')) {
+      DmaAdminShell.api('/api/superadmin/clinics?limit=100')
+        .then(function (data) {
+          var clinics = data.data || data.clinics || data || [];
+          if (!Array.isArray(clinics)) clinics = [];
+          document.getElementById('status').textContent = clinics.length + ' clinic owner' + (clinics.length === 1 ? '' : 's');
+          document.getElementById('tbody').innerHTML = clinics.map(function (c) {
+            var badge = c.isActive
+              ? '<span class="sa-badge-ok">Active</span>'
+              : '<span class="sa-badge-warn">Suspended</span>';
+            return '<tr><td><strong>' + (c.ownerName || '—') + '</strong></td><td>' + (c.email || '—') + '</td><td>' + (c.name || '—') + '</td><td>' + badge + '</td><td>' + fmtDate(c.createdAt) + '</td></tr>';
+          }).join('');
+          document.getElementById('table').style.display = '';
+        })
+        .catch(function (e) {
+          document.getElementById('status').textContent = e.message || 'Could not load users.';
+        });
+    }
+  </script>
+</body>
+</html>

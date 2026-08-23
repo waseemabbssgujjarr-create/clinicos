@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700&display=swap" rel="stylesheet" />
+  <script src="/dashboard-bootstrap.js"></script>
+  <style>
+    body { margin: 0; background: #f8fafc; font-family: Inter, system-ui, sans-serif; color: #0f172a; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+    .back { color: #F97316; font-weight: 700; font-size: 0.875rem; text-decoration: none; }
+    .back:hover { text-decoration: underline; }
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 24px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(15,23,42,.06); }
+    h1 { font-family: Montserrat, Inter, sans-serif; font-size: 1.5rem; font-weight: 700; margin: 0 0 4px; }
+    .sub { color: #64748b; font-size: 0.875rem; margin: 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; margin-top: 20px; }
+    @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+    .field label { display: block; font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #64748b; margin-bottom: 4px; }
+    .field span { font-size: 0.9375rem; font-weight: 600; word-break: break-word; }
+    .section-title { font-family: Montserrat, Inter, sans-serif; font-size: 1rem; font-weight: 700; margin: 0 0 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+    th { text-align: left; font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: #64748b; padding: 8px 10px; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 10px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+    .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.6875rem; font-weight: 700; background: rgba(249,115,22,.12); color: #c2410c; }
+    #loading, #error { text-align: center; padding: 48px 24px; color: #64748b; }
+    #error { color: #dc2626; }
+    .empty { color: #64748b; font-size: 0.875rem; padding: 8px 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <a href="/dashboard/patients/" class="back">← Back to patients</a>
+      <a href="/dashboard/" class="back">Dashboard</a>
+    </div>
+
+    <div id="loading">Loading patient…</div>
+    <div id="error" style="display:none"></div>
+
+    <div id="content" style="display:none">
+      <div class="card">
+        <h1 id="patient-name">—</h1>
+        <p class="sub" id="patient-meta">—</p>
+        <div class="grid">
+          <div class="field"><label>Phone</label><span id="f-phone">—</span></div>
+          <div class="field"><label>Email</label><span id="f-email">—</span></div>
+          <div class="field"><label>Gender</label><span id="f-gender">—</span></div>
+          <div class="field"><label>Date of birth</label><span id="f-dob">—</span></div>
+          <div class="field"><label>Blood group</label><span id="f-blood">—</span></div>
+          <div class="field"><label>Added</label><span id="f-created">—</span></div>
+          <div class="field"><label>Emergency contact</label><span id="f-emergency">—</span></div>
+          <div class="field"><label>Patient ID</label><span id="f-id" style="font-family:monospace;font-size:0.78rem">—</span></div>
+          <div class="field" style="grid-column:1/-1"><label>Allergies</label><span id="f-allergies">—</span></div>
+          <div class="field" style="grid-column:1/-1"><label>Medical notes</label><span id="f-notes">—</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Recent appointments</h2>
+        <div id="appts-wrap"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Recent messages</h2>
+        <div id="msgs-wrap"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      function patientIdFromPath() {
+        var parts = location.pathname.replace(/\/+$/, '').split('/');
+        var last = parts[parts.length - 1];
+        if (last === 'detail') return null;
+        return /^[a-zA-Z0-9]+$/.test(last) ? last : null;
+      }
+
+      function authHeaders() {
+        var h = { 'Content-Type': 'application/json' };
+        var token = localStorage.getItem('token');
+        if (token) h.Authorization = 'Bearer ' + token;
+        return h;
+      }
+
+      function api(path) {
+        return fetch(path, { headers: authHeaders(), credentials: 'include' }).then(function (r) {
+          return r.json().then(function (d) {
+            if (!r.ok) throw new Error(d.error || 'Request failed');
+            return d;
+          });
+        });
+      }
+
+      function esc(s) {
+        var d = document.createElement('div');
+        d.textContent = s == null || s === '' ? '—' : String(s);
+        return d.innerHTML;
+      }
+
+      function fmtDate(iso) {
+        if (!iso) return '—';
+        try {
+          return new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+        } catch (_) { return '—'; }
+      }
+
+      function fmtDay(iso) {
+        if (!iso) return '—';
+        try {
+          return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        } catch (_) { return '—'; }
+      }
+
+      var patientId = patientIdFromPath();
+      var loading = document.getElementById('loading');
+      var errorEl = document.getElementById('error');
+      var content = document.getElementById('content');
+
+      if (!localStorage.getItem('token')) {
+        location.replace('/doctor-login/');
+        return;
+      }
+
+      if (!patientId) {
+        loading.style.display = 'none';
+        errorEl.style.display = 'block';
+        errorEl.textContent = 'Invalid patient URL.';
+        return;
+      }
+
+      function renderAppts(rows) {
+        var wrap = document.getElementById('appts-wrap');
+        if (!rows || !rows.length) {
+          wrap.innerHTML = '<p class="empty">No appointments yet.</p>';
+          return;
+        }
+        wrap.innerHTML = '<table><thead><tr><th>Date</th><th>Treatment</th><th>Status</th><th>Channel</th></tr></thead><tbody>' +
+          rows.map(function (a) {
+            return '<tr><td>' + esc(fmtDate(a.dateTime)) + '</td><td>' + esc(a.treatment) + '</td><td><span class="chip">' + esc(a.status) + '</span></td><td>' + esc(a.channel || '—') + '</td></tr>';
+          }).join('') + '</tbody></table>';
+      }
+
+      function renderMsgs(rows) {
+        var wrap = document.getElementById('msgs-wrap');
+        if (!rows || !rows.length) {
+          wrap.innerHTML = '<p class="empty">No messages yet.</p>';
+          return;
+        }
+        wrap.innerHTML = '<table><thead><tr><th>When</th><th>Channel</th><th>Direction</th><th>Message</th></tr></thead><tbody>' +
+          rows.map(function (m) {
+            return '<tr><td>' + esc(fmtDate(m.createdAt)) + '</td><td>' + esc(m.channel) + '</td><td>' + esc(m.direction) + '</td><td>' + esc(m.body) + '</td></tr>';
+          }).join('') + '</tbody></table>';
+      }
+
+      function render(p) {
+        document.getElementById('patient-name').textContent = p.fullName || 'Patient';
+        document.getElementById('patient-meta').textContent = [p.phone, p.email].filter(Boolean).join(' · ') || '—';
+        document.getElementById('f-phone').textContent = p.phone || '—';
+        document.getElementById('f-email').textContent = p.email || '—';
+        document.getElementById('f-gender').textContent = p.gender || '—';
+        document.getElementById('f-dob').textContent = fmtDay(p.dateOfBirth);
+        document.getElementById('f-blood').textContent = p.bloodGroup || '—';
+        document.getElementById('f-created').textContent = fmtDay(p.createdAt);
+        document.getElementById('f-emergency').textContent = p.emergencyName
+          ? p.emergencyName + (p.emergencyPhone ? ' (' + p.emergencyPhone + ')' : '')
+          : '—';
+        document.getElementById('f-id').textContent = p.id || patientId;
+        document.getElementById('f-allergies').textContent = p.allergies || 'None recorded';
+        document.getElementById('f-notes').textContent = p.medicalNotes || 'None recorded';
+        document.title = (p.fullName || 'Patient') + ' — Doctors My Agency';
+        renderAppts(p.appointments || []);
+        renderMsgs(p.messages || []);
+      }
+
+      api('/api/patients/' + patientId)
+        .then(function (data) {
+          loading.style.display = 'none';
+          content.style.display = 'block';
+          render(data);
+        })
+        .catch(function (err) {
+          loading.style.display = 'none';
+          errorEl.style.display = 'block';
+          errorEl.textContent = err.message || 'Could not load patient.';
+        });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+import { Request, Response } from 'express';
+export declare const register: (req: Request, res: Response, next: import("express").NextFunction) => void;
+export declare const login: (req: Request, res: Response, next: import("express").NextFunction) => void;
+export declare const staffLogin: (req: Request, res: Response, next: import("express").NextFunction) => void;
+export declare const superadminLogin: (req: Request, res: Response, next: import("express").NextFunction) => void;
+export declare const getMe: (req: Request, res: Response, next: import("express").NextFunction) => void;
+export declare const updateMe: (req: Request, res: Response, next: import("express").NextFunction) => void;
+export declare const forgotPassword: (req: Request, res: Response, next: import("express").NextFunction) => void;
+export declare const resetPassword: (req: Request, res: Response, next: import("express").NextFunction) => void;
+export declare const logout: (req: Request, res: Response, next: import("express").NextFunction) => void;
+export declare const acceptInvite: (req: Request, res: Response, next: import("express").NextFunction) => void;
