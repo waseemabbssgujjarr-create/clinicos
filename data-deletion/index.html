@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Deletion — Doctors My Agency</title>
+  <meta name="description" content="How to request deletion of your personal data from the Doctors My Agency platform, including WhatsApp and Facebook Login data." />
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/landing.css" />
+  <link rel="stylesheet" href="/dma-theme.css" />
+  <style>
+    body { background: var(--bg); color: var(--text); }
+    .legal-wrap { max-width: 780px; margin: 0 auto; padding: 48px 24px 80px; }
+    .legal-back { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 0.8125rem; text-decoration: none; margin-bottom: 32px; transition: color 0.15s; }
+    .legal-back:hover { color: var(--text); }
+    .legal-badge { display: inline-block; padding: 4px 12px; border-radius: 6px; background: rgba(239,68,68,0.12); color: #fca5a5; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border: 1px solid rgba(239,68,68,0.2); margin-bottom: 16px; }
+    .legal-wrap h1 { font-family: Montserrat, Inter, sans-serif; font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; margin-bottom: 6px; }
+    .legal-meta { color: var(--muted); font-size: 0.8125rem; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .legal-section { margin-bottom: 40px; scroll-margin-top: 80px; }
+    .legal-section h2 { font-family: Montserrat, Inter, sans-serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .legal-section h3 { font-size: 0.9rem; font-weight: 600; margin: 18px 0 8px; color: #fca5a5; }
+    .legal-section p { color: var(--muted); font-size: 0.875rem; line-height: 1.7; margin-bottom: 10px; }
+    .legal-section ul { color: var(--muted); font-size: 0.875rem; line-height: 1.7; padding-left: 20px; margin-bottom: 10px; }
+    .legal-section li { margin-bottom: 5px; }
+    .legal-section strong { color: var(--text); }
+    .legal-section a { color: #fca5a5; }
+    /* Steps */
+    .steps-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px; }
+    .step-item { display: flex; gap: 16px; align-items: flex-start; background: var(--bg-card, #12141c); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 18px 20px; }
+    .step-num { width: 32px; height: 32px; border-radius: 50%; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); display: grid; place-items: center; font-weight: 800; font-size: 0.8125rem; color: #fca5a5; flex-shrink: 0; }
+    .step-body h3 { font-size: 0.875rem; font-weight: 700; color: var(--text); margin: 0 0 6px; }
+    .step-body p { font-size: 0.8125rem; color: var(--muted); margin: 0; line-height: 1.6; }
+    .step-body a { color: #fca5a5; }
+    /* Form */
+    .form-card { background: var(--bg-card, #12141c); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 32px; margin-top: 8px; }
+    .form-card h2 { font-family: Montserrat, Inter, sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 20px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 0.8125rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--text); font-size: 0.875rem; font-family: Inter, sans-serif; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: rgba(239,68,68,0.45); }
+    .form-group textarea { min-height: 90px; resize: vertical; }
+    .form-group select option { background: #1a1d28; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .submit-btn { width: 100%; padding: 13px; border-radius: 10px; border: none; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; font-size: 0.9rem; font-weight: 700; cursor: pointer; font-family: Inter, sans-serif; transition: opacity 0.2s, transform 0.15s; margin-top: 4px; }
+    .submit-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .form-note { font-size: 0.775rem; color: var(--muted); margin-top: 12px; line-height: 1.5; }
+    #form-success, #form-error { display: none; padding: 14px 18px; border-radius: 10px; font-size: 0.875rem; margin-top: 16px; }
+    #form-success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); color: #86efac; }
+    #form-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; }
+    /* Timeline */
+    .timeline { display: flex; flex-direction: column; gap: 0; margin: 16px 0; }
+    .tl-item { display: flex; gap: 16px; }
+    .tl-line { display: flex; flex-direction: column; align-items: center; }
+    .tl-dot { width: 12px; height: 12px; border-radius: 50%; background: #dc2626; flex-shrink: 0; margin-top: 4px; }
+    .tl-connector { width: 2px; flex: 1; background: rgba(255,255,255,0.08); margin: 4px 0; min-height: 28px; }
+    .tl-item:last-child .tl-connector { display: none; }
+    .tl-body { padding-bottom: 20px; }
+    .tl-body strong { font-size: 0.8125rem; color: var(--text); display: block; margin-bottom: 3px; }
+    .tl-body p { font-size: 0.8rem; color: var(--muted); margin: 0; }
+    /* Nav */
+    nav { background: rgba(10,11,16,0.9); border-bottom: 1px solid rgba(255,255,255,0.06); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); }
+    .nav-inner { display: flex; align-items: center; padding: 14px 24px; max-width: 780px; margin: 0 auto; }
+    .logo-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-family: Montserrat, Inter, sans-serif; font-weight: 700; font-size: 0.9rem; }
+    .logo-icon { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #7c3aed, #2563eb); display: grid; place-items: center; font-size: 0.7rem; font-weight: 800; color: #fff; flex-shrink: 0; }
+    footer.legal-footer { background: #08090d; border-top: 1px solid rgba(255,255,255,0.06); padding: 24px; text-align: center; font-size: 0.8rem; color: #64748b; }
+    footer.legal-footer a { color: #94a3b8; text-decoration: none; margin: 0 8px; }
+    footer.legal-footer a:hover { color: #f8fafc; }
+    @media (max-width: 520px) { .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="logo-link">
+        <div class="logo-icon">DM</div>
+        <span>Doctors My Agency</span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="legal-wrap">
+    <a href="/" class="legal-back">← Back to home</a>
+    <div class="legal-badge">Data Rights</div>
+    <h1>Data Deletion Instructions</h1>
+    <p class="legal-meta">Last updated: 22 August 2026 &nbsp;·&nbsp; Response time: within 30 days</p>
+
+    <!-- Overview -->
+    <div class="legal-section">
+      <h2>Your right to delete your data</h2>
+      <p>You have the right to request deletion of any personal data we hold about you or your clinic. This page explains what data we store, how to request deletion, and what happens after your request.</p>
+      <p>This page also serves as the <strong>User Data Deletion instructions URL</strong> required by Meta for Facebook Login and WhatsApp Business API apps. If you connected your WhatsApp Business Account to Doctors My Agency and wish to have your data removed, follow the steps below.</p>
+    </div>
+
+    <!-- What data -->
+    <div class="legal-section">
+      <h2>What data we hold</h2>
+      <ul>
+        <li><strong>Clinic account data</strong> — name, email, phone, address, subscription status</li>
+        <li><strong>WhatsApp connection data</strong> — WABA ID, Phone Number ID, encrypted access token</li>
+        <li><strong>Patient records</strong> — names, phone numbers, appointment history, message logs</li>
+        <li><strong>Staff accounts</strong> — name, email, role, login credentials</li>
+        <li><strong>AI interaction logs</strong> — message content, AI responses, intent classifications</li>
+        <li><strong>Billing data</strong> — Stripe customer ID, plan history (payment card data is held only by Stripe)</li>
+      </ul>
+    </div>
+
+    <!-- How to request -->
+    <div class="legal-section">
+      <h2>How to request deletion</h2>
+      <p>You have three options — use whichever is easiest:</p>
+      <ul class="steps-list">
+        <li class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h3>From your dashboard (fastest)</h3>
+            <p>Log in → <strong>Settings → Account → Delete Account</strong>. This immediately schedules deletion of all your clinic data, patient records, and WhatsApp connection. Data is permanently purged within 30 days.</p>
+          </div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h3>Submit the form below</h3>
+            <p>Fill in the deletion request form on this page. We will confirm receipt by email and complete the deletion within 30 days.</p>
+          </div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h3>Email us directly</h3>
+            <p>Send a deletion request to <a href="mailto:privacy@doctorsmyagency.com">privacy@doctorsmyagency.com</a> with your registered clinic email. Include the subject line: <strong>"Data Deletion Request"</strong>.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Deletion form -->
+    <div class="form-card" id="deletion-form-section">
+      <h2>Data Deletion Request Form</h2>
+      <form id="deletion-form" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="del-name">Full name *</label>
+            <input type="text" id="del-name" name="name" placeholder="Your name" required />
+          </div>
+          <div class="form-group">
+            <label for="del-email">Registered email *</label>
+            <input type="email" id="del-email" name="email" placeholder="clinic@example.com" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="del-type">What do you want deleted? *</label>
+          <select id="del-type" name="deletion_type" required>
+            <option value="">— Select —</option>
+            <option value="full_account">Everything — full clinic account + all data</option>
+            <option value="whatsapp_only">WhatsApp connection + message data only</option>
+            <option value="patient_record">A specific patient record</option>
+            <option value="staff_account">A staff account</option>
+            <option value="other">Other (describe below)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="del-details">Additional details (optional)</label>
+          <textarea id="del-details" name="details" placeholder="e.g. specific patient phone number, date range, or description of data to delete"></textarea>
+        </div>
+        <button type="submit" class="submit-btn" id="del-submit">Submit Deletion Request</button>
+        <p class="form-note">We will confirm this request via email within 2 business days and complete deletion within 30 days. You will receive a final confirmation when deletion is complete.</p>
+      </form>
+      <div id="form-success">✓ Your deletion request has been received. We will email you a confirmation within 2 business days.</div>
+      <div id="form-error">Something went wrong. Please email <a href="mailto:privacy@doctorsmyagency.com">privacy@doctorsmyagency.com</a> directly.</div>
+    </div>
+
+    <!-- What gets deleted -->
+    <div class="legal-section" style="margin-top:40px">
+      <h2>What gets deleted — and when</h2>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div>
+          <div class="tl-body"><strong>Immediately on request</strong><p>WhatsApp access token revoked, active sessions terminated, account login disabled.</p></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div>
+          <div class="tl-body"><strong>Within 7 days</strong><p>Patient records, message logs, appointment history, AI logs permanently deleted from primary database.</p></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div>
+          <div class="tl-body"><strong>Within 30 days</strong><p>All backups containing your data are purged. Deletion confirmation email sent.</p></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div>
+          <div class="tl-body"><strong>Retained (legal obligation)</strong><p>Billing transaction records are kept for 7 years per accounting law. These contain only your email and payment reference — no patient data.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- What is not deleted -->
+    <div class="legal-section">
+      <h2>What cannot be deleted</h2>
+      <ul>
+        <li><strong>Billing records</strong> — required by law for 7 years (invoices, payment references)</li>
+        <li><strong>Anonymised analytics</strong> — aggregated platform statistics with no personally identifiable information</li>
+        <li><strong>Data held independently by Meta</strong> — messages sent through the WhatsApp Cloud API are subject to Meta's own retention policies. To remove data from Meta, visit <a href="https://www.facebook.com/help/contact/540977946302970" target="_blank" rel="noopener">Meta's Data Deletion page</a>.</li>
+      </ul>
+    </div>
+
+    <!-- Contact -->
+    <div class="legal-section">
+      <h2>Contact for data requests</h2>
+      <p>Email: <a href="mailto:privacy@doctorsmyagency.com">privacy@doctorsmyagency.com</a></p>
+      <p>DPO: Waseem Abbas — <a href="mailto:waseemabbssgujjar@gmail.com">waseemabbssgujjar@gmail.com</a></p>
+      <p>We respond to all data requests within 2 business days and complete deletions within 30 days.</p>
+    </div>
+
+  </div>
+
+  <footer class="legal-footer">
+    <p>© 2026 Doctors My Agency &nbsp;·&nbsp;
+      <a href="/privacy/">Privacy Policy</a>
+      <a href="/terms/">Terms of Service</a>
+      <a href="/data-deletion/">Data Deletion</a>
+      <a href="/security/">Security</a>
+      <a href="/about/">About</a>
+    </p>
+  </footer>
+
+  <script>
+    (function () {
+      var form = document.getElementById('deletion-form');
+      var successEl = document.getElementById('form-success');
+      var errorEl = document.getElementById('form-error');
+      var submitBtn = document.getElementById('del-submit');
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var name = document.getElementById('del-name').value.trim();
+        var email = document.getElementById('del-email').value.trim();
+        var type = document.getElementById('del-type').value;
+        if (!name || !email || !type) {
+          errorEl.textContent = 'Please fill in all required fields.';
+          errorEl.style.display = 'block';
+          successEl.style.display = 'none';
+          return;
+        }
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting…';
+        errorEl.style.display = 'none';
+
+        var payload = {
+          name: name,
+          email: email,
+          deletion_type: type,
+          details: document.getElementById('del-details').value.trim(),
+        };
+
+        fetch('/data-deletion/request.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (d.success) {
+              successEl.style.display = 'block';
+              form.reset();
+            } else {
+              errorEl.textContent = d.error || 'Something went wrong. Please email us directly.';
+              errorEl.style.display = 'block';
+            }
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Deletion Request';
+          })
+          .catch(function () {
+            errorEl.textContent = 'Network error. Please email privacy@doctorsmyagency.com directly.';
+            errorEl.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Deletion Request';
+          });
+      });
+    })();
+  </script>
+</body>
+</html>

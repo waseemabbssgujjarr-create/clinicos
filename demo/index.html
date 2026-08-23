@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live AI Receptionist Demo — Doctors My Agency</title>
+  <meta name="description" content="Try the real DMA Clinic Knowledge Engine — same AI that powers WhatsApp booking for clinics." />
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/landing.css" />
+  <link rel="stylesheet" href="/portal.css" />
+  <link rel="stylesheet" href="/dma-theme.css" />
+  <link rel="stylesheet" href="/inner-chat.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(_){}})();
+  </script>
+</head>
+<body class="portal-page">
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="logo" style="text-decoration:none;color:inherit"><div class="logo-icon">DM</div> Doctors My Agency</a>
+      <div class="nav-cta">
+        <a href="/register/" class="btn btn-primary">Start Free Trial</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="portal-main">
+    <div class="container" style="max-width:720px">
+      <a href="/" class="back-link">← Back to home</a>
+      <span class="badge" style="margin-top:16px;display:inline-block">Product AI — not sales chat</span>
+      <h1 style="font-size:clamp(1.5rem,3vw,2rem);font-weight:800;margin:12px 0 8px">Live AI Receptionist Demo</h1>
+      <p style="color:var(--muted);margin-bottom:20px;font-size:0.9375rem;line-height:1.6">
+        This uses the <strong style="color:var(--text)">same inner engine</strong> as clinic WhatsApp receptionists
+        (<code style="color:#F97316">/api/public/ai-demo</code>). Try: “I need a dental cleaning tomorrow” or “What are your prices?”
+      </p>
+
+      <div id="chat"></div>
+
+      <p style="color:var(--muted);font-size:0.8125rem;margin-top:16px;line-height:1.55">
+        The orange chat bubble on the marketing site is a separate <strong>SalesBot demo</strong> (IQ Pigeon).
+        Clinics get the inner bot connected to their calendar, hours, and patient records via WhatsApp.
+      </p>
+      <p style="margin-top:20px">
+        <a href="/?openChat=1" class="btn btn-outline" data-open-chat>Talk to sales (Sara)</a>
+        <a href="/register/" class="btn btn-primary" style="margin-left:8px">Register your clinic →</a>
+      </p>
+    </div>
+  </main>
+
+  <script src="/portal.js"></script>
+  <script src="/inner-chat.js"></script>
+  <script src="/salesbot-widget.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      new DmaInnerChat('#chat', {
+        title: 'City Clinic (Demo)',
+        subtitle: 'DMA Clinic Knowledge Engine · Live',
+      });
+    });
+  </script>
+</body>
+</html>

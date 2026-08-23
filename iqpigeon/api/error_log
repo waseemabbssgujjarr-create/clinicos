@@ -1,0 +1,288 @@
+[31-Jul-2026 10:10:10 UTC] PHP Warning:  require_once(/home1/iqpigeon/public_html/includes/security-output.php): Failed to open stream: No such file or directory in /home1/iqpigeon/public_html/config.php on line 11
+[31-Jul-2026 10:10:10 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home1/iqpigeon/public_html/includes/security-output.php' (include_path='.:/opt/cpanel/ea-php81/root/usr/share/pear') in /home1/iqpigeon/public_html/config.php:11
+Stack trace:
+#0 /home1/iqpigeon/public_html/api/notifications.php(6): require_once()
+#1 {main}
+  thrown in /home1/iqpigeon/public_html/config.php on line 11
+[31-Jul-2026 22:05:54 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":556,"has_sig":true,"user_agent":"facebookexternalua"}
+[31-Jul-2026 22:05:54 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[31-Jul-2026 22:05:54 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[31-Jul-2026 22:05:57 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923156071384 {"batch":1,"kinds":["text"],"message_id":"wamid.HBgMOTIzMTU2MDcxMzg0FQIAEhggQTU0RDI2QjUwODJBMjNBRTUyM0Q5Qzc3QTA2NjhBQTkA","preview":"Aoa"}
+[31-Jul-2026 22:05:57 Asia/Karachi] [WhatsApp webhook] Greeting fast-path for 923156071384 {"lead_id":81,"preview":"Aoa"}
+[31-Jul-2026 22:06:03 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":638,"has_sig":true,"user_agent":"facebookexternalua"}
+[31-Jul-2026 22:06:03 Asia/Karachi] [WhatsApp webhook] Coexistence webhook received {"field":"smb_message_echoes","phone_id":"758204954052103"}
+[31-Jul-2026 22:06:04 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":535,"has_sig":true,"user_agent":"facebookexternalua"}
+[31-Jul-2026 22:06:04 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[31-Jul-2026 22:06:04 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[31-Jul-2026 22:06:05 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":530,"has_sig":true,"user_agent":"facebookexternalua"}
+[31-Jul-2026 22:06:06 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[01-Aug-2026 13:12:55 Asia/Karachi] Database connection failed: Too many connections
+[01-Aug-2026 16:22:31 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":825,"has_sig":true,"user_agent":"facebookexternalua"}
+[01-Aug-2026 16:22:31 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[01-Aug-2026 16:22:31 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[01-Aug-2026 16:22:31 Asia/Karachi] [WhatsApp webhook] Media conversion failed type=image {"error":"Meta media metadata failed (HTTP 0): curl failed","from":"923004522663"}
+[01-Aug-2026 16:22:35 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":603,"has_sig":true,"user_agent":"facebookexternalua"}
+[01-Aug-2026 16:22:37 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":603,"has_sig":true,"user_agent":"facebookexternalua"}
+[04-Aug-2026 21:56:12 Asia/Karachi] Database connection failed: Too many connections
+[05-Aug-2026 20:26:10 Asia/Karachi] Database connection failed: Too many connections
+[05-Aug-2026 20:42:26 Asia/Karachi] Database connection failed: Too many connections
+[06-Aug-2026 12:50:14 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":559,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:50:14 Asia/Karachi] [WhatsApp webhook] REJECTED invalid signature {"hint":"Meta App Secret does not match Meta App \u2192 Settings \u2192 Basic \u2192 App Secret \u2014 update Admin \u2192 Integrations or config.local.php"}
+[06-Aug-2026 12:53:42 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":849,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:53:42 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[06-Aug-2026 12:53:42 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[06-Aug-2026 12:53:49 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923004522663 {"batch":1,"kinds":["image"],"message_id":"wamid.HBgMOTIzMDA0NTIyNjYzFQIAEhggQUMwREFBMzRCQzk4ODM5OEJCMDQzOUMwN0RBMzg1RDEA","preview":"[Customer sent an image] - The image shows a cardboard box filled with green gra"}
+[06-Aug-2026 12:53:49 Asia/Karachi] [WhatsApp webhook] AI path for 923004522663 {"lead_id":17,"preview":"[Customer sent an image] - The image shows a cardboard box f"}
+[06-Aug-2026 12:53:54 Asia/Karachi] [WhatsApp webhook] Reply sent to 923004522663 {"human_delay_ms":0,"ai_ms":2574,"debounce_ms":0,"total_ms":4997,"fast_reply":true}
+[06-Aug-2026 12:53:55 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":603,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:53:55 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":608,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:53:55 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":603,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:53:55 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":608,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:56:04 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":547,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:56:04 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[06-Aug-2026 12:56:04 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[06-Aug-2026 12:56:05 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923337646543 {"batch":1,"kinds":["text"],"message_id":"wamid.HBgMOTIzMzM3NjQ2NTQzFQIAEhgWM0VCMDdDOTQ0RTREMjUyOEI1MTU0QwA=","preview":"Hey"}
+[06-Aug-2026 12:56:06 Asia/Karachi] [WhatsApp webhook] Greeting fast-path for 923337646543 {"lead_id":10,"preview":"Hey"}
+[06-Aug-2026 12:56:12 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:56:12 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:56:12 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:56:12 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:56:35 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":852,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:56:35 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[06-Aug-2026 12:56:35 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[06-Aug-2026 12:56:40 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923337646543 {"batch":1,"kinds":["voice"],"message_id":"wamid.HBgMOTIzMzM3NjQ2NTQzFQIAEhggQUM2QzBBRDU2MDI3ODcyNEJGNzg1QzBBMkIwMUIyMTcA","preview":"[Voice message from customer]: \u06cc\u06c1 \u062c\u0648 \u0628\u06be\u06cc \u0622\u067e \u06a9\u06cc \u06a9\u0645\u067e\u0646\u06cc \u06a9\u0627 \u0646\u0627\u0645 \u06c1\u06d2 i q p \u062c\u0648 \u0628\u06be\u06cc \u06a9\u06cc\u0627 "}
+[06-Aug-2026 12:56:40 Asia/Karachi] [WhatsApp webhook] AI path for 923337646543 {"lead_id":10,"preview":"[Voice message from customer]: \u06cc\u06c1 \u062c\u0648 \u0628\u06be\u06cc \u0622\u067e \u06a9\u06cc \u06a9\u0645\u067e\u0646\u06cc \u06a9\u0627 \u0646\u0627\u0645 "}
+[06-Aug-2026 12:56:46 Asia/Karachi] [WhatsApp webhook] Reply sent to 923337646543 {"human_delay_ms":0,"ai_ms":4625,"debounce_ms":0,"total_ms":6037,"fast_reply":true}
+[06-Aug-2026 12:56:47 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:56:47 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:56:47 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:56:47 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:57:08 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":856,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:57:08 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[06-Aug-2026 12:57:08 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[06-Aug-2026 12:57:11 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923337646543 {"batch":1,"kinds":["voice"],"message_id":"wamid.HBgMOTIzMzM3NjQ2NTQzFQIAEhggQUMzNjE1N0I0OEYwRTgxRTRENTQ1MUNEOTlFMUVDNzEA","preview":"[Voice message from customer]: \u06c1\u0627\u06ba \u060c \u06cc\u06c1 \u0627\u0686\u06be\u0627 \u06c1\u06d2 \u06a9\u06c1 \u0622\u067e \u06a9\u0648 \u0645\u0639\u0644\u0648\u0645 \u06a9\u0631\u0646\u06d2 \u06a9\u06d2 \u0644\u0626\u06d2 \u060c \u0644\u06cc\u06a9"}
+[06-Aug-2026 12:57:11 Asia/Karachi] [WhatsApp webhook] AI path for 923337646543 {"lead_id":10,"preview":"[Voice message from customer]: \u06c1\u0627\u06ba \u060c \u06cc\u06c1 \u0627\u0686\u06be\u0627 \u06c1\u06d2 \u06a9\u06c1 \u0622\u067e \u06a9\u0648 \u0645\u0639\u0644"}
+[06-Aug-2026 12:57:16 Asia/Karachi] [WhatsApp webhook] Reply sent to 923337646543 {"human_delay_ms":0,"ai_ms":1513,"debounce_ms":0,"total_ms":4957,"fast_reply":true}
+[06-Aug-2026 12:57:17 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:57:17 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:57:17 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:57:18 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:57:46 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":828,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:57:46 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[06-Aug-2026 12:57:46 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[06-Aug-2026 12:57:50 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923337646543 {"batch":1,"kinds":["image"],"message_id":"wamid.HBgMOTIzMzM3NjQ2NTQzFQIAEhggQUM2QzcwNDA2NzNCNTUzRjIyRTMxMjc4RDE3RUYyMUUA","preview":"[Customer sent an image] ### Notes for Sales Rep: 1. The image shows a bottle of"}
+[06-Aug-2026 12:57:50 Asia/Karachi] [WhatsApp webhook] AI path for 923337646543 {"lead_id":10,"preview":"[Customer sent an image] ### Notes for Sales Rep: 1. The ima"}
+[06-Aug-2026 12:57:51 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":855,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:57:51 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[06-Aug-2026 12:57:51 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[06-Aug-2026 12:57:55 Asia/Karachi] [WhatsApp webhook] Reply sent to 923337646543 {"human_delay_ms":0,"ai_ms":2877,"debounce_ms":0,"total_ms":4973,"fast_reply":true}
+[06-Aug-2026 12:57:55 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923337646543 {"batch":1,"kinds":["voice"],"message_id":"wamid.HBgMOTIzMzM3NjQ2NTQzFQIAEhggQUNBQzRCOTI3M0I4Q0YzQ0JCRTM5ODgxODkwRTExN0EA","preview":"[Voice message from customer]: \u0906\u092a\u0915\u0947 \u092a\u093e\u0938 \u092f\u0947 \u0935\u093e\u0932\u0940 \u092a\u094d\u0930\u093e\u0921\u093c\u0921\u093c\u0915\u094d\u091f \u0939\u0948"}
+[06-Aug-2026 12:57:55 Asia/Karachi] [WhatsApp webhook] AI path for 923337646543 {"lead_id":10,"preview":"[Voice message from customer]: \u0906\u092a\u0915\u0947 \u092a\u093e\u0938 \u092f\u0947 \u0935\u093e\u0932\u0940 \u092a\u094d\u0930\u093e\u0921\u093c\u0921\u093c\u0915\u094d\u091f "}
+[06-Aug-2026 12:57:56 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:57:56 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:57:56 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:57:56 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:58:00 Asia/Karachi] [WhatsApp webhook] Reply sent to 923337646543 {"human_delay_ms":0,"ai_ms":2583,"debounce_ms":0,"total_ms":5176,"fast_reply":true}
+[06-Aug-2026 12:58:01 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:58:02 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:58:02 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:58:02 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:58:53 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":559,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:58:53 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[06-Aug-2026 12:58:53 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[06-Aug-2026 12:58:54 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923337646543 {"batch":1,"kinds":["text"],"message_id":"wamid.HBgMOTIzMzM3NjQ2NTQzFQIAEhggQUMyNTZCQzY5RERGODdENUVFQ0Y4NDg0QkE4MTQ4NzYA","preview":"Hey"}
+[06-Aug-2026 12:58:54 Asia/Karachi] [WhatsApp webhook] Greeting fast-path for 923337646543 {"lead_id":10,"preview":"Hey"}
+[06-Aug-2026 12:58:54 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":562,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:58:54 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[06-Aug-2026 12:58:54 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[06-Aug-2026 12:58:55 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923337646543 {"batch":1,"kinds":["text"],"message_id":"wamid.HBgMOTIzMzM3NjQ2NTQzFQIAEhggQUNDNEMzRDVFQjBDMDY3NTYzMUExMjJEMDI3RTI0NDYA","preview":"I want"}
+[06-Aug-2026 12:58:57 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":566,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:58:57 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[06-Aug-2026 12:58:57 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[06-Aug-2026 12:58:57 Asia/Karachi] [WhatsApp webhook] Lead lock busy — retrying {"lead_id":10,"from":923337646543}
+[06-Aug-2026 12:58:58 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923337646543 {"batch":1,"kinds":["text"],"message_id":"wamid.HBgMOTIzMzM3NjQ2NTQzFQIAEhggQUNCQzhBMDBFNTczRDAyQUUzMUIyODlDNDEwOEMzQUIA","preview":"To inquire"}
+[06-Aug-2026 12:58:59 Asia/Karachi] [WhatsApp webhook] AI path for 923337646543 {"lead_id":10,"preview":"I want"}
+[06-Aug-2026 12:59:00 Asia/Karachi] [WhatsApp webhook] Lead lock busy — retrying {"lead_id":10,"from":923337646543}
+[06-Aug-2026 12:59:00 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:00 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:00 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:03 Asia/Karachi] [WhatsApp webhook] Lead lock still busy — replying anyway {"lead_id":10,"from":923337646543}
+[06-Aug-2026 12:59:04 Asia/Karachi] [WhatsApp webhook] AI path for 923337646543 {"lead_id":10,"preview":"To inquire"}
+[06-Aug-2026 12:59:04 Asia/Karachi] [WhatsApp webhook] Reply sent to 923337646543 {"human_delay_ms":0,"ai_ms":1285,"debounce_ms":0,"total_ms":4794,"fast_reply":true}
+[06-Aug-2026 12:59:05 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:05 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:05 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:08 Asia/Karachi] [WhatsApp webhook] Reply sent to 923337646543 {"human_delay_ms":0,"ai_ms":2436,"debounce_ms":0,"total_ms":4955,"fast_reply":true}
+[06-Aug-2026 12:59:09 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:10 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:10 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:17 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":558,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:17 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[06-Aug-2026 12:59:17 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[06-Aug-2026 12:59:18 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923337646543 {"batch":1,"kinds":["text"],"message_id":"wamid.HBgMOTIzMzM3NjQ2NTQzFQIAEhggQUNCRjVGN0ZBNTMyOUVDOEY2RDVDMEY2NEYxOTg4RUQA","preview":"Do"}
+[06-Aug-2026 12:59:18 Asia/Karachi] [WhatsApp webhook] AI path for 923337646543 {"lead_id":10,"preview":"Do"}
+[06-Aug-2026 12:59:19 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":559,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:19 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[06-Aug-2026 12:59:19 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[06-Aug-2026 12:59:20 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923337646543 {"batch":1,"kinds":["text"],"message_id":"wamid.HBgMOTIzMzM3NjQ2NTQzFQIAEhggQUM4QkY3OUY2NDU1RDEwMDkxMzA3NzQ5NTNCMEE5OTgA","preview":"You"}
+[06-Aug-2026 12:59:20 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":560,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:20 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[06-Aug-2026 12:59:20 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[06-Aug-2026 12:59:20 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923337646543 {"batch":1,"kinds":["text"],"message_id":"wamid.HBgMOTIzMzM3NjQ2NTQzFQIAEhggQUNDN0Y2NjY0MDgxMTE0OUIyOEE3Q0M4MUJFQ0EwNDcA","preview":"Know"}
+[06-Aug-2026 12:59:21 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":561,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:21 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[06-Aug-2026 12:59:21 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[06-Aug-2026 12:59:22 Asia/Karachi] [WhatsApp webhook] Lead lock busy — retrying {"lead_id":10,"from":923337646543}
+[06-Aug-2026 12:59:22 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923337646543 {"batch":1,"kinds":["text"],"message_id":"wamid.HBgMOTIzMzM3NjQ2NTQzFQIAEhggQUM3M0Q3NTdGQUEyRjYwNkMxOTNDMkZDNjVFRkRFQ0IA","preview":"About"}
+[06-Aug-2026 12:59:22 Asia/Karachi] [WhatsApp webhook] Lead lock busy — retrying {"lead_id":10,"from":923337646543}
+[06-Aug-2026 12:59:23 Asia/Karachi] [WhatsApp webhook] Reply sent to 923337646543 {"human_delay_ms":0,"ai_ms":1267,"debounce_ms":0,"total_ms":5029,"fast_reply":true}
+[06-Aug-2026 12:59:23 Asia/Karachi] [WhatsApp webhook] AI path for 923337646543 {"lead_id":10,"preview":"About"}
+[06-Aug-2026 12:59:24 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:24 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:25 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:25 Asia/Karachi] [WhatsApp webhook] Lead lock still busy — replying anyway {"lead_id":10,"from":923337646543}
+[06-Aug-2026 12:59:25 Asia/Karachi] [WhatsApp webhook] AI path for 923337646543 {"lead_id":10,"preview":"You"}
+[06-Aug-2026 12:59:26 Asia/Karachi] [WhatsApp webhook] Lead lock still busy — replying anyway {"lead_id":10,"from":923337646543}
+[06-Aug-2026 12:59:26 Asia/Karachi] [WhatsApp webhook] AI path for 923337646543 {"lead_id":10,"preview":"Know"}
+[06-Aug-2026 12:59:27 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":564,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:27 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[06-Aug-2026 12:59:27 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[06-Aug-2026 12:59:28 Asia/Karachi] [WhatsApp webhook] Reply sent to 923337646543 {"human_delay_ms":0,"ai_ms":2394,"debounce_ms":0,"total_ms":4943,"fast_reply":true}
+[06-Aug-2026 12:59:28 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923337646543 {"batch":1,"kinds":["text"],"message_id":"wamid.HBgMOTIzMzM3NjQ2NTQzFQIAEhggQUNGMUZEQTU0NzJDMEM1RTFFRkM4MkJDODE4NUIyREUA","preview":"Wireless"}
+[06-Aug-2026 12:59:29 Asia/Karachi] [WhatsApp webhook] AI path for 923337646543 {"lead_id":10,"preview":"Wireless"}
+[06-Aug-2026 12:59:29 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:29 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:29 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:30 Asia/Karachi] [WhatsApp webhook] Reply sent to 923337646543 {"human_delay_ms":0,"ai_ms":1271,"debounce_ms":0,"total_ms":4989,"fast_reply":true}
+[06-Aug-2026 12:59:31 Asia/Karachi] [WhatsApp webhook] Reply sent to 923337646543 {"human_delay_ms":0,"ai_ms":2561,"debounce_ms":0,"total_ms":4898,"fast_reply":true}
+[06-Aug-2026 12:59:31 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:32 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:32 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:32 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:32 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:32 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:33 Asia/Karachi] [WhatsApp webhook] Reply sent to 923337646543 {"human_delay_ms":0,"ai_ms":2579,"debounce_ms":0,"total_ms":4828,"fast_reply":true}
+[06-Aug-2026 12:59:34 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:35 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 12:59:35 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 13:03:03 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":855,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 13:03:03 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[06-Aug-2026 13:03:03 Asia/Karachi] [WhatsApp webhook] Routing to bot #8 name=IQ Pigeon company=Adera Labs {"phone_id":"758204954052103"}
+[06-Aug-2026 13:03:07 Asia/Karachi] [WhatsApp webhook] Processing inbound from 923337646543 {"batch":1,"kinds":["voice"],"message_id":"wamid.HBgMOTIzMzM3NjQ2NTQzFQIAEhggQUM1MkI4NEYyRjQyMkExOUI1QUJEQzQ3RDlDMzYyQjgA","preview":"[Voice message from customer]: \u0645\u06cc\u06ba \u06cc\u06c1 \u067e\u0648\u0686\u06be \u0631\u06c1\u0627 \u06c1\u0648\u06ba \u06a9\u06c1 \u062c\u0648 \u0686\u06cc\u0679 \u0628\u0648\u0679\u0633 \u06c1\u0648\u062a\u06d2 \u06c1\u06cc\u06ba \u0628\u0691\u06d2 \u0641"}
+[06-Aug-2026 13:03:07 Asia/Karachi] [WhatsApp webhook] AI path for 923337646543 {"lead_id":10,"preview":"[Voice message from customer]: \u0645\u06cc\u06ba \u06cc\u06c1 \u067e\u0648\u0686\u06be \u0631\u06c1\u0627 \u06c1\u0648\u06ba \u06a9\u06c1 \u062c\u0648 \u0686\u06cc\u0679"}
+[06-Aug-2026 13:03:12 Asia/Karachi] [WhatsApp webhook] Reply sent to 923337646543 {"human_delay_ms":0,"ai_ms":3206,"debounce_ms":0,"total_ms":4884,"fast_reply":true}
+[06-Aug-2026 13:03:13 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 13:03:13 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":605,"has_sig":true,"user_agent":"facebookexternalua"}
+[06-Aug-2026 13:03:13 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":610,"has_sig":true,"user_agent":"facebookexternalua"}
+[18-Aug-2026 19:54:14 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 19:59:23 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 20:20:20 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 20:49:13 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 20:49:13 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 21:06:12 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 21:06:12 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 21:16:16 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 21:16:16 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 21:40:16 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 21:40:16 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 21:50:23 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:01:21 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:01:21 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:12:19 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:12:19 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:28:19 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:28:19 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:32:20 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:33:22 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:33:22 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:40:27 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:40:27 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:47:17 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:50:28 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:50:28 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:53:18 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:53:18 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 22:56:17 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 23:01:18 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 23:01:18 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 23:03:19 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 23:03:19 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 23:27:15 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 23:27:15 Asia/Karachi] Database connection failed: Too many connections
+[18-Aug-2026 23:49:10 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 01:06:16 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 02:09:15 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 02:11:07 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 02:11:07 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 02:51:27 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 02:51:27 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 04:19:12 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 04:19:12 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 06:00:20 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 06:22:10 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 06:22:10 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 06:34:14 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 06:34:14 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 06:42:28 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 06:42:28 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 06:45:16 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 06:45:16 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 07:16:17 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 07:16:17 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 08:08:15 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 09:00:27 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 09:00:27 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 09:42:27 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 09:42:27 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 09:44:20 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 09:45:28 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 12:04:28 Asia/Karachi] Database connection failed: Too many connections
+[19-Aug-2026 12:04:28 Asia/Karachi] Database connection failed: Too many connections
+[20-Aug-2026 19:09:40 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":563,"has_sig":true,"user_agent":"facebookexternalua"}
+[20-Aug-2026 19:09:40 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[20-Aug-2026 19:09:45 Asia/Karachi] turn_engine_dispatch_worker: curl failed errno=28 Operation timed out after 3002 milliseconds with 0 bytes received
+[20-Aug-2026 19:09:45 Asia/Karachi] [WhatsApp webhook] Message buffered for turn {"turn_id":312,"lead_id":17,"type":"text","wa_id":"wamid.HBgMOTIzMDA0NTIyNjYzFQIAEhggQUNERDRFMjQzOENFOUFDQTE2QjdBOEY2MjRFRDIyRTEA"}
+[20-Aug-2026 19:09:45 Asia/Karachi] [WhatsApp webhook] Turn engine background wait {"leads":[17]}
+[20-Aug-2026 19:09:47 Asia/Karachi] turn_engine_process_turn #312: syntax error, unexpected single-quoted string ", ", expecting "]"
+[20-Aug-2026 19:09:47 Asia/Karachi] PHP Warning:  preg_match(): Compilation failed: unmatched closing parenthesis at offset 667 in /home1/iqpigeon/public_html/includes/bot-knowledge.php on line 715
+[20-Aug-2026 19:09:47 Asia/Karachi] PHP Warning:  preg_match(): Compilation failed: unmatched closing parenthesis at offset 667 in /home1/iqpigeon/public_html/includes/bot-knowledge.php on line 715
+[20-Aug-2026 19:09:47 Asia/Karachi] PHP Warning:  preg_match(): Compilation failed: unmatched closing parenthesis at offset 667 in /home1/iqpigeon/public_html/includes/bot-knowledge.php on line 715
+[20-Aug-2026 19:09:48 Asia/Karachi] turn_engine_dispatch_worker: curl failed errno=28 Operation timed out after 3002 milliseconds with 0 bytes received
+[20-Aug-2026 19:09:50 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":603,"has_sig":true,"user_agent":"facebookexternalua"}
+[20-Aug-2026 19:09:53 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":608,"has_sig":true,"user_agent":"facebookexternalua"}
+[20-Aug-2026 19:11:47 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":603,"has_sig":true,"user_agent":"facebookexternalua"}
+[20-Aug-2026 19:11:57 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":563,"has_sig":true,"user_agent":"facebookexternalua"}
+[20-Aug-2026 19:11:57 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[20-Aug-2026 19:12:01 Asia/Karachi] turn_engine_dispatch_worker: curl failed errno=28 Operation timed out after 3001 milliseconds with 0 bytes received
+[20-Aug-2026 19:12:01 Asia/Karachi] [WhatsApp webhook] Message buffered for turn {"turn_id":313,"lead_id":17,"type":"text","wa_id":"wamid.HBgMOTIzMDA0NTIyNjYzFQIAEhggQUM3RkNFMEY1NzlFMDE2MUREQUEzMEJFQTlDNzgyREIA"}
+[20-Aug-2026 19:12:01 Asia/Karachi] [WhatsApp webhook] Turn engine background wait {"leads":[17]}
+[20-Aug-2026 19:12:03 Asia/Karachi] turn_engine_process_turn #313: syntax error, unexpected single-quoted string ", ", expecting "]"
+[20-Aug-2026 19:12:03 Asia/Karachi] PHP Warning:  preg_match(): Compilation failed: unmatched closing parenthesis at offset 667 in /home1/iqpigeon/public_html/includes/bot-knowledge.php on line 715
+[20-Aug-2026 19:12:03 Asia/Karachi] PHP Warning:  preg_match(): Compilation failed: unmatched closing parenthesis at offset 667 in /home1/iqpigeon/public_html/includes/bot-knowledge.php on line 715
+[20-Aug-2026 19:12:03 Asia/Karachi] PHP Warning:  preg_match(): Compilation failed: unmatched closing parenthesis at offset 667 in /home1/iqpigeon/public_html/includes/bot-knowledge.php on line 715
+[20-Aug-2026 19:12:04 Asia/Karachi] turn_engine_dispatch_worker: curl failed errno=28 Operation timed out after 3002 milliseconds with 0 bytes received
+[20-Aug-2026 19:12:05 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":603,"has_sig":true,"user_agent":"facebookexternalua"}
+[20-Aug-2026 19:12:06 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":608,"has_sig":true,"user_agent":"facebookexternalua"}
+[20-Aug-2026 19:12:06 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":603,"has_sig":true,"user_agent":"facebookexternalua"}
+[20-Aug-2026 19:12:35 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":554,"has_sig":true,"user_agent":"facebookexternalua"}
+[20-Aug-2026 19:12:35 Asia/Karachi] [WhatsApp webhook] Inbound message for phone_id=758204954052103 {"count":1}
+[20-Aug-2026 19:12:38 Asia/Karachi] turn_engine_dispatch_worker: curl failed errno=28 Operation timed out after 3002 milliseconds with 0 bytes received
+[20-Aug-2026 19:12:38 Asia/Karachi] [WhatsApp webhook] Message buffered for turn {"turn_id":314,"lead_id":17,"type":"text","wa_id":"wamid.HBgMOTIzMDA0NTIyNjYzFQIAEhggQUNERDZFNEI0QzgwOUZBQzRFREU3QjI4RTBGRTAwQkQA"}
+[20-Aug-2026 19:12:38 Asia/Karachi] [WhatsApp webhook] Turn engine background wait {"leads":[17]}
+[20-Aug-2026 19:12:40 Asia/Karachi] turn_engine_process_turn #314: syntax error, unexpected single-quoted string ", ", expecting "]"
+[20-Aug-2026 19:12:40 Asia/Karachi] PHP Warning:  preg_match(): Compilation failed: unmatched closing parenthesis at offset 667 in /home1/iqpigeon/public_html/includes/bot-knowledge.php on line 715
+[20-Aug-2026 19:12:40 Asia/Karachi] PHP Warning:  preg_match(): Compilation failed: unmatched closing parenthesis at offset 667 in /home1/iqpigeon/public_html/includes/bot-knowledge.php on line 715
+[20-Aug-2026 19:12:40 Asia/Karachi] PHP Warning:  preg_match(): Compilation failed: unmatched closing parenthesis at offset 667 in /home1/iqpigeon/public_html/includes/bot-knowledge.php on line 715
+[20-Aug-2026 19:12:42 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":603,"has_sig":true,"user_agent":"facebookexternalua"}
+[20-Aug-2026 19:12:43 Asia/Karachi] [WhatsApp webhook] POST received (meta) {"bytes":608,"has_sig":true,"user_agent":"facebookexternalua"}
+[20-Aug-2026 19:17:13 Asia/Karachi] PHP Warning:  require_once(/home1/iqpigeon/public_html/api/../includes/conversation-turn-engine.php): Failed to open stream: No such file or directory in /home1/iqpigeon/public_html/api/turn-worker.php on line 16
+[20-Aug-2026 19:17:13 Asia/Karachi] PHP Fatal error:  Uncaught Error: Failed opening required '/home1/iqpigeon/public_html/api/../includes/conversation-turn-engine.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home1/iqpigeon/public_html/api/turn-worker.php:16
+Stack trace:
+#0 {main}
+  thrown in /home1/iqpigeon/public_html/api/turn-worker.php on line 16
+[20-Aug-2026 19:17:13 Asia/Karachi] PHP Warning:  require_once(/home1/iqpigeon/public_html/includes/conversation-turn-engine.php): Failed to open stream: No such file or directory in /home1/iqpigeon/public_html/includes/platform-schema.php on line 19
+[20-Aug-2026 19:17:13 Asia/Karachi] PHP Fatal error:  Uncaught Error: Failed opening required '/home1/iqpigeon/public_html/includes/conversation-turn-engine.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home1/iqpigeon/public_html/includes/platform-schema.php:19
+Stack trace:
+#0 /home1/iqpigeon/public_html/api/cron.php(14): require_once()
+#1 {main}
+  thrown in /home1/iqpigeon/public_html/includes/platform-schema.php on line 19

@@ -1,0 +1,270 @@
+/**
+ * Dashboard interaction fixes — secondary buttons, billing, reviews, staff
+ * Loaded via dashboard-bootstrap.js on /dashboard/ and /staff/
+ */
+
+/* ── Secondary / outline / ghost buttons (readable on hover) ─────────────── */
+body.min-h-screen main button[class*="bg-subtle"],
+body.min-h-screen main button[class*="hover:bg-border"],
+body.min-h-screen main button[class*="hover:bg-subtle"],
+body.min-h-screen main button[class*="border-border"][class*="text-primary"],
+body.min-h-screen main button[class*="bg-transparent"][class*="text-muted"] {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
+}
+
+body.min-h-screen main button[class*="bg-subtle"] *,
+body.min-h-screen main button[class*="border-border"][class*="text-primary"] *,
+body.min-h-screen main button[class*="bg-transparent"][class*="text-muted"] * {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+  opacity: 1 !important;
+}
+
+@media (hover: hover) {
+  body.min-h-screen main button[class*="bg-subtle"]:hover:not(:disabled),
+  body.min-h-screen main button[class*="hover:bg-border"]:hover:not(:disabled),
+  body.min-h-screen main button[class*="hover:bg-subtle"]:hover:not(:disabled),
+  body.min-h-screen main button[class*="border-border"][class*="text-primary"]:hover:not(:disabled),
+  body.min-h-screen main button[class*="bg-transparent"][class*="text-muted"]:hover:not(:disabled) {
+    background: #fff7ed !important;
+    color: #c2410c !important;
+    -webkit-text-fill-color: #c2410c !important;
+    border-color: #f97316 !important;
+    box-shadow: 0 2px 10px rgba(249, 115, 22, 0.18) !important;
+  }
+}
+
+/* Upload logo + manage billing — always visible CTA */
+body.min-h-screen main .dma-upload-row button,
+body.min-h-screen main button.dma-billing-portal-btn,
+body.min-h-screen main .dma-page-actions button[class*="bg-subtle"],
+body.min-h-screen main .dma-page-actions button[class*="border-border"] {
+  min-width: 148px !important;
+  font-weight: 700 !important;
+}
+
+/* ── Staff page header ───────────────────────────────────────────────────── */
+.dma-staff-header {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 0.75rem 1.25rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.dma-staff-header .dma-staff-title-wrap h1 {
+  margin-bottom: 0.15rem !important;
+}
+
+.dma-staff-header .dma-staff-meta {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  margin: 0 !important;
+}
+
+.dma-staff-header .dma-page-actions {
+  margin-left: auto !important;
+}
+
+/* ── Billing page — compact layout + plan grid ───────────────────────────── */
+body.min-h-screen.dma-billing-page main.flex-1 > div,
+body.min-h-screen.dma-billing-page main > [class*="space-y"] {
+  padding-bottom: 1.5rem !important;
+}
+
+body.min-h-screen.dma-billing-page main .card {
+  min-height: 0 !important;
+}
+
+body.min-h-screen.dma-billing-page main .card-body {
+  padding-bottom: 1rem !important;
+}
+
+.dma-billing-plans {
+  margin-top: 1.25rem !important;
+}
+
+.dma-billing-plans-title {
+  font-family: Montserrat, Inter, system-ui, sans-serif !important;
+  font-size: 1.125rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  margin: 0 0 0.35rem !important;
+}
+
+.dma-billing-plans-sub {
+  font-size: 0.875rem !important;
+  color: #64748b !important;
+  margin: 0 0 1rem !important;
+}
+
+.dma-billing-plans-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 1rem !important;
+}
+
+@media (max-width: 960px) {
+  .dma-billing-plans-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.dma-plan-card {
+  background: #fff !important;
+  border: 1px solid #d0d7e2 !important;
+  border-radius: 16px !important;
+  padding: 1.25rem !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.06) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.75rem !important;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease !important;
+}
+
+.dma-plan-card:hover {
+  border-color: rgba(249, 115, 22, 0.35) !important;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.08) !important;
+  transform: translateY(-2px) !important;
+}
+
+.dma-plan-card.dma-plan-popular {
+  border-color: #f97316 !important;
+  box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.2), 0 10px 28px rgba(249, 115, 22, 0.12) !important;
+}
+
+.dma-plan-card-head {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 0.5rem !important;
+}
+
+.dma-plan-card-head strong {
+  font-size: 1.05rem !important;
+  color: #0f172a !important;
+}
+
+.dma-plan-badge {
+  font-size: 0.65rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 0.2rem 0.5rem !important;
+  border-radius: 999px !important;
+  background: rgba(249, 115, 22, 0.12) !important;
+  color: #c2410c !important;
+}
+
+.dma-plan-price {
+  font-size: 1.75rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  line-height: 1.1 !important;
+}
+
+.dma-plan-price small {
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+}
+
+.dma-plan-card ul {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.45rem !important;
+  flex: 1 !important;
+}
+
+.dma-plan-card li {
+  font-size: 0.8125rem !important;
+  color: #334155 !important;
+  padding-left: 1.25rem !important;
+  position: relative !important;
+}
+
+.dma-plan-card li::before {
+  content: "✓" !important;
+  position: absolute !important;
+  left: 0 !important;
+  color: #f97316 !important;
+  font-weight: 800 !important;
+}
+
+.dma-plan-card button {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin-top: auto !important;
+}
+
+.dma-plan-card.dma-plan-current {
+  opacity: 0.92 !important;
+  background: #fafafa !important;
+}
+
+.dma-plan-card.dma-plan-current button {
+  background: #e2e8f0 !important;
+  color: #475569 !important;
+  cursor: default !important;
+  box-shadow: none !important;
+}
+
+/* Billing portal hint banner */
+.dma-billing-hint {
+  margin-top: 0.75rem !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 12px !important;
+  background: #fff7ed !important;
+  border: 1px solid rgba(249, 115, 22, 0.25) !important;
+  font-size: 0.8125rem !important;
+  color: #9a3412 !important;
+  font-weight: 600 !important;
+}
+
+/* ── Reviews — reply buttons + request CTA ─────────────────────────────────── */
+body.min-h-screen main button.dma-reply-btn {
+  writing-mode: horizontal-tb !important;
+  min-height: 40px !important;
+  height: auto !important;
+  width: auto !important;
+  min-width: 88px !important;
+  max-width: 140px !important;
+  padding: 0.5rem 0.875rem !important;
+  flex-direction: row !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.35rem !important;
+}
+
+body.min-h-screen main .dma-page-toolbar .dma-page-actions button[class*="bg-brand"] {
+  min-width: 168px !important;
+  max-width: 240px !important;
+}
+
+/* Toast override for billing errors */
+.dma-toast-info {
+  position: fixed !important;
+  top: 1rem !important;
+  right: 1rem !important;
+  z-index: 9999 !important;
+  max-width: 360px !important;
+  padding: 0.875rem 1rem !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  border: 1px solid #fecaca !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12) !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: #b91c1c !important;
+}

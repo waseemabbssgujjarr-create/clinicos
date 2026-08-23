@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get Started — Doctors My Agency</title>
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/landing.css" />
+  <link rel="stylesheet" href="/portal.css" />
+  <link rel="stylesheet" href="/platform-hovers.css" />
+  <link rel="stylesheet" href="/dma-theme.css" />
+</head>
+<body class="portal-page">
+  <div class="glow glow-purple"></div>
+  <div class="glow glow-blue"></div>
+
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="logo" style="text-decoration:none;color:inherit">
+        <div class="logo-icon">DM</div> Doctors My Agency
+      </a>
+      <button type="button" class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+      <div class="nav-menu" id="navMenu">
+        <div class="nav-cta">
+          <a href="/demo/" class="btn btn-outline">Try AI Demo</a>
+          <a href="/" class="btn btn-outline">Home</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="portal-main">
+    <div class="container" style="text-align:center;max-width:720px">
+      <span class="badge">Choose how you want to use the platform</span>
+      <h1 style="font-size:clamp(1.35rem,3vw,1.75rem);font-weight:700;margin-bottom:10px">
+        Who are <span style="background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent">you?</span>
+      </h1>
+      <p style="color:var(--muted);font-size:1.05rem">
+        Doctors, staff, and patients each have a simple path. Pick your role below.
+      </p>
+    </div>
+
+    <div class="container portal-grid" style="max-width:1000px">
+
+      <div class="portal-card featured">
+        <div class="icon">🩺</div>
+        <h2>Doctor / Clinic / Hospital</h2>
+        <p class="portal-desc">Your private CRM: patients, appointments, AI receptionist, leads, and staff — no public marketplace listing.</p>
+        <div class="portal-card-actions">
+          <a href="/register/" class="btn btn-primary">Register Clinic — Free Trial</a>
+          <a href="/doctor-login/" class="btn btn-secondary">Doctor Sign In</a>
+          <p class="portal-card-footnote">&nbsp;</p>
+        </div>
+      </div>
+
+      <div class="portal-card">
+        <div class="icon">👥</div>
+        <h2>Clinic Staff</h2>
+        <p class="portal-desc">Receptionists and assistants — view appointments, messages, and patients for your clinic team in the staff portal.</p>
+        <div class="portal-card-actions">
+          <a href="/staff-login/" class="btn btn-primary">Staff Sign In</a>
+          <a href="/accept-invite/" class="btn btn-secondary">Accept Invite</a>
+          <p class="portal-card-footnote">Invite link required from your doctor</p>
+        </div>
+      </div>
+
+      <div class="portal-card">
+        <div class="icon">🧑‍⚕️</div>
+        <h2>Patient</h2>
+        <p class="portal-desc">Use the booking link or WhatsApp from your clinic. View or cancel visits with your phone number — no account needed.</p>
+        <div class="portal-card-actions">
+          <a href="/my-appointments/" class="btn btn-primary">My Appointments</a>
+          <a href="/patients/" class="btn btn-secondary">How patient access works</a>
+          <p class="portal-card-footnote"><a href="/demo/" style="color:#F97316;font-weight:600">Try AI receptionist demo →</a></p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="container" style="margin-top:48px;text-align:center">
+      <p style="color:var(--muted);font-size:0.9rem">
+        Platform admin? <a href="/admin-login/" style="color:#F97316;font-weight:600">Sign in here</a>
+        · <a href="/demo/" style="color:#F97316">Live chat demo</a>
+        · <a href="/patients/" style="color:#F97316">Patient access info</a>
+      </p>
+    </div>
+  </main>
+  <script src="/portal.js"></script>
+  <script src="/salesbot-widget.js"></script>
+</body>
+</html>

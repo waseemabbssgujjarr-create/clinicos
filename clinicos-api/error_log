@@ -1,0 +1,10 @@
+[10-Aug-2026 15:54:11 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'digitals_clinicuser'@'localhost' (using password: YES) in Command line code:1
+Stack trace:
+#0 Command line code(1): mysqli->__construct()
+#1 {main}
+  thrown in Command line code on line 1
+[10-Aug-2026 16:20:04 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'digitals_clinicuser'@'localhost' (using password: YES) in Command line code:1
+Stack trace:
+#0 Command line code(1): mysqli->__construct()
+#1 {main}
+  thrown in Command line code on line 1

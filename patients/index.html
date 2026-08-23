@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Access — Doctors My Agency</title>
+  <meta name="description" content="Contact your clinic directly to book. Doctors My Agency is a CRM platform for doctors — not a public clinic directory." />
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/landing.css" />
+  <link rel="stylesheet" href="/portal.css" />
+  <link rel="stylesheet" href="/platform-hovers.css" />
+  <link rel="stylesheet" href="/dma-theme.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(_){}})();
+  </script>
+</head>
+<body class="portal-page">
+  <div class="glow glow-purple"></div>
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="logo" style="text-decoration:none;color:inherit"><div class="logo-icon">DM</div> Doctors My Agency</a>
+      <div class="nav-cta">
+        <a href="/start/" class="btn btn-outline">Portal</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="portal-main">
+    <div class="container" style="max-width:720px;text-align:center">
+      <a href="/start/" class="back-link" style="display:block;text-align:left;margin-bottom:16px">← Back</a>
+      <span class="badge">For patients</span>
+      <h1 style="font-size:clamp(1.5rem,3vw,2rem);font-weight:800;margin:16px 0 12px;color:var(--text,#0a0a0a)">Contact your clinic directly</h1>
+      <p style="color:var(--muted);font-size:1.05rem;line-height:1.7;margin-bottom:32px">
+        Doctors My Agency is a <strong style="color:var(--text,#0a0a0a)">CRM for doctors, clinics, and hospitals</strong> — not a public clinic finder.
+        Your clinic manages patients inside their own system. Book through the link, WhatsApp, or website chat your clinic gave you.
+      </p>
+
+      <div class="feature-card" style="text-align:left;margin-bottom:24px">
+        <h3 style="margin-bottom:12px">How to book with your clinic</h3>
+        <ol style="color:var(--muted);font-size:0.95rem;padding-left:20px;line-height:1.9;margin:0">
+          <li>Message your clinic on <strong style="color:var(--text,#0a0a0a)">WhatsApp</strong> or their <strong style="color:var(--text,#0a0a0a)">website chat</strong></li>
+          <li>Use the <strong style="color:var(--text,#0a0a0a)">booking link</strong> your doctor or reception shared with you</li>
+          <li>The clinic's <strong style="color:var(--text,#0a0a0a)">AI receptionist</strong> replies 24/7 — books slots, answers FAQs, and logs everything for staff</li>
+        </ol>
+      </div>
+
+      <div class="portal-grid" style="max-width:560px;margin:0 auto 32px;grid-template-columns:1fr">
+        <div class="portal-card featured">
+          <div class="icon">📅</div>
+          <h2>Already booked?</h2>
+          <p class="portal-desc">View or cancel your appointment with your phone number — no password needed.</p>
+          <div class="portal-card-actions">
+            <a href="/my-appointments/" class="btn btn-primary">My Appointments →</a>
+          </div>
+        </div>
+      </div>
+
+      <p style="color:var(--muted);font-size:0.9rem">
+        Want to see how the AI receptionist works?
+        <a href="/demo/" style="color:#F97316;font-weight:600">Try the live demo →</a>
+      </p>
+      <p style="color:var(--muted);font-size:0.85rem;margin-top:24px">
+        Are you a doctor or clinic owner?
+        <a href="/register/" style="color:#F97316;font-weight:600">Start free trial →</a>
+      </p>
+    </div>
+  </main>
+  <script src="/salesbot-widget.js"></script>
+</body>
+</html>

@@ -1,0 +1,345 @@
+/**
+ * Superadmin — overview, subscriptions, clinic detail polish
+ * Loaded on /superadmin/ via dashboard-bootstrap.js
+ */
+
+/* ── Page shell ──────────────────────────────────────────────────────────── */
+body.min-h-screen main.flex-1,
+body.min-h-screen [class*="ml-[220px]"],
+body.min-h-screen [class*="ml-\\[220px\\]"],
+.sa-main,
+.sa-main-inner {
+  background: linear-gradient(180deg, #eef2f7 0%, #e8eef5 100%) !important;
+}
+
+body.min-h-screen main.flex-1 > div,
+.sa-main-inner {
+  max-width: 1180px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100% !important;
+  padding: 1.5rem !important;
+  box-sizing: border-box !important;
+}
+
+/* ── Overview KPI stat cards ───────────────────────────────────────────────── */
+body.min-h-screen main [class*="grid-cols-4"] > div,
+body.min-h-screen main [class*="lg:grid-cols-4"] > div,
+body.min-h-screen main [class*="grid-cols-2"] > div[class*="border-l"],
+.sa-kpi-grid .sa-kpi-card {
+  background: #fff !important;
+  border: 1px solid #d0d7e2 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 28px rgba(15, 23, 42, 0.07) !important;
+  padding: 1.125rem 1.25rem !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease !important;
+}
+
+body.min-h-screen main [class*="grid-cols-4"] > div:hover,
+body.min-h-screen main [class*="lg:grid-cols-4"] > div:hover,
+.sa-kpi-grid .sa-kpi-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(249, 115, 22, 0.3) !important;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.1) !important;
+}
+
+body.min-h-screen main [class*="border-l-4"],
+body.min-h-screen main [class*="border-l-brand"] {
+  border-left-width: 4px !important;
+}
+
+body.min-h-screen main h1,
+.sa-page-hero h1 {
+  font-family: Montserrat, Inter, system-ui, sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  color: #0f172a !important;
+  margin-bottom: 0.25rem !important;
+}
+
+body.min-h-screen main h1 + p,
+.sa-page-hero p {
+  color: #64748b !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+}
+
+/* ── Tables (React + static) ─────────────────────────────────────────────── */
+body.min-h-screen main table,
+.sa-data-table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: #fff !important;
+  border: 1px solid #d0d7e2 !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.06) !important;
+}
+
+body.min-h-screen main table thead th,
+.sa-data-table thead th {
+  background: #f8fafc !important;
+  color: #64748b !important;
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.07em !important;
+  text-transform: uppercase !important;
+  padding: 0.875rem 1rem !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+body.min-h-screen main table tbody td,
+.sa-data-table tbody td {
+  padding: 0.875rem 1rem !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  font-size: 0.875rem !important;
+  color: #334155 !important;
+  vertical-align: middle !important;
+}
+
+body.min-h-screen main table tbody tr:last-child td,
+.sa-data-table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+body.min-h-screen main table tbody tr:hover,
+.sa-data-table tbody tr:hover {
+  background: rgba(249, 115, 22, 0.04) !important;
+}
+
+/* ── Static superadmin pages ───────────────────────────────────────────────── */
+.sa-page-hero {
+  margin-bottom: 1.25rem !important;
+}
+
+.sa-page-hero h1::after {
+  content: "" !important;
+  display: block !important;
+  width: 48px !important;
+  height: 3px !important;
+  margin-top: 0.5rem !important;
+  border-radius: 2px !important;
+  background: linear-gradient(90deg, #f97316, #ea580c) !important;
+}
+
+.sa-kpi-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 1rem !important;
+  margin-bottom: 1.25rem !important;
+}
+
+@media (max-width: 960px) {
+  .sa-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .sa-kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.sa-kpi-card {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.25rem !important;
+}
+
+.sa-kpi-card .sa-kpi-label {
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: #64748b !important;
+}
+
+.sa-kpi-card .sa-kpi-value {
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  line-height: 1.1 !important;
+}
+
+.sa-kpi-card .sa-kpi-sub {
+  font-size: 0.75rem !important;
+  color: #94a3b8 !important;
+  font-weight: 600 !important;
+}
+
+.sa-content-card {
+  background: #fff !important;
+  border: 1px solid #d0d7e2 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 28px rgba(15, 23, 42, 0.07) !important;
+  padding: 1.25rem 1.5rem 1.5rem !important;
+}
+
+.sa-subtitle {
+  color: #64748b !important;
+  font-size: 0.9rem !important;
+  margin: 0.25rem 0 1rem !important;
+}
+
+.sa-status {
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+  color: #64748b !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.sa-status-error {
+  color: #b91c1c !important;
+  background: #fef2f2 !important;
+  border: 1px solid #fecaca !important;
+  border-radius: 12px !important;
+  padding: 0.875rem 1rem !important;
+}
+
+.sa-retry-btn {
+  margin-top: 0.75rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 10px !important;
+  border: none !important;
+  background: linear-gradient(135deg, #f97316, #ea580c) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  font-size: 0.8125rem !important;
+  cursor: pointer !important;
+}
+
+.sa-table-wrap {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.sa-clinic-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 999px !important;
+  background: rgba(249, 115, 22, 0.12) !important;
+  color: #c2410c !important;
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-right: 0.5rem !important;
+  vertical-align: middle !important;
+}
+
+.sa-link {
+  color: #ea580c !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  font-size: 0.8125rem !important;
+}
+
+.sa-link:hover {
+  text-decoration: underline !important;
+  color: #c2410c !important;
+}
+
+/* Clinic detail sections */
+.sa-detail-grid {
+  display: grid !important;
+  grid-template-columns: 1.2fr 0.8fr !important;
+  gap: 1rem !important;
+  margin: 1rem 0 !important;
+}
+
+@media (max-width: 900px) {
+  .sa-detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.sa-section-card {
+  background: #fff !important;
+  border: 1px solid #d0d7e2 !important;
+  border-radius: 14px !important;
+  padding: 1rem 1.125rem !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+.sa-section-card h3 {
+  margin: 0 0 0.875rem !important;
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: #64748b !important;
+  padding-bottom: 0.5rem !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.sa-info-list {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 0.75rem 1rem !important;
+}
+
+@media (max-width: 600px) {
+  .sa-info-list {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.sa-info-list dt {
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: #94a3b8 !important;
+  margin-bottom: 0.15rem !important;
+}
+
+.sa-info-list dd {
+  margin: 0 !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  word-break: break-word !important;
+}
+
+.sa-plan-panel {
+  background: linear-gradient(180deg, #fff7ed 0%, #fff 100%) !important;
+  border: 1px solid rgba(249, 115, 22, 0.25) !important;
+  border-radius: 14px !important;
+  padding: 1rem 1.125rem !important;
+  margin-top: 1rem !important;
+}
+
+.sa-plan-panel h3 {
+  color: #c2410c !important;
+  border-bottom-color: rgba(249, 115, 22, 0.15) !important;
+}
+
+.sa-skeleton {
+  height: 14px !important;
+  border-radius: 6px !important;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%) !important;
+  background-size: 200% 100% !important;
+  animation: sa-shimmer 1.2s infinite !important;
+  margin-bottom: 0.5rem !important;
+}
+
+@keyframes sa-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* View all link on overview */
+body.min-h-screen main a[class*="text-brand"]:not(.nav-item) {
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+body.min-h-screen main a[class*="text-brand"]:not(.nav-item):hover {
+  text-decoration: underline !important;
+}

@@ -1,0 +1,36 @@
+{
+  "name": "clinicos-app",
+  "version": "1.0.0",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "cpanel-setup": "node clinicos-api/dist/cpanel-check.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "5.14.0",
+    "bcryptjs": "2.4.3",
+    "cloudinary": "2.3.1",
+    "cookie-parser": "1.4.6",
+    "cors": "2.8.5",
+    "date-fns": "3.6.0",
+    "dotenv": "16.4.5",
+    "express": "4.19.2",
+    "express-rate-limit": "7.3.1",
+    "helmet": "7.1.0",
+    "jsonwebtoken": "9.0.2",
+    "multer": "1.4.5-lts.1",
+    "node-cron": "3.0.3",
+    "nodemailer": "6.9.14",
+    "openai": "4.52.3",
+    "prisma": "5.14.0",
+    "socket.io": "4.7.5",
+    "stripe": "16.1.0",
+    "twilio": "5.2.3",
+    "winston": "3.13.0",
+    "zod": "3.23.8"
+  }
+}

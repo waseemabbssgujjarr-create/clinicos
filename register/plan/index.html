@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Choose Plan — Doctors My Agency</title>
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/landing.css?v=4" />
+  <link rel="stylesheet" href="/portal.css?v=4" />
+  <link rel="stylesheet" href="/platform-hovers.css?v=4" />
+  <link rel="stylesheet" href="/dma-theme.css?v=4" />
+  <script>
+    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(_){}})();
+  </script>
+  <script src="/api-shim.js"></script>
+  <style>
+    #verifyBanner {
+      background: #fff7ed !important;
+      border: 1px solid #fdba74 !important;
+      color: #9a3412 !important;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    #verifyBanner.verified {
+      background: #ecfdf5 !important;
+      border-color: #6ee7b7 !important;
+      color: #065f46 !important;
+    }
+    #verifyBanner strong { display: block; margin-bottom: 6px; }
+    #resendVerifyBtn {
+      width: auto;
+      background: #fff !important;
+      color: #c2410c !important;
+      border: 1px solid #fb923c !important;
+      font-weight: 700 !important;
+    }
+    #resendVerifyBtn:hover {
+      background: #ffedd5 !important;
+      color: #9a3412 !important;
+    }
+    #trialBtn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body class="portal-page">
+  <div class="glow glow-purple"></div>
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="logo" style="text-decoration:none;color:inherit"><div class="logo-icon">DM</div> Doctors My Agency</a>
+    </div>
+  </nav>
+  <main class="portal-main">
+    <div class="container">
+      <a href="/register/hours/" class="back-link">← Back</a>
+      <div class="form-card wide">
+        <div class="step-dots" aria-hidden="true">
+          <span class="step-dot done">✓</span><span class="step-line"></span>
+          <span class="step-dot done">✓</span><span class="step-line"></span>
+          <span class="step-dot done">✓</span><span class="step-line"></span>
+          <span class="step-dot active">4</span>
+        </div>
+        <h1>Start your free trial</h1>
+        <p class="subtitle">14 days full access — verify your email to open the dashboard</p>
+        <div id="error" class="alert alert-error" style="display:none"></div>
+        <div id="verifyBanner" class="alert" style="display:none">
+          <strong id="verifyTitle">Verify your email</strong>
+          <p id="verifyMsg" style="margin:8px 0 12px;font-size:0.875rem;line-height:1.5"></p>
+          <button type="button" class="btn btn-outline" id="resendVerifyBtn">Resend verification email</button>
+        </div>
+
+        <div class="trial-banner">
+          <strong>🚀 Your trial is ready</strong>
+          <span id="trialHint">After you verify your email, open the dashboard. Upgrade anytime from Settings.</span>
+        </div>
+
+        <button type="button" class="btn btn-primary btn-trial" id="trialBtn" disabled>Verify email to continue</button>
+        <p class="plan-note">No card needed · Cancel anytime · TRIAL plan active</p>
+
+        <details style="margin-top:24px">
+          <summary style="cursor:pointer;font-size:0.88rem;font-weight:700;color:var(--muted);text-align:center;list-style:none">
+            Compare paid plans (optional)
+          </summary>
+          <div class="plan-cards" style="margin-top:16px">
+            <div class="plan-card">
+              <h3>Starter</h3>
+              <p class="plan-price">$29<span>/mo</span></p>
+              <p class="plan-desc">Full dashboard · 500 patients · WhatsApp AI</p>
+            </div>
+            <div class="plan-card featured">
+              <span class="plan-badge">Popular</span>
+              <h3>Pro</h3>
+              <p class="plan-price">$59<span>/mo</span></p>
+              <p class="plan-desc">Analytics · Voice AI · 2,000 patients</p>
+            </div>
+            <div class="plan-card">
+              <h3>Enterprise</h3>
+              <p class="plan-price">$99<span>/mo</span></p>
+              <p class="plan-desc">Unlimited patients · priority support</p>
+            </div>
+          </div>
+          <p class="plan-note" style="margin-top:12px">Paid plans can be added later from Dashboard → Billing. Card details are only needed when you choose to upgrade.</p>
+        </details>
+      </div>
+    </div>
+  </main>
+  <script src="/portal.js?v=4"></script>
+  <script>
+    if (!localStorage.getItem('token')) window.location.replace('/register/');
+
+    const DEFAULT_TREATMENTS = [
+      { name: 'General Consultation', fee: 150 },
+      { name: 'Follow-up Visit', fee: 100 },
+    ];
+
+    function formatApiError(data, fallback) {
+      if (data.details && Array.isArray(data.details)) {
+        return data.details.map((d) => d.message || d.path?.join('.')).filter(Boolean).join(' · ') || fallback;
+      }
+      return data.error || data.message || fallback;
+    }
+
+    function getEmail() {
+      try {
+        var params = new URLSearchParams(location.search);
+        var fromUrl = params.get('email') || '';
+        if (fromUrl) {
+          sessionStorage.setItem('dma-verify-email', fromUrl);
+          return fromUrl;
+        }
+        var email = sessionStorage.getItem('dma-verify-email') || '';
+        if (email) return email;
+        // Never use superadmin/staff from clinicos-store — only the registering doctor
+        var userRaw = localStorage.getItem('clinicos-store');
+        if (userRaw) {
+          var parsed = JSON.parse(userRaw);
+          var u = parsed && parsed.state && parsed.state.user;
+          if (u && u.role === 'DOCTOR' && u.email) return u.email;
+        }
+        return '';
+      } catch (_) {
+        return '';
+      }
+    }
+
+    var verified = false;
+    var pollTimer = null;
+
+    function setVerifiedUI(isVerified, email) {
+      verified = !!isVerified;
+      var banner = document.getElementById('verifyBanner');
+      var title = document.getElementById('verifyTitle');
+      var msg = document.getElementById('verifyMsg');
+      var btn = document.getElementById('trialBtn');
+      var hint = document.getElementById('trialHint');
+      banner.style.display = 'block';
+      if (verified) {
+        banner.classList.add('verified');
+        title.textContent = 'Email verified';
+        msg.textContent = 'Thanks — ' + (email || 'your email') + ' is verified. You can open your dashboard.';
+        document.getElementById('resendVerifyBtn').style.display = 'none';
+        btn.disabled = false;
+        btn.textContent = 'Start Free Trial — Open Dashboard →';
+        hint.textContent = 'Skip payment and open your dashboard now. Upgrade to a paid plan anytime from Settings.';
+        if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+      } else {
+        banner.classList.remove('verified');
+        title.textContent = 'Verify your email';
+        var sent = sessionStorage.getItem('dma-verify-sent') !== '0';
+        msg.textContent = sent
+          ? 'We sent a verification link to ' + email + '. Open the link, then return here — dashboard unlocks after verification.'
+          : 'We could not send a verification email to ' + email + '. Click resend (requires SMTP in Superadmin → Integrations).';
+        document.getElementById('resendVerifyBtn').style.display = '';
+        btn.disabled = true;
+        btn.textContent = 'Verify email to continue';
+        hint.textContent = 'Dashboard stays locked until your email is verified.';
+      }
+    }
+
+    async function checkVerified() {
+      try {
+        var expectEmail = getEmail();
+        var r = await fetch('/api/auth/me', {
+          headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+          credentials: 'include',
+        });
+        if (!r.ok) return false;
+        var data = await r.json();
+        // Ignore superadmin/staff session left open in same browser
+        if (data.role && data.role !== 'DOCTOR') return false;
+        if (expectEmail && data.email && data.email.toLowerCase() !== expectEmail.toLowerCase()) return false;
+        return !!data.emailVerified;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    (function initVerifyBanner() {
+      var email = getEmail();
+      if (!email) return;
+      setVerifiedUI(false, email);
+
+      document.getElementById('resendVerifyBtn').onclick = async function () {
+        var btn = this;
+        btn.disabled = true;
+        btn.textContent = 'Sending…';
+        try {
+          var r = await fetch('/api/auth/resend-verification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email }),
+          });
+          var data = await r.json().catch(function () { return {}; });
+          if (!r.ok) throw new Error(data.error || data.message || 'Send failed');
+          sessionStorage.setItem('dma-verify-sent', '1');
+          document.getElementById('verifyMsg').textContent =
+            'Verification email sent to ' + email + '. Check inbox and spam, then return here.';
+          document.getElementById('verifyBanner').classList.add('verified');
+          document.getElementById('verifyBanner').classList.remove('verified');
+          document.getElementById('verifyBanner').style.background = '#ecfdf5';
+          document.getElementById('verifyBanner').style.borderColor = '#6ee7b7';
+          document.getElementById('verifyBanner').style.color = '#065f46';
+        } catch (ex) {
+          document.getElementById('error').textContent = ex.message;
+          document.getElementById('error').style.display = 'block';
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Resend verification email';
+        }
+      };
+
+      checkVerified().then(function (ok) {
+        if (ok) setVerifiedUI(true, email);
+      });
+      pollTimer = setInterval(function () {
+        checkVerified().then(function (ok) {
+          if (ok) setVerifiedUI(true, email);
+        });
+      }, 4000);
+    })();
+
+    async function finishTrialSetup() {
+      if (!verified) {
+        document.getElementById('error').textContent = 'Please verify your email before opening the dashboard.';
+        document.getElementById('error').style.display = 'block';
+        return;
+      }
+      const err = document.getElementById('error');
+      const btn = document.getElementById('trialBtn');
+      err.style.display = 'none';
+      setBtnLoading(btn, true, 'Opening dashboard…');
+
+      try {
+        const stillOk = await checkVerified();
+        if (!stillOk) {
+          setVerifiedUI(false, getEmail());
+          throw new Error('Email is not verified yet. Open the link in your inbox, then try again.');
+        }
+
+        const r = await fetch('/api/settings/treatments', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),
+          },
+          credentials: 'include',
+          body: JSON.stringify({ treatments: JSON.stringify(DEFAULT_TREATMENTS) }),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(formatApiError(data, 'Could not complete setup'));
+
+        const raw = localStorage.getItem('clinicos-store');
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            if (parsed.state && parsed.state.user) {
+              parsed.state.user.onboardingDone = true;
+              parsed.state.user.plan = parsed.state.user.plan || 'TRIAL';
+              parsed.state.user.planStatus = parsed.state.user.planStatus || 'TRIALING';
+              parsed.state.user.emailVerified = true;
+              localStorage.setItem('clinicos-store', JSON.stringify(parsed));
+            }
+          } catch (_) {}
+        }
+        window.location.href = '/dashboard/';
+      } catch (ex) {
+        err.textContent = ex.message;
+        err.style.display = 'block';
+        setBtnLoading(btn, false);
+      }
+    }
+
+    document.getElementById('trialBtn').onclick = finishTrialSetup;
+  </script>
+</body>
+</html>

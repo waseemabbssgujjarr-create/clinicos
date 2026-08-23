@@ -1,0 +1,55 @@
+Options -MultiViews
+RewriteEngine On
+
+# ── Force HTTPS ──────────────────────────────────────────────────────────────
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+# ── IQ Pigeon chat widget (same-origin proxy — fixes CORS "Setup required") ───
+RewriteRule ^api/chat-widget\.php$ /chat-widget.php [L,QSA]
+
+# ── Route /api/* and /socket.io/* to Node.js via PHP proxy ──────────────────
+# cPanel shared hosting typically has mod_proxy DISABLED.
+# api-proxy.php relays to the Passenger socket or TCP fallback.
+# Diagnostic page (no Node needed): /api-status.php
+RewriteCond %{REQUEST_URI} ^/(api|socket\.io)/
+RewriteRule ^(.*)$ /api-proxy.php [L,QSA]
+
+# ── Legacy URL redirects (old ClinicOS / MediCore paths) ─────────────────────
+# Must run BEFORE the .php passthrough rule below.
+RewriteRule ^login/?$ /doctor-login/ [R=302,L]
+RewriteRule ^login\.php$ /doctor-login/ [R=302,L]
+RewriteRule ^doctor/?$ /doctor-login/ [R=302,L]
+RewriteRule ^doctor/login/?$ /doctor-login/ [R=302,L]
+RewriteRule ^doctor/login\.php$ /doctor-login/ [R=302,L]
+RewriteRule ^staff/?$ /staff-login/ [R=302,L]
+RewriteRule ^staff/login/?$ /staff-login/ [R=302,L]
+RewriteRule ^staff/login\.php$ /staff-login/ [R=302,L]
+RewriteRule ^admin/?$ /admin-login/ [R=302,L]
+RewriteRule ^admin/login/?$ /admin-login/ [R=302,L]
+RewriteRule ^admin/login\.php$ /admin-login/ [R=302,L]
+RewriteRule ^admin/index\.php$ /admin-login/ [R=302,L]
+RewriteRule ^superadmin/login/?$ /admin-login/ [R=302,L]
+RewriteRule ^superadmin/login\.php$ /admin-login/ [R=302,L]
+
+# ── Superadmin clinic detail (dynamic /superadmin/clinics/{id} — no static export) ─
+RewriteRule ^superadmin/clinics/[a-zA-Z0-9]+/?$ /superadmin/clinics/detail/index.html [L]
+
+# ── Dashboard patient detail (dynamic /dashboard/patients/{id} — no static export) ─
+RewriteRule ^dashboard/patients/[a-zA-Z0-9]+/?$ /dashboard/patients/detail/index.html [L]
+
+# ── Patient clinic marketplace (dynamic /patients/clinic/{slug}) ─────────────
+RewriteRule ^patients/clinic/[a-zA-Z0-9_-]+/?$ /patients/clinic/detail/index.html [L]
+
+# ── Legacy patient verify path (Next.js used /patient/verify) ─────────────────
+RewriteRule ^patient/verify/?$ /verify/ [R=302,L]
+
+# ── Never SPA-fallback real scripts / diagnostics ───────────────────────────
+RewriteRule \.(php|js|css|map|json|svg|png|jpg|jpeg|gif|webp|ico|txt|xml|woff2?)$ - [L]
+
+# ── SPA fallback: serve index.html for all non-file, non-directory routes ────
+# This makes deep-links like /dashboard/, /login/ work correctly.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !\.(php|js|css)$ [NC]
+RewriteRule ^ /index.html [L]

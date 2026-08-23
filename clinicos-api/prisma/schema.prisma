@@ -1,0 +1,484 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../generated/prisma"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// SUPER ADMIN (Platform Owner)
+// ─────────────────────────────────────────────
+model SuperAdmin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────
+// CLINIC (Each subscribing Doctor)
+// ─────────────────────────────────────────────
+model Clinic {
+  id                String   @id @default(cuid())
+  name              String
+  ownerName         String
+  phone             String   @unique
+  email             String   @unique
+  passwordHash      String
+  specialty         String?
+  address           String?
+  logoUrl           String?
+  bookingSlug       String   @unique
+  timezone          String   @default("Asia/Dubai")
+  workingHours      String?  @db.Text
+  treatments        String?  @db.Text
+  defaultFee        Decimal? @db.Decimal(10, 2)
+  aiEnabled         Boolean  @default(true)
+  aiLanguage        String   @default("english")
+  aiPersonality     String   @default("professional")
+  autoConfirm       Boolean  @default(true)
+  reminderTiming    String   @default("both")
+  reviewTiming      String   @default("1h_after")
+  customIntroMsg    String?  @db.Text
+  googlePlaceId     String?
+  googleApiKey      String?
+  stripeCustomerId  String?  @unique
+  stripeSubId       String?  @unique
+  plan              ClinicPlan @default(TRIAL)
+  planStatus        PlanStatus @default(ACTIVE)
+  trialEndsAt       DateTime?
+  currentPeriodEnd  DateTime?
+  emailVerified      Boolean  @default(false)
+  emailVerifyToken   String?  @unique
+  emailVerifyExpires DateTime?
+  isActive          Boolean  @default(true)
+  onboardingDone    Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  staff             StaffMember[]
+  patients          Patient[]
+  appointments      Appointment[]
+  messages          Message[]
+  aiLogs            AILog[]
+  notifications     Notification[]
+  broadcasts        Broadcast[]
+  invoices          Invoice[]
+  leads             Lead[]
+  missedCalls       MissedCall[]
+  dailyBriefs       DailyBrief[]
+
+  @@index([bookingSlug])
+  @@index([email])
+}
+
+enum ClinicPlan {
+  TRIAL
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+enum PlanStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  TRIALING
+}
+
+// ─────────────────────────────────────────────
+// STAFF MEMBERS
+// ─────────────────────────────────────────────
+model StaffMember {
+  id           String    @id @default(cuid())
+  clinicId     String
+  name         String
+  email        String    @unique
+  phone        String?
+  passwordHash String
+  role         StaffRole @default(RECEPTIONIST)
+  isActive     Boolean   @default(true)
+  emailVerified      Boolean   @default(false)
+  emailVerifyToken   String?   @unique
+  emailVerifyExpires DateTime?
+  inviteToken  String?   @unique
+  inviteExpiry DateTime?
+  lastLogin    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  clinic       Clinic    @relation(fields: [clinicId], references: [id])
+
+  @@index([clinicId])
+}
+
+enum StaffRole {
+  RECEPTIONIST
+  NURSE
+  ASSISTANT
+  MANAGER
+}
+
+// ─────────────────────────────────────────────
+// PATIENTS
+// ─────────────────────────────────────────────
+model Patient {
+  id                String   @id @default(cuid())
+  clinicId          String
+  fullName          String
+  phone             String
+  email             String?
+  dateOfBirth       DateTime?
+  gender            String?
+  bloodGroup        String?
+  medicalNotes      String?  @db.Text
+  allergies         String?
+  emergencyName     String?
+  emergencyPhone    String?
+  isActive          Boolean  @default(true)
+  magicLinkToken    String?  @unique
+  magicLinkExpiry   DateTime?
+  portalEnabled     Boolean  @default(false)
+  optedOut          Boolean  @default(false)
+  optedOutAt        DateTime?
+  leadScore         LeadScore @default(COLD)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  clinic            Clinic        @relation(fields: [clinicId], references: [id])
+  appointments      Appointment[]
+  messages          Message[]
+  leads             Lead[]
+
+  @@unique([clinicId, phone])
+  @@index([clinicId])
+  @@index([clinicId, leadScore])
+}
+
+// ─────────────────────────────────────────────
+// APPOINTMENTS
+// ─────────────────────────────────────────────
+model Appointment {
+  id               String            @id @default(cuid())
+  clinicId         String
+  patientId        String
+  treatment        String
+  dateTime         DateTime
+  durationMin      Int               @default(30)
+  status           AppointmentStatus @default(PENDING)
+  channel          BookingChannel    @default(MANUAL)
+  notes            String?
+  fee              Decimal?          @db.Decimal(10, 2)
+  confirmationSent Boolean           @default(false)
+  reminder24hSent  Boolean           @default(false)
+  reminder2hSent   Boolean           @default(false)
+  reviewSent       Boolean           @default(false)
+  bookedByStaffId  String?
+  bookedByAI       Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  clinic           Clinic            @relation(fields: [clinicId], references: [id])
+  patient          Patient           @relation(fields: [patientId], references: [id])
+
+  @@index([clinicId, dateTime])
+  @@index([patientId])
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  ARRIVED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  RESCHEDULED
+}
+
+enum BookingChannel {
+  MANUAL
+  WHATSAPP
+  SMS
+  CALL
+  EMAIL
+  ONLINE_BOOKING
+  STAFF_PORTAL
+}
+
+// ─────────────────────────────────────────────
+// MESSAGES
+// ─────────────────────────────────────────────
+model Message {
+  id            String         @id @default(cuid())
+  clinicId      String
+  patientId     String?
+  channel       MessageChannel
+  direction     Direction
+  fromNumber    String
+  toNumber      String
+  body          String         @db.Text
+  isRead        Boolean        @default(false)
+  isHandledByAI Boolean        @default(false)
+  aiConfidence  Float?
+  needsReview   Boolean        @default(false)
+  tags          String?        @db.Text
+  intent        String?
+  summary       String?        @db.Text
+  twilioSid     String?
+  replyToId     String?
+  createdAt     DateTime       @default(now())
+
+  clinic        Clinic         @relation(fields: [clinicId], references: [id])
+  patient       Patient?       @relation(fields: [patientId], references: [id])
+
+  @@index([clinicId, createdAt])
+  @@index([patientId])
+}
+
+enum MessageChannel {
+  WHATSAPP
+  SMS
+  CALL
+  EMAIL
+  INSTAGRAM
+  WEBSITE
+}
+
+enum LeadScore {
+  HOT
+  WARM
+  COLD
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  BOOKED
+  VISITED
+  FOLLOW_UP
+  CONVERTED
+  LOST
+}
+
+enum LeadIntent {
+  BOOKING
+  PRICE
+  TREATMENT
+  EMERGENCY
+  GENERAL
+}
+
+enum Direction {
+  INBOUND
+  OUTBOUND
+}
+
+// ─────────────────────────────────────────────
+// AI ACTIVITY LOG
+// ─────────────────────────────────────────────
+model AILog {
+  id         String   @id @default(cuid())
+  clinicId   String
+  action     String
+  details    String   @db.Text
+  patientId  String?
+  success    Boolean  @default(true)
+  error      String?
+  durationMs Int?
+  createdAt  DateTime @default(now())
+
+  clinic     Clinic   @relation(fields: [clinicId], references: [id])
+
+  @@index([clinicId, createdAt])
+}
+
+// ─────────────────────────────────────────────
+// NOTIFICATIONS
+// ─────────────────────────────────────────────
+model Notification {
+  id        String   @id @default(cuid())
+  clinicId  String
+  title     String
+  body      String
+  type      String
+  color     String   @default("teal")
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  clinic    Clinic   @relation(fields: [clinicId], references: [id])
+
+  @@index([clinicId, isRead, createdAt])
+}
+
+// ─────────────────────────────────────────────
+// BROADCASTS
+// ─────────────────────────────────────────────
+model Broadcast {
+  id          String   @id @default(cuid())
+  clinicId    String
+  channel     String
+  targetGroup String
+  messageBody String   @db.Text
+  sentCount   Int      @default(0)
+  failedCount Int      @default(0)
+  status      String   @default("completed")
+  createdAt   DateTime @default(now())
+
+  clinic      Clinic   @relation(fields: [clinicId], references: [id])
+}
+
+// ─────────────────────────────────────────────
+// BILLING / INVOICES
+// ─────────────────────────────────────────────
+model Invoice {
+  id              String   @id @default(cuid())
+  clinicId        String
+  stripeInvoiceId String   @unique
+  amount          Decimal  @db.Decimal(10, 2)
+  currency        String   @default("usd")
+  status          String
+  period          String
+  pdfUrl          String?
+  paidAt          DateTime?
+  createdAt       DateTime @default(now())
+
+  clinic          Clinic   @relation(fields: [clinicId], references: [id])
+
+  @@index([clinicId])
+}
+
+// ─────────────────────────────────────────────
+// SUBSCRIPTION PLANS
+// ─────────────────────────────────────────────
+model Plan {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  stripePriceId   String   @unique
+  priceMonthly    Decimal  @db.Decimal(10, 2)
+  maxStaff        Int      @default(1)
+  maxPatients     Int      @default(500)
+  aiMessagesLimit Int      @default(1000)
+  features        String   @db.Text
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────
+// LEADS & PIPELINE
+// ─────────────────────────────────────────────
+model Lead {
+  id                 String      @id @default(cuid())
+  clinicId           String
+  patientId          String?
+  fullName           String?
+  phone              String
+  email              String?
+  enquiryReason      String?     @db.Text
+  treatmentInterest  String?
+  intent             LeadIntent  @default(GENERAL)
+  status             LeadStatus  @default(NEW)
+  leadScore          LeadScore   @default(COLD)
+  source             MessageChannel @default(WHATSAPP)
+  tags               String?     @db.Text
+  followUpCount      Int         @default(0)
+  lastFollowUpAt     DateTime?
+  nextFollowUpAt     DateTime?
+  rescuedAt          DateTime?
+  convertedAt        DateTime?
+  estimatedValue     Decimal?    @db.Decimal(10, 2)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  clinic             Clinic      @relation(fields: [clinicId], references: [id])
+  patient            Patient?    @relation(fields: [patientId], references: [id])
+
+  @@index([clinicId, status])
+  @@index([clinicId, leadScore])
+  @@index([clinicId, nextFollowUpAt])
+  @@unique([clinicId, phone])
+}
+
+// ─────────────────────────────────────────────
+// MISSED CALLS & REVENUE RECOVERY
+// ─────────────────────────────────────────────
+model MissedCall {
+  id              String    @id @default(cuid())
+  clinicId        String
+  callerPhone     String
+  calledAt        DateTime  @default(now())
+  recoverySent    Boolean   @default(false)
+  recoverySentAt  DateTime?
+  replied         Boolean   @default(false)
+  repliedAt       DateTime?
+  booked          Boolean   @default(false)
+  bookedAt        DateTime?
+  appointmentId   String?
+  recoveredValue  Decimal?  @db.Decimal(10, 2)
+  leadId          String?
+
+  clinic          Clinic    @relation(fields: [clinicId], references: [id])
+
+  @@index([clinicId, calledAt])
+  @@index([clinicId, booked])
+}
+
+// ─────────────────────────────────────────────
+// AI DAILY CLINIC BRIEF
+// ─────────────────────────────────────────────
+model DailyBrief {
+  id                    String   @id @default(cuid())
+  clinicId              String
+  briefDate             DateTime @db.Date
+  appointmentsToday     Int      @default(0)
+  appointmentsBooked    Int      @default(0)
+  chatsHandled          Int      @default(0)
+  newLeads              Int      @default(0)
+  hotLeads              Int      @default(0)
+  missedCalls           Int      @default(0)
+  recoveredBookings     Int      @default(0)
+  recoveredRevenue      Decimal  @default(0) @db.Decimal(10, 2)
+  lostLeadsRescued      Int      @default(0)
+  noShows               Int      @default(0)
+  summary               String   @db.Text
+  actionItems           String?  @db.Text
+  sentAt                DateTime?
+  createdAt             DateTime @default(now())
+
+  clinic                Clinic   @relation(fields: [clinicId], references: [id])
+
+  @@unique([clinicId, briefDate])
+  @@index([clinicId, briefDate])
+}
+
+// ─────────────────────────────────────────────
+// PASSWORD RESET TOKENS
+// ─────────────────────────────────────────────
+model PasswordReset {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([email])
+}
+
+// ─────────────────────────────────────────────
+// PLATFORM SETTINGS (Superadmin Integrations)
+// Stored via raw SQL as well — see platform_settings.sql
+// ─────────────────────────────────────────────
+model PlatformSetting {
+  key       String   @id
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+}

@@ -1,0 +1,732 @@
+/**
+ * Clinic dashboard — layout, toolbars, buttons, grids, empty states
+ * Loaded on /dashboard/ and /staff/ via dashboard-bootstrap.js
+ */
+:root {
+  --dash-content-max: 1200px;
+  --dash-page-pad: 1.5rem;
+  --dash-section-gap: 1.25rem;
+  --dash-btn-max: 260px;
+  --dash-card-min-h: 220px;
+}
+
+/* ── Main content shell ──────────────────────────────────────────────────── */
+body.min-h-screen main.flex-1,
+body.min-h-screen main[class*="flex-1"] {
+  padding: var(--dash-page-pad) !important;
+  box-sizing: border-box !important;
+}
+
+body.min-h-screen main.flex-1 > div,
+body.min-h-screen main > .p-6,
+body.min-h-screen main > .p-4,
+body.min-h-screen main > [class*="space-y"],
+body.min-h-screen main > div[class*="p-"],
+body.min-h-screen main.flex-1 > #dma-signature-root {
+  max-width: var(--dash-content-max) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100% !important;
+}
+
+body.min-h-screen main [class*="space-y-6"],
+body.min-h-screen main [class*="space-y-4"] {
+  gap: var(--dash-section-gap) !important;
+}
+
+/* ── Page toolbar (CSS-only — no DOM moves) ────────────────────────────────── */
+.dma-page-header-scope {
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  grid-auto-rows: auto !important;
+  gap: 0.35rem 1.25rem !important;
+  align-items: end !important;
+}
+
+.dma-page-header-scope > .dma-page-heading-block {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  min-width: 0 !important;
+}
+
+.dma-page-header-scope > .dma-staff-meta,
+.dma-page-header-scope > p[class*="text-muted"],
+.dma-page-header-scope > .dma-page-heading-block + p {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+}
+
+.dma-page-header-scope > .dma-page-cta,
+.dma-page-header-scope > .dma-page-cta-wrap {
+  grid-column: 2 !important;
+  grid-row: 1 / span 2 !important;
+  align-self: center !important;
+  justify-self: end !important;
+}
+
+.dma-page-header-scope > .dma-page-cta,
+.dma-page-header-scope > .dma-page-cta-wrap .dma-page-cta,
+.dma-page-header-scope > .dma-page-cta-wrap > button {
+  width: auto !important;
+  min-width: 148px !important;
+  max-width: var(--dash-btn-max) !important;
+  white-space: nowrap !important;
+}
+
+.dma-staff-page-scope .dma-staff-meta {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  margin: 0 !important;
+}
+
+/* Legacy toolbar classes (if present from older deploy) */
+.dma-page-toolbar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 1rem 1.25rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.dma-page-toolbar .dma-page-heading {
+  flex: 1 1 200px !important;
+  min-width: 0 !important;
+}
+
+.dma-page-toolbar .dma-page-actions {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.625rem !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+.dma-page-toolbar .dma-page-actions button,
+.dma-page-toolbar .dma-page-actions a[class*="rounded-btn"] {
+  width: auto !important;
+  min-width: 148px !important;
+  max-width: var(--dash-btn-max) !important;
+  white-space: nowrap !important;
+}
+
+/* ── Fix stretched full-width buttons (global) ───────────────────────────── */
+body.min-h-screen main button[class*="w-full"],
+body.min-h-screen main a[class*="w-full"][class*="rounded-btn"],
+body.min-h-screen main button.rounded-btn[class*="w-full"] {
+  width: auto !important;
+  max-width: min(var(--dash-btn-max), 100%) !important;
+  min-width: 132px !important;
+  display: inline-flex !important;
+}
+
+/* Keep grid / quick-action tiles full width inside their cell */
+body.min-h-screen main [class*="grid"] > * button[class*="w-full"],
+body.min-h-screen main [class*="grid-cols"] button[class*="flex-col"],
+body.min-h-screen main .dma-quick-actions button,
+body.min-h-screen main [class*="grid"] button[class*="flex-col"] {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+
+/* Form footers — right-aligned save buttons */
+body.min-h-screen main form > button[class*="w-full"],
+body.min-h-screen main form button[class*="w-full"]:last-of-type,
+body.min-h-screen main .card-body > button[class*="w-full"],
+body.min-h-screen main [class*="card-body"] button[class*="w-full"]:last-child {
+  width: auto !important;
+  min-width: 160px !important;
+  max-width: var(--dash-btn-max) !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  display: flex !important;
+}
+
+/* Inline rows: input + button (AI test, search bars) */
+body.min-h-screen main .dma-inline-action,
+body.min-h-screen main [class*="flex"][class*="gap"] input + button[class*="w-full"],
+body.min-h-screen main [class*="flex"][class*="items-center"] input + button,
+body.min-h-screen main [class*="flex"][class*="items-end"] input + button {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  min-width: 128px !important;
+  max-width: 200px !important;
+}
+
+/* Upload logo row */
+body.min-h-screen main .dma-upload-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 1rem !important;
+}
+
+body.min-h-screen main .dma-upload-row button[class*="w-full"] {
+  width: auto !important;
+  flex: 1 1 180px !important;
+  max-width: 240px !important;
+}
+
+/* ── Card system (.card from Next export) ─────────────────────────────────── */
+body.min-h-screen main .card,
+body.min-h-screen main [class*="rounded-card"] {
+  background: #fff !important;
+  border: 1px solid #d0d7e2 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.06) !important;
+  overflow: hidden !important;
+}
+
+body.min-h-screen main .card-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.75rem !important;
+  padding: 1rem 1.25rem !important;
+  border-bottom: 1px solid #eef2f7 !important;
+  background: linear-gradient(180deg, #fafbfc 0%, #fff 100%) !important;
+}
+
+body.min-h-screen main .card-header h2,
+body.min-h-screen main .card-header h3,
+body.min-h-screen main .card-header .font-bold {
+  font-size: 0.9375rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  margin: 0 !important;
+}
+
+body.min-h-screen main .card-body {
+  padding: 1rem 1.25rem 1.25rem !important;
+}
+
+@media (hover: hover) {
+  body.min-h-screen main .card:hover {
+    border-color: rgba(249, 115, 22, 0.3) !important;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.08) !important;
+  }
+}
+
+/* Stat / KPI cards top row */
+body.min-h-screen main [class*="grid-cols-2"] > .card,
+body.min-h-screen main [class*="grid-cols-4"] > .card,
+body.min-h-screen main [class*="lg:grid-cols-4"] > div[class*="border-l"] {
+  min-height: 96px !important;
+}
+
+body.min-h-screen main [class*="border-l-4"][class*="border-l-brand"],
+body.min-h-screen main [class*="border-l-brand"] {
+  border-left-width: 4px !important;
+  border-left-color: #f97316 !important;
+}
+
+/* ── Filter pill rows ────────────────────────────────────────────────────── */
+body.min-h-screen main .dma-filter-row,
+body.min-h-screen main [class*="flex"][class*="flex-wrap"][class*="gap"] {
+  flex-wrap: wrap !important;
+  gap: 0.5rem !important;
+  overflow: visible !important;
+}
+
+body.min-h-screen main .dma-filter-row button,
+body.min-h-screen main [class*="flex-wrap"] > button[class*="rounded-btn"],
+body.min-h-screen main [class*="flex-wrap"] > button[class*="rounded-full"],
+body.min-h-screen main [class*="flex"] > button[class*="uppercase"] {
+  flex-shrink: 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  white-space: nowrap !important;
+  padding-left: 0.875rem !important;
+  padding-right: 0.875rem !important;
+}
+
+/* Search + filters toolbar */
+body.min-h-screen main .dma-filters-bar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  padding: 0.875rem 1rem !important;
+  background: #fff !important;
+  border: 1px solid #d0d7e2 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+}
+
+body.min-h-screen main .dma-filters-bar input,
+body.min-h-screen main .dma-filters-bar [class*="input"] {
+  flex: 1 1 200px !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* ── Messages split layout ───────────────────────────────────────────────── */
+body.min-h-screen main .dma-messages-layout,
+body.min-h-screen main [class*="grid"][class*="lg:grid-cols-3"],
+body.min-h-screen main [class*="grid"][class*="grid-cols-1"][class*="lg:grid-cols"] {
+  gap: 1rem !important;
+  align-items: stretch !important;
+}
+
+body.min-h-screen main [class*="lg:grid-cols-3"] > div:first-child,
+body.min-h-screen main [class*="lg:grid-cols-3"] > div[class*="border"] {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+body.min-h-screen main [class*="lg:grid-cols-3"] > div:first-child > div[class*="flex"],
+body.min-h-screen main [class*="lg:grid-cols-3"] > div:first-child [class*="overflow-x"] {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  flex-wrap: nowrap !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: thin !important;
+  padding-bottom: 4px !important;
+}
+
+body.min-h-screen main [class*="lg:grid-cols-3"] > div:last-child {
+  min-height: 420px !important;
+}
+
+/* ── Empty states ─────────────────────────────────────────────────────────── */
+body.min-h-screen main .dma-empty-panel,
+body.min-h-screen main .card-body.dma-empty-panel {
+  min-height: 140px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  padding: 2rem 1.5rem !important;
+  color: #64748b !important;
+  background: linear-gradient(180deg, #fafbfc 0%, #fff 100%) !important;
+  border-radius: 12px !important;
+}
+
+body.min-h-screen main .dma-empty-panel svg,
+body.min-h-screen main [class*="items-center"][class*="justify-center"] svg[class*="text-muted"],
+body.min-h-screen main [class*="items-center"][class*="justify-center"] svg[class*="text-faint"] {
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  color: #cbd5e1 !important;
+  margin-bottom: 0.75rem !important;
+}
+
+body.min-h-screen main .dma-empty-panel p,
+body.min-h-screen main [class*="justify-center"] p.text-muted {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  margin: 0.25rem 0 0 !important;
+}
+
+/* Chart / analytics placeholders */
+body.min-h-screen main [class*="grid-cols-2"] > .card:has(.card-body:empty),
+body.min-h-screen main .card .card-body:not(:has(*)) {
+  min-height: 240px !important;
+}
+
+body.min-h-screen main .dma-chart-placeholder {
+  min-height: 240px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  color: #94a3b8 !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  background: repeating-linear-gradient(
+    -45deg,
+    #f8fafc,
+    #f8fafc 8px,
+    #f1f5f9 8px,
+    #f1f5f9 16px
+  ) !important;
+  border-radius: 10px !important;
+  margin: 0.5rem !important;
+}
+
+/* ── Quick actions grid — professional tiles ──────────────────────────────── */
+body.min-h-screen main .dma-quick-actions-card {
+  border: 1px solid #d0d7e2 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 28px rgba(15, 23, 42, 0.07) !important;
+}
+
+body.min-h-screen main .dma-quick-actions-card .card-header {
+  border-bottom: 1px solid #eef2f7 !important;
+  padding: 1rem 1.25rem !important;
+}
+
+body.min-h-screen main .dma-quick-actions-card .card-header h2,
+body.min-h-screen main .dma-quick-actions-card .card-header .font-bold {
+  font-family: Montserrat, Inter, system-ui, sans-serif !important;
+  font-size: 0.9375rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+}
+
+body.min-h-screen main .dma-quick-actions-card .card-body {
+  padding: 1rem 1.125rem 1.25rem !important;
+}
+
+body.min-h-screen main .dma-quick-actions {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0.75rem !important;
+}
+
+@media (max-width: 640px) {
+  body.min-h-screen main .dma-quick-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+body.min-h-screen main .dma-quick-actions button,
+body.min-h-screen main .dma-quick-actions-card .card-body button[class*="flex-col"] {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  min-height: 108px !important;
+  padding: 1rem 0.75rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.625rem !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 14px !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+  overflow: visible !important;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+body.min-h-screen main .dma-quick-actions button svg,
+body.min-h-screen main .dma-quick-actions-card .card-body button[class*="flex-col"] svg {
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+  padding: 0.625rem !important;
+  box-sizing: content-box !important;
+  border-radius: 12px !important;
+  background: rgba(249, 115, 22, 0.1) !important;
+  color: #ea580c !important;
+  stroke: #ea580c !important;
+}
+
+body.min-h-screen main .dma-quick-actions button span,
+body.min-h-screen main .dma-quick-actions-card .card-body button[class*="flex-col"] span {
+  line-height: 1.2 !important;
+  text-align: center !important;
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+@media (hover: hover) {
+  body.min-h-screen main .dma-quick-actions button:hover,
+  body.min-h-screen main .dma-quick-actions-card .card-body button[class*="flex-col"]:hover {
+    background: #fff7ed !important;
+    border-color: #f97316 !important;
+    color: #c2410c !important;
+    -webkit-text-fill-color: #c2410c !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 18px rgba(249, 115, 22, 0.16) !important;
+  }
+
+  body.min-h-screen main .dma-quick-actions button:hover svg,
+  body.min-h-screen main .dma-quick-actions-card .card-body button[class*="flex-col"]:hover svg {
+    background: rgba(249, 115, 22, 0.18) !important;
+    color: #c2410c !important;
+    stroke: #c2410c !important;
+  }
+}
+
+/* Legacy broad grid rules — keep minimal fallback for home before JS marks card */
+body.min-h-screen main .card-body [class*="grid-cols-3"]:not(.dma-quick-actions) button[class*="flex-col"] {
+  min-height: 96px !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+}
+
+body.min-h-screen main .card-body [class*="grid-cols-3"]:not(.dma-quick-actions) button[class*="flex-col"] svg {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+}
+
+/* ── Settings tabs ───────────────────────────────────────────────────────── */
+body.min-h-screen main .dma-settings-tabs,
+body.min-h-screen main [class*="border-b"][class*="flex"][class*="gap"] {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.25rem !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 1.25rem !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+body.min-h-screen main [class*="border-b"] button[class*="text-"],
+body.min-h-screen main [class*="border-b"] button[class*="font-"],
+body.min-h-screen main .dma-settings-tabs button {
+  flex-shrink: 0 !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  padding: 0.625rem 1rem !important;
+  border-radius: 8px 8px 0 0 !important;
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+  color: #64748b !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  margin-bottom: -2px !important;
+}
+
+body.min-h-screen main [class*="border-b"] button[class*="text-brand"],
+body.min-h-screen main [class*="border-b"] button[class*="border-brand"],
+body.min-h-screen main .dma-settings-tabs button.dma-tab-active {
+  color: #ea580c !important;
+  background: rgba(249, 115, 22, 0.08) !important;
+  border-bottom-color: #f97316 !important;
+}
+
+/* Personality / toggle button groups */
+body.min-h-screen main [class*="grid-cols-3"] button[class*="outline"],
+body.min-h-screen main button[class*="border-brand"][class*="rounded-btn"]:not([class*="w-full"]) {
+  width: auto !important;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+/* Sticky sidebar only on Messages — NOT reviews (was causing scroll overlap) */
+body.min-h-screen main .dma-messages-layout > .card:first-child,
+body.min-h-screen main .dma-messages-layout > div:first-child {
+  position: sticky !important;
+  top: 1rem !important;
+  align-self: start !important;
+}
+
+body.min-h-screen main .dma-page-toolbar + .card button[class*="w-full"],
+body.min-h-screen main h1 + button[class*="w-full"] {
+  width: auto !important;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+body.min-h-screen main table {
+  margin-top: 0.5rem !important;
+}
+
+body.min-h-screen main tbody:empty {
+  display: block !important;
+  min-height: 80px !important;
+}
+
+body.min-h-screen main .dma-table-empty td {
+  text-align: center !important;
+  padding: 2.5rem 1rem !important;
+  color: #64748b !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+}
+
+/* ── Billing plan card ───────────────────────────────────────────────────── */
+body.min-h-screen main [class*="border-brand"][class*="rounded"] ul,
+body.min-h-screen main .card ul[class*="space-y"] {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+  gap: 0.5rem 1.5rem !important;
+  padding: 0 !important;
+  margin: 0.75rem 0 0 !important;
+  list-style: none !important;
+}
+
+body.min-h-screen main [class*="border-brand"] li,
+body.min-h-screen main .card ul li {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  font-size: 0.875rem !important;
+  color: #334155 !important;
+}
+
+/* ── AI page two-column ──────────────────────────────────────────────────── */
+body.min-h-screen main [class*="lg:grid-cols-2"] {
+  gap: 1.25rem !important;
+  align-items: start !important;
+}
+
+body.min-h-screen main textarea.input,
+body.min-h-screen main textarea[class*="rounded"] {
+  min-height: 100px !important;
+  resize: vertical !important;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  :root {
+    --dash-page-pad: 0.875rem;
+    --dash-card-min-h: 180px;
+  }
+
+  .dma-page-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .dma-page-toolbar .dma-page-actions {
+    justify-content: stretch !important;
+  }
+
+  .dma-page-toolbar .dma-page-actions button,
+  .dma-page-toolbar .dma-page-actions a[class*="rounded-btn"] {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  body.min-h-screen main button[class*="w-full"]:not([class*="grid"] *) {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  body.min-h-screen main form > button[class*="w-full"],
+  body.min-h-screen main form button[class*="w-full"]:last-of-type {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  body.min-h-screen main [class*="lg:grid-cols-3"] > div:last-child {
+    min-height: 280px !important;
+  }
+
+  body.min-h-screen main [class*="grid-cols-4"],
+  body.min-h-screen main [class*="lg:grid-cols-4"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 479px) {
+  body.min-h-screen main [class*="grid-cols-2"],
+  body.min-h-screen main [class*="grid-cols-4"],
+  body.min-h-screen main [class*="lg:grid-cols-4"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  body.min-h-screen main [class*="grid-cols-3"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 901px) {
+  body.min-h-screen main [class*="lg:grid-cols-3"],
+  body.min-h-screen main [class*="lg:grid-cols-2"] {
+    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr) !important;
+  }
+}
+
+/* ── Clinic dashboard — admin-matching polish ─────────────────────────────── */
+body.min-h-screen main h1 {
+  font-family: Montserrat, Inter, system-ui, sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  color: #0f172a !important;
+  position: relative !important;
+  padding-bottom: 0.35rem !important;
+}
+
+body.min-h-screen main h1::after {
+  content: "" !important;
+  display: block !important;
+  width: 48px !important;
+  height: 3px !important;
+  margin-top: 0.5rem !important;
+  border-radius: 2px !important;
+  background: linear-gradient(90deg, #f97316, #ea580c) !important;
+}
+
+body.min-h-screen main .card,
+body.min-h-screen main [class*="rounded-card"],
+body.min-h-screen main [class*="shadow-card"] {
+  border: 1px solid #d0d7e2 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 28px rgba(15, 23, 42, 0.07) !important;
+}
+
+body.min-h-screen main table {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+body.min-h-screen main table thead th {
+  background: #f8fafc !important;
+  color: #64748b !important;
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
+
+body.min-h-screen main table tbody tr:hover {
+  background: rgba(249, 115, 22, 0.04) !important;
+}
+
+body.min-h-screen main .dma-settings-tabs {
+  background: #fff !important;
+  border: 1px solid #d0d7e2 !important;
+  border-radius: 12px 12px 0 0 !important;
+  padding: 0.35rem 0.5rem 0 !important;
+  gap: 0.25rem !important;
+}
+
+body.min-h-screen main .dma-settings-tabs button {
+  color: #475569 !important;
+  background: transparent !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+body.min-h-screen main .dma-settings-tabs button.dma-tab-active,
+body.min-h-screen main .dma-settings-tabs button[class*="text-brand"] {
+  color: #c2410c !important;
+  -webkit-text-fill-color: #c2410c !important;
+  background: rgba(249, 115, 22, 0.1) !important;
+  border-bottom: 2px solid #f97316 !important;
+}
+
+body.min-h-screen main .dma-filter-row {
+  background: #fff !important;
+  border: 1px solid #d0d7e2 !important;
+  border-radius: 14px !important;
+  padding: 0.75rem 1rem !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+.dma-page-heading-block:has(> h1):has(> button),
+.dma-page-heading-block:has(h1):has(.dma-page-cta) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.75rem 1rem !important;
+  width: 100% !important;
+}

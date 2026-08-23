@@ -1,0 +1,87 @@
+.dma-whatsapp-card {
+  background: linear-gradient(135deg, #fff 0%, #f0fdf4 100%);
+  border: 1px solid #86efac;
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+}
+.dma-whatsapp-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.dma-whatsapp-card h2 {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+.dma-whatsapp-card p {
+  margin: 0;
+  color: #475569;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.dma-whatsapp-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: #f1f5f9;
+  color: #475569;
+}
+.dma-whatsapp-badge--ok {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+.dma-whatsapp-badge--warn {
+  background: #ffedd5;
+  border-color: #fdba74;
+  color: #9a3412;
+}
+.dma-whatsapp-hint {
+  font-size: 0.88rem !important;
+  color: #64748b !important;
+}
+.dma-whatsapp-error {
+  color: #b91c1c;
+  font-size: 0.88rem;
+  margin-top: 8px;
+}
+.dma-whatsapp-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+.dma-btn-primary {
+  background: #25d366;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.dma-btn-primary:hover {
+  background: #1da851;
+}
+.dma-btn-secondary {
+  background: #fff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.dma-btn-secondary:hover {
+  background: #f8fafc;
+}

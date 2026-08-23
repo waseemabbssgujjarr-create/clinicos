@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register Clinic — Doctors My Agency</title>
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/landing.css" />
+  <link rel="stylesheet" href="/portal.css" />
+  <link rel="stylesheet" href="/platform-hovers.css" />
+  <link rel="stylesheet" href="/dma-theme.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(_){}})();
+  </script>
+  <script src="/api-shim.js"></script>
+</head>
+<body class="portal-page">
+  <div class="glow glow-purple"></div>
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="logo" style="text-decoration:none;color:inherit"><div class="logo-icon">DM</div> Doctors My Agency</a>
+    </div>
+  </nav>
+  <main class="portal-main">
+    <div class="container">
+      <a href="/start/" class="back-link">← Back to portal</a>
+      <div class="form-card wide">
+        <div style="text-align:center;margin-bottom:20px">
+          <div class="logo-icon" style="margin:0 auto 12px;width:48px;height:48px;font-size:1.1rem">DM</div>
+        </div>
+
+        <div class="step-dots" aria-hidden="true">
+          <span class="step-dot active">1</span>
+          <span class="step-line"></span>
+          <span class="step-dot">2</span>
+          <span class="step-line"></span>
+          <span class="step-dot">3</span>
+          <span class="step-line"></span>
+          <span class="step-dot">4</span>
+        </div>
+
+        <h1>Create your account</h1>
+        <p class="subtitle">14-day free trial — no credit card needed</p>
+
+        <div id="error" class="alert alert-error" style="display:none"></div>
+        <div id="success" class="alert" style="display:none;background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46"></div>
+
+        <form id="form">
+          <div class="field">
+            <label>Your Full Name *</label>
+            <input type="text" name="ownerName" required placeholder="Dr. Ahmed Rahman" autocomplete="name" />
+          </div>
+          <div class="field">
+            <label>Clinic Name *</label>
+            <input type="text" name="clinicName" required placeholder="Rahman Dental Clinic" autocomplete="organization" />
+          </div>
+          <div class="field-row-2">
+            <div class="field">
+              <label>Specialty</label>
+              <select name="specialty">
+                <option value="">Select...</option>
+                <option value="general practice">General Practice</option>
+                <option value="dental">Dental</option>
+                <option value="dermatology">Dermatology</option>
+                <option value="ophthalmology">Ophthalmology</option>
+                <option value="pediatrics">Pediatrics</option>
+                <option value="cardiology">Cardiology</option>
+                <option value="orthopedics">Orthopedics</option>
+                <option value="gynecology">Gynecology</option>
+                <option value="psychiatry">Psychiatry</option>
+                <option value="ent">ENT</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Phone *</label>
+              <input type="tel" name="phone" required placeholder="+971 50 123 4567" autocomplete="tel" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Email Address *</label>
+            <input type="email" name="email" required placeholder="you@clinic.com" autocomplete="email" />
+          </div>
+          <div class="field">
+            <label>Password *</label>
+            <div class="password-wrap">
+              <input type="password" name="password" required minlength="8" placeholder="At least 8 characters" autocomplete="new-password" />
+              <button type="button" class="password-toggle" data-password-toggle aria-label="Show password" title="Show password">
+                <svg class="icon-show" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-hide" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px" id="submitBtn">Create Account &amp; Continue →</button>
+        </form>
+
+        <p style="text-align:center;margin-top:20px;font-size:0.88rem;color:var(--muted)">
+          Already have an account? <a href="/doctor-login/" style="color:#F97316;font-weight:700">Sign in</a>
+        </p>
+      </div>
+    </div>
+  </main>
+  <script src="/portal.js"></script>
+  <script>
+    document.getElementById('form').onsubmit = async (e) => {
+      e.preventDefault();
+      const err = document.getElementById('error');
+      const ok = document.getElementById('success');
+      const btn = document.getElementById('submitBtn');
+      err.style.display = 'none';
+      ok.style.display = 'none';
+      setBtnLoading(btn, true, 'Creating account…');
+
+      const fd = new FormData(e.target);
+      const payload = {
+        ownerName: fd.get('ownerName'),
+        clinicName: fd.get('clinicName'),
+        specialty: fd.get('specialty') || undefined,
+        phone: fd.get('phone'),
+        email: fd.get('email'),
+        password: fd.get('password'),
+      };
+
+      try {
+        const r = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          throw new Error(data.error || data.message || 'Registration failed. Please try again.');
+        }
+
+        const clinic = data.clinic || {};
+        const user = data.user || {
+          id: clinic.id,
+          clinicId: clinic.id,
+          role: 'DOCTOR',
+          name: payload.ownerName,
+          email: payload.email,
+          clinicName: payload.clinicName,
+          plan: clinic.plan || 'TRIAL',
+          planStatus: clinic.planStatus || 'TRIALING',
+          onboardingDone: false,
+        };
+
+        if (data.token) {
+          syncClinicosStore(user, data.token);
+        }
+
+        if (data.email) {
+          try {
+            sessionStorage.setItem('dma-verify-email', data.email);
+            sessionStorage.setItem('dma-verify-sent', data.verificationEmailSent === false ? '0' : '1');
+          } catch (_) {}
+        }
+
+        if (data.requiresVerification) {
+          if (data.verificationEmailSent === false) {
+            ok.style.background = '#fff7ed';
+            ok.style.borderColor = '#fdba74';
+            ok.style.color = '#9a3412';
+            ok.textContent = (data.message || 'Account created but verification email could not be sent.') + ' You can resend from the next step.';
+          } else {
+            ok.textContent = (data.message || 'Check your email to verify your account.') + ' You can finish clinic setup now; sign-in requires verification.';
+          }
+          ok.style.display = 'block';
+          setTimeout(() => { window.location.href = '/register/clinic/'; }, data.verificationEmailSent === false ? 2500 : 1800);
+          return;
+        }
+
+        window.location.href = '/register/clinic/';
+      } catch (ex) {
+        const msg = String(ex.message || ex);
+        err.textContent = msg === 'Failed to fetch'
+          ? 'API server is not running. In cPanel → Node.js → RESTART the app, then open /api-status.php to confirm. Also upload clinicos-api/bootstrap.js (startup file must match).'
+          : msg;
+        err.style.display = 'block';
+      } finally {
+        setBtnLoading(btn, false);
+      }
+    };
+  </script>
+</body>
+</html>

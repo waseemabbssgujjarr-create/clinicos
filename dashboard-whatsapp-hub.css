@@ -1,0 +1,446 @@
+/* WhatsApp Command Center — Doctors My Agency (orange brand) v3 */
+.dma-wa-root {
+  padding: 0;
+  max-width: 1140px;
+}
+
+.dma-wa-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px 24px;
+  background: linear-gradient(125deg, #1c1917 0%, #292524 38%, #7c2d12 100%);
+  color: #fff;
+  border-radius: 18px;
+  padding: 28px 32px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.14);
+  border: 1px solid rgba(249, 115, 22, 0.22);
+  position: relative;
+  overflow: hidden;
+}
+
+.dma-wa-hero::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.35) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.dma-wa-hero__text {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 280px;
+  min-width: 0;
+  max-width: 620px;
+}
+
+.dma-wa-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fdba74;
+  margin: 0 0 10px;
+}
+
+.dma-wa-hero h1 {
+  margin: 0 0 12px;
+  font-family: Montserrat, Inter, sans-serif;
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.2;
+  color: #fff;
+  max-width: 560px;
+}
+
+.dma-wa-hero p {
+  margin: 0;
+  color: #d6d3d1;
+  font-size: 0.95rem;
+  max-width: 540px;
+  line-height: 1.6;
+}
+
+.dma-wa-hero__status {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  align-self: start;
+}
+
+.dma-wa-hero__status.is-connected {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(74, 222, 128, 0.45);
+  color: #bbf7d0;
+}
+
+.dma-wa-hero__status.is-off {
+  background: rgba(249, 115, 22, 0.15);
+  border: 1px solid rgba(251, 146, 60, 0.45);
+  color: #fed7aa;
+}
+
+.dma-wa-hero__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fb923c;
+  flex-shrink: 0;
+}
+
+.dma-wa-hero__status.is-connected .dma-wa-hero__dot {
+  background: #4ade80;
+  box-shadow: 0 0 10px #4ade80;
+}
+
+@media (max-width: 720px) {
+  .dma-wa-hero {
+    grid-template-columns: 1fr;
+    padding: 24px 20px;
+  }
+}
+
+.dma-wa-stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .dma-wa-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .dma-wa-stats { grid-template-columns: 1fr; }
+}
+
+.dma-wa-stat {
+  background: #fff;
+  border: 1px solid var(--doc-border, #e2e8f0);
+  border-radius: 14px;
+  padding: 16px 14px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+  border-top: 3px solid #F97316;
+  min-height: 88px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.dma-wa-stat:nth-child(2) { border-top-color: #25d366; }
+.dma-wa-stat:nth-child(3) { border-top-color: #f59e0b; }
+.dma-wa-stat:nth-child(4) { border-top-color: #3b82f6; }
+.dma-wa-stat:nth-child(5) { border-top-color: #ef4444; }
+
+.dma-wa-stat__val {
+  display: block;
+  font-family: Montserrat, Inter, sans-serif;
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.dma-wa-stat__lbl {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dma-wa-stat__sub {
+  display: block;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.dma-wa-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.dma-wa-grid > .dma-wa-panel:not(.dma-wa-panel--wide) {
+  min-height: 280px;
+}
+
+@media (max-width: 860px) {
+  .dma-wa-grid { grid-template-columns: 1fr; }
+}
+
+.dma-wa-panel {
+  background: #fff;
+  border: 1px solid var(--doc-border, #e2e8f0);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.05);
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.dma-wa-panel--wide { grid-column: 1 / -1; }
+
+.dma-wa-panel h2 {
+  margin: 0 0 14px;
+  font-family: Montserrat, Inter, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.dma-wa-panel p {
+  margin: 0 0 12px;
+  color: #475569;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.dma-wa-muted {
+  color: #64748b !important;
+  font-size: 0.88rem !important;
+}
+
+.dma-wa-muted a {
+  color: #ea580c;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* WhatsApp quick action tiles */
+.dma-wa-quick {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0.65rem !important;
+}
+
+.dma-wa-quick__item {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.25rem !important;
+  padding: 0.75rem 0.85rem !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  background: #f8fafc !important;
+  text-decoration: none !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  min-height: 0 !important;
+}
+
+.dma-wa-quick__item strong {
+  font-size: 0.82rem !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+.dma-wa-quick__item span {
+  font-size: 0.72rem !important;
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  line-height: 1.35 !important;
+}
+
+.dma-wa-quick__item:hover {
+  border-color: #f97316 !important;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.12) !important;
+}
+
+.dma-wa-quick__item--adv {
+  border-color: rgba(249, 115, 22, 0.35) !important;
+  background: linear-gradient(135deg, #fff7ed, #fff) !important;
+}
+
+@media (max-width: 520px) {
+  .dma-wa-quick {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Override dma-dashboard main * color rules inside dark hero */
+.dma-wa-hero,
+.dma-wa-hero h1,
+.dma-wa-hero p,
+.dma-wa-hero .dma-wa-eyebrow {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.dma-wa-hero p:not(.dma-wa-eyebrow) {
+  color: #e7e5e4 !important;
+  -webkit-text-fill-color: #e7e5e4 !important;
+}
+
+.dma-wa-eyebrow {
+  color: #fdba74 !important;
+  -webkit-text-fill-color: #fdba74 !important;
+}
+
+
+.dma-wa-steps {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  counter-reset: wastep;
+}
+
+.dma-wa-steps li {
+  counter-increment: wastep;
+  position: relative;
+  padding: 0 0 14px 36px;
+  font-size: 0.88rem;
+  color: #475569;
+  line-height: 1.45;
+}
+
+.dma-wa-steps li::before {
+  content: counter(wastep);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(249, 115, 22, 0.12);
+  color: #ea580c;
+  font-weight: 800;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dma-wa-caps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dma-wa-caps li {
+  padding: 8px 0;
+  font-size: 0.9rem;
+  color: #334155;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.dma-wa-caps li:last-child { border-bottom: none; }
+
+.dma-wa-check {
+  color: #F97316;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.dma-wa-actions { margin-top: 18px; }
+
+.dma-wa-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 13px 22px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-family: Inter, sans-serif;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.dma-wa-btn--primary {
+  background: linear-gradient(135deg, #25d366, #128c7e);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
+}
+
+.dma-wa-btn--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+}
+
+.dma-wa-btn--ghost {
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.dma-wa-error {
+  color: #b91c1c;
+  font-size: 0.88rem;
+  margin: 10px 0;
+  padding: 10px 12px;
+  background: #fef2f2;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+}
+
+.dma-wa-log {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.dma-wa-log th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dma-wa-log td {
+  padding: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: top;
+}
+
+.dma-wa-log-preview {
+  max-width: 320px;
+  color: #475569;
+}
+
+.dma-wa-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.dma-wa-pill--ai { background: #ffedd5; color: #9a3412; }
+.dma-wa-pill--warn { background: #fef3c7; color: #92400e; }
+
+.dma-wa-settings-teaser {
+  background: linear-gradient(90deg, #fff7ed, #fff);
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #9a3412;
+}
+
+.dma-wa-settings-teaser a {
+  color: #ea580c;
+  font-weight: 700;
+}

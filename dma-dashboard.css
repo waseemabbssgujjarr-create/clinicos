@@ -1,0 +1,531 @@
+/**
+ * Dashboard — orange brand #F97316
+ * Injected via dashboard-bootstrap.js on Next.js static export pages.
+ */
+:root {
+  --dma-accent: #F97316;
+  --dma-accent-hover: #ea580c;
+  --dma-accent-soft: rgba(249, 115, 22, 0.12);
+  --dma-accent-readable: #c2410c;
+  --dma-sidebar: #1c1917;
+  --dma-sidebar-text: #d4d4d8;
+  --dma-surface: #ffffff;
+  --dma-text: #0f172a;
+  --dma-muted: #475569;
+  --dma-border: #e2e8f0;
+  --dma-font-sm: 0.875rem;
+  --dma-font-base: 1rem;
+  --dma-live: #16a34a;
+  --dma-live-soft: rgba(34, 197, 94, 0.12);
+  --dma-content-max: 1120px;
+  --dma-sidebar-w: 220px;
+  --dma-radius: 16px;
+  --dma-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+html { font-size: 16px; }
+body { font-size: var(--dma-font-base) !important; -webkit-font-smoothing: antialiased; color: #0f172a; }
+
+h1 { font-size: 1.5rem !important; font-weight: 700 !important; }
+h2 { font-size: 1.25rem !important; font-weight: 700 !important; }
+h3 { font-size: 1.0625rem !important; font-weight: 600 !important; }
+h1, h2, h3, h4, h5, h6 {
+  font-family: Montserrat, Inter, system-ui, sans-serif !important;
+  color: #0f172a !important;
+}
+
+/* Sidebar — override ClinicOS teal/green */
+aside,
+nav[class*="sidebar"],
+[class*="Sidebar"],
+div[class*="w-64"][class*="bg-"],
+div[class*="w-56"][class*="bg-"],
+div[class*="w-72"][class*="bg-"] {
+  background-color: var(--dma-sidebar) !important;
+  color: var(--dma-sidebar-text) !important;
+  border-color: rgba(249, 115, 22, 0.1) !important;
+}
+
+aside a,
+nav[class*="sidebar"] a,
+[class*="Sidebar"] a {
+  font-size: var(--dma-font-sm) !important;
+  color: #a1a1aa !important;
+  transition: background 0.15s, color 0.15s !important;
+}
+
+aside a:hover,
+nav[class*="sidebar"] a:hover,
+[class*="Sidebar"] a:hover {
+  background-color: var(--dma-accent-soft) !important;
+  color: #fb923c !important;
+}
+
+/* Active nav item — teal/emerald → orange */
+aside a[class*="bg-emerald"],
+aside a[class*="bg-green"],
+aside a[class*="bg-teal"],
+nav a[class*="bg-emerald"],
+nav a[class*="bg-green"],
+nav a[class*="bg-teal"],
+a[class*="bg-emerald"],
+a[class*="bg-green-5"],
+a[class*="bg-green-6"],
+a[class*="bg-teal-"],
+[class*="sidebar"] a[class*="bg-emerald"],
+[class*="sidebar"] a[class*="text-emerald"],
+[class*="sidebar"] a[class*="text-green"],
+[class*="sidebar"] a[class*="text-teal"],
+aside a[class*="bg-sidebar"],
+aside a[class*="bg-stone"],
+aside a[class*="bg-zinc"],
+aside a[class*="bg-neutral"] {
+  background-color: var(--dma-accent-soft) !important;
+  color: #fb923c !important;
+  border-left: 3px solid var(--dma-accent) !important;
+  box-shadow: inset 0 0 0 1px rgba(249, 115, 22, 0.1) !important;
+}
+
+main,
+div[class*="flex-1"][class*="bg-gray"],
+div[class*="flex-1"][class*="bg-slate"],
+.bg-app {
+  background: linear-gradient(180deg, #eef2f7 0%, #e8eef5 100%) !important;
+}
+
+/* Brand buttons — emerald/green/teal → orange (except live status badge) */
+button[class*="bg-emerald"]:not(.dma-live-badge):not(.dma-ai-status-live),
+button[class*="bg-green"]:not(.dma-live-badge):not(.dma-ai-status-live),
+button[class*="bg-teal"]:not(.dma-live-badge):not(.dma-ai-status-live),
+a[class*="bg-emerald"]:not(.dma-live-badge):not(.dma-ai-status-live),
+a[class*="bg-green"]:not(.dma-live-badge):not(.dma-ai-status-live),
+a[class*="bg-teal"]:not(.dma-live-badge):not(.dma-ai-status-live),
+.bg-brand:not(.dma-live-badge):not(.dma-ai-status-live),
+[class*="bg-brand"]:not([class*="bg-brand-dark"]):not([class*="bg-brand-light"]):not(.dma-live-badge):not(.dma-ai-status-live) {
+  background: linear-gradient(135deg, #F97316, #ea580c) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+}
+
+/* Light brand tint — must NOT become solid orange gradient */
+.bg-brand-light,
+[class*="bg-brand-light"] {
+  background: var(--dma-accent-soft) !important;
+  background-color: rgba(249, 115, 22, 0.12) !important;
+  background-image: none !important;
+  color: var(--dma-text) !important;
+  border-color: rgba(249, 115, 22, 0.2) !important;
+}
+
+/* Tinted surfaces — dark readable text (not orange-on-orange) */
+[class*="bg-brand-light"] .font-semibold,
+[class*="bg-brand-light"] .font-medium,
+[class*="bg-brand-light"] .font-bold,
+[class*="bg-brand-light"] h4,
+[class*="bg-brand-light"] .text-brand,
+[class*="bg-brand-light"].text-brand,
+[class*="bg-brand-light"] .text-primary,
+[class*="bg-brand-light"].text-primary {
+  color: var(--dma-text) !important;
+}
+
+[class*="bg-brand-light"] p,
+[class*="bg-brand-light"] span:not([class*="rounded-full"]),
+[class*="bg-brand-light"] .text-muted,
+[class*="bg-brand-light"] .text-gray-500,
+[class*="bg-brand-light"] .text-slate-500,
+[class*="bg-brand-light"] .text-faint {
+  color: var(--dma-muted) !important;
+}
+
+/* Pro plan / highlighted cards — border-brand + bg-brand-light */
+.border-brand[class*="bg-brand-light"],
+.border-brand.bg-brand-light,
+[class*="bg-brand-light"].border-brand {
+  background-color: rgba(249, 115, 22, 0.12) !important;
+  background-image: none !important;
+}
+
+/* Amber banners — keep light yellow bg, dark amber text */
+.bg-amber-light,
+[class*="bg-amber-light"] {
+  background-color: #fffbeb !important;
+  background-image: none !important;
+  color: var(--dma-text) !important;
+}
+
+.text-amber {
+  color: #92400e !important;
+}
+
+.bg-brand-dark,
+.hover\:bg-brand-dark:hover,
+button[class*="bg-emerald"]:hover,
+button[class*="bg-green"]:hover {
+  background: linear-gradient(135deg, #ea580c, #c2410c) !important;
+}
+
+.text-brand,
+[class*="text-emerald-6"],
+[class*="text-emerald-7"],
+[class*="text-green-6"],
+[class*="text-teal-6"] {
+  color: var(--dma-accent) !important;
+}
+
+.text-primary {
+  color: var(--dma-text) !important;
+}
+
+.border-brand,
+[class*="border-emerald"],
+[class*="border-green-5"],
+[class*="border-teal"] {
+  border-color: var(--dma-accent) !important;
+}
+
+[class*="bg-emerald-5"],
+[class*="bg-emerald-50"],
+[class*="bg-green-5"],
+[class*="bg-green-50"],
+[class*="bg-teal-5"],
+[class*="bg-teal-50"] {
+  background-color: var(--dma-accent-soft) !important;
+}
+
+[class*="ring-emerald"],
+[class*="ring-green"],
+[class*="ring-teal"] {
+  --tw-ring-color: rgba(249, 115, 22, 0.35) !important;
+}
+
+/* Stat cards, badges, progress */
+[class*="from-emerald"],
+[class*="to-emerald"],
+[class*="from-teal"],
+[class*="to-teal"],
+[class*="from-green"],
+[class*="to-green"] {
+  --tw-gradient-from: #F97316 var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: #ea580c var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+@media (hover: hover) {
+  button:not(:disabled):hover,
+  a[class*="rounded"]:hover,
+  [role="button"]:hover {
+    transform: translateY(-1px);
+  }
+  button[class*="bg-emerald"]:hover,
+  button[class*="bg-green"]:hover,
+  .bg-brand:hover {
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.3);
+    filter: brightness(1.05);
+  }
+  tr:hover { background-color: rgba(249, 115, 22, 0.04) !important; }
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.18) !important;
+  border-color: #F97316 !important;
+}
+
+main p, main span, main td, main li { font-size: var(--dma-font-sm); color: #334155; }
+
+/* Sidebar logo area accent dot */
+aside [class*="rounded-full"][class*="bg-emerald"],
+aside [class*="rounded-full"][class*="bg-green"],
+aside [class*="rounded-full"][class*="bg-teal"] {
+  background-color: var(--dma-accent) !important;
+}
+
+/* Notifications popover — readable text on white + unread tint rows */
+div[class*="top-11"][class*="w-80"] .text-primary,
+div[class*="top-11"][class*="w-80"] p.font-bold {
+  color: var(--dma-text) !important;
+}
+
+div[class*="top-11"][class*="w-80"] .text-muted {
+  color: var(--dma-muted) !important;
+}
+
+div[class*="top-11"][class*="w-80"] .text-faint,
+div[class*="top-11"][class*="w-80"] [class*="text-[11px]"] {
+  color: #64748b !important;
+}
+
+div[class*="top-11"][class*="w-80"] button.text-brand {
+  color: var(--dma-accent-readable) !important;
+}
+
+div[class*="top-11"][class*="w-80"] [class*="bg-brand-light"] .text-primary,
+div[class*="top-11"][class*="w-80"] [class*="bg-brand-light"] .font-bold,
+div[class*="top-11"][class*="w-80"] [class*="bg-brand-light"] .text-brand {
+  color: var(--dma-text) !important;
+}
+
+div[class*="top-11"][class*="w-80"] [class*="bg-brand-light"] .text-muted,
+div[class*="top-11"][class*="w-80"] [class*="bg-brand-light"] .text-faint {
+  color: var(--dma-muted) !important;
+}
+
+/* AI status — Live & Active pill (green, not brand orange) */
+.dma-ai-status-live,
+button.dma-live-badge,
+span.dma-live-badge,
+div.dma-live-badge,
+a.dma-live-badge,
+.dma-live-badge,
+.dma-live-badge[class*="bg-emerald"],
+.dma-live-badge[class*="bg-green"],
+.dma-live-badge[class*="bg-teal"],
+.dma-live-badge.bg-brand,
+.dma-live-badge.bg-brand.bg-brand,
+button.dma-live-badge[class*="bg-brand"],
+[class*="bg-brand"].dma-live-badge,
+button[class*="bg-brand"].dma-live-badge {
+  background: var(--dma-live-soft) !important;
+  background-color: var(--dma-live-soft) !important;
+  background-image: none !important;
+  color: var(--dma-live) !important;
+  border-color: rgba(34, 197, 94, 0.45) !important;
+  box-shadow: 0 1px 4px rgba(34, 197, 94, 0.18) !important;
+}
+
+.dma-ai-status-live .dma-live-label,
+.dma-ai-status-live .text-brand,
+.dma-ai-status-live span.text-sm,
+.dma-live-badge span,
+span.dma-live-badge {
+  color: #15803d !important;
+}
+
+.dma-ai-status-live .dma-live-dot,
+.dma-ai-status-live .rounded-full[class*="bg-brand"],
+.dma-ai-status-live [class*="bg-brand"]:not([class*="bg-brand-light"]) {
+  background: #22c55e !important;
+  background-color: #22c55e !important;
+  background-image: none !important;
+}
+
+button.dma-live-badge:hover,
+.dma-live-badge:hover,
+.dma-ai-status-live:hover {
+  background: rgba(34, 197, 94, 0.18) !important;
+  filter: none !important;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.24) !important;
+}
+
+/* Visible placeholders on dashboard forms (settings, etc.) */
+input::placeholder,
+textarea::placeholder,
+.input::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+main input.input,
+main textarea.input,
+main input[class*="rounded"],
+main textarea[class*="rounded"] {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+}
+
+/* Desktop: cap doctor dashboard content width */
+@media (min-width: 1024px) {
+  body.min-h-screen main.flex-1 > div,
+  body.min-h-screen main.flex-1 > #dma-signature-root,
+  body.min-h-screen [class*="lg:ml"] > div,
+  body.min-h-screen main .p-6,
+  body.min-h-screen main .p-4,
+  body.min-h-screen main [class*="px-"] {
+    max-width: var(--dma-content-max);
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  body.min-h-screen main [class*="rounded-card"],
+  body.min-h-screen main [class*="shadow-card"],
+  body.min-h-screen main .bg-white {
+    border-radius: var(--dma-radius) !important;
+    box-shadow: var(--dma-shadow) !important;
+  }
+}
+
+/* Mobile / tablet spacing for doctor dashboard */
+@media (max-width: 900px) {
+  body.min-h-screen main {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+    padding-bottom: 24px !important;
+  }
+
+  body.min-h-screen main [class*="grid-cols-3"],
+  body.min-h-screen main [class*="grid-cols-4"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  body.min-h-screen main [class*="grid-cols-2"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  @media (max-width: 479px) {
+    body.min-h-screen main [class*="grid-cols-2"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
+  body.min-h-screen main table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+
+  body.min-h-screen aside a,
+  body.min-h-screen nav a {
+    min-height: 44px !important;
+  }
+}
+
+/* Cards — visible separation from page background */
+body.min-h-screen main .bg-white,
+body.min-h-screen main [class*="rounded-card"],
+body.min-h-screen main [class*="shadow-card"],
+body.min-h-screen main [class*="rounded-2xl"],
+body.min-h-screen main [class*="rounded-xl"][class*="border"] {
+  border: 1px solid var(--dma-border) !important;
+  box-shadow: var(--dma-shadow) !important;
+}
+
+/* Force readable text on all primary action buttons (Manage Billing, Save, etc.) */
+body.min-h-screen main button[class*="rounded"]:not([role="switch"]):not([aria-checked]),
+body.min-h-screen main button.bg-brand:not([role="switch"]):not([aria-checked]),
+body.min-h-screen main button[class*="bg-brand"]:not([class*="bg-brand-light"]):not(.dma-live-badge):not([role="switch"]):not([aria-checked]),
+body.min-h-screen main button[class*="bg-emerald"]:not(.dma-live-badge):not([role="switch"]),
+body.min-h-screen main button[class*="bg-green"]:not(.dma-live-badge):not(.sa-clinic-btn-suspend):not([role="switch"]) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: none !important;
+}
+
+body.min-h-screen main button[class*="bg-brand"]:not([class*="bg-brand-light"]):not([role="switch"]):not([aria-checked]) span,
+body.min-h-screen main button[class*="bg-emerald"]:not(.dma-live-badge):not([role="switch"]) span,
+body.min-h-screen main button[class*="bg-green"]:not(.dma-live-badge):not([role="switch"]) span {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+  opacity: 1 !important;
+}
+
+/* Settings tabs + filter pills — never treat as solid CTAs */
+body.min-h-screen main .dma-settings-tabs button,
+body.min-h-screen main .dma-filter-row button,
+body.min-h-screen main .dma-personality-row button {
+  min-height: 0 !important;
+  padding: 0.45rem 0.75rem !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+body.min-h-screen main .dma-settings-tabs button:not(.dma-tab-active):not([class*="text-brand"]):not([aria-selected="true"]) {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  background: #fff !important;
+}
+
+/* Outline buttons — dark label on white (not Live status pill) */
+body.min-h-screen main button[class*="border-brand"]:not([class*="bg-brand"]):not(.dma-ai-status-live):not(.dma-live-badge),
+body.min-h-screen main button[class*="bg-white"][class*="border"]:not([class*="text-white"]):not(.dma-ai-status-live) {
+  background: #fff !important;
+  color: var(--dma-accent-readable) !important;
+  -webkit-text-fill-color: var(--dma-accent-readable) !important;
+  border: 2px solid var(--dma-accent) !important;
+}
+
+/* ── v9 polish: nav, Live pill, WhatsApp link ───────────────────────────── */
+
+/* Active sidebar — orange not green/teal */
+aside a.nav-item-active,
+aside .nav-item-active,
+nav a.nav-item-active,
+a.nav-item.nav-item-active {
+  background: rgba(249, 115, 22, 0.18) !important;
+  background-color: rgba(249, 115, 22, 0.18) !important;
+  color: #fff !important;
+  border-left: 3px solid var(--dma-accent) !important;
+  box-shadow: inset 0 0 0 1px rgba(249, 115, 22, 0.12) !important;
+}
+
+aside a.nav-item-active svg,
+aside .nav-item-active svg {
+  color: #fdba74 !important;
+}
+
+/* Injected WhatsApp nav link — match sidebar items */
+aside a[href="/dashboard/whatsapp/"],
+aside a[href="/dashboard/whatsapp"] {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  border-left: 3px solid transparent !important;
+}
+
+aside a[href="/dashboard/whatsapp/"]:hover,
+aside a[href="/dashboard/whatsapp"]:hover {
+  background: var(--dma-accent-soft) !important;
+  color: #fff !important;
+}
+
+/* Live & Active — compact green pill, never full-width bar */
+.dma-ai-status-live,
+button.dma-ai-status-live,
+[class*="rounded-btn"].dma-ai-status-live,
+[class*="border-brand"].dma-ai-status-live,
+[class*="cursor-pointer"].dma-ai-status-live {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  width: auto !important;
+  max-width: max-content !important;
+  min-width: 0 !important;
+  flex: 0 0 auto !important;
+  padding: 0.4rem 0.85rem !important;
+  white-space: nowrap !important;
+}
+
+/* Page header row — title + status side by side */
+body.min-h-screen main > div > div[class*="flex"]:first-child,
+body.min-h-screen main .dma-page-header-scope {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.75rem 1.25rem !important;
+}
+
+body.min-h-screen main h1.text-2xl,
+body.min-h-screen main h1[class*="font-extrabold"] {
+  margin-bottom: 0 !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+/* Sidebar logo square — orange DMA */
+aside a[class*="bg-brand"][class*="rounded"],
+aside div[class*="bg-brand"][class*="rounded-lg"],
+aside [class*="w-9"][class*="bg-brand"],
+aside [class*="h-9"][class*="bg-brand"] {
+  background: linear-gradient(135deg, #F97316, #ea580c) !important;
+  color: #fff !important;
+}

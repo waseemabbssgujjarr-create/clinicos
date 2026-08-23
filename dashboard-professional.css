@@ -1,0 +1,386 @@
+/**
+ * Dashboard professional fixes — load LAST (after all other dashboard CSS)
+ * Fixes: invisible tabs, giant toggles, broken buttons, blank analytics, billing dupes, reviews scroll
+ */
+:root {
+  --dma-pro-toggle-w: 44px;
+  --dma-pro-toggle-h: 24px;
+  --dma-pro-knob: 18px;
+}
+
+/* ── Ensure all buttons stay clickable ─────────────────────────────────── */
+body.min-h-screen main button:not(:disabled),
+body.min-h-screen main a.rounded-btn,
+body.min-h-screen main [role="dialog"] button,
+body.min-h-screen main .fixed button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* ── Settings / page tabs — ALWAYS readable (not white-on-white) ───────── */
+body.min-h-screen main .dma-settings-tabs,
+body.min-h-screen main [class*="border-b"][class*="flex"]:has(> button:nth-child(2)) {
+  background: #f8fafc !important;
+  border: 1px solid #d0d7e2 !important;
+  border-radius: 10px !important;
+  padding: 0.4rem !important;
+  gap: 0.35rem !important;
+  margin-bottom: 1rem !important;
+  border-bottom: 1px solid #d0d7e2 !important;
+}
+
+body.min-h-screen main .dma-settings-tabs button,
+body.min-h-screen main [class*="border-b"][class*="flex"]:has(> button:nth-child(2)) > button {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  padding: 0.5rem 0.75rem !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  box-shadow: none !important;
+  white-space: nowrap !important;
+  text-shadow: none !important;
+}
+
+body.min-h-screen main .dma-settings-tabs button.dma-tab-active,
+body.min-h-screen main .dma-settings-tabs button[aria-selected="true"],
+body.min-h-screen main [class*="border-b"] > button[class*="text-brand"],
+body.min-h-screen main [class*="border-b"] > button[class*="border-brand"] {
+  color: #c2410c !important;
+  -webkit-text-fill-color: #c2410c !important;
+  background: rgba(249, 115, 22, 0.12) !important;
+  border-color: rgba(249, 115, 22, 0.45) !important;
+}
+
+body.min-h-screen main .dma-settings-tabs button *,
+body.min-h-screen main [class*="border-b"] > button * {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+  opacity: 1 !important;
+}
+
+/* ── Toggle switches — compact (AI Live, Auto-Confirm, Working Hours) ──── */
+body.min-h-screen main button[role="switch"],
+body.min-h-screen main button[aria-checked],
+body.min-h-screen main button.relative[class*="inline-flex"][class*="rounded-full"],
+body.min-h-screen main button[class*="rounded-full"][class*="transition"]:not([class*="px-4"]):not([class*="px-6"]):not([class*="py-2"]):not([class*="py-3"]),
+body.min-h-screen main label > button[class*="rounded-full"] {
+  width: var(--dma-pro-toggle-w) !important;
+  height: var(--dma-pro-toggle-h) !important;
+  min-width: var(--dma-pro-toggle-w) !important;
+  max-width: var(--dma-pro-toggle-w) !important;
+  min-height: var(--dma-pro-toggle-h) !important;
+  max-height: var(--dma-pro-toggle-h) !important;
+  padding: 2px !important;
+  border-radius: 999px !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  align-self: center !important;
+  background: #cbd5e1 !important;
+  background-image: none !important;
+  border: 1px solid #94a3b8 !important;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.1) !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+body.min-h-screen main button[role="switch"][aria-checked="true"],
+body.min-h-screen main button[aria-checked="true"],
+body.min-h-screen main button.relative[class*="inline-flex"][class*="rounded-full"][class*="bg-brand"],
+body.min-h-screen main button[class*="rounded-full"][class*="bg-brand"]:not([class*="px-"]) {
+  background: #f97316 !important;
+  border-color: #ea580c !important;
+}
+
+body.min-h-screen main button[role="switch"] > span,
+body.min-h-screen main button[aria-checked] > span,
+body.min-h-screen main button.relative[class*="inline-flex"][class*="rounded-full"] > span,
+body.min-h-screen main button[class*="rounded-full"][class*="transition"] > span {
+  display: block !important;
+  width: var(--dma-pro-knob) !important;
+  height: var(--dma-pro-knob) !important;
+  min-width: var(--dma-pro-knob) !important;
+  max-width: var(--dma-pro-knob) !important;
+  border-radius: 50% !important;
+  background: #fff !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.25) !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 2px !important;
+  transform: translateY(-50%) !important;
+}
+
+body.min-h-screen main button[role="switch"][aria-checked="true"] > span,
+body.min-h-screen main button[aria-checked="true"] > span {
+  left: calc(100% - var(--dma-pro-knob) - 2px) !important;
+}
+
+/* Live & Active pill — NOT a giant toggle */
+body.min-h-screen main .dma-ai-status-live,
+body.min-h-screen main .dma-ai-status-live button,
+body.min-h-screen main .dma-live-badge {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 32px !important;
+  max-height: none !important;
+  height: auto !important;
+  padding: 0.35rem 0.85rem !important;
+  color: #15803d !important;
+  -webkit-text-fill-color: #15803d !important;
+  background: rgba(34, 197, 94, 0.12) !important;
+  border-radius: 999px !important;
+}
+
+/* ── AI personality buttons — no overflow ─────────────────────────────── */
+body.min-h-screen main .dma-personality-row,
+body.min-h-screen main [class*="grid-cols-3"]:has(button[class*="Professional"]) {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0.4rem !important;
+}
+
+body.min-h-screen main .dma-personality-row button,
+body.min-h-screen main [class*="grid-cols-3"] > button[class*="rounded"]:not([class*="flex-col"]) {
+  font-size: 0.72rem !important;
+  padding: 0.45rem 0.25rem !important;
+  min-height: 36px !important;
+  max-height: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  white-space: normal !important;
+  line-height: 1.15 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  word-break: break-word !important;
+}
+
+/* ── Filter pills (Appointments) — inactive = grey, active = soft orange ─ */
+body.min-h-screen main .dma-filter-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.35rem !important;
+  padding: 0.65rem !important;
+  background: #fff !important;
+  border: 1px solid #d0d7e2 !important;
+  border-radius: 12px !important;
+}
+
+body.min-h-screen main .dma-filter-row button {
+  flex: 1 1 calc(33.333% - 0.35rem) !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding: 0.4rem 0.3rem !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  line-height: 1.15 !important;
+  white-space: normal !important;
+  text-align: center !important;
+  border-radius: 999px !important;
+  background: #f1f5f9 !important;
+  background-image: none !important;
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  border: 1px solid #e2e8f0 !important;
+  min-height: 0 !important;
+  box-shadow: none !important;
+}
+
+body.min-h-screen main .dma-filter-row button[class*="bg-brand"],
+body.min-h-screen main .dma-filter-row button[class*="text-brand"] {
+  background: rgba(249, 115, 22, 0.15) !important;
+  color: #c2410c !important;
+  -webkit-text-fill-color: #c2410c !important;
+  border-color: rgba(249, 115, 22, 0.4) !important;
+}
+
+/* ── WhatsApp hero — subtitle must be visible ─────────────────────────── */
+.dma-wa-hero,
+.dma-wa-hero * {
+  pointer-events: auto !important;
+}
+
+.dma-wa-hero h1,
+.dma-wa-hero .dma-wa-eyebrow {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  opacity: 1 !important;
+}
+
+.dma-wa-hero p,
+.dma-wa-hero .dma-wa-muted {
+  color: #e7e5e4 !important;
+  -webkit-text-fill-color: #e7e5e4 !important;
+  opacity: 1 !important;
+}
+
+body.min-h-screen main .dma-wa-quicklinks {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.5rem !important;
+  margin-top: 0.75rem !important;
+}
+
+body.min-h-screen main .dma-wa-quicklinks a {
+  flex: 1 1 calc(50% - 0.5rem) !important;
+  min-width: 0 !important;
+  text-align: center !important;
+  padding: 0.55rem 0.75rem !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #c2410c !important;
+  -webkit-text-fill-color: #c2410c !important;
+  text-decoration: none !important;
+}
+
+/* ── Analytics signature block — always visible ───────────────────────── */
+#dma-signature-root,
+.dma-signature {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #0f172a !important;
+  min-height: 0 !important;
+}
+
+#dma-signature-root * {
+  -webkit-text-fill-color: unset;
+}
+
+.dma-sig-title,
+.dma-sig-card h2,
+.dma-sig-stat-val {
+  color: #0f172a !important;
+}
+
+/* ── Billing — hide duplicate React upgrade block ─────────────────────── */
+body.dma-billing-page main .card h2,
+body.dma-billing-page main h2 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+body.dma-billing-page main .dma-billing-react-upgrade-hidden {
+  display: none !important;
+}
+
+body.dma-billing-page #dma-billing-plans {
+  order: -1 !important;
+  margin-bottom: 1.25rem !important;
+}
+
+body.dma-billing-page main > div,
+body.dma-billing-page main [class*="space-y"] {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* ── Reviews — remove 999-row stretch (causes huge white gap) ─────────── */
+body.dma-reviews-page main .dma-reviews-summary {
+  grid-row: auto !important;
+  position: static !important;
+  max-height: none !important;
+}
+
+body.dma-reviews-page main .dma-reviews-grid {
+  min-height: 0 !important;
+}
+
+body.dma-reviews-page main.flex-1,
+body.dma-reviews-page main {
+  padding-bottom: 1.5rem !important;
+}
+
+/* ── Modals — close button not full-width orange bar ──────────────────── */
+body.min-h-screen [class*="fixed"] > div[class*="rounded"] > div:first-child button,
+body.min-h-screen [role="dialog"] header button,
+body.min-h-screen [class*="fixed"] button[class*="absolute"] {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 44px !important;
+  min-height: 0 !important;
+  max-height: 44px !important;
+  padding: 0.5rem !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+}
+
+/* ── Page CTAs — consistent size, not stretched ───────────────────────── */
+body.min-h-screen main .dma-page-cta,
+body.min-h-screen main .dma-page-cta-wrap button,
+body.min-h-screen main h1 + button,
+body.min-h-screen main .dma-page-header-scope > button {
+  width: auto !important;
+  min-width: 140px !important;
+  max-width: 220px !important;
+  white-space: nowrap !important;
+}
+
+/* ── Reduce empty vertical gaps ─────────────────────────────────────────── */
+body.min-h-screen main .card,
+body.min-h-screen main [class*="rounded-card"] {
+  min-height: 0 !important;
+}
+
+body.min-h-screen main [class*="min-h-\["],
+body.min-h-screen main [class*="min-h-screen"] {
+  min-height: 0 !important;
+}
+
+body.min-h-screen main .dma-empty-panel,
+body.min-h-screen main tbody:empty {
+  min-height: 140px !important;
+}
+
+/* ── Mobile ─────────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  body.min-h-screen main .dma-filter-row button {
+    flex: 1 1 calc(50% - 0.35rem) !important;
+  }
+
+  body.min-h-screen main .dma-settings-tabs button,
+  body.min-h-screen main [class*="border-b"] > button {
+    flex: 1 1 calc(50% - 0.35rem) !important;
+    font-size: 0.7rem !important;
+  }
+
+  body.min-h-screen main .dma-page-cta,
+  body.min-h-screen main .dma-page-cta-wrap button {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  body.min-h-screen main .card-body {
+    padding: 0.875rem !important;
+  }
+
+  .dma-wa-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body.min-h-screen main .dma-filter-row button {
+    flex: 1 1 100% !important;
+  }
+}

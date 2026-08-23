@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" class="doc-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhatsApp — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-dashboard.css?v=9" />
+  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=2" />
+  <link rel="stylesheet" href="/dashboard-whatsapp-hub.css?v=3" />
+</head>
+<body>
+  <div class="doc-layout">
+    <aside class="doc-sidebar" id="doc-sidebar" aria-label="Clinic navigation"></aside>
+    <div class="doc-main-wrap">
+      <header class="doc-topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button type="button" class="doc-menu-btn" aria-label="Open menu"><span></span><span></span><span></span></button>
+          <h1 id="doc-page-title">WhatsApp Command Center</h1>
+        </div>
+        <div class="doc-topbar-actions">
+          <a href="/dashboard/messages/">Inbox</a>
+          <span id="doc-user-label">Doctor</span>
+        </div>
+      </header>
+      <main class="doc-main">
+        <div id="dma-wa-command-center" class="dma-wa-root"><p class="dma-wa-muted">Loading WhatsApp…</p></div>
+      </main>
+    </div>
+  </div>
+  <script src="/dashboard-doctor-shell.js?v=1"></script>
+  <script src="/dashboard-whatsapp-hub.js?v=2"></script>
+  <script>
+    (function () {
+      if (!DmaDoctorShell.initStaticPage('/dashboard/whatsapp/', 'WhatsApp Command Center')) return;
+      try {
+        var u = JSON.parse(localStorage.getItem('clinicos-store') || '{}').state.user;
+        if (u && u.ownerName) document.getElementById('doc-user-label').textContent = u.ownerName;
+      } catch (_) {}
+    })();
+  </script>
+</body>
+</html>

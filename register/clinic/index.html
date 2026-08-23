@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Set Up Clinic — Doctors My Agency</title>
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/landing.css" />
+  <link rel="stylesheet" href="/portal.css" />
+  <link rel="stylesheet" href="/platform-hovers.css" />
+  <link rel="stylesheet" href="/dma-theme.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(_){}})();
+  </script>
+  <script src="/api-shim.js"></script>
+  <style>
+    .clinic-summary {
+      background: var(--bg-elevated, #f8fafc);
+      border: 1px solid var(--border-subtle, rgba(15, 23, 42, 0.08));
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+    }
+    .clinic-summary-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 4px; }
+    .clinic-summary-name { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+    .clinic-summary-meta { font-size: 0.8125rem; color: var(--muted); margin-top: 4px; }
+  </style>
+</head>
+<body class="portal-page">
+  <div class="glow glow-purple"></div>
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="logo" style="text-decoration:none;color:inherit"><div class="logo-icon">DM</div> Doctors My Agency</a>
+    </div>
+  </nav>
+  <main class="portal-main">
+    <div class="container">
+      <a href="/register/" class="back-link">← Back</a>
+      <div class="form-card wide">
+        <div class="step-dots" aria-hidden="true">
+          <span class="step-dot done">✓</span><span class="step-line"></span>
+          <span class="step-dot active">2</span><span class="step-line"></span>
+          <span class="step-dot">3</span><span class="step-line"></span>
+          <span class="step-dot">4</span>
+        </div>
+        <h1>Set up your clinic</h1>
+        <p class="subtitle">Add your address and booking link — clinic details were saved in step 1</p>
+        <div id="error" class="alert alert-error" style="display:none"></div>
+        <div class="clinic-summary" id="clinicSummary" style="display:none">
+          <div class="clinic-summary-label">Your clinic</div>
+          <div class="clinic-summary-name" id="clinicNameDisplay">—</div>
+          <div class="clinic-summary-meta" id="clinicSpecialtyDisplay"></div>
+        </div>
+        <form id="form">
+          <div class="field">
+            <label>Clinic Address</label>
+            <input type="text" name="address" placeholder="Dubai, UAE" />
+          </div>
+          <div class="field">
+            <label>Booking URL slug *</label>
+            <div class="slug-prefix-wrap">
+              <span class="slug-prefix">clinicos.aderalabs.com/book/</span>
+              <input type="text" name="bookingSlug" id="bookingSlug" required placeholder="halen-clinic" pattern="[a-z0-9-]+" />
+            </div>
+            <p style="font-size:0.78rem;color:var(--muted);margin-top:6px">Auto-generated from your clinic name — you can edit if needed</p>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" id="skipBtn">Skip</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn">Save &amp; Continue →</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+  <script src="/portal.js"></script>
+  <script>
+    if (!localStorage.getItem('token')) window.location.replace('/register/');
+
+    function slugify(text) {
+      return String(text || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+    }
+
+    function authHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+      };
+    }
+
+    function getStoredUser() {
+      try {
+        var raw = localStorage.getItem('clinicos-store');
+        if (!raw) return null;
+        return JSON.parse(raw).state.user || null;
+      } catch (_) { return null; }
+    }
+
+    var clinicData = { name: '', specialty: '', address: '', bookingSlug: '' };
+
+    async function loadClinic() {
+      var r = await fetch('/api/settings', { headers: authHeaders(), credentials: 'include' });
+      var data = await r.json().catch(function () { return {}; });
+      if (!r.ok) throw new Error(data.error || 'Could not load clinic details');
+      clinicData = {
+        name: data.name || '',
+        specialty: data.specialty || '',
+        address: data.address || '',
+        bookingSlug: data.bookingSlug || '',
+      };
+    }
+
+    function renderSummary() {
+      if (!clinicData.name) return;
+      document.getElementById('clinicSummary').style.display = 'block';
+      document.getElementById('clinicNameDisplay').textContent = clinicData.name;
+      document.getElementById('clinicSpecialtyDisplay').textContent = clinicData.specialty
+        ? 'Specialty: ' + clinicData.specialty.charAt(0).toUpperCase() + clinicData.specialty.slice(1)
+        : '';
+    }
+
+    function defaultSlugFromName() {
+      return slugify(clinicData.name);
+    }
+
+    function initForm() {
+      var slugInput = document.getElementById('bookingSlug');
+      var addressInput = document.querySelector('[name="address"]');
+      var suggested = defaultSlugFromName();
+      var user = getStoredUser();
+      var ownerSlug = slugify('dr-' + (user && user.name ? user.name : ''));
+
+      if (clinicData.address) addressInput.value = clinicData.address;
+
+      if (clinicData.bookingSlug && clinicData.bookingSlug !== ownerSlug && clinicData.bookingSlug !== suggested) {
+        slugInput.value = clinicData.bookingSlug;
+      } else if (suggested) {
+        slugInput.value = suggested;
+      } else if (clinicData.bookingSlug) {
+        slugInput.value = clinicData.bookingSlug;
+      }
+    }
+
+    async function saveClinic(payload) {
+      var r = await fetch('/api/settings/clinic', {
+        method: 'PATCH',
+        headers: authHeaders(),
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+      var data = await r.json().catch(function () { return {}; });
+      if (!r.ok) throw new Error(data.error || 'Could not save clinic details');
+      return data;
+    }
+
+    function goNext() { window.location.href = '/register/hours/'; }
+
+    document.getElementById('skipBtn').onclick = goNext;
+
+    document.getElementById('form').onsubmit = async function (e) {
+      e.preventDefault();
+      var err = document.getElementById('error');
+      var btn = document.getElementById('submitBtn');
+      err.style.display = 'none';
+      setBtnLoading(btn, true, 'Saving…');
+      var fd = new FormData(e.target);
+      try {
+        await saveClinic({
+          address: fd.get('address') || undefined,
+          bookingSlug: String(fd.get('bookingSlug')).toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+        });
+        goNext();
+      } catch (ex) {
+        err.textContent = ex.message;
+        err.style.display = 'block';
+      } finally {
+        setBtnLoading(btn, false);
+      }
+    };
+
+    loadClinic()
+      .then(function () { renderSummary(); initForm(); })
+      .catch(function (ex) {
+        var user = getStoredUser();
+        if (user && user.clinicName) {
+          clinicData.name = user.clinicName;
+          renderSummary();
+          document.getElementById('bookingSlug').value = slugify(user.clinicName);
+        }
+        document.getElementById('error').textContent = ex.message;
+        document.getElementById('error').style.display = 'block';
+      });
+  </script>
+</body>
+</html>

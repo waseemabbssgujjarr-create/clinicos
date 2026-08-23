@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff Sign In — Doctors My Agency</title>
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/landing.css" />
+  <link rel="stylesheet" href="/portal.css" />
+  <link rel="stylesheet" href="/platform-hovers.css" />
+  <link rel="stylesheet" href="/dma-theme.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(_){}})();
+  </script>
+</head>
+<body class="portal-page">
+  <div class="glow glow-blue"></div>
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="logo" style="text-decoration:none;color:inherit"><div class="logo-icon">DM</div> Doctors My Agency</a>
+      <div class="nav-cta"></div>
+    </div>
+  </nav>
+  <main class="portal-main">
+    <div class="container">
+      <a href="/start/" class="back-link">← Back to portal</a>
+      <div class="form-card">
+        <div style="text-align:center;margin-bottom:20px">
+          <div class="logo-icon" style="margin:0 auto 12px;width:48px;height:48px;font-size:1.1rem">DM</div>
+        </div>
+        <h1>Staff Sign In</h1>
+        <p class="subtitle">Reception &amp; clinic team portal</p>
+
+        <div class="role-tabs">
+          <a href="/doctor-login/" class="role-tab">🩺 Doctor</a>
+          <span class="role-tab active">👥 Staff</span>
+        </div>
+
+        <div id="error" class="alert alert-error" style="display:none"></div>
+
+        <form id="form">
+          <div class="field">
+            <label>Work Email</label>
+            <input type="email" name="email" required placeholder="staff@clinic.com" autocomplete="email" />
+          </div>
+          <div class="field">
+            <div class="field-row">
+              <label>Password</label>
+              <a href="/forgot-password/" class="forgot-link">Forgot password?</a>
+            </div>
+            <div class="password-wrap">
+              <input type="password" name="password" required placeholder="Your password" autocomplete="current-password" />
+              <button type="button" class="password-toggle" data-password-toggle aria-label="Show password" title="Show password">
+                <svg class="icon-show" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-hide" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px">Sign In to Staff Portal →</button>
+        </form>
+
+        <p style="text-align:center;margin-top:20px;font-size:0.88rem;color:var(--muted)">
+          Doctor? <a href="/doctor-login/" style="color:#F97316;font-weight:700">Doctor sign in</a>
+        </p>
+      </div>
+    </div>
+  </main>
+  <script src="/portal.js"></script>
+  <script>
+    document.getElementById('form').onsubmit = async (e) => {
+      e.preventDefault();
+      const err = document.getElementById('error');
+      const btn = e.target.querySelector('[type="submit"]');
+      err.style.display = 'none';
+      setBtnLoading(btn, true, 'Signing in…');
+      const fd = new FormData(e.target);
+      try {
+        const r = await fetch('/api/auth/staff/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email: fd.get('email'), password: fd.get('password') }),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          if (data.code === 'EMAIL_NOT_VERIFIED') {
+            const email = fd.get('email');
+            err.innerHTML = data.error + ' <a href="/verify-email/?email=' + encodeURIComponent(email) + '">Verify email or resend link →</a>';
+            err.style.display = 'block';
+            setBtnLoading(btn, false);
+            return;
+          }
+          throw new Error(data.error || data.message || 'Sign in failed — check email and password');
+        }
+        if (data.token && data.user) syncClinicosStore(data.user, data.token);
+        window.location.href = '/staff/';
+      } catch (ex) {
+        err.textContent = ex.message;
+        err.style.display = 'block';
+        setBtnLoading(btn, false);
+      }
+    };
+  </script>
+</body>
+</html>

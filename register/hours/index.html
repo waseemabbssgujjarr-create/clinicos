@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Working Hours — Doctors My Agency</title>
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/landing.css" />
+  <link rel="stylesheet" href="/portal.css" />
+  <link rel="stylesheet" href="/platform-hovers.css" />
+  <link rel="stylesheet" href="/dma-theme.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(_){}})();
+  </script>
+  <script src="/api-shim.js"></script>
+</head>
+<body class="portal-page">
+  <div class="glow glow-blue"></div>
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="logo" style="text-decoration:none;color:inherit"><div class="logo-icon">DM</div> Doctors My Agency</a>
+    </div>
+  </nav>
+  <main class="portal-main">
+    <div class="container">
+      <a href="/register/clinic/" class="back-link">← Back</a>
+      <div class="form-card wide">
+        <div class="step-dots" aria-hidden="true">
+          <span class="step-dot done">✓</span><span class="step-line"></span>
+          <span class="step-dot done">✓</span><span class="step-line"></span>
+          <span class="step-dot active">3</span><span class="step-line"></span>
+          <span class="step-dot">4</span>
+        </div>
+        <h1>Working hours</h1>
+        <p class="subtitle">AI books only during open hours</p>
+        <div id="error" class="alert alert-error" style="display:none"></div>
+        <div id="hoursList" class="hours-list"></div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-secondary" id="skipBtn">Skip</button>
+          <button type="button" class="btn btn-primary" id="saveBtn">Save &amp; Continue →</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="/portal.js"></script>
+  <script>
+    if (!localStorage.getItem('token')) window.location.replace('/register/');
+
+    const DAYS = [
+      ['monday','Monday'], ['tuesday','Tuesday'], ['wednesday','Wednesday'],
+      ['thursday','Thursday'], ['friday','Friday'], ['saturday','Saturday'], ['sunday','Sunday'],
+    ];
+    const DEFAULT = {
+      monday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+      tuesday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+      wednesday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+      thursday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+      friday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+      saturday: { isOpen: false, open: '09:00', close: '17:00', slotDuration: 30 },
+      sunday: { isOpen: false, open: '09:00', close: '17:00', slotDuration: 30 },
+    };
+    const hours = JSON.parse(JSON.stringify(DEFAULT));
+    const list = document.getElementById('hoursList');
+
+    function timeOptions() {
+      const o = [];
+      for (let h = 6; h <= 22; h++) {
+        ['00','30'].forEach(m => o.push(String(h).padStart(2,'0')+':'+m));
+      }
+      return o;
+    }
+    const times = timeOptions();
+
+    DAYS.forEach(([key, label]) => {
+      const row = document.createElement('div');
+      row.className = 'hours-row';
+      row.innerHTML = `
+        <label class="hours-toggle"><input type="checkbox" data-day="${key}" ${hours[key].isOpen?'checked':''}/> <span>${label}</span></label>
+        <select data-open="${key}">${times.map(t=>`<option value="${t}">${t}</option>`).join('')}</select>
+        <span class="hours-sep">to</span>
+        <select data-close="${key}">${times.map(t=>`<option value="${t}">${t}</option>`).join('')}</select>`;
+      list.appendChild(row);
+      row.querySelector(`[data-open="${key}"]`).value = hours[key].open;
+      row.querySelector(`[data-close="${key}"]`).value = hours[key].close;
+    });
+
+    function collect() {
+      DAYS.forEach(([key]) => {
+        const row = list.querySelector(`[data-day="${key}"]`).closest('.hours-row');
+        hours[key].isOpen = row.querySelector(`[data-day="${key}"]`).checked;
+        hours[key].open = row.querySelector(`[data-open="${key}"]`).value;
+        hours[key].close = row.querySelector(`[data-close="${key}"]`).value;
+      });
+      return hours;
+    }
+
+    function goNext() { window.location.href = '/register/plan/'; }
+
+    function formatApiError(data, fallback) {
+      if (data.details && Array.isArray(data.details)) {
+        return data.details.map((d) => d.message || d.path?.join('.')).filter(Boolean).join(' · ') || fallback;
+      }
+      return data.error || data.message || fallback;
+    }
+
+    async function saveHours(hoursData) {
+      const r = await fetch('/api/settings/hours', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        },
+        credentials: 'include',
+        body: JSON.stringify({ workingHours: JSON.stringify(hoursData) }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(formatApiError(data, 'Could not save working hours'));
+      return data;
+    }
+
+    async function handleSave(useDefaults) {
+      const err = document.getElementById('error');
+      const saveBtn = document.getElementById('saveBtn');
+      const skipBtn = document.getElementById('skipBtn');
+      const activeBtn = useDefaults ? skipBtn : saveBtn;
+      err.style.display = 'none';
+      setBtnLoading(activeBtn, true, useDefaults ? 'Skipping…' : 'Saving…');
+      if (saveBtn && saveBtn !== activeBtn) saveBtn.disabled = true;
+      if (skipBtn && skipBtn !== activeBtn) skipBtn.disabled = true;
+      try {
+        const payload = useDefaults ? JSON.parse(JSON.stringify(DEFAULT)) : collect();
+        await saveHours(payload);
+        goNext();
+      } catch (ex) {
+        err.textContent = ex.message;
+        err.style.display = 'block';
+        setBtnLoading(activeBtn, false);
+        if (saveBtn) saveBtn.disabled = false;
+        if (skipBtn) skipBtn.disabled = false;
+      }
+    }
+
+    document.getElementById('skipBtn').onclick = () => handleSave(true);
+    document.getElementById('saveBtn').onclick = () => handleSave(false);
+  </script>
+</body>
+</html>

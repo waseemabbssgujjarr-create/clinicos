@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhatsApp Clinics — Platform Admin</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=8" />
+  <link rel="stylesheet" href="/dma-dashboard.css?v=8" />
+  <style>
+    .wa-admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .wa-admin-stat { background: #fff; border: 1px solid #d0d7e2; border-radius: 12px; padding: 16px; }
+    .wa-admin-stat strong { display: block; font-size: 1.6rem; color: #0f172a; }
+    .wa-admin-stat span { font-size: 0.78rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; }
+    .wa-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .wa-table th { text-align: left; padding: 10px 12px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; font-size: 0.72rem; text-transform: uppercase; color: #64748b; }
+    .wa-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    .wa-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+    .wa-badge--on { background: #dcfce7; color: #166534; }
+    .wa-badge--off { background: #f1f5f9; color: #64748b; }
+    .wa-meta-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; padding: 14px 16px; margin-bottom: 18px; font-size: 0.88rem; color: #065f46; line-height: 1.55; }
+    .wa-meta-box code { background: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.82rem; }
+  </style>
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="sa-content-card">
+        <h1>WhatsApp Connections</h1>
+        <p class="sa-subtitle">Every clinic that connected via Meta Embedded Signup — same system as IQ Pigeon, inside ClinicOS.</p>
+
+        <div class="wa-meta-box">
+          <strong>Meta webhook (ClinicOS):</strong> <code id="wa-webhook-url">https://clinicos.workee.online/api/webhooks/meta</code><br>
+          Configure in Meta → WhatsApp → Webhook. Keys in <a href="/superadmin/integrations/">Integrations</a>.
+          Full guide: <code>WHATSAPP_COMPLETE_SETUP_GUIDE.md</code> on server repo.
+        </div>
+
+        <div class="wa-admin-stats" id="wa-stats"></div>
+        <div id="wa-err" class="sa-alert sa-alert-warn" style="display:none"></div>
+        <div id="wa-table-wrap"><p class="sa-hint">Loading clinics…</p></div>
+      </div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=4"></script>
+  <script>
+    (function () {
+      if (!DmaAdminShell.initStaticPage('/superadmin/whatsapp/')) return;
+
+      var statsEl = document.getElementById('wa-stats');
+      var wrap = document.getElementById('wa-table-wrap');
+      var errEl = document.getElementById('wa-err');
+
+      function esc(s) {
+        var d = document.createElement('div');
+        d.textContent = s == null ? '' : String(s);
+        return d.innerHTML;
+      }
+
+      function render(data) {
+        statsEl.innerHTML =
+          '<div class="wa-admin-stat"><strong>' + (data.connected || 0) + '</strong><span>Connected</span></div>' +
+          '<div class="wa-admin-stat"><strong>' + ((data.total || 0) - (data.connected || 0)) + '</strong><span>Not connected</span></div>' +
+          '<div class="wa-admin-stat"><strong>' + (data.total || 0) + '</strong><span>Total clinics</span></div>';
+
+        var rows = (data.clinics || []).map(function (c) {
+          var badge = c.connected
+            ? '<span class="wa-badge wa-badge--on">Live</span>'
+            : '<span class="wa-badge wa-badge--off">Offline</span>';
+          return '<tr>' +
+            '<td><strong>' + esc(c.name) + '</strong><br><span style="color:#64748b;font-size:0.8rem">' + esc(c.email) + '</span></td>' +
+            '<td>' + esc(c.ownerName) + '</td>' +
+            '<td>' + badge + '<br>' + (c.displayPhoneNumber ? esc(c.displayPhoneNumber) : '—') + '</td>' +
+            '<td>' + esc(c.plan) + ' / ' + esc(c.planStatus) + '</td>' +
+            '<td>' + (c.whatsappMessages || 0) + '</td>' +
+            '<td>' + (c.connected
+              ? '<button type="button" class="sa-btn-secondary wa-revoke" data-id="' + esc(c.id) + '">Revoke</button>'
+              : '<a class="sa-btn-secondary" href="/superadmin/clinics/detail/?id=' + encodeURIComponent(c.id) + '">Clinic</a>') +
+            '</td></tr>';
+        }).join('');
+
+        wrap.innerHTML =
+          '<table class="wa-table"><thead><tr>' +
+          '<th>Clinic</th><th>Owner</th><th>WhatsApp</th><th>Plan</th><th>Msgs</th><th></th>' +
+          '</tr></thead><tbody>' + (rows || '<tr><td colspan="6">No clinics</td></tr>') + '</tbody></table>';
+
+        wrap.querySelectorAll('.wa-revoke').forEach(function (btn) {
+          btn.onclick = function () {
+            var id = btn.getAttribute('data-id');
+            if (!confirm('Revoke WhatsApp for this clinic? They must reconnect.')) return;
+            DmaAdminShell.api('/api/superadmin/whatsapp/clinics/' + id, { method: 'DELETE' })
+              .then(load)
+              .catch(function (e) { errEl.textContent = e.message; errEl.style.display = 'block'; });
+          };
+        });
+      }
+
+      function load() {
+        errEl.style.display = 'none';
+        DmaAdminShell.api('/api/superadmin/whatsapp/clinics')
+          .then(render)
+          .catch(function (e) {
+            errEl.textContent = e.message || 'Failed to load';
+            errEl.style.display = 'block';
+          });
+      }
+
+      load();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subscription Management — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=8" />
+  <link rel="stylesheet" href="/superadmin-polish.css?v=1" />
+  <script src="/dashboard-bootstrap.js"></script>
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="sa-main-inner">
+        <div class="sa-page-hero">
+          <h1>Subscription management</h1>
+          <p class="sa-subtitle">View and manage clinic plans across the platform.</p>
+        </div>
+
+        <div class="sa-kpi-grid" id="kpis" style="display:none">
+          <div class="sa-kpi-card"><span class="sa-kpi-label">Total clinics</span><span class="sa-kpi-value" id="kpi-total">—</span></div>
+          <div class="sa-kpi-card"><span class="sa-kpi-label">On trial</span><span class="sa-kpi-value" id="kpi-trial">—</span></div>
+          <div class="sa-kpi-card"><span class="sa-kpi-label">Active paid</span><span class="sa-kpi-value" id="kpi-active">—</span></div>
+          <div class="sa-kpi-card"><span class="sa-kpi-label">Cancelled</span><span class="sa-kpi-value" id="kpi-cancelled">—</span></div>
+        </div>
+
+        <div class="sa-content-card">
+          <p class="sa-status" id="status">Loading clinics…</p>
+          <div id="error-box" style="display:none" class="sa-status-error">
+            <span id="error-msg"></span>
+            <button type="button" class="sa-retry-btn" id="retry-btn">Retry</button>
+          </div>
+          <div class="sa-table-wrap">
+            <table class="sa-data-table" id="table" style="display:none">
+              <thead>
+                <tr>
+                  <th>Clinic</th>
+                  <th>Owner</th>
+                  <th>Plan</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=5"></script>
+  <script>
+    if (DmaAdminShell.initStaticPage('/superadmin/subscriptions/')) {
+      function initials(name) {
+        if (!name) return '—';
+        return name.split(/\s+/).slice(0, 2).map(function (w) { return w[0] || ''; }).join('').toUpperCase();
+      }
+
+      function badgeStatus(st) {
+        st = String(st || '—');
+        if (/cancel/i.test(st)) return '<span class="sa-badge-warn">' + st + '</span>';
+        if (/active/i.test(st)) return '<span class="sa-badge-ok">' + st + '</span>';
+        if (/trial|past/i.test(st)) return '<span class="sa-pill">' + st + '</span>';
+        return '<span class="sa-pill">' + st + '</span>';
+      }
+
+      function renderTable(clinics) {
+        document.getElementById('status').textContent = clinics.length + ' clinic' + (clinics.length === 1 ? '' : 's');
+        document.getElementById('kpi-total').textContent = clinics.length;
+        document.getElementById('kpi-trial').textContent = clinics.filter(function (c) { return (c.plan || '') === 'TRIAL'; }).length;
+        document.getElementById('kpi-active').textContent = clinics.filter(function (c) { return /active/i.test(c.planStatus || ''); }).length;
+        document.getElementById('kpi-cancelled').textContent = clinics.filter(function (c) { return /cancel/i.test(c.planStatus || ''); }).length;
+        document.getElementById('kpis').style.display = '';
+
+        document.getElementById('tbody').innerHTML = clinics.map(function (c) {
+          var name = c.name || '—';
+          return '<tr>' +
+            '<td><span class="sa-clinic-avatar">' + initials(name) + '</span><strong>' + name + '</strong></td>' +
+            '<td>' + (c.ownerName || c.email || '—') + '</td>' +
+            '<td><span class="sa-pill">' + (c.plan || 'TRIAL') + '</span></td>' +
+            '<td>' + badgeStatus(c.planStatus) + '</td>' +
+            '<td><a href="/superadmin/clinics/' + encodeURIComponent(c.id) + '/" class="sa-link">Manage →</a></td>' +
+          '</tr>';
+        }).join('');
+        document.getElementById('table').style.display = '';
+        document.getElementById('error-box').style.display = 'none';
+      }
+
+      function loadClinics() {
+        document.getElementById('status').textContent = 'Loading clinics…';
+        document.getElementById('error-box').style.display = 'none';
+        document.getElementById('table').style.display = 'none';
+        DmaAdminShell.api('/api/superadmin/clinics?limit=100', { retries: 3, retryDelay: 1000 })
+          .then(function (data) {
+            var clinics = data.data || data.clinics || data || [];
+            if (!Array.isArray(clinics)) clinics = [];
+            renderTable(clinics);
+          })
+          .catch(function (e) {
+            document.getElementById('status').textContent = '';
+            document.getElementById('error-msg').textContent = e.message || 'Could not load clinics.';
+            document.getElementById('error-box').style.display = 'block';
+          });
+      }
+
+      document.getElementById('retry-btn').addEventListener('click', loadClinics);
+      loadClinics();
+    }
+  </script>
+</body>
+</html>

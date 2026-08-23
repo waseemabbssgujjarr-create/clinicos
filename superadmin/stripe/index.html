@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connect Stripe — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=4" />
+  <link rel="stylesheet" href="/dma-dashboard.css?v=4" />
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="sa-content-card">
+        <h1>Connect Stripe</h1>
+        <p class="sa-subtitle">Enable subscription billing for clinic plans (Trial → Starter → Pro → Enterprise).</p>
+        <div id="stripe-status" class="sa-alert sa-alert-warn">Checking Stripe configuration…</div>
+        <h2 style="font-size:1rem;margin:24px 0 8px;font-family:Montserrat,Inter,sans-serif">Setup steps</h2>
+        <ol class="sa-steps">
+          <li>Create a <a href="https://dashboard.stripe.com/register" target="_blank" rel="noopener">Stripe account</a></li>
+          <li>Open <a href="/superadmin/integrations/">Integrations</a> and paste Stripe keys (or edit <code>.env</code>)</li>
+          <li>Create products/prices for Starter, Pro, and Enterprise plans — paste price IDs on Integrations</li>
+          <li>Set webhook endpoint to <code>/api/webhooks/stripe</code> on your domain</li>
+          <li>Clinics can then upgrade from their dashboard billing page</li>
+        </ol>
+        <div class="sa-env-list">
+          Prefer <a href="/superadmin/integrations/">Integrations → Stripe</a>:<br />
+          STRIPE_SECRET_KEY · NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY · STRIPE_WEBHOOK_SECRET<br />
+          STRIPE_STARTER_PRICE_ID · STRIPE_PRO_PRICE_ID · STRIPE_ENTERPRISE_PRICE_ID
+        </div>
+        <p style="margin-top:24px;display:flex;flex-wrap:wrap;gap:10px">
+          <a href="/superadmin/integrations/" class="sa-btn-primary">Open Integrations →</a>
+          <a href="https://dashboard.stripe.com/test/apikeys" target="_blank" rel="noopener" class="sa-btn-secondary">Stripe Dashboard</a>
+          <a href="/superadmin/subscriptions/" class="sa-btn-outline">View subscriptions</a>
+        </p>
+      </div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=4"></script>
+  <script>
+    if (DmaAdminShell.initStaticPage('/superadmin/stripe/')) {
+      var box = document.getElementById('stripe-status');
+      fetch('/api/leads/deploy-check')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          var hasStripe = data && (data.stripeConfigured || (data.env && data.env.STRIPE_SECRET_KEY));
+          if (hasStripe) {
+            box.className = 'sa-alert sa-alert-ok';
+            box.textContent = 'Stripe appears configured on the server. Test a clinic upgrade from the doctor billing page.';
+          } else {
+            box.className = 'sa-alert sa-alert-warn';
+            box.textContent = 'Stripe is not configured yet. Add STRIPE_SECRET_KEY and related env vars, then restart the API.';
+          }
+        })
+        .catch(function () {
+          box.className = 'sa-alert sa-alert-warn';
+          box.textContent = 'Could not verify Stripe status. Ensure the API is running and env vars are set.';
+        });
+    }
+  </script>
+</body>
+</html>
