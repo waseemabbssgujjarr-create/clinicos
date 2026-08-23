@@ -1,3 +1,3 @@
-﻿"use strict";
+"use strict";
 
-require("./clinicos-api/dist/bootstrap.js");
+require("./clinicos-api/dist/app.js");
