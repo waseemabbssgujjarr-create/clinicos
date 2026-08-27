@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audit Log — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=4" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=8" />
+  <style>
+    .audit-bar { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; padding:.875rem 1.25rem; border-bottom:1px solid var(--border); background:var(--surface-2); }
+    .audit-bar input { flex:1 1 200px; min-width:0; height:38px; }
+    .audit-bar select { height:38px; padding:0 12px; border:1.5px solid var(--border-2); border-radius:var(--r-md); background:var(--surface); color:var(--text-2); font-size:var(--f-sm); font-weight:600; cursor:pointer; }
+    .audit-row { display:flex; align-items:flex-start; gap:1rem; padding:.875rem 1.25rem; border-bottom:1px solid var(--border); }
+    .audit-row:last-child { border-bottom:none; }
+    .audit-icon { width:34px; height:34px; border-radius:var(--r-md); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.9rem; }
+    .audit-body { flex:1; min-width:0; }
+    .audit-action { font-size:var(--f-sm); font-weight:700; color:var(--text-1); margin:0 0 2px; }
+    .audit-detail { font-size:.72rem; color:var(--muted); margin:0; }
+    .audit-time { font-size:.72rem; color:var(--faint); white-space:nowrap; flex-shrink:0; }
+    .tag { font-size:.67rem; font-weight:700; padding:2px 8px; border-radius:var(--r-full); display:inline-block; margin-right:4px; }
+  </style>
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="sa-content-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
+          <div>
+            <h1>Audit Log</h1>
+            <p class="sa-subtitle">Platform-wide activity log — logins, plan changes, WhatsApp connections, and admin actions.</p>
+          </div>
+          <button onclick="loadAudit()" style="display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 16px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);font-size:var(--f-sm);font-weight:700;cursor:pointer;color:var(--text-2)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+        </div>
+
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden">
+          <div class="audit-bar">
+            <input type="text" id="audit-search" placeholder="Search actions, emails, clinic names…" />
+            <select id="audit-type">
+              <option value="">All events</option>
+              <option value="login">Logins</option>
+              <option value="plan">Plan changes</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="ai">AI actions</option>
+              <option value="admin">Admin actions</option>
+            </select>
+            <select id="audit-period">
+              <option value="1">Today</option>
+              <option value="7" selected>Last 7 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+            </select>
+          </div>
+          <div id="audit-list">
+            <div style="padding:3rem;text-align:center;color:var(--muted);font-weight:600">Loading audit log…</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=4"></script>
+  <script src="/dashboard-bootstrap.js"></script>
+  <script>
+  (function () {
+    if (!DmaAdminShell.initStaticPage('/superadmin/audit/')) return;
+
+    var actionIcons = {
+      login: { icon: '🔐', bg: 'rgba(37,99,235,.1)' },
+      plan_upgraded: { icon: '⬆️', bg: 'rgba(22,163,74,.1)' },
+      plan_cancelled: { icon: '❌', bg: 'rgba(220,38,38,.1)' },
+      whatsapp_connected: { icon: '💬', bg: 'rgba(34,197,94,.1)' },
+      whatsapp_disconnected: { icon: '🔌', bg: 'rgba(220,38,38,.1)' },
+      ai_action: { icon: '🤖', bg: 'rgba(124,58,237,.1)' },
+      appointment_booked: { icon: '📅', bg: 'rgba(37,99,235,.1)' },
+      default: { icon: '📋', bg: 'rgba(100,116,139,.1)' }
+    };
+
+    function ago(d) {
+      if (!d) return '—';
+      var diff = (Date.now() - new Date(d)) / 1000;
+      if (diff < 60) return 'just now';
+      if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+      return new Date(d).toLocaleDateString();
+    }
+
+    function renderAudit(items) {
+      if (!items || !items.length) {
+        document.getElementById('audit-list').innerHTML =
+          '<div style="padding:3rem;text-align:center;color:var(--muted);font-weight:600">No audit events found</div>';
+        return;
+      }
+      document.getElementById('audit-list').innerHTML = items.slice(0, 100).map(function (item) {
+        var info = actionIcons[item.action] || actionIcons.default;
+        var tagColor = item.success !== false ? 'rgba(22,163,74,.1)' : 'rgba(220,38,38,.1)';
+        var tagText = item.success !== false ? 'success' : 'failed';
+        var tagTxt = item.success !== false ? '#16A34A' : '#DC2626';
+        return '<div class="audit-row">' +
+          '<div class="audit-icon" style="background:' + info.bg + '">' + info.icon + '</div>' +
+          '<div class="audit-body">' +
+            '<p class="audit-action">' + (item.action || 'Action').replace(/_/g,' ') +
+              ' <span class="tag" style="background:' + tagColor + ';color:' + tagTxt + '">' + tagText + '</span>' +
+            '</p>' +
+            '<p class="audit-detail">' + (item.details || '') +
+              (item.clinicId ? ' · Clinic: ' + item.clinicId : '') +
+              (item.patientId ? ' · Patient recorded' : '') + '</p>' +
+          '</div>' +
+          '<div class="audit-time">' + ago(item.createdAt) + '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    window.loadAudit = function () {
+      DmaAdminShell.api('/api/superadmin/audit?limit=100')
+        .then(function (d) { renderAudit(d.logs || d.items || d || []); })
+        .catch(function () {
+          // Fallback: show AI logs as audit entries
+          DmaAdminShell.api('/api/superadmin/stats')
+            .then(function (stats) {
+              document.getElementById('audit-list').innerHTML =
+                '<div style="padding:2rem 1.25rem;color:var(--muted);font-size:var(--f-sm)">' +
+                '<p style="font-weight:700;color:var(--text-2);margin-bottom:.75rem">Audit log endpoint not yet available.</p>' +
+                '<p>Platform stats: ' + JSON.stringify(stats).slice(0, 200) + '…</p></div>';
+            }).catch(function () {
+              document.getElementById('audit-list').innerHTML =
+                '<div style="padding:2rem 1.25rem;color:var(--muted);font-size:var(--f-sm)">Audit log requires additional API endpoint.</div>';
+            });
+        });
+    };
+
+    document.getElementById('audit-search').addEventListener('input', function () {
+      var q = this.value.toLowerCase();
+      document.querySelectorAll('.audit-row').forEach(function (row) {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+
+    loadAudit();
+  })();
+  </script>
+</body>
+</html>

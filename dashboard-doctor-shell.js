@@ -6,8 +6,10 @@
     { href: '/dashboard/', label: 'Dashboard', icon: 'grid' },
     { href: '/dashboard/appointments/', label: 'Appointments', icon: 'cal' },
     { href: '/dashboard/patients/', label: 'Patients', icon: 'users' },
+    { href: '/dashboard/leads/', label: 'Leads & Pipeline', icon: 'leads' },
     { href: '/dashboard/whatsapp/', label: 'WhatsApp', icon: 'wa', wa: true },
     { href: '/dashboard/messages/', label: 'Messages', icon: 'msg' },
+    { href: '/dashboard/broadcasts/', label: 'Broadcasts', icon: 'broadcast' },
     { href: '/dashboard/ai/', label: 'AI Receptionist', icon: 'bot' },
     { href: '/dashboard/analytics/', label: 'Analytics', icon: 'chart' },
     { href: '/dashboard/reviews/', label: 'Reviews', icon: 'star' },
@@ -23,6 +25,8 @@
     wa: '<span class="doc-wa-dot">●</span>',
     msg: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
     bot: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2M20 14h2M9 13v2M15 13v2"/></svg>',
+    leads: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/></svg>',
+    broadcast: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.82 2 2 0 0 1 3.57 2.63H6.5a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.05 6.05l1.36-1.36a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
     chart: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>',
     star: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
     staff: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
@@ -74,8 +78,8 @@
       '</div>' +
       '<nav>' + links + '</nav>' +
       '<div class="doc-sidebar-footer">' +
-        '<strong>' + owner + '</strong>' +
-        plan +
+        '<div class="doc-sidebar-footer-avatar">' + (owner.slice(0,2).toUpperCase() || 'DR') + '</div>' +
+        '<div class="doc-sidebar-footer-info"><strong>' + owner + '</strong><span>' + plan + '</span></div>' +
       '</div>';
   }
 
@@ -85,9 +89,47 @@
     var a = document.createElement('a');
     a.href = '/dashboard/whatsapp/';
     a.className = (msgs && msgs.className) || 'nav-item flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold';
-    a.innerHTML = '<span style="color:#25d366;font-weight:800;font-size:1rem;line-height:1">●</span><span>WhatsApp</span>';
+    a.innerHTML = '<span style="color:#22C55E;font-weight:900;font-size:.7rem;line-height:1;width:16px;text-align:center;flex-shrink:0">●</span><span>WhatsApp</span>';
     if (msgs && msgs.parentNode) msgs.parentNode.insertBefore(a, msgs);
     else (aside.querySelector('nav') || aside).appendChild(a);
+  }
+
+  function injectMissingLinks(aside) {
+    var extraLinks = [
+      {
+        href: '/dashboard/leads/',
+        insertBeforeHref: '/dashboard/whatsapp',
+        label: 'Leads & Pipeline',
+        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/></svg>'
+      },
+      {
+        href: '/dashboard/broadcasts/',
+        insertAfterHref: '/dashboard/messages',
+        label: 'Broadcasts',
+        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.82 2 2 0 0 1 3.57 2.63H6.5a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.05 6.05l1.36-1.36a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'
+      }
+    ];
+
+    extraLinks.forEach(function (spec) {
+      if (aside.querySelector('a[href="' + spec.href + '"], a[href="' + spec.href.replace(/\/$/, '') + '"]')) return;
+      var a = document.createElement('a');
+      a.href = spec.href;
+      var refLink = null;
+      if (spec.insertBeforeHref) {
+        refLink = aside.querySelector('a[href="' + spec.insertBeforeHref + '"], a[href="' + spec.insertBeforeHref + '/"]');
+      } else if (spec.insertAfterHref) {
+        refLink = aside.querySelector('a[href="' + spec.insertAfterHref + '"], a[href="' + spec.insertAfterHref + '/"]');
+      }
+      a.className = (refLink && refLink.className) || 'nav-item flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold';
+      a.innerHTML = spec.icon + '<span>' + spec.label + '</span>';
+      if (spec.insertBeforeHref && refLink && refLink.parentNode) {
+        refLink.parentNode.insertBefore(a, refLink);
+      } else if (spec.insertAfterHref && refLink && refLink.parentNode) {
+        refLink.parentNode.insertBefore(a, refLink.nextSibling);
+      } else {
+        (aside.querySelector('nav') || aside).appendChild(a);
+      }
+    });
   }
 
   function rebrandReactAside(aside) {
@@ -108,6 +150,7 @@
     var aside = document.querySelector('aside');
     if (!aside) return;
     injectReactWhatsAppLink(aside);
+    injectMissingLinks(aside);
     rebrandReactAside(aside);
   }
 

@@ -81,6 +81,14 @@
     dashLink.href = '/dma-dashboard.css?v=10';
     document.head.appendChild(dashLink);
   }
+
+  // ── NEW DESIGN SYSTEM v4 ────────────────────────────────────────────────
+  if (!document.querySelector('link[href*="dma-design-system.css"]')) {
+    var dsLink = document.createElement('link');
+    dsLink.rel = 'stylesheet';
+    dsLink.href = '/dma-design-system.css?v=4';
+    document.head.appendChild(dsLink);
+  }
   if (!document.querySelector('link[href*="Montserrat"]')) {
     var fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
@@ -494,4 +502,98 @@
     setTimeout(fillSettingsPlaceholders, 1500);
     setTimeout(fillSettingsPlaceholders, 3000);
   }
+})();
+
+// ═══════════════════════════════════════════════════════════
+// DARK THEME TOGGLE + MOBILE NAV INJECTION
+// Appended by design system v4 upgrade
+// ═══════════════════════════════════════════════════════════
+(function () {
+  // ── 1. Apply stored theme immediately (before paint) ──
+  var savedTheme = 'light';
+  try { savedTheme = localStorage.getItem('dma-theme') || 'light'; } catch (_) {}
+  document.documentElement.setAttribute('data-theme', savedTheme);
+
+  function isDashboard() {
+    return /^\/(dashboard|staff|superadmin)(\/|$)/.test(location.pathname);
+  }
+
+  if (!isDashboard()) return;
+
+  // ── 2. Inject dark/light toggle button ──
+  function injectThemeToggle() {
+    if (document.getElementById('dma-theme-toggle')) return;
+    var btn = document.createElement('button');
+    btn.id = 'dma-theme-toggle';
+    btn.setAttribute('aria-label', 'Toggle dark mode');
+    btn.title = 'Toggle dark / light mode';
+
+    function getIcon(theme) {
+      return theme === 'dark'
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>'
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    }
+
+    var current = document.documentElement.getAttribute('data-theme') || 'light';
+    btn.innerHTML = getIcon(current);
+
+    btn.onclick = function () {
+      var now = document.documentElement.getAttribute('data-theme') || 'light';
+      var next = now === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('dma-theme', next); } catch (_) {}
+      btn.innerHTML = getIcon(next);
+    };
+
+    document.body.appendChild(btn);
+  }
+
+  // ── 3. Inject mobile bottom navigation ──
+  function injectMobileNav() {
+    if (document.getElementById('dma-mobile-nav')) return;
+    if (!/^\/dashboard(\/|$)/.test(location.pathname)) return;
+
+    var path = location.pathname.replace(/\/$/, '') || '/dashboard';
+
+    function isActive(href) {
+      var h = href.replace(/\/$/, '');
+      return path === h || path.startsWith(h + '/') ? ' active' : '';
+    }
+
+    var nav = document.createElement('nav');
+    nav.id = 'dma-mobile-nav';
+    nav.setAttribute('aria-label', 'Mobile navigation');
+    nav.innerHTML =
+      '<a href="/dashboard/" class="' + isActive('/dashboard') + '" aria-label="Dashboard">' +
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>' +
+        'Home' +
+      '</a>' +
+      '<a href="/dashboard/appointments/" class="' + isActive('/dashboard/appointments') + '" aria-label="Appointments">' +
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' +
+        'Appts' +
+      '</a>' +
+      '<a href="/dashboard/patients/" class="' + isActive('/dashboard/patients') + '" aria-label="Patients">' +
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' +
+        'Patients' +
+      '</a>' +
+      '<a href="/dashboard/messages/" class="' + isActive('/dashboard/messages') + '" aria-label="Messages">' +
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' +
+        'Messages' +
+      '</a>' +
+      '<a href="/dashboard/analytics/" class="' + isActive('/dashboard/analytics') + '" aria-label="Analytics">' +
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>' +
+        'Analytics' +
+      '</a>';
+
+    document.body.appendChild(nav);
+  }
+
+  // ── 4. Run after DOM ready ──
+  function run() {
+    injectThemeToggle();
+    injectMobileNav();
+  }
+
+  if (document.body) run();
+  else document.addEventListener('DOMContentLoaded', run);
 })();

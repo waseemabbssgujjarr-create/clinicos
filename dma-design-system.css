@@ -1,0 +1,1246 @@
+/**
+ * Doctors My Agency — Design System v4.0
+ * Light theme default · Dark theme toggle · Blue brand · Mobile-first
+ * Applies to ALL dashboard pages (clinic + admin) via dashboard-bootstrap.js
+ */
+
+/* ═══════════════════════════════════════════════════════════
+   DESIGN TOKENS — Light (default)
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  /* Brand */
+  --c-blue:        #2563EB;
+  --c-blue-h:      #1D4ED8;
+  --c-blue-soft:   rgba(37,99,235,.10);
+  --c-blue-glow:   rgba(37,99,235,.22);
+  --c-orange:      #F97316;
+  --c-orange-h:    #EA580C;
+  --c-orange-soft: rgba(249,115,22,.10);
+  --c-green:       #16A34A;
+  --c-green-soft:  rgba(22,163,74,.10);
+  --c-red:         #DC2626;
+  --c-red-soft:    rgba(220,38,38,.10);
+  --c-amber:       #D97706;
+  --c-amber-soft:  rgba(217,119,6,.10);
+  --c-purple:      #7C3AED;
+  --c-purple-soft: rgba(124,58,237,.10);
+
+  /* Surfaces */
+  --bg:            #F0F4F9;
+  --bg-2:          #E8EEF6;
+  --surface:       #FFFFFF;
+  --surface-2:     #F8FAFC;
+  --surface-3:     #F1F5F9;
+
+  /* Sidebar */
+  --sidebar-bg:    #0F172A;
+  --sidebar-w:     248px;
+  --sidebar-text:  #94A3B8;
+  --sidebar-hover: rgba(37,99,235,.14);
+  --sidebar-act:   rgba(37,99,235,.22);
+
+  /* Text */
+  --text-1:    #0F172A;
+  --text-2:    #1E293B;
+  --text-3:    #334155;
+  --muted:     #64748B;
+  --faint:     #94A3B8;
+  --placeholder: #94A3B8;
+
+  /* Borders */
+  --border:    #E2E8F0;
+  --border-2:  #CBD5E1;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(15,23,42,.05);
+  --shadow-sm: 0 1px 3px rgba(15,23,42,.06), 0 4px 14px rgba(15,23,42,.07);
+  --shadow-md: 0 2px 8px rgba(15,23,42,.07), 0 16px 36px rgba(15,23,42,.10);
+  --shadow-lg: 0 4px 16px rgba(15,23,42,.08), 0 28px 56px rgba(15,23,42,.13);
+
+  /* Radii */
+  --r-xs:   6px;
+  --r-sm:   8px;
+  --r-md:   12px;
+  --r-lg:   16px;
+  --r-xl:   20px;
+  --r-2xl:  24px;
+  --r-full: 9999px;
+
+  /* Layout */
+  --topbar-h:      60px;
+  --content-max:   1320px;
+  --page-pad:      1.75rem;
+  --gap:           1.25rem;
+
+  /* Font scale */
+  --f-xs:   0.72rem;
+  --f-sm:   0.8125rem;
+  --f-base: 0.9375rem;
+  --f-md:   1rem;
+  --f-lg:   1.125rem;
+  --f-xl:   1.375rem;
+  --f-2xl:  1.75rem;
+  --f-3xl:  2.25rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DARK THEME — html[data-theme="dark"]
+   ═══════════════════════════════════════════════════════════ */
+html[data-theme="dark"] {
+  --bg:          #0D1117;
+  --bg-2:        #161B22;
+  --surface:     #1C2333;
+  --surface-2:   #21262D;
+  --surface-3:   #262D3A;
+  --sidebar-bg:  #090E18;
+  --text-1:      #F0F6FF;
+  --text-2:      #E2EAF4;
+  --text-3:      #C5D1E8;
+  --muted:       #8B98AE;
+  --faint:       #5B6E8C;
+  --placeholder: #5B6E8C;
+  --border:      #2D3748;
+  --border-2:    #3D4A60;
+  --sidebar-text:  #8B98AE;
+  --sidebar-hover: rgba(37,99,235,.18);
+  --sidebar-act:   rgba(37,99,235,.30);
+  --shadow-xs:  0 1px 2px rgba(0,0,0,.3);
+  --shadow-sm:  0 1px 4px rgba(0,0,0,.35), 0 6px 18px rgba(0,0,0,.4);
+  --shadow-md:  0 2px 10px rgba(0,0,0,.4), 0 20px 40px rgba(0,0,0,.45);
+  --shadow-lg:  0 4px 20px rgba(0,0,0,.45), 0 32px 64px rgba(0,0,0,.5);
+  color-scheme: dark;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   1. RESET & BASE
+   ═══════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing: border-box; }
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  font-size: var(--f-base) !important;
+  color: var(--text-1) !important;
+  background: var(--bg) !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  line-height: 1.56 !important;
+  overflow-x: hidden !important;
+  min-height: 100vh !important;
+}
+
+img,video { max-width: 100%; height: auto; }
+* { max-width: 100%; }
+
+/* ═══════════════════════════════════════════════════════════
+   2. SIDEBAR
+   ═══════════════════════════════════════════════════════════ */
+aside,
+div[class*="w-64"][class*="bg-"],
+div[class*="w-56"][class*="bg-"],
+nav[class*="sidebar"] {
+  background: var(--sidebar-bg) !important;
+  width: var(--sidebar-w) !important;
+  min-width: var(--sidebar-w) !important;
+  border-right: 1px solid rgba(255,255,255,.06) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* Brand */
+aside > div:first-child,
+aside [class*="brand"],
+aside [class*="logo-wrap"] {
+  padding: 20px 18px 16px !important;
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+  flex-shrink: 0 !important;
+}
+
+aside [class*="font-bold"][class*="text-white"],
+aside strong,
+aside .dma-brand-name {
+  color: #F0F6FF !important;
+  font-family: 'Montserrat', Inter, sans-serif !important;
+  font-weight: 800 !important;
+  font-size: .95rem !important;
+  letter-spacing: -.01em !important;
+}
+
+aside small,
+aside span[class*="text-xs"],
+aside [class*="text-muted"],
+aside [class*="text-slate"],
+aside [class*="text-gray"] {
+  color: var(--sidebar-text) !important;
+  font-size: .72rem !important;
+}
+
+/* Nav section label */
+aside nav [class*="uppercase"],
+aside nav [class*="section-label"],
+aside .dma-nav-section {
+  font-size: .62rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .09em !important;
+  text-transform: uppercase !important;
+  color: #475569 !important;
+  padding: 14px 16px 4px !important;
+  display: block !important;
+}
+
+/* Nav links */
+aside a,
+aside nav a,
+aside [class*="nav-item"] {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 9px 12px !important;
+  margin: 1px 6px !important;
+  border-radius: var(--r-md) !important;
+  color: var(--sidebar-text) !important;
+  font-size: var(--f-sm) !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  border-left: 2px solid transparent !important;
+  transition: background .13s, color .13s !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+}
+
+aside a:hover,
+aside nav a:hover {
+  background: var(--sidebar-hover) !important;
+  color: #93C5FD !important;
+}
+
+/* Active */
+aside a[class*="bg-"],
+aside a[class*="active"],
+aside a[aria-current="page"],
+aside a[class*="text-brand"],
+aside a[class*="text-white"][class*="bg-"] {
+  background: var(--sidebar-act) !important;
+  color: #93C5FD !important;
+  border-left-color: var(--c-blue) !important;
+  font-weight: 700 !important;
+}
+
+aside a svg,
+aside nav a svg {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0 !important;
+  opacity: .9 !important;
+}
+
+/* Sidebar footer */
+aside > div:last-child,
+aside [class*="border-t"] {
+  border-top: 1px solid rgba(255,255,255,.06) !important;
+  padding: 14px 16px !important;
+  flex-shrink: 0 !important;
+}
+
+aside > div:last-child [class*="font-"],
+aside [class*="border-t"] strong {
+  color: #E2EAF4 !important;
+  font-size: .85rem !important;
+}
+
+/* Avatar */
+aside [class*="rounded-full"][class*="bg-brand"],
+aside [class*="rounded-full"][class*="bg-blue"],
+aside [class*="rounded-full"][class*="bg-orange"],
+aside .dma-avatar {
+  background: linear-gradient(135deg, var(--c-blue), var(--c-blue-h)) !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  border: none !important;
+  flex-shrink: 0 !important;
+}
+
+/* WhatsApp green dot */
+aside a [class*="wa-dot"],
+aside a [class*="text-green"] {
+  color: #4ADE80 !important;
+  font-size: .65rem !important;
+  font-weight: 900 !important;
+  width: 16px !important;
+  text-align: center !important;
+  flex-shrink: 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. TOPBAR
+   ═══════════════════════════════════════════════════════════ */
+body.min-h-screen header:not(aside *):not(main *),
+body.min-h-screen [class*="topbar"]:not(aside *):not(main *) {
+  height: var(--topbar-h) !important;
+  min-height: var(--topbar-h) !important;
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--border) !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 1.5rem !important;
+  gap: 1rem !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 40 !important;
+  box-shadow: 0 1px 0 var(--border) !important;
+}
+
+/* Bell / icon buttons in topbar */
+body.min-h-screen header button {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: var(--r-md) !important;
+  border: 1px solid var(--border) !important;
+  background: var(--surface-2) !important;
+  color: var(--muted) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
+  transition: background .14s, border-color .14s !important;
+}
+
+body.min-h-screen header button:hover {
+  background: var(--c-blue-soft) !important;
+  border-color: var(--c-blue) !important;
+  color: var(--c-blue) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   4. MAIN CONTENT
+   ═══════════════════════════════════════════════════════════ */
+body.min-h-screen main.flex-1,
+body.min-h-screen main[class*="flex-1"] {
+  background: var(--bg) !important;
+  padding: var(--page-pad) !important;
+  overflow-x: hidden !important;
+}
+
+body.min-h-screen main > .p-6,
+body.min-h-screen main > .p-4,
+body.min-h-screen main > [class*="space-y"],
+body.min-h-screen main.flex-1 > div,
+body.min-h-screen main > div[class*="p-"] {
+  max-width: var(--content-max) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100% !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   5. PAGE HEADERS
+   ═══════════════════════════════════════════════════════════ */
+body.min-h-screen main h1 {
+  font-family: 'Montserrat', Inter, sans-serif !important;
+  font-size: var(--f-xl) !important;
+  font-weight: 800 !important;
+  letter-spacing: -.025em !important;
+  color: var(--text-1) !important;
+  line-height: 1.2 !important;
+  margin-bottom: 2px !important;
+  position: relative !important;
+  padding-bottom: 2px !important;
+}
+
+body.min-h-screen main h1::after {
+  content: "" !important;
+  display: block !important;
+  width: 32px !important;
+  height: 3px !important;
+  border-radius: 2px !important;
+  margin-top: 8px !important;
+  background: linear-gradient(90deg, var(--c-blue), var(--c-blue-h)) !important;
+}
+
+body.min-h-screen main h2 {
+  font-family: 'Montserrat', Inter, sans-serif !important;
+  font-size: var(--f-base) !important;
+  font-weight: 700 !important;
+  color: var(--text-1) !important;
+  letter-spacing: -.01em !important;
+  margin: 0 !important;
+}
+
+body.min-h-screen main h3 {
+  font-size: var(--f-sm) !important;
+  font-weight: 700 !important;
+  color: var(--text-2) !important;
+  margin: 0 !important;
+}
+
+body.min-h-screen main p[class*="text-muted"],
+body.min-h-screen main p.text-muted {
+  color: var(--muted) !important;
+  font-size: var(--f-sm) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   6. CARDS
+   ═══════════════════════════════════════════════════════════ */
+body.min-h-screen main .card,
+body.min-h-screen main [class*="rounded-card"],
+body.min-h-screen main [class*="shadow-card"],
+body.min-h-screen main [class*="shadow-modal"] {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--r-lg) !important;
+  box-shadow: var(--shadow-sm) !important;
+  overflow: hidden !important;
+  transition: box-shadow .2s, transform .2s, border-color .2s !important;
+}
+
+body.min-h-screen main .card-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: .75rem !important;
+  padding: 1rem 1.25rem !important;
+  border-bottom: 1px solid var(--border) !important;
+  background: var(--surface) !important;
+  min-height: 52px !important;
+}
+
+body.min-h-screen main .card-body {
+  padding: 1.125rem 1.25rem 1.375rem !important;
+}
+
+@media (hover: hover) {
+  body.min-h-screen main .card:hover {
+    box-shadow: var(--shadow-md) !important;
+    transform: translateY(-1px) !important;
+    border-color: rgba(37,99,235,.25) !important;
+  }
+}
+
+/* KPI stat cards — colored top borders */
+body.min-h-screen main [class*="grid-cols-4"] > .card:nth-child(1),
+body.min-h-screen main [class*="lg:grid-cols-4"] > .card:nth-child(1) { border-top: 3px solid var(--c-blue) !important; }
+body.min-h-screen main [class*="grid-cols-4"] > .card:nth-child(2),
+body.min-h-screen main [class*="lg:grid-cols-4"] > .card:nth-child(2) { border-top: 3px solid var(--c-green) !important; }
+body.min-h-screen main [class*="grid-cols-4"] > .card:nth-child(3),
+body.min-h-screen main [class*="lg:grid-cols-4"] > .card:nth-child(3) { border-top: 3px solid var(--c-orange) !important; }
+body.min-h-screen main [class*="grid-cols-4"] > .card:nth-child(4),
+body.min-h-screen main [class*="lg:grid-cols-4"] > .card:nth-child(4) { border-top: 3px solid var(--c-red) !important; }
+
+/* Stat numbers */
+body.min-h-screen main .card-body [class*="text-2xl"],
+body.min-h-screen main .card-body [class*="text-3xl"],
+body.min-h-screen main .card-body [class*="text-4xl"] {
+  font-family: 'Montserrat', Inter, sans-serif !important;
+  font-weight: 800 !important;
+  color: var(--text-1) !important;
+  line-height: 1.1 !important;
+  letter-spacing: -.02em !important;
+}
+
+body.min-h-screen main .card-body [class*="text-xs"],
+body.min-h-screen main .card-body [class*="uppercase"] {
+  font-size: .68rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .07em !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   7. BUTTONS
+   ═══════════════════════════════════════════════════════════ */
+
+/* Primary — Blue */
+body.min-h-screen main button[class*="bg-brand"],
+body.min-h-screen main a[class*="bg-brand"],
+body.min-h-screen main button[class*="bg-blue"],
+.dma-btn-primary, .ds-btn-primary {
+  background: linear-gradient(135deg, var(--c-blue) 0%, var(--c-blue-h) 100%) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: var(--r-md) !important;
+  font-weight: 700 !important;
+  font-size: var(--f-sm) !important;
+  padding: 0 20px !important;
+  height: 40px !important;
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  box-shadow: 0 2px 8px var(--c-blue-glow) !important;
+  transition: opacity .15s, transform .15s, box-shadow .15s !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+}
+
+body.min-h-screen main button[class*="bg-brand"]:hover,
+body.min-h-screen main a[class*="bg-brand"]:hover {
+  opacity: .92 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px var(--c-blue-glow) !important;
+}
+
+/* Orange accent buttons */
+body.min-h-screen main button[class*="bg-orange"],
+.dma-btn-accent {
+  background: linear-gradient(135deg, var(--c-orange), var(--c-orange-h)) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px var(--c-orange-soft) !important;
+}
+
+/* Ghost / outline */
+body.min-h-screen main button[class*="border-brand"],
+body.min-h-screen main a[class*="border-brand"],
+body.min-h-screen main button.rounded-btn:not([class*="bg-brand"]):not([class*="bg-red"]) {
+  background: var(--surface) !important;
+  color: var(--c-blue) !important;
+  border: 1.5px solid rgba(37,99,235,.45) !important;
+  border-radius: var(--r-md) !important;
+  font-weight: 700 !important;
+  font-size: var(--f-sm) !important;
+  padding: 0 18px !important;
+  height: 40px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  cursor: pointer !important;
+  transition: background .14s !important;
+  text-decoration: none !important;
+}
+
+body.min-h-screen main button[class*="border-brand"]:hover {
+  background: var(--c-blue-soft) !important;
+}
+
+/* Danger */
+body.min-h-screen main button[class*="bg-red"] {
+  background: var(--c-red) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: var(--r-md) !important;
+  height: 40px !important;
+  padding: 0 18px !important;
+}
+
+/* Secondary ghost */
+body.min-h-screen main button[class*="bg-subtle"],
+body.min-h-screen main button.rounded-btn[class*="bg-slate"],
+body.min-h-screen main button.rounded-btn[class*="bg-gray"] {
+  background: var(--surface-3) !important;
+  color: var(--text-3) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--r-md) !important;
+  height: 40px !important;
+  padding: 0 16px !important;
+  font-weight: 600 !important;
+  font-size: var(--f-sm) !important;
+  cursor: pointer !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   8. FORM CONTROLS
+   ═══════════════════════════════════════════════════════════ */
+body.min-h-screen main input[type="text"],
+body.min-h-screen main input[type="search"],
+body.min-h-screen main input[type="email"],
+body.min-h-screen main input[type="tel"],
+body.min-h-screen main input[type="number"],
+body.min-h-screen main input[type="password"],
+body.min-h-screen main input[type="url"],
+body.min-h-screen main textarea,
+body.min-h-screen main select,
+body.min-h-screen main .input {
+  background: var(--surface) !important;
+  border: 1.5px solid var(--border-2) !important;
+  border-radius: var(--r-md) !important;
+  color: var(--text-1) !important;
+  font-size: var(--f-sm) !important;
+  font-family: inherit !important;
+  padding: 10px 14px !important;
+  height: 42px !important;
+  width: 100% !important;
+  transition: border-color .15s, box-shadow .15s !important;
+  outline: none !important;
+  -webkit-appearance: none !important;
+}
+
+body.min-h-screen main textarea {
+  height: auto !important;
+  min-height: 100px !important;
+  resize: vertical !important;
+}
+
+body.min-h-screen main input:focus,
+body.min-h-screen main textarea:focus,
+body.min-h-screen main select:focus {
+  border-color: var(--c-blue) !important;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.14) !important;
+}
+
+body.min-h-screen main label {
+  font-size: var(--f-xs) !important;
+  font-weight: 700 !important;
+  color: var(--text-2) !important;
+  letter-spacing: .02em !important;
+  display: block !important;
+  margin-bottom: 5px !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   9. FILTER PILLS
+   ═══════════════════════════════════════════════════════════ */
+body.min-h-screen main [class*="flex-wrap"] > button[class*="rounded-full"],
+body.min-h-screen main [class*="flex-wrap"] > button[class*="rounded-btn"],
+body.min-h-screen main .dma-filter-row button {
+  height: 34px !important;
+  padding: 0 14px !important;
+  border-radius: var(--r-full) !important;
+  font-size: var(--f-xs) !important;
+  font-weight: 700 !important;
+  border: 1.5px solid var(--border-2) !important;
+  background: var(--surface) !important;
+  color: var(--muted) !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
+  transition: background .13s, border-color .13s, color .13s !important;
+}
+
+body.min-h-screen main [class*="flex-wrap"] > button[class*="bg-brand"],
+body.min-h-screen main .dma-filter-row button[class*="bg-brand"],
+body.min-h-screen main .dma-filter-row button.active {
+  background: linear-gradient(135deg, var(--c-blue), var(--c-blue-h)) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  box-shadow: 0 2px 6px var(--c-blue-glow) !important;
+}
+
+body.min-h-screen main .dma-filter-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: .5rem !important;
+  padding: .875rem 1rem !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--r-lg) !important;
+  box-shadow: var(--shadow-xs) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   10. SETTINGS TABS
+   ═══════════════════════════════════════════════════════════ */
+body.min-h-screen main .dma-settings-tabs,
+body.min-h-screen main [class*="border-b"][class*="flex"]:has(> button:nth-child(2)) {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  scrollbar-width: none !important;
+  border-bottom: 2px solid var(--border) !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin-bottom: 1.5rem !important;
+  gap: 0 !important;
+}
+
+body.min-h-screen main .dma-settings-tabs::-webkit-scrollbar { display: none !important; }
+
+body.min-h-screen main .dma-settings-tabs button,
+body.min-h-screen main [class*="border-b"]:has(> button:nth-child(2)) > button {
+  flex-shrink: 0 !important;
+  padding: 10px 18px !important;
+  font-size: var(--f-sm) !important;
+  font-weight: 700 !important;
+  color: var(--muted) !important;
+  -webkit-text-fill-color: var(--muted) !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  margin-bottom: -2px !important;
+  border-radius: 0 !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  transition: color .14s, border-color .14s !important;
+}
+
+body.min-h-screen main .dma-settings-tabs button.dma-tab-active,
+body.min-h-screen main .dma-settings-tabs button[class*="text-brand"],
+body.min-h-screen main [class*="border-b"]:has(> button:nth-child(2)) > button[class*="text-brand"],
+body.min-h-screen main [class*="border-b"]:has(> button:nth-child(2)) > button[class*="border-brand"] {
+  color: var(--c-blue) !important;
+  -webkit-text-fill-color: var(--c-blue) !important;
+  border-bottom-color: var(--c-blue) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   11. TABLES
+   ═══════════════════════════════════════════════════════════ */
+body.min-h-screen main div:has(> table),
+body.min-h-screen main .dma-table-wrap {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  border-radius: var(--r-lg) !important;
+  border: 1px solid var(--border) !important;
+  background: var(--surface) !important;
+}
+
+body.min-h-screen main table {
+  width: 100% !important;
+  min-width: 580px !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+body.min-h-screen main table thead th {
+  padding: 11px 16px !important;
+  font-size: .67rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .07em !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+  background: var(--surface-2) !important;
+  white-space: nowrap !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+body.min-h-screen main table thead th:first-child { border-radius: var(--r-lg) 0 0 0 !important; }
+body.min-h-screen main table thead th:last-child  { border-radius: 0 var(--r-lg) 0 0 !important; }
+
+body.min-h-screen main table tbody td {
+  padding: 13px 16px !important;
+  font-size: var(--f-sm) !important;
+  color: var(--text-2) !important;
+  border-bottom: 1px solid var(--border) !important;
+  vertical-align: middle !important;
+}
+
+body.min-h-screen main table tbody tr:last-child td { border-bottom: none !important; }
+
+body.min-h-screen main table tbody tr:hover td {
+  background: rgba(37,99,235,.03) !important;
+}
+
+/* Badge pills */
+body.min-h-screen main [class*="badge"],
+body.min-h-screen main span[class*="rounded-full"][class*="text-xs"][class*="font-"] {
+  font-size: .67rem !important;
+  font-weight: 700 !important;
+  padding: 3px 10px !important;
+  border-radius: var(--r-full) !important;
+  letter-spacing: .02em !important;
+  display: inline-block !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   12. TOGGLE SWITCHES
+   ═══════════════════════════════════════════════════════════ */
+body.min-h-screen main button[role="switch"],
+body.min-h-screen main button[aria-checked] {
+  width: 46px !important;
+  height: 26px !important;
+  min-width: 46px !important;
+  max-width: 46px !important;
+  border-radius: var(--r-full) !important;
+  padding: 3px !important;
+  position: relative !important;
+  cursor: pointer !important;
+  border: none !important;
+  flex-shrink: 0 !important;
+}
+
+body.min-h-screen main button[aria-checked="false"] { background: var(--border-2) !important; }
+body.min-h-screen main button[aria-checked="true"]  { background: var(--c-blue) !important; }
+
+body.min-h-screen main button[role="switch"] span,
+body.min-h-screen main button[aria-checked] span {
+  display: block !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
+  background: #fff !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25) !important;
+  transition: transform .2s !important;
+}
+
+body.min-h-screen main button[aria-checked="false"] span { transform: translateX(0) !important; }
+body.min-h-screen main button[aria-checked="true"]  span { transform: translateX(20px) !important; }
+
+/* ═══════════════════════════════════════════════════════════
+   13. QUICK ACTION TILES
+   ═══════════════════════════════════════════════════════════ */
+body.min-h-screen main .dma-quick-actions,
+body.min-h-screen main .card-body [class*="grid-cols-3"]:has(> button[class*="flex-col"]),
+body.min-h-screen main .card-body [class*="grid-cols-2"]:has(> button[class*="flex-col"]) {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: .75rem !important;
+}
+
+body.min-h-screen main .dma-quick-actions button,
+body.min-h-screen main .card-body [class*="grid-cols-3"] button[class*="flex-col"],
+body.min-h-screen main .card-body [class*="grid-cols-2"] button[class*="flex-col"] {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 96px !important;
+  height: auto !important;
+  padding: .875rem .625rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: .5rem !important;
+  background: var(--surface-2) !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: var(--r-lg) !important;
+  font-size: .73rem !important;
+  font-weight: 700 !important;
+  color: var(--text-1) !important;
+  -webkit-text-fill-color: var(--text-1) !important;
+  cursor: pointer !important;
+  transition: background .15s, border-color .15s, transform .15s, box-shadow .15s !important;
+}
+
+body.min-h-screen main .dma-quick-actions button svg,
+body.min-h-screen main .card-body [class*="grid-cols-3"] button[class*="flex-col"] svg {
+  width: 24px !important;
+  height: 24px !important;
+  padding: 7px !important;
+  border-radius: var(--r-sm) !important;
+  background: var(--c-blue-soft) !important;
+  color: var(--c-blue) !important;
+  box-sizing: content-box !important;
+  flex-shrink: 0 !important;
+}
+
+@media (hover: hover) {
+  body.min-h-screen main .dma-quick-actions button:hover,
+  body.min-h-screen main .card-body [class*="grid-cols-3"] button[class*="flex-col"]:hover {
+    background: var(--c-blue-soft) !important;
+    border-color: var(--c-blue) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 18px var(--c-blue-glow) !important;
+    color: var(--c-blue-h) !important;
+    -webkit-text-fill-color: var(--c-blue-h) !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   14. EMPTY STATES
+   ═══════════════════════════════════════════════════════════ */
+body.min-h-screen main [class*="flex-col"][class*="items-center"][class*="justify-center"] svg {
+  color: var(--faint) !important;
+  width: 44px !important;
+  height: 44px !important;
+}
+
+body.min-h-screen main [class*="flex-col"][class*="items-center"][class*="justify-center"] p,
+body.min-h-screen main .dma-table-empty td {
+  font-size: var(--f-sm) !important;
+  font-weight: 600 !important;
+  color: var(--muted) !important;
+  text-align: center !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   15. DAILY BRIEF BANNER
+   ═══════════════════════════════════════════════════════════ */
+body.min-h-screen main [class*="border-l-4"][class*="border-l-brand"],
+body.min-h-screen main [class*="border-l-brand"],
+body.min-h-screen main .dma-brief-banner {
+  border-left: 4px solid var(--c-blue) !important;
+  background: linear-gradient(90deg, rgba(37,99,235,.06) 0%, transparent 100%) !important;
+  border-radius: 0 var(--r-md) var(--r-md) 0 !important;
+  padding: 14px 18px !important;
+}
+
+/* Greeting text */
+body.min-h-screen main [class*="text-2xl"][class*="font-bold"]:first-of-type {
+  font-family: 'Montserrat', Inter, sans-serif !important;
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -.025em !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   16. BILLING / PLAN CARDS
+   ═══════════════════════════════════════════════════════════ */
+body.min-h-screen main [class*="popular"],
+body.min-h-screen main [class*="badge-popular"] {
+  background: linear-gradient(135deg, var(--c-blue), var(--c-blue-h)) !important;
+  color: #fff !important;
+  font-size: .67rem !important;
+  font-weight: 800 !important;
+  padding: 3px 10px !important;
+  border-radius: var(--r-full) !important;
+  text-transform: uppercase !important;
+  letter-spacing: .06em !important;
+}
+
+body.min-h-screen main [class*="text-4xl"][class*="font-bold"],
+body.min-h-screen main [class*="text-3xl"][class*="font-extrabold"] {
+  font-family: 'Montserrat', Inter, sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: -.03em !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   17. MODALS
+   ═══════════════════════════════════════════════════════════ */
+body.min-h-screen [class*="dialog"],
+body.min-h-screen [role="dialog"],
+body.min-h-screen [class*="modal"] {
+  border-radius: var(--r-xl) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-lg) !important;
+  background: var(--surface) !important;
+  max-width: 560px !important;
+  width: calc(100% - 2rem) !important;
+}
+
+body.min-h-screen .fixed.inset-0[class*="bg-black"],
+body.min-h-screen [class*="backdrop"],
+body.min-h-screen [class*="overlay"] {
+  background: rgba(2,6,23,.6) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   18. SCROLLBARS
+   ═══════════════════════════════════════════════════════════ */
+* { scrollbar-width: thin !important; scrollbar-color: var(--border-2) transparent !important; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--faint); }
+
+/* ═══════════════════════════════════════════════════════════
+   19. SKELETON / LOADING
+   ═══════════════════════════════════════════════════════════ */
+body.min-h-screen main .skeleton,
+body.min-h-screen main [class*="skeleton"] {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%) !important;
+  background-size: 200% 100% !important;
+  animation: ds-shimmer 1.5s infinite !important;
+  border-radius: var(--r-sm) !important;
+}
+
+@keyframes ds-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   20. FOCUS (Accessibility)
+   ═══════════════════════════════════════════════════════════ */
+:focus-visible {
+  outline: 2px solid var(--c-blue) !important;
+  outline-offset: 2px !important;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) { outline: none !important; }
+
+/* ═══════════════════════════════════════════════════════════
+   21. DARK THEME OVERRIDES
+   ═══════════════════════════════════════════════════════════ */
+html[data-theme="dark"] body.min-h-screen main .card,
+html[data-theme="dark"] body.min-h-screen main [class*="rounded-card"] {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] body.min-h-screen main input,
+html[data-theme="dark"] body.min-h-screen main textarea,
+html[data-theme="dark"] body.min-h-screen main select {
+  background: var(--surface-2) !important;
+  border-color: var(--border-2) !important;
+  color: var(--text-1) !important;
+}
+
+html[data-theme="dark"] body.min-h-screen main .dma-filter-row {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] body.min-h-screen main table thead th {
+  background: var(--surface-2) !important;
+}
+
+html[data-theme="dark"] body.min-h-screen main button[class*="bg-subtle"],
+html[data-theme="dark"] body.min-h-screen main button.rounded-btn[class*="bg-slate"] {
+  background: var(--surface-3) !important;
+  color: var(--text-2) !important;
+  border-color: var(--border) !important;
+}
+
+/* Dark status colours — keep them BRIGHT */
+html[data-theme="dark"] .text-green-600,
+html[data-theme="dark"] [class*="text-green"] { color: #4ADE80 !important; }
+html[data-theme="dark"] .text-red-600,
+html[data-theme="dark"] [class*="text-red"]   { color: #F87171 !important; }
+html[data-theme="dark"] [class*="text-blue"]  { color: #60A5FA !important; }
+html[data-theme="dark"] [class*="text-amber"] { color: #FBBF24 !important; }
+html[data-theme="dark"] [class*="text-yellow"] { color: #FDE047 !important; }
+
+/* ═══════════════════════════════════════════════════════════
+   22. THEME TOGGLE BUTTON (global, auto-injected by bootstrap)
+   ═══════════════════════════════════════════════════════════ */
+#dma-theme-toggle {
+  position: fixed !important;
+  bottom: 80px !important;
+  right: 16px !important;
+  z-index: 500 !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  background: var(--surface) !important;
+  border: 1.5px solid var(--border-2) !important;
+  box-shadow: var(--shadow-md) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--text-2) !important;
+  font-size: 1.2rem !important;
+  transition: background .2s, box-shadow .2s !important;
+}
+
+#dma-theme-toggle:hover {
+  background: var(--c-blue-soft) !important;
+  border-color: var(--c-blue) !important;
+  color: var(--c-blue) !important;
+}
+
+@media (min-width: 769px) {
+  #dma-theme-toggle {
+    bottom: 24px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   23. MOBILE — Bottom Navigation Bar
+   ═══════════════════════════════════════════════════════════ */
+#dma-mobile-nav {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  /* Hide sidebar entirely */
+  aside,
+  div[class*="w-64"][class*="bg-"],
+  div[class*="w-56"][class*="bg-"],
+  nav[class*="sidebar"] {
+    display: none !important;
+  }
+
+  /* Full width content */
+  body.min-h-screen main.flex-1,
+  body.min-h-screen main[class*="flex-1"] {
+    margin-left: 0 !important;
+    padding: .875rem .875rem 80px !important;
+  }
+
+  /* Topbar on mobile */
+  body.min-h-screen header:not(aside *) {
+    padding: 0 1rem !important;
+  }
+
+  /* Page headings smaller */
+  body.min-h-screen main h1 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Stat grid 2-col on mobile */
+  body.min-h-screen main [class*="grid-cols-4"],
+  body.min-h-screen main [class*="lg:grid-cols-4"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: .625rem !important;
+  }
+
+  /* Two-col section grids → single column */
+  body.min-h-screen main [class*="lg:grid-cols-2"],
+  body.min-h-screen main [class*="lg:grid-cols-3"] {
+    grid-template-columns: 1fr !important;
+    gap: .75rem !important;
+  }
+
+  /* Quick actions — 3 across even on mobile */
+  body.min-h-screen main .dma-quick-actions,
+  body.min-h-screen main .card-body [class*="grid-cols-3"]:has(> button[class*="flex-col"]) {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: .5rem !important;
+  }
+
+  body.min-h-screen main .dma-quick-actions button,
+  body.min-h-screen main .card-body [class*="grid-cols-3"] button[class*="flex-col"] {
+    min-height: 80px !important;
+    padding: .625rem .375rem !important;
+    font-size: .67rem !important;
+  }
+
+  body.min-h-screen main .dma-quick-actions button svg,
+  body.min-h-screen main .card-body button[class*="flex-col"] svg {
+    width: 20px !important; height: 20px !important; padding: 5px !important;
+  }
+
+  /* Filter pills horizontal scroll — NO wrapping */
+  body.min-h-screen main .dma-filter-row,
+  body.min-h-screen main [class*="flex-wrap"] {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    padding-bottom: 2px !important;
+  }
+  body.min-h-screen main .dma-filter-row::-webkit-scrollbar { display: none !important; }
+
+  /* Card padding tighter */
+  body.min-h-screen main .card-body { padding: .875rem !important; }
+  body.min-h-screen main .card-header { padding: .875rem !important; }
+
+  /* CTA buttons compact */
+  body.min-h-screen main button[class*="bg-brand"],
+  body.min-h-screen main a[class*="bg-brand"] {
+    height: 38px !important;
+    padding: 0 14px !important;
+    font-size: .75rem !important;
+  }
+
+  /* Messages split — vertical on mobile */
+  body.min-h-screen main [class*="lg:grid-cols-3"] > div:first-child {
+    height: 200px !important;
+    overflow-y: auto !important;
+  }
+
+  /* Table → card stack on mobile */
+  body.min-h-screen main div:has(> table) {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+  }
+
+  body.min-h-screen main table,
+  body.min-h-screen main table thead,
+  body.min-h-screen main table tbody,
+  body.min-h-screen main table tr,
+  body.min-h-screen main table th,
+  body.min-h-screen main table td {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body.min-h-screen main table thead { display: none !important; }
+
+  body.min-h-screen main table tbody tr {
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--r-lg) !important;
+    margin-bottom: .75rem !important;
+    box-shadow: var(--shadow-xs) !important;
+  }
+
+  body.min-h-screen main table tbody td {
+    border-bottom: 1px solid var(--border) !important;
+    padding: 10px 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    text-align: right !important;
+    font-size: var(--f-sm) !important;
+  }
+
+  body.min-h-screen main table tbody td:last-child { border-bottom: none !important; }
+
+  body.min-h-screen main table tbody td::before {
+    content: attr(data-label) !important;
+    font-size: .67rem !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .05em !important;
+    color: var(--muted) !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    text-align: left !important;
+  }
+
+  /* Show bottom nav on mobile */
+  #dma-mobile-nav {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 100 !important;
+    background: var(--sidebar-bg) !important;
+    border-top: 1px solid rgba(255,255,255,.08) !important;
+    height: 64px !important;
+    align-items: stretch !important;
+    box-shadow: 0 -4px 24px rgba(0,0,0,.35) !important;
+    padding: 0 !important;
+  }
+
+  #dma-mobile-nav a {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    color: #64748B !important;
+    text-decoration: none !important;
+    font-size: .6rem !important;
+    font-weight: 700 !important;
+    letter-spacing: .03em !important;
+    padding: 6px 2px !important;
+    border-top: 2px solid transparent !important;
+    transition: color .14s, border-color .14s !important;
+  }
+
+  #dma-mobile-nav a svg {
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+  }
+
+  #dma-mobile-nav a.active,
+  #dma-mobile-nav a[aria-current="page"] {
+    color: var(--c-blue) !important;
+    border-top-color: var(--c-blue) !important;
+  }
+
+  /* Theme toggle — above bottom nav on mobile */
+  #dma-theme-toggle {
+    bottom: 74px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   24. TABLET (769px – 1024px)
+   ═══════════════════════════════════════════════════════════ */
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --sidebar-w: 210px;
+    --page-pad: 1.25rem;
+  }
+
+  body.min-h-screen main [class*="grid-cols-4"],
+  body.min-h-screen main [class*="lg:grid-cols-4"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  body.min-h-screen main [class*="lg:grid-cols-3"] {
+    grid-template-columns: 240px minmax(0, 1fr) !important;
+  }
+
+  body.min-h-screen main [class*="lg:grid-cols-2"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}

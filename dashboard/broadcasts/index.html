@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" class="doc-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Broadcasts — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=4" />
+  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=3" />
+  <style>
+    .bc-grid { display: grid; grid-template-columns: 1fr 400px; gap: 1.5rem; align-items: start; }
+    @media (max-width: 960px) { .bc-grid { grid-template-columns: 1fr; } }
+    .bc-form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+    .bc-form-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: .625rem; }
+    .bc-form-header h2 { font-size: var(--f-base); font-weight: 800; color: var(--text-1); margin: 0; }
+    .bc-form-body { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+    .bc-field label { font-size: var(--f-xs); font-weight: 700; color: var(--text-2); letter-spacing: .02em; display: block; margin-bottom: 5px; }
+    .bc-field input, .bc-field select, .bc-field textarea { width: 100%; }
+    .bc-field textarea { min-height: 120px; resize: vertical; }
+    .bc-audience-chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .375rem; }
+    .bc-chip { height: 32px; padding: 0 12px; border-radius: var(--r-full); font-size: .72rem; font-weight: 700; border: 1.5px solid var(--border-2); background: var(--surface); color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; transition: background .13s, border-color .13s, color .13s; }
+    .bc-chip.selected { background: linear-gradient(135deg, var(--c-blue), var(--c-blue-h)); color: #fff; border-color: transparent; }
+    .bc-char-counter { font-size: .72rem; color: var(--faint); text-align: right; margin-top: 3px; }
+    .bc-preview { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-md); padding: 1rem; min-height: 80px; font-size: var(--f-sm); color: var(--text-2); white-space: pre-wrap; line-height: 1.6; }
+    .bc-send-btn { background: linear-gradient(135deg, #16A34A, #15803D); color: #fff; border: none; border-radius: var(--r-md); height: 44px; padding: 0 24px; font-size: var(--f-sm); font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; transition: opacity .15s; }
+    .bc-send-btn:hover { opacity: .92; }
+    .bc-send-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .bc-history-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+    .bc-history-item { padding: .875rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 1rem; }
+    .bc-history-item:last-child { border-bottom: none; }
+    .bc-history-icon { width: 36px; height: 36px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: .9rem; }
+    .bc-history-body { flex: 1; min-width: 0; }
+    .bc-history-msg { font-size: var(--f-sm); color: var(--text-2); margin: 0 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    .bc-history-meta { font-size: .72rem; color: var(--faint); }
+    .bc-history-stat { flex-shrink: 0; text-align: right; }
+    .bc-history-stat strong { font-size: var(--f-sm); font-weight: 800; color: var(--text-1); display: block; }
+    .bc-history-stat span { font-size: .67rem; color: var(--muted); }
+    .empty-bc { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 1.5rem; text-align: center; }
+    .empty-bc svg { color: var(--faint); margin-bottom: .75rem; }
+    .empty-bc p { color: var(--muted); font-size: var(--f-sm); font-weight: 600; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="doc-layout">
+    <aside class="doc-sidebar" id="doc-sidebar" aria-label="Clinic navigation"></aside>
+    <div class="doc-main-wrap">
+      <header class="doc-topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button type="button" class="doc-menu-btn" id="doc-menu-btn" aria-label="Open menu"><span></span><span></span><span></span></button>
+          <h1 id="doc-page-title">Broadcasts</h1>
+        </div>
+        <div class="doc-topbar-actions"><span id="doc-user-label">Doctor</span></div>
+      </header>
+      <main class="doc-main">
+
+        <!-- Info banner -->
+        <div style="background:linear-gradient(90deg,rgba(37,99,235,.07) 0%,transparent 100%);border-left:4px solid var(--c-blue);border-radius:0 var(--r-md) var(--r-md) 0;padding:12px 16px;margin-bottom:1.25rem">
+          <p style="margin:0;font-size:var(--f-sm);color:var(--text-2)">
+            <strong>Send WhatsApp broadcasts</strong> to your patients — appointment reminders, promotions, health tips, or recalls.
+            Only sent to patients who have <strong>not opted out</strong>.
+          </p>
+        </div>
+
+        <div class="bc-grid">
+          <!-- Compose form -->
+          <div>
+            <div class="bc-form-card">
+              <div class="bc-form-header">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--c-blue)"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.82 2 2 0 0 1 3.57 2.63H6.5a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.05 6.05l1.36-1.36a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <h2>Compose Broadcast</h2>
+              </div>
+              <div class="bc-form-body">
+                <div class="bc-field">
+                  <label>Audience</label>
+                  <div class="bc-audience-chips">
+                    <button type="button" class="bc-chip selected" data-v="ALL_PATIENTS">All Patients</button>
+                    <button type="button" class="bc-chip" data-v="HOT_LEADS">Hot Leads</button>
+                    <button type="button" class="bc-chip" data-v="NO_SHOW">No-show Follow-up</button>
+                    <button type="button" class="bc-chip" data-v="INACTIVE">Inactive (90+ days)</button>
+                    <button type="button" class="bc-chip" data-v="CUSTOM">Custom segment</button>
+                  </div>
+                </div>
+
+                <div class="bc-field">
+                  <label>Message <span style="color:var(--c-red)">*</span></label>
+                  <textarea id="bc-message" placeholder="Hi {{name}}, we have a special offer for you at our clinic…" maxlength="4096" oninput="updatePreview()"></textarea>
+                  <p class="bc-char-counter"><span id="bc-char">0</span>/4096 characters</p>
+                </div>
+
+                <div class="bc-field">
+                  <label>Schedule (optional)</label>
+                  <input type="datetime-local" id="bc-schedule" />
+                  <p style="font-size:.72rem;color:var(--muted);margin:4px 0 0">Leave blank to send immediately</p>
+                </div>
+
+                <div class="bc-field">
+                  <label>Preview</label>
+                  <div class="bc-preview" id="bc-preview">Your message will appear here…</div>
+                </div>
+
+                <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:.875rem">
+                  <p style="font-size:.72rem;font-weight:700;color:var(--text-2);margin:0 0 6px">Audience estimate</p>
+                  <p style="font-size:1.25rem;font-weight:800;color:var(--text-1);margin:0;font-family:'Montserrat',sans-serif" id="bc-audience-count">—</p>
+                  <p style="font-size:.72rem;color:var(--muted);margin:2px 0 0">opted-in patients</p>
+                </div>
+
+                <button class="bc-send-btn" id="bc-send-btn" onclick="sendBroadcast()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  Send Broadcast
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Broadcast history -->
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem">
+              <p style="font-size:var(--f-base);font-weight:800;color:var(--text-1);margin:0;font-family:'Montserrat',sans-serif">Broadcast History</p>
+              <span style="font-size:var(--f-xs);color:var(--muted);font-weight:600" id="bc-hist-count">Loading…</span>
+            </div>
+            <div class="bc-history-card" id="bc-history">
+              <div class="empty-bc">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.82 2 2 0 0 1 3.57 2.63H6.5a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.05 6.05l1.36-1.36a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <p>No broadcasts sent yet</p>
+                <p style="margin-top:4px;font-size:.72rem;color:var(--faint);font-weight:500">Your broadcast history will appear here</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
+  <script src="/dashboard-doctor-shell.js?v=1"></script>
+  <script src="/dashboard-bootstrap.js"></script>
+  <script>
+  (function () {
+    if (!DmaDoctorShell.initStaticPage('/dashboard/broadcasts/', 'Broadcasts')) return;
+    try {
+      var u = JSON.parse(localStorage.getItem('clinicos-store') || '{}').state.user;
+      if (u && u.ownerName) document.getElementById('doc-user-label').textContent = u.ownerName;
+    } catch (_) {}
+
+    var selectedAudience = 'ALL_PATIENTS';
+    document.querySelectorAll('.bc-chip').forEach(function (c) {
+      c.onclick = function () {
+        document.querySelectorAll('.bc-chip').forEach(function (x) { x.classList.remove('selected'); });
+        c.classList.add('selected');
+        selectedAudience = c.getAttribute('data-v');
+      };
+    });
+
+    window.updatePreview = function () {
+      var msg = document.getElementById('bc-message').value;
+      document.getElementById('bc-char').textContent = msg.length;
+      document.getElementById('bc-preview').textContent = msg || 'Your message will appear here…';
+    };
+
+    var token = localStorage.getItem('token');
+    function ah() { return { Authorization: 'Bearer ' + (token || ''), 'Content-Type': 'application/json' }; }
+
+    // Load patient count
+    fetch('/api/patients?limit=1', { headers: ah(), credentials: 'include' })
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (d) {
+        var count = d.total || (d.patients && d.patients.length) || '—';
+        document.getElementById('bc-audience-count').textContent = count;
+      }).catch(function () {});
+
+    // Load broadcast history
+    fetch('/api/messages/broadcasts', { headers: ah(), credentials: 'include' })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (data) {
+        var list = data.broadcasts || data || [];
+        document.getElementById('bc-hist-count').textContent = list.length + ' sent';
+        if (!list.length) return;
+        var icons = { WHATSAPP: '💬', SMS: '📱', EMAIL: '✉️' };
+        document.getElementById('bc-history').innerHTML = list.slice(0, 20).map(function (b) {
+          var bg = b.channel === 'WHATSAPP' ? 'rgba(34,197,94,.1)' : 'rgba(37,99,235,.1)';
+          var icon = icons[b.channel] || '📢';
+          var date = b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '—';
+          return '<div class="bc-history-item">' +
+            '<div class="bc-history-icon" style="background:' + bg + '">' + icon + '</div>' +
+            '<div class="bc-history-body">' +
+              '<p class="bc-history-msg">' + (b.messageBody || '').slice(0, 80) + '…</p>' +
+              '<p class="bc-history-meta">' + date + ' · ' + (b.targetGroup || 'All patients') + '</p>' +
+            '</div>' +
+            '<div class="bc-history-stat"><strong>' + (b.sentCount || 0) + '</strong><span>sent</span></div>' +
+            '</div>';
+        }).join('');
+      }).catch(function () {
+        document.getElementById('bc-hist-count').textContent = '';
+      });
+
+    window.sendBroadcast = function () {
+      var msg = (document.getElementById('bc-message').value || '').trim();
+      if (!msg) { alert('Please enter a message.'); return; }
+      var btn = document.getElementById('bc-send-btn');
+      btn.disabled = true; btn.textContent = 'Sending…';
+      fetch('/api/messages/broadcasts', {
+        method: 'POST',
+        headers: ah(),
+        credentials: 'include',
+        body: JSON.stringify({ messageBody: msg, targetGroup: selectedAudience, channel: 'WHATSAPP' })
+      }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        btn.disabled = false; btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Broadcast';
+        if (!res.ok) { alert(res.d.error || 'Send failed. Try again.'); return; }
+        alert('Broadcast sent to ' + (res.d.sentCount || '—') + ' patients!');
+        document.getElementById('bc-message').value = '';
+        window.updatePreview();
+        location.reload();
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = 'Send Broadcast';
+        alert('Network error. Try again.');
+      });
+    };
+  })();
+  </script>
+</body>
+</html>

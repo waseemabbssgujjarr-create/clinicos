@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en" class="doc-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leads — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=4" />
+  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=3" />
+  <style>
+    .leads-pipeline { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    @media (max-width: 900px) { .leads-pipeline { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 480px) { .leads-pipeline { grid-template-columns: 1fr 1fr; gap: .625rem; } }
+
+    .pipeline-col { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; min-height: 400px; display: flex; flex-direction: column; }
+    .pipeline-col-header { padding: .875rem 1rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .pipeline-col-title { font-size: var(--f-sm); font-weight: 800; letter-spacing: .02em; }
+    .pipeline-badge { font-size: .67rem; font-weight: 800; padding: 2px 8px; border-radius: var(--r-full); }
+    .col-new    .pipeline-col-title { color: #2563EB; } .col-new    .pipeline-badge { background: rgba(37,99,235,.1); color: #2563EB; }
+    .col-warm   .pipeline-col-title { color: #D97706; } .col-warm   .pipeline-badge { background: rgba(217,119,6,.1); color: #D97706; }
+    .col-hot    .pipeline-col-title { color: #DC2626; } .col-hot    .pipeline-badge { background: rgba(220,38,38,.1); color: #DC2626; }
+    .col-booked .pipeline-col-title { color: #16A34A; } .col-booked .pipeline-badge { background: rgba(22,163,74,.1); color: #16A34A; }
+    .pipeline-col-body { padding: .75rem; display: flex; flex-direction: column; gap: .625rem; flex: 1; overflow-y: auto; }
+
+    .lead-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-md); padding: .875rem; cursor: pointer; transition: box-shadow .14s, border-color .14s; }
+    .lead-card:hover { box-shadow: var(--shadow-sm); border-color: rgba(37,99,235,.3); }
+    .lead-card-name { font-size: var(--f-sm); font-weight: 700; color: var(--text-1); margin-bottom: 3px; }
+    .lead-card-phone { font-size: var(--f-xs); color: var(--muted); margin-bottom: 6px; }
+    .lead-card-footer { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+    .lead-card-treatment { font-size: .67rem; font-weight: 700; padding: 2px 7px; border-radius: var(--r-full); background: var(--c-blue-soft); color: var(--c-blue); }
+    .lead-card-time { font-size: .67rem; color: var(--faint); }
+
+    .leads-table-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+    .leads-table-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+
+    .score-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .score-hot  { background: #DC2626; }
+    .score-warm { background: #D97706; }
+    .score-cold { background: #94A3B8; }
+
+    .view-toggle { display: flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-md); padding: 3px; gap: 2px; }
+    .view-toggle button { padding: 6px 12px; border-radius: 8px; border: none; background: none; cursor: pointer; font-size: var(--f-xs); font-weight: 700; color: var(--muted); transition: background .13s, color .13s; }
+    .view-toggle button.active { background: var(--c-blue); color: #fff; }
+
+    .search-bar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; padding: .875rem 1.25rem; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+    .search-bar input { flex: 1 1 200px; min-width: 0; height: 38px; }
+    .filter-sel { height: 38px; padding: 0 12px; border: 1.5px solid var(--border-2); border-radius: var(--r-md); background: var(--surface); color: var(--text-2); font-size: var(--f-sm); font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="doc-layout">
+    <aside class="doc-sidebar" id="doc-sidebar" aria-label="Clinic navigation"></aside>
+    <div class="doc-main-wrap">
+      <header class="doc-topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button type="button" class="doc-menu-btn" id="doc-menu-btn" aria-label="Open menu">
+            <span></span><span></span><span></span>
+          </button>
+          <h1 id="doc-page-title">Leads & Pipeline</h1>
+        </div>
+        <div class="doc-topbar-actions">
+          <span id="doc-user-label">Doctor</span>
+        </div>
+      </header>
+      <main class="doc-main">
+
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem" id="leads-stats">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.125rem 1.25rem;border-top:3px solid var(--c-blue)">
+            <p style="font-size:.67rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 6px">Total Leads</p>
+            <p style="font-family:'Montserrat',sans-serif;font-size:1.75rem;font-weight:800;color:var(--text-1);margin:0;line-height:1" id="stat-total">—</p>
+            <p style="font-size:.72rem;color:var(--muted);margin:4px 0 0">all time</p>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.125rem 1.25rem;border-top:3px solid var(--c-red)">
+            <p style="font-size:.67rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 6px">Hot Leads</p>
+            <p style="font-family:'Montserrat',sans-serif;font-size:1.75rem;font-weight:800;color:#DC2626;margin:0;line-height:1" id="stat-hot">—</p>
+            <p style="font-size:.72rem;color:var(--muted);margin:4px 0 0">need follow-up</p>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.125rem 1.25rem;border-top:3px solid var(--c-green)">
+            <p style="font-size:.67rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 6px">Booked</p>
+            <p style="font-family:'Montserrat',sans-serif;font-size:1.75rem;font-weight:800;color:#16A34A;margin:0;line-height:1" id="stat-booked">—</p>
+            <p style="font-size:.72rem;color:var(--muted);margin:4px 0 0">this month</p>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.125rem 1.25rem;border-top:3px solid var(--c-orange)">
+            <p style="font-size:.67rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 6px">Conversion</p>
+            <p style="font-family:'Montserrat',sans-serif;font-size:1.75rem;font-weight:800;color:var(--c-orange);margin:0;line-height:1" id="stat-conv">—%</p>
+            <p style="font-size:.72rem;color:var(--muted);margin:4px 0 0">lead → booked</p>
+          </div>
+        </div>
+
+        <!-- View switcher -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+          <div>
+            <p style="font-size:var(--f-lg);font-weight:800;color:var(--text-1);margin:0;font-family:'Montserrat',sans-serif">Patient Pipeline</p>
+            <p style="font-size:var(--f-sm);color:var(--muted);margin:2px 0 0" id="leads-count-label">Loading…</p>
+          </div>
+          <div style="display:flex;gap:.625rem;align-items:center;flex-wrap:wrap">
+            <div class="view-toggle">
+              <button class="active" onclick="switchView('kanban',this)">Kanban</button>
+              <button onclick="switchView('list',this)">List</button>
+            </div>
+            <button onclick="location.href='/dashboard/patients/'" style="display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 16px;background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;border:none;border-radius:var(--r-md);font-weight:700;font-size:var(--f-sm);cursor:pointer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Patient
+            </button>
+          </div>
+        </div>
+
+        <!-- Kanban view -->
+        <div id="view-kanban">
+          <div class="leads-pipeline" id="kanban-board">
+            <div class="pipeline-col col-new">
+              <div class="pipeline-col-header">
+                <span class="pipeline-col-title">New</span>
+                <span class="pipeline-badge" id="badge-new">0</span>
+              </div>
+              <div class="pipeline-col-body" id="col-new"><p style="text-align:center;color:var(--faint);font-size:var(--f-sm);padding:2rem 0">Loading…</p></div>
+            </div>
+            <div class="pipeline-col col-warm">
+              <div class="pipeline-col-header">
+                <span class="pipeline-col-title">Warm</span>
+                <span class="pipeline-badge" id="badge-warm">0</span>
+              </div>
+              <div class="pipeline-col-body" id="col-warm"></div>
+            </div>
+            <div class="pipeline-col col-hot">
+              <div class="pipeline-col-header">
+                <span class="pipeline-col-title">Hot 🔥</span>
+                <span class="pipeline-badge" id="badge-hot">0</span>
+              </div>
+              <div class="pipeline-col-body" id="col-hot"></div>
+            </div>
+            <div class="pipeline-col col-booked">
+              <div class="pipeline-col-header">
+                <span class="pipeline-col-title">Booked ✓</span>
+                <span class="pipeline-badge" id="badge-booked">0</span>
+              </div>
+              <div class="pipeline-col-body" id="col-booked"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- List view -->
+        <div id="view-list" style="display:none">
+          <div class="leads-table-section">
+            <div class="search-bar">
+              <input type="text" id="leads-search" placeholder="Search by name, phone, or treatment…" />
+              <select class="filter-sel" id="leads-score-filter">
+                <option value="">All scores</option>
+                <option value="HOT">🔥 Hot</option>
+                <option value="WARM">🟡 Warm</option>
+                <option value="COLD">❄️ Cold</option>
+              </select>
+              <select class="filter-sel" id="leads-status-filter">
+                <option value="">All statuses</option>
+                <option value="NEW">New</option>
+                <option value="CONTACTED">Contacted</option>
+                <option value="BOOKED">Booked</option>
+                <option value="LOST">Lost</option>
+              </select>
+            </div>
+            <div id="leads-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Patient</th>
+                    <th>Treatment Interest</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                    <th>Source</th>
+                    <th>Last Activity</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="leads-tbody">
+                  <tr><td colspan="7" style="text-align:center;padding:3rem 1rem;color:var(--muted);font-weight:600">Loading leads…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+  <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
+
+  <script src="/dashboard-doctor-shell.js?v=1"></script>
+  <script src="/dashboard-bootstrap.js"></script>
+  <script>
+  (function () {
+    if (!DmaDoctorShell.initStaticPage('/dashboard/leads/', 'Leads & Pipeline')) return;
+    try {
+      var u = JSON.parse(localStorage.getItem('clinicos-store') || '{}').state.user;
+      if (u && u.ownerName) document.getElementById('doc-user-label').textContent = u.ownerName;
+    } catch (_) {}
+
+    var token = localStorage.getItem('token');
+    function ah() { return { Authorization: 'Bearer ' + (token || ''), 'Content-Type': 'application/json' }; }
+    function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+    function ago(d) {
+      if (!d) return '—';
+      var diff = (Date.now() - new Date(d)) / 1000;
+      if (diff < 60) return 'just now';
+      if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+      return Math.floor(diff/86400) + 'd ago';
+    }
+
+    var allLeads = [];
+
+    function loadLeads() {
+      fetch('/api/leads', { headers: ah(), credentials: 'include' })
+        .then(function (r) { return r.ok ? r.json() : { leads: [] }; })
+        .then(function (d) {
+          allLeads = d.leads || d || [];
+          renderStats();
+          renderKanban();
+          renderList();
+          var lbl = allLeads.length + ' lead' + (allLeads.length !== 1 ? 's' : '') + ' total';
+          document.getElementById('leads-count-label').textContent = lbl;
+        })
+        .catch(function () {
+          document.getElementById('leads-count-label').textContent = 'Could not load leads';
+        });
+    }
+
+    function renderStats() {
+      var hot = allLeads.filter(function(l){return l.leadScore==='HOT';}).length;
+      var booked = allLeads.filter(function(l){return l.status==='BOOKED';}).length;
+      var conv = allLeads.length ? Math.round((booked/allLeads.length)*100) : 0;
+      document.getElementById('stat-total').textContent = allLeads.length;
+      document.getElementById('stat-hot').textContent = hot;
+      document.getElementById('stat-booked').textContent = booked;
+      document.getElementById('stat-conv').textContent = conv + '%';
+    }
+
+    function renderKanban() {
+      var buckets = { NEW: [], WARM: [], HOT: [], BOOKED: [] };
+      allLeads.forEach(function (l) {
+        var score = (l.leadScore || 'COLD').toUpperCase();
+        var status = (l.status || 'NEW').toUpperCase();
+        if (status === 'BOOKED') buckets.BOOKED.push(l);
+        else if (score === 'HOT') buckets.HOT.push(l);
+        else if (score === 'WARM') buckets.WARM.push(l);
+        else buckets.NEW.push(l);
+      });
+      var map = { NEW: 'new', WARM: 'warm', HOT: 'hot', BOOKED: 'booked' };
+      Object.keys(buckets).forEach(function (k) {
+        var col = document.getElementById('col-' + map[k]);
+        var badge = document.getElementById('badge-' + map[k]);
+        if (badge) badge.textContent = buckets[k].length;
+        if (!col) return;
+        if (!buckets[k].length) {
+          col.innerHTML = '<p style="text-align:center;color:var(--faint);font-size:var(--f-xs);padding:2rem 0;font-weight:600">No leads</p>';
+          return;
+        }
+        col.innerHTML = buckets[k].slice(0, 20).map(function (l) {
+          return '<div class="lead-card">' +
+            '<div class="lead-card-name">' + esc(l.fullName || l.phone) + '</div>' +
+            '<div class="lead-card-phone">' + esc(l.phone || '') + '</div>' +
+            '<div class="lead-card-footer">' +
+              '<span class="lead-card-treatment">' + esc(l.treatmentInterest || l.intent || 'General') + '</span>' +
+              '<span class="lead-card-time">' + ago(l.updatedAt || l.createdAt) + '</span>' +
+            '</div></div>';
+        }).join('');
+      });
+    }
+
+    function renderList() {
+      var tbody = document.getElementById('leads-tbody');
+      var search = (document.getElementById('leads-search').value || '').toLowerCase();
+      var scoreF = document.getElementById('leads-score-filter').value;
+      var statusF = document.getElementById('leads-status-filter').value;
+      var filtered = allLeads.filter(function (l) {
+        if (search && !(l.fullName || '').toLowerCase().includes(search) &&
+            !(l.phone || '').includes(search) &&
+            !(l.treatmentInterest || '').toLowerCase().includes(search)) return false;
+        if (scoreF && (l.leadScore || '').toUpperCase() !== scoreF) return false;
+        if (statusF && (l.status || '').toUpperCase() !== statusF) return false;
+        return true;
+      });
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:3rem 1rem;color:var(--muted);font-weight:600">No leads found</td></tr>';
+        return;
+      }
+      var scoreColors = { HOT: '#DC2626', WARM: '#D97706', COLD: '#94A3B8' };
+      var scoreLabels = { HOT: '🔥 Hot', WARM: '🟡 Warm', COLD: '❄️ Cold' };
+      tbody.innerHTML = filtered.slice(0, 50).map(function (l) {
+        var score = (l.leadScore || 'COLD').toUpperCase();
+        var status = l.status || 'NEW';
+        var srcIcon = l.source === 'WHATSAPP' ? '📱' : l.source === 'EMAIL' ? '✉️' : '🌐';
+        return '<tr data-label="Patient">' +
+          '<td data-label="Patient"><strong>' + esc(l.fullName || '—') + '</strong><br><span style="color:var(--muted);font-size:.72rem">' + esc(l.phone || '') + '</span></td>' +
+          '<td data-label="Treatment">' + esc(l.treatmentInterest || l.intent || '—') + '</td>' +
+          '<td data-label="Score"><span style="display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;color:' + (scoreColors[score] || '#94A3B8') + '">' +
+            '<span style="width:8px;height:8px;border-radius:50%;background:' + (scoreColors[score] || '#94A3B8') + ';flex-shrink:0;display:inline-block"></span>' +
+            (scoreLabels[score] || score) + '</span></td>' +
+          '<td data-label="Status"><span style="font-size:.67rem;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(37,99,235,.1);color:#2563EB">' + esc(status) + '</span></td>' +
+          '<td data-label="Source">' + srcIcon + ' ' + esc(l.source || '—') + '</td>' +
+          '<td data-label="Activity">' + ago(l.updatedAt || l.createdAt) + '</td>' +
+          '<td data-label="Actions"><button onclick="window.location=\'/dashboard/messages/\'" style="font-size:.72rem;font-weight:700;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);cursor:pointer;color:var(--c-blue)">Message</button></td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    function switchView(v, btn) {
+      document.getElementById('view-kanban').style.display = v === 'kanban' ? '' : 'none';
+      document.getElementById('view-list').style.display = v === 'list' ? '' : 'none';
+      document.querySelectorAll('.view-toggle button').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+    }
+
+    document.getElementById('leads-search').addEventListener('input', renderList);
+    document.getElementById('leads-score-filter').addEventListener('change', renderList);
+    document.getElementById('leads-status-filter').addEventListener('change', renderList);
+
+    loadLeads();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Health — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=4" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=8" />
+  <style>
+    .health-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem; }
+    @media(max-width:900px){ .health-grid{grid-template-columns:1fr 1fr;} }
+    @media(max-width:560px){ .health-grid{grid-template-columns:1fr;} }
+    .health-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:1.25rem; display:flex; align-items:center; gap:1rem; }
+    .health-icon { width:48px; height:48px; border-radius:var(--r-lg); display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+    .health-label { font-size:.67rem; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); margin:0 0 4px; }
+    .health-value { font-family:'Montserrat',sans-serif; font-size:1.25rem; font-weight:800; color:var(--text-1); margin:0; line-height:1; }
+    .health-status { font-size:.72rem; font-weight:700; margin:4px 0 0; }
+    .ok { color:#16A34A; } .warn { color:#D97706; } .err { color:#DC2626; }
+
+    .check-list-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden; margin-bottom:1.25rem; }
+    .check-item { display:flex; align-items:center; gap:1rem; padding:.875rem 1.25rem; border-bottom:1px solid var(--border); }
+    .check-item:last-child { border-bottom:none; }
+    .check-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .check-dot.ok { background:#16A34A; } .check-dot.warn { background:#D97706; } .check-dot.err { background:#DC2626; } .check-dot.loading { background:#CBD5E1; }
+    .check-name { flex:1; font-size:var(--f-sm); font-weight:600; color:var(--text-2); }
+    .check-val { font-size:var(--f-sm); font-weight:700; color:var(--text-1); }
+    .check-desc { font-size:.72rem; color:var(--muted); }
+
+    .log-block { background:var(--sidebar-bg,#0F172A); color:#E2EAF4; border-radius:var(--r-lg); padding:1.25rem; font-family:'Courier New',monospace; font-size:.78rem; line-height:1.7; max-height:340px; overflow-y:auto; margin-top:1rem; white-space:pre-wrap; }
+  </style>
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="sa-content-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
+          <div>
+            <h1>System Health</h1>
+            <p class="sa-subtitle">Real-time status of all platform services, APIs, and infrastructure.</p>
+          </div>
+          <div style="display:flex;gap:.625rem;align-items:center">
+            <span id="last-checked" style="font-size:.72rem;color:var(--muted)">Checking…</span>
+            <button onclick="runChecks()" style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;border:none;border-radius:var(--r-md);font-size:var(--f-sm);font-weight:700;cursor:pointer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Re-check
+            </button>
+          </div>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="health-grid" id="health-stats">
+          <div class="health-card"><div class="health-icon" style="background:rgba(37,99,235,.1)">🚀</div><div><p class="health-label">API</p><p class="health-value" id="api-status">—</p><p class="health-status" id="api-ms"></p></div></div>
+          <div class="health-card"><div class="health-icon" style="background:rgba(22,163,74,.1)">🗄️</div><div><p class="health-label">Database</p><p class="health-value" id="db-status">—</p><p class="health-status" id="db-detail"></p></div></div>
+          <div class="health-card"><div class="health-icon" style="background:rgba(217,119,6,.1)">✉️</div><div><p class="health-label">Email / SMTP</p><p class="health-value" id="smtp-status">—</p><p class="health-status" id="smtp-detail"></p></div></div>
+          <div class="health-card"><div class="health-icon" style="background:rgba(34,197,94,.1)">💬</div><div><p class="health-label">WhatsApp API</p><p class="health-value" id="wa-status">—</p><p class="health-status" id="wa-detail"></p></div></div>
+          <div class="health-card"><div class="health-icon" style="background:rgba(124,58,237,.1)">🤖</div><div><p class="health-label">AI Provider</p><p class="health-value" id="ai-status">—</p><p class="health-status" id="ai-detail"></p></div></div>
+          <div class="health-card"><div class="health-icon" style="background:rgba(249,115,22,.1)">💳</div><div><p class="health-label">Stripe</p><p class="health-value" id="stripe-status">—</p><p class="health-status" id="stripe-detail"></p></div></div>
+        </div>
+
+        <!-- Checklist -->
+        <div class="check-list-card">
+          <div style="padding:.875rem 1.25rem;border-bottom:1px solid var(--border);background:var(--surface-2)">
+            <p style="font-size:var(--f-sm);font-weight:800;color:var(--text-1);margin:0">Service Checklist</p>
+          </div>
+          <div id="checklist"></div>
+        </div>
+
+        <!-- Recent logs -->
+        <div>
+          <p style="font-size:var(--f-base);font-weight:800;color:var(--text-1);margin:0 0 .75rem;font-family:'Montserrat',sans-serif">Recent Startup Log</p>
+          <div class="log-block" id="startup-log">Loading startup log…</div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=4"></script>
+  <script src="/dashboard-bootstrap.js"></script>
+  <script>
+  (function () {
+    if (!DmaAdminShell.initStaticPage('/superadmin/health/')) return;
+
+    function setStatus(id, text, cls) {
+      var el = document.getElementById(id);
+      if (el) { el.textContent = text; el.className = 'health-status ' + (cls || ''); }
+    }
+
+    function setValue(id, text) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = text;
+    }
+
+    function addCheck(name, status, value, description) {
+      var list = document.getElementById('checklist');
+      var div = document.createElement('div');
+      div.className = 'check-item';
+      div.innerHTML =
+        '<span class="check-dot ' + status + '"></span>' +
+        '<span class="check-name">' + name + '<br><span class="check-desc">' + description + '</span></span>' +
+        '<span class="check-val">' + value + '</span>';
+      list.appendChild(div);
+    }
+
+    window.runChecks = function () {
+      document.getElementById('checklist').innerHTML = '';
+      document.getElementById('last-checked').textContent = 'Checking…';
+
+      // API health
+      var t0 = Date.now();
+      fetch('/health')
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var ms = Date.now() - t0;
+          setValue('api-status', '✓ Online');
+          setStatus('api-ms', ms + 'ms response', 'ok');
+          addCheck('API Server', 'ok', ms + 'ms', d.service || 'Doctors My Agency API');
+        })
+        .catch(function () {
+          setValue('api-status', '✗ Offline');
+          setStatus('api-ms', 'Not reachable', 'err');
+          addCheck('API Server', 'err', 'Unreachable', 'Node.js process may be down');
+        });
+
+      // DB health
+      DmaAdminShell.api('/api/health/db')
+        .then(function (d) {
+          if (d.ok) {
+            setValue('db-status', '✓ Online');
+            setStatus('db-detail', 'DB: ' + (d.db || '—'), 'ok');
+            addCheck('MySQL Database', 'ok', d.clinic_count + ' clinics', 'Host: ' + (d.host || '—'));
+          } else {
+            setValue('db-status', '✗ Error');
+            setStatus('db-detail', d.code || 'Unavailable', 'err');
+            addCheck('MySQL Database', 'err', 'Unavailable', d.error || 'Connection failed');
+          }
+        }).catch(function () {
+          setValue('db-status', '? Unknown');
+          setStatus('db-detail', '', 'warn');
+        });
+
+      // Integrations status
+      DmaAdminShell.api('/api/superadmin/integrations')
+        .then(function (d) {
+          var groups = d.groups || {};
+
+          // Email
+          var email = groups.email || {};
+          if (email.status === 'ready') {
+            setValue('smtp-status', '✓ Configured');
+            setStatus('smtp-detail', email.fields ? email.fields.map(function(f){return f.key==='SMTP_HOST'?f.value:''}).filter(Boolean)[0] : '', 'ok');
+            addCheck('SMTP Email', 'ok', 'Ready', 'Outbound email configured');
+          } else {
+            setValue('smtp-status', '⚠ Partial');
+            setStatus('smtp-detail', 'Check Integrations', 'warn');
+            addCheck('SMTP Email', 'warn', 'Needs configuration', 'Set SMTP credentials in Integrations');
+          }
+
+          // AI
+          var ai = groups.ai || {};
+          if (ai.status === 'ready') {
+            setValue('ai-status', '✓ Active');
+            setStatus('ai-detail', groups.ai && groups.ai.fields ? 'Provider ready' : '', 'ok');
+            addCheck('AI Receptionist', 'ok', 'Active', 'AI provider configured');
+          } else {
+            setValue('ai-status', '⚠ Not set');
+            setStatus('ai-detail', 'API key missing', 'warn');
+            addCheck('AI Receptionist', 'warn', 'API key needed', 'Set DEEPSEEK_API_KEY in Integrations');
+          }
+
+          // Meta/WhatsApp
+          var meta = groups.meta || {};
+          if (meta.status === 'ready') {
+            setValue('wa-status', '✓ Configured');
+            setStatus('wa-detail', 'Embedded Signup ' + (process && process.env && process.env.WHATSAPP_EMBEDDED_SIGNUP_ENABLED === 'true' ? 'enabled' : 'disabled'), 'ok');
+            addCheck('Meta WhatsApp API', 'ok', 'Configured', 'App ID and credentials set');
+          } else {
+            setValue('wa-status', '⚠ Partial');
+            setStatus('wa-detail', 'Check config', 'warn');
+            addCheck('Meta WhatsApp API', 'warn', meta.configured + '/' + meta.total + ' fields', 'Configure in Integrations');
+          }
+
+          // Stripe
+          var stripe = groups.stripe || {};
+          if (stripe.status === 'ready') {
+            setValue('stripe-status', '✓ Connected');
+            setStatus('stripe-detail', 'Live/test keys set', 'ok');
+            addCheck('Stripe Billing', 'ok', 'Connected', 'Subscription billing active');
+          } else {
+            setValue('stripe-status', '— Not set');
+            setStatus('stripe-detail', 'Trial only mode', 'warn');
+            addCheck('Stripe Billing', 'warn', 'Not configured', 'Clinics stay on free trial without Stripe');
+          }
+        }).catch(function () {
+          ['smtp-status','ai-status','wa-status','stripe-status'].forEach(function(id){
+            setValue(id, '? Unknown');
+          });
+        });
+
+      // Webhook probe
+      fetch('/api/webhooks/meta?probe=1')
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          addCheck('Meta Webhook', 'ok', d.connectedClinics + ' connected', 'Webhook URL reachable at /api/webhooks/meta');
+        })
+        .catch(function () {
+          addCheck('Meta Webhook', 'warn', 'Not reachable', 'Webhook URL may not be registered with Meta yet');
+        });
+
+      document.getElementById('last-checked').textContent = 'Last checked: ' + new Date().toLocaleTimeString();
+    };
+
+    // Load startup log
+    fetch('/clinicos-api/logs/startup.log')
+      .then(function (r) { return r.text(); })
+      .then(function (t) {
+        var lines = t.trim().split('\n').slice(-40).join('\n');
+        document.getElementById('startup-log').textContent = lines || '(empty)';
+      })
+      .catch(function () {
+        document.getElementById('startup-log').textContent = 'Log not accessible from browser (server-side file).\nCheck clinicos-api/logs/startup.log on the server.';
+      });
+
+    runChecks();
+    setTimeout(runChecks, 30000); // auto-refresh every 30s
+  })();
+  </script>
+</body>
+</html>
