@@ -1,164 +1,200 @@
 "use strict";
+/**
+ * WhatsApp Controller — Doctors My Agency
+ *
+ * All WhatsApp operations for clinics.
+ * Uses the new meta/ service layer exclusively.
+ * No direct Meta Graph API calls here.
+ * No IQPigeon dependency.
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getWhatsAppStatus = getWhatsAppStatus;
-exports.getWhatsAppSignupConfig = getWhatsAppSignupConfig;
-exports.connectWhatsApp = connectWhatsApp;
-exports.disconnectWhatsApp = disconnectWhatsApp;
-exports.getWhatsAppHub = getWhatsAppHub;
-exports.getWhatsAppRecentLog = getWhatsAppRecentLog;
-exports.verifyWaba = verifyWaba;
+exports.getConnectionStatus   = getConnectionStatus;
+exports.getSignupConfig       = getSignupConfig;
+exports.connectManual         = connectManual;
+exports.connectEmbedded       = connectEmbedded;
+exports.disconnectWhatsApp    = disconnectWhatsApp;
+exports.getWhatsAppHub        = getWhatsAppHub;
+exports.getWhatsAppRecentLog  = getWhatsAppRecentLog;
+exports.verifyWaba            = verifyWaba;
 
-const meta_whatsapp_service_1 = require("../services/meta-whatsapp.service");
-const logger_1 = require("../lib/logger");
-const prisma_1 = require("../lib/prisma");
+const whatsapp_connection_1  = require("../services/meta/whatsapp-connection.service");
+const whatsapp_manual_1      = require("../services/meta/whatsapp-manual.service");
+const whatsapp_embedded_1    = require("../services/meta/whatsapp-embedded.service");
+const whatsapp_provider_1    = require("../services/meta/whatsapp-provider.service");
+const logger_1               = require("../lib/logger");
+const prisma_1               = require("../lib/prisma");
 
-// ── GET /api/whatsapp/status ──────────────────────────────────────────────────
+// ── GET /api/whatsapp/connections/status ──────────────────────────────────────
 
-async function getWhatsAppStatus(req, res) {
+async function getConnectionStatus(req, res) {
     try {
-        const clinicId = req.clinicId || req.user?.clinicId;
-        const account = await (0, meta_whatsapp_service_1.getAccountByClinicId)(clinicId);
-        res.json({
-            connected: !!account,
-            phoneNumber: account?.displayPhoneNumber || null,
-            wabaId: account?.wabaId || null,
-            phoneNumberId: account?.phoneNumberId || null,
-            provider: account
-                ? "meta"
-                : (process.env.TWILIO_ACCOUNT_SID ? "twilio" : "none"),
-        });
+        const clinicId = req.clinicId;
+        const status = await whatsapp_provider_1.getStatus(clinicId);
+        res.json(status);
     } catch (err) {
-        logger_1.logger.error("getWhatsAppStatus", { err });
+        logger_1.logger.error("getConnectionStatus", { err });
         res.status(500).json({ error: "Failed to load WhatsApp status" });
     }
 }
 
-// ── GET /api/whatsapp/signup-config ───────────────────────────────────────────
+// ── GET /api/whatsapp/connections/config ──────────────────────────────────────
+// Returns signup config for frontend. When Embedded Signup is disabled
+// the response tells the frontend to show Manual connection only.
 
-async function getWhatsAppSignupConfig(req, res) {
-    const appId = process.env.META_APP_ID || "";
-    const configId = process.env.META_CONFIG_ID || "";
-    const graphVersion = process.env.META_GRAPH_API_VERSION || "v21.0";
+async function getSignupConfig(_req, res) {
+    const config = whatsapp_embedded_1.getEmbeddedSignupConfig();
+    // Always include manual connection availability
+    res.json({
+        ...config,
+        manualConnectionAvailable: true,
+    });
+}
 
-    if (!appId || !configId) {
-        res.status(503).json({
-            error:
-                "Meta WhatsApp is not configured yet. Ask your platform admin to set " +
-                "META_APP_ID and META_CONFIG_ID under Superadmin → Integrations.",
-            configured: false,
+// ── POST /api/whatsapp/connections/manual ─────────────────────────────────────
+// Primary connection method. Works regardless of Embedded Signup flag.
+// Runs 10-step validation with real-time step progress in response.
+
+async function connectManual(req, res) {
+    const clinicId = req.clinicId;
+    const { access_token, waba_id, phone_number_id, business_portfolio_id } = req.body || {};
+
+    if (!access_token || !waba_id || !phone_number_id) {
+        res.status(400).json({
+            error: "Missing required fields: access_token, waba_id, phone_number_id",
+            hint: "Get these from Meta App Dashboard → WhatsApp → API Setup",
         });
         return;
     }
 
-    res.json({
-        configured: true,
-        appId,
-        configId,
-        graphVersion,
-        extras: {
-            version: "v4",
-            sessionInfoVersion: "3",
-            featureType: "whatsapp_business_app_onboarding",
-        },
+    logger_1.logger.info("connectManual: starting validation", {
+        clinicId,
+        wabaId: waba_id,
+        phoneNumberId: phone_number_id,
+        hasToken: !!access_token,
     });
-}
 
-// ── POST /api/whatsapp/connect ────────────────────────────────────────────────
-
-async function connectWhatsApp(req, res) {
     try {
-        const clinicId = req.clinicId || req.user?.clinicId;
-        const { code, waba_id, phone_number_id, display_phone_number } = req.body || {};
+        const steps = [];
+        const result = await whatsapp_manual_1.validateManualConnection(
+            clinicId,
+            {
+                accessToken:         String(access_token),
+                wabaId:              String(waba_id).trim(),
+                phoneNumberId:       String(phone_number_id).trim(),
+                businessPortfolioId: business_portfolio_id ? String(business_portfolio_id).trim() : "",
+            },
+            (stepNum, label, status, detail) => {
+                steps.push({ step: stepNum, label, status, detail: detail || "" });
+            }
+        );
 
-        if (!code) {
+        if (!result.success) {
+            const failedStep = steps.find((s) => s.status === "fail");
             res.status(400).json({
-                error: "Missing OAuth code from Meta Embedded Signup",
+                success: false,
+                error: failedStep?.detail || "Manual connection validation failed",
+                steps,
             });
             return;
         }
 
-        // Log what the frontend captured — makes it easy to see in
-        // clinicos-api/logs/combined.log whether sessionInfo was captured
-        logger_1.logger.info("connectWhatsApp: payload received", {
-            clinicId,
-            hasCode: !!code,
-            waba_id: waba_id || "(not captured)",
-            phone_number_id: phone_number_id || "(not captured)",
-            display_phone_number: display_phone_number || "(not captured)",
-        });
-
-        // Exchange code + resolve assets
-        const result = await (0, meta_whatsapp_service_1.exchangeOAuthCode)(String(code), {
-            sdkMode: true,
-            wabaId: waba_id ? String(waba_id) : "",
-            phoneNumberId: phone_number_id ? String(phone_number_id) : "",
-            displayPhoneNumber: display_phone_number ? String(display_phone_number) : "",
-        });
-
-        logger_1.logger.info("connectWhatsApp: exchangeOAuthCode result", {
-            clinicId,
-            success: result.success,
-            wabaId: result.wabaId || "(none)",
-            phoneNumberId: result.phoneNumberId || "(none)",
-            displayPhoneNumber: result.displayPhoneNumber || "(none)",
-            error: result.error || null,
-        });
-
-        if (!result.success) {
-            res.status(400).json({ error: result.error || "Connection failed" });
-            return;
-        }
-
-        // Persist account (with encrypt/decrypt safety check inside)
-        await (0, meta_whatsapp_service_1.saveClinicWhatsAppAccount)(clinicId, {
-            wabaId: result.wabaId,
-            phoneNumberId: result.phoneNumberId,
-            displayPhoneNumber: result.displayPhoneNumber,
-            accessToken: result.accessToken,
-        });
-
-        // ── CRITICAL: Subscribe WABA to this app for inbound webhooks ─────────
-        // Without this step the connection appears "active" but Meta never
-        // delivers any inbound messages to the webhook.
-        if (result.wabaId && result.accessToken) {
-            const sub = await (0, meta_whatsapp_service_1.subscribeWabaToApp)(
-                result.wabaId,
-                result.accessToken
-            );
-            if (!sub.success) {
-                // Non-fatal — log and surface as a warning so the doctor can
-                // re-trigger via the /verify-waba endpoint.
-                logger_1.logger.warn("WABA subscription failed after connect", {
-                    clinicId,
-                    wabaId: result.wabaId,
-                    err: sub.error,
-                });
-            }
-        }
-
         res.json({
             success: true,
-            phoneNumber: result.displayPhoneNumber,
-            wabaId: result.wabaId,
+            phoneNumber:   result.phoneNumber,
+            displayName:   result.displayName,
+            wabaId:        result.wabaId,
+            phoneNumberId: result.phoneNumberId,
+            webhookStatus: result.webhookStatus,
+            steps,
         });
     } catch (err) {
-        logger_1.logger.error("connectWhatsApp", { err });
-        res.status(500).json({
-            error:
-                err instanceof Error && err.message.includes("encryption")
-                    ? err.message
-                    : "WhatsApp connection failed. Try again or contact support.",
+        const msg = err instanceof Error ? err.message : String(err);
+        logger_1.logger.error("connectManual error", { clinicId, err: msg });
+        // Surface encryption-key errors clearly — they need admin action, not a retry
+        const isKeyError = err?.code === "ENCRYPTION_KEY_MISSING" || msg.includes("META_ENCRYPTION_KEY");
+        res.status(isKeyError ? 503 : 500).json({
+            success: false,
+            error: msg,
+            ...(isKeyError && { code: "ENCRYPTION_KEY_MISSING" }),
         });
     }
 }
 
-// ── DELETE /api/whatsapp/disconnect ──────────────────────────────────────────
+// ── POST /api/whatsapp/connections/embedded ───────────────────────────────────
+// Meta Embedded Signup flow. Controlled by WHATSAPP_EMBEDDED_SIGNUP_ENABLED flag.
+// Returns controlled error when disabled — never leaks internal errors.
+
+async function connectEmbedded(req, res) {
+    // Gate check — return controlled response when disabled
+    if (!whatsapp_embedded_1.isEmbeddedSignupEnabled()) {
+        res.status(403).json({
+            success: false,
+            enabled: false,
+            code: "EMBEDDED_SIGNUP_DISABLED",
+            error: "WhatsApp connection is currently unavailable. Please contact your administrator.",
+        });
+        return;
+    }
+
+    const clinicId = req.clinicId;
+    const { code, waba_id, phone_number_id, display_phone_number } = req.body || {};
+
+    if (!code) {
+        res.status(400).json({
+            success: false,
+            error: "Missing OAuth code from Meta Embedded Signup",
+        });
+        return;
+    }
+
+    logger_1.logger.info("connectEmbedded: received code", {
+        clinicId,
+        wabaId: waba_id || "(not in sessionInfo)",
+        phoneNumberId: phone_number_id || "(not in sessionInfo)",
+    });
+
+    try {
+        const result = await whatsapp_embedded_1.exchangeEmbeddedSignupCode(
+            clinicId,
+            String(code),
+            {
+                waba_id,
+                phone_number_id,
+                display_phone_number,
+            }
+        );
+
+        if (!result.success) {
+            res.status(400).json({ success: false, error: result.error });
+            return;
+        }
+
+        res.json({
+            success: true,
+            phoneNumber:   result.phoneNumber,
+            wabaId:        result.wabaId,
+            phoneNumberId: result.phoneNumberId,
+            webhookStatus: result.webhookStatus,
+        });
+    } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        logger_1.logger.error("connectEmbedded error", { clinicId, err: msg });
+        const isKeyError = err?.code === "ENCRYPTION_KEY_MISSING" || msg.includes("META_ENCRYPTION_KEY");
+        res.status(isKeyError ? 503 : 500).json({
+            success: false,
+            ...(isKeyError && { code: "ENCRYPTION_KEY_MISSING" }),
+            error: msg.includes("encryption") || isKeyError ? msg : "Embedded Signup connection failed. Try again or use Manual Connection.",
+        });
+    }
+}
+
+// ── DELETE /api/whatsapp/connections/disconnect ───────────────────────────────
 
 async function disconnectWhatsApp(req, res) {
     try {
-        await (0, meta_whatsapp_service_1.disconnectClinicWhatsApp)(
-            req.clinicId || req.user?.clinicId
-        );
+        const clinicId = req.clinicId;
+        await whatsapp_connection_1.disconnectClinic(clinicId);
+        logger_1.logger.info(`WhatsApp disconnected by doctor for clinic ${clinicId}`);
         res.json({ success: true });
     } catch (err) {
         logger_1.logger.error("disconnectWhatsApp", { err });
@@ -167,11 +203,12 @@ async function disconnectWhatsApp(req, res) {
 }
 
 // ── GET /api/whatsapp/hub ─────────────────────────────────────────────────────
+// Dashboard Command Center data — stats, capabilities, recent activity summary.
 
 async function getWhatsAppHub(req, res) {
     try {
-        const clinicId = req.clinicId || req.user?.clinicId;
-        const account = await (0, meta_whatsapp_service_1.getAccountByClinicId)(clinicId);
+        const clinicId = req.clinicId;
+        const status = await whatsapp_provider_1.getStatus(clinicId);
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -184,34 +221,19 @@ async function getWhatsAppHub(req, res) {
             leadsHot,
         ] = await Promise.all([
             prisma_1.prisma.message.count({
-                where: {
-                    clinicId, channel: "WHATSAPP",
-                    direction: "INBOUND", createdAt: { gte: today },
-                },
+                where: { clinicId, channel: "WHATSAPP", direction: "INBOUND", createdAt: { gte: today } },
             }),
             prisma_1.prisma.message.count({
-                where: {
-                    clinicId, channel: "WHATSAPP",
-                    isHandledByAI: true, createdAt: { gte: today },
-                },
+                where: { clinicId, channel: "WHATSAPP", isHandledByAI: true, createdAt: { gte: today } },
             }),
             prisma_1.prisma.message.count({
-                where: {
-                    clinicId, channel: "WHATSAPP",
-                    needsReview: true, isRead: false,
-                },
+                where: { clinicId, channel: "WHATSAPP", needsReview: true, isRead: false },
             }),
             prisma_1.prisma.appointment.count({
-                where: {
-                    clinicId, channel: "WHATSAPP",
-                    bookedByAI: true, createdAt: { gte: today },
-                },
+                where: { clinicId, channel: "WHATSAPP", bookedByAI: true, createdAt: { gte: today } },
             }),
             prisma_1.prisma.lead.count({
-                where: {
-                    clinicId, leadScore: "HOT",
-                    status: { notIn: ["BOOKED", "LOST"] },
-                },
+                where: { clinicId, leadScore: "HOT", status: { notIn: ["BOOKED", "LOST"] } },
             }),
         ]);
 
@@ -220,12 +242,12 @@ async function getWhatsAppHub(req, res) {
             select: { aiEnabled: true, name: true, specialty: true },
         });
 
+        const embeddedConfig = whatsapp_embedded_1.getEmbeddedSignupConfig();
+
         res.json({
-            connected: !!account,
-            phoneNumber: account?.displayPhoneNumber || null,
-            wabaId: account?.wabaId || null,
-            aiEnabled: clinic?.aiEnabled ?? true,
+            ...status,
             clinicName: clinic?.name,
+            aiEnabled:  clinic?.aiEnabled ?? true,
             stats: {
                 inboundToday,
                 aiHandledToday,
@@ -233,15 +255,15 @@ async function getWhatsAppHub(req, res) {
                 appointmentsBooked,
                 leadsHot,
             },
+            embeddedSignupEnabled: embeddedConfig.enabled === true,
             capabilities: [
-                "24/7 human-like receptionist",
+                "24/7 AI receptionist — replies in seconds",
                 "Book / reschedule / cancel appointments",
-                "Capture leads & patient CRM",
-                "Multi-language replies (EN / AR / Urdu)",
-                "Staff escalation with summary",
-                "Missed-call recovery follow-up",
+                "Patient CRM — lead scoring, follow-ups",
+                "Multi-language replies (English / Arabic / Urdu)",
+                "Staff escalation with conversation summary",
+                "Missed-call recovery via WhatsApp",
             ],
-            advancedToolsUrl: process.env.WHATSAPP_PHP_URL || "/whatsapp/client/leads",
         });
     } catch (err) {
         logger_1.logger.error("getWhatsAppHub", { err });
@@ -249,15 +271,15 @@ async function getWhatsAppHub(req, res) {
     }
 }
 
-// ── GET /api/whatsapp/message-log ────────────────────────────────────────────
+// ── GET /api/whatsapp/message-log ─────────────────────────────────────────────
 
 async function getWhatsAppRecentLog(req, res) {
     try {
-        const clinicId = req.clinicId || req.user?.clinicId;
+        const clinicId = req.clinicId;
         const messages = await prisma_1.prisma.message.findMany({
             where: { clinicId, channel: "WHATSAPP" },
             orderBy: { createdAt: "desc" },
-            take: 20,
+            take: 25,
             select: {
                 id: true,
                 direction: true,
@@ -277,263 +299,83 @@ async function getWhatsAppRecentLog(req, res) {
     }
 }
 
-// ── POST /api/whatsapp/verify-waba ────────────────────────────────────────────
-//
-// Lets the doctor (or superadmin) check whether the WABA is subscribed to the
-// Meta app and optionally re-subscribe if it isn't. This is the self-service
-// fix for the most common "connected but no messages" problem.
-//
+// ── GET|POST /api/whatsapp/verify-waba ────────────────────────────────────────
+// Self-service webhook subscription health check + auto-repair.
+// GET  → check only
+// POST → check and auto re-subscribe if not subscribed
+
 async function verifyWaba(req, res) {
     try {
-        const clinicId = req.clinicId || req.user?.clinicId;
-        const account = await (0, meta_whatsapp_service_1.getAccountByClinicId)(clinicId);
+        const clinicId = req.clinicId;
+        const conn = await whatsapp_connection_1.getConnectionByClinicId(clinicId);
 
-        if (!account) {
+        if (!conn) {
             res.status(404).json({
                 ok: false,
-                error: "No active WhatsApp connection found. Connect WhatsApp first.",
+                error: "No active WhatsApp connection. Connect WhatsApp from the WhatsApp Command Center.",
             });
             return;
         }
 
-        if (!account.wabaId) {
+        if (!conn.wabaId) {
             res.status(400).json({
                 ok: false,
-                error: "WABA ID missing — disconnect and reconnect WhatsApp to fix this.",
+                error: "WABA ID missing. Disconnect and reconnect WhatsApp to fix this.",
             });
             return;
         }
 
-        // Check current subscription status
-        const status = await (0, meta_whatsapp_service_1.getWabaSubscriptionStatus)(
-            account.wabaId,
-            account.accessToken
-        );
+        const status = await whatsapp_manual_1.checkWabaWebhookStatus(conn.wabaId, conn.accessToken);
 
         if (status.subscribed) {
+            await whatsapp_connection_1.updateWebhookStatus(clinicId, "subscribed");
             res.json({
                 ok: true,
                 subscribed: true,
                 message: "WABA is subscribed. Inbound messages will be delivered.",
-                wabaId: account.wabaId,
+                wabaId: conn.wabaId,
+                phoneNumber: conn.phoneNumber,
             });
             return;
         }
 
-        // Not subscribed — attempt to fix it automatically
-        const { resubscribe } = req.body || {};
-        if (resubscribe !== false) {
-            const sub = await (0, meta_whatsapp_service_1.subscribeWabaToApp)(
-                account.wabaId,
-                account.accessToken
-            );
+        // Not subscribed — auto-repair on POST
+        if (req.method === "POST") {
+            const sub = await whatsapp_manual_1.subscribeWabaWebhook(conn.wabaId, conn.accessToken);
             if (sub.success) {
+                await whatsapp_connection_1.updateWebhookStatus(clinicId, "subscribed");
                 res.json({
                     ok: true,
                     subscribed: true,
-                    message: "WABA was not subscribed — successfully re-subscribed. Inbound messages will now be delivered.",
-                    wabaId: account.wabaId,
+                    message: "WABA was not subscribed — re-subscribed successfully. Inbound messages will now be delivered.",
+                    wabaId: conn.wabaId,
+                    phoneNumber: conn.phoneNumber,
                 });
                 return;
             }
+            await whatsapp_connection_1.updateWebhookStatus(clinicId, "failed");
             res.status(502).json({
                 ok: false,
                 subscribed: false,
-                error:
-                    `WABA subscription failed: ${sub.error}. ` +
-                    "Disconnect and reconnect WhatsApp, or contact support.",
-                wabaId: account.wabaId,
+                error: `Re-subscription failed: ${sub.error}. Disconnect and reconnect WhatsApp, or contact support.`,
+                wabaId: conn.wabaId,
             });
             return;
         }
 
+        // GET — report only
+        await whatsapp_connection_1.updateWebhookStatus(clinicId, "not_subscribed");
         res.json({
             ok: false,
             subscribed: false,
             message:
-                "WABA is not subscribed to this app. Inbound messages will NOT be delivered. " +
-                "Call this endpoint with POST body { resubscribe: true } to fix it.",
-            wabaId: account.wabaId,
+                "WABA is NOT subscribed. Inbound messages will not be delivered. " +
+                "POST this endpoint to auto-fix.",
+            wabaId: conn.wabaId,
+            phoneNumber: conn.phoneNumber,
         });
     } catch (err) {
         logger_1.logger.error("verifyWaba", { err });
         res.status(500).json({ error: "Failed to verify WABA subscription" });
     }
 }
-
-// ── POST /api/whatsapp/test-connect ──────────────────────────────────────────
-//
-// Development / testing helper — bypasses Meta OAuth entirely.
-// Saves a WhatsApp account directly using a pre-obtained access token.
-//
-// ONLY available when NODE_ENV !== 'production' OR when the request includes
-// the correct X-Test-Key header matching TEST_CONNECT_KEY in .env.
-//
-// How to use (get values from Meta App → WhatsApp → API Setup):
-//   curl -X POST https://your-site.com/api/whatsapp/test-connect \
-//     -H "Authorization: Bearer <doctor_jwt>" \
-//     -H "X-Test-Key: <TEST_CONNECT_KEY from .env>" \
-//     -H "Content-Type: application/json" \
-//     -d '{
-//       "access_token":        "<24h token from Meta API Setup page>",
-//       "waba_id":             "<WABA ID from Meta API Setup page>",
-//       "phone_number_id":     "<Phone Number ID from Meta API Setup page>",
-//       "display_phone_number":"<e.g. +15550000000>"
-//     }'
-//
-async function testConnect(req, res) {
-    // Guard: must be dev env OR caller must supply the test key
-    const isDev = process.env.NODE_ENV !== "production";
-    const testKey = process.env.TEST_CONNECT_KEY || "";
-    const suppliedKey = req.headers["x-test-key"] || "";
-
-    if (!isDev && (!testKey || suppliedKey !== testKey)) {
-        res.status(403).json({
-            error: "test-connect is disabled in production. Set TEST_CONNECT_KEY in .env and pass it as X-Test-Key header.",
-        });
-        return;
-    }
-
-    try {
-        const clinicId = req.clinicId || req.user?.clinicId;
-        const { access_token, waba_id, phone_number_id, display_phone_number } = req.body || {};
-
-        if (!access_token || !waba_id || !phone_number_id) {
-            res.status(400).json({
-                error: "Required: access_token, waba_id, phone_number_id",
-                hint: "Get these from Meta App Dashboard → WhatsApp → API Setup",
-            });
-            return;
-        }
-
-        logger_1.logger.info("testConnect: saving account directly (no OAuth)", {
-            clinicId,
-            waba_id,
-            phone_number_id,
-            display_phone_number: display_phone_number || "(not provided)",
-        });
-
-        await (0, meta_whatsapp_service_1.saveClinicWhatsAppAccount)(clinicId, {
-            wabaId: String(waba_id),
-            phoneNumberId: String(phone_number_id),
-            displayPhoneNumber: display_phone_number ? String(display_phone_number) : null,
-            accessToken: String(access_token),
-        });
-
-        // Also attempt WABA subscription
-        const sub = await (0, meta_whatsapp_service_1.subscribeWabaToApp)(
-            String(waba_id),
-            String(access_token)
-        );
-
-        res.json({
-            success: true,
-            message: "WhatsApp account saved directly (test-connect — no OAuth).",
-            wabaSubscription: sub.success ? "subscribed" : `failed: ${sub.error}`,
-            phoneNumberId: phone_number_id,
-            wabaId: waba_id,
-        });
-    } catch (err) {
-        logger_1.logger.error("testConnect", { err });
-        res.status(500).json({
-            error: err instanceof Error ? err.message : "test-connect failed",
-        });
-    }
-}
-exports.testConnect = testConnect;
-
-// ── POST /api/whatsapp/test-inbound ──────────────────────────────────────────
-//
-// Simulates an inbound WhatsApp message for a connected clinic.
-// Runs the full AI pipeline (intent detection, booking, etc.) without a
-// real Meta webhook — useful for testing AI replies and appointment flow.
-//
-// Requires the clinic to already have a connected WhatsApp account.
-//
-//   curl -X POST https://your-site.com/api/whatsapp/test-inbound \
-//     -H "Authorization: Bearer <doctor_jwt>" \
-//     -H "X-Test-Key: <TEST_CONNECT_KEY>" \
-//     -H "Content-Type: application/json" \
-//     -d '{
-//       "from": "+923001234567",
-//       "message": "I want to book an appointment for next Monday"
-//     }'
-//
-async function testInbound(req, res) {
-    const isDev = process.env.NODE_ENV !== "production";
-    const testKey = process.env.TEST_CONNECT_KEY || "";
-    const suppliedKey = req.headers["x-test-key"] || "";
-
-    if (!isDev && (!testKey || suppliedKey !== testKey)) {
-        res.status(403).json({ error: "test-inbound requires X-Test-Key header in production." });
-        return;
-    }
-
-    try {
-        const clinicId = req.clinicId || req.user?.clinicId;
-        const { from, message } = req.body || {};
-
-        if (!from || !message) {
-            res.status(400).json({ error: "Required: from (phone number), message (text)" });
-            return;
-        }
-
-        const account = await (0, meta_whatsapp_service_1.getAccountByClinicId)(clinicId);
-        if (!account) {
-            res.status(404).json({
-                error: "No connected WhatsApp account. Use /test-connect first.",
-            });
-            return;
-        }
-
-        const clinic = await prisma_1.prisma.clinic.findUnique({
-            where: { id: clinicId },
-            select: {
-                id: true, name: true, specialty: true, workingHours: true,
-                address: true, phone: true, treatments: true, aiEnabled: true,
-                aiLanguage: true, aiPersonality: true, autoConfirm: true,
-                planStatus: true, customIntroMsg: true, defaultFee: true,
-            },
-        });
-
-        if (!clinic) {
-            res.status(404).json({ error: "Clinic not found." });
-            return;
-        }
-
-        // Capture the reply sent by the AI
-        const replies = [];
-        const sendReply = async (to, text, channel) => {
-            replies.push({ to, text, channel });
-            logger_1.logger.info(`testInbound reply: [${channel}] to=${to} body=${text.slice(0, 80)}`);
-        };
-
-        const fromPhone = String(from).replace(/\D/g, "");
-        const toPhone = (account.displayPhoneNumber || clinic.phone || "").replace(/\D/g, "");
-
-        const { processInboundPatientMessage } = require("../services/inbound-message.service");
-        await processInboundPatientMessage({
-            clinic,
-            fromPhone: fromPhone.startsWith("+") ? fromPhone : `+${fromPhone}`,
-            toPhone: toPhone.startsWith("+") ? toPhone : `+${toPhone}`,
-            body: String(message),
-            channel: "WHATSAPP",
-            externalMessageId: `test-${Date.now()}`,
-            sendReply,
-        });
-
-        res.json({
-            success: true,
-            message: "Inbound message processed through AI pipeline.",
-            from: from,
-            input: message,
-            replies,
-        });
-    } catch (err) {
-        logger_1.logger.error("testInbound", { err });
-        res.status(500).json({
-            error: err instanceof Error ? err.message : "test-inbound failed",
-        });
-    }
-}
-exports.testInbound = testInbound;

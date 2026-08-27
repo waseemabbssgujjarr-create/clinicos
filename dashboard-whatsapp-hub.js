@@ -1,27 +1,39 @@
 /**
  * Doctors My Agency — WhatsApp Command Center
  *
- * Handles:
- *  - Sidebar "WhatsApp" link injection on all /dashboard/* pages
- *  - Settings page teaser (links to /dashboard/whatsapp/)
- *  - Full hub UI on /dashboard/whatsapp/
+ * Runs on all /dashboard/* pages.
+ * Full hub UI is rendered on /dashboard/whatsapp/.
+ * A compact teaser is injected on /dashboard/settings/.
  *
- * Connection methods:
- *  - Manual Meta Connection — ALWAYS available, primary method
- *  - Embedded Signup — shown only when API returns enabled:true
- *    (controlled by WHATSAPP_EMBEDDED_SIGNUP_ENABLED on the server)
+ * CONNECTION METHOD
+ *   Meta Embedded Signup is the ONLY customer-facing WhatsApp connection flow.
+ *   There is no manual WABA ID / token / form in this file.
  *
- * No IQPigeon dependency. No external platform dependency.
- * All API calls go to /api/whatsapp/* on this same domain.
+ * FEATURE FLAG
+ *   The server controls whether the Connect button is shown via:
+ *   GET /api/whatsapp/connections/config → { enabled: true/false, appId, configId }
+ *
+ *   enabled: true  → Connect button is rendered, FB SDK loaded on click, flow runs.
+ *   enabled: false → No button. No SDK. No dialog. Clear unavailable message.
+ *
+ * FB SDK / FACEBOOK LOGIN SAFETY
+ *   - postMessage listener is registered only inside runEmbeddedConnect(),
+ *     only when config.enabled === true, only when the button is clicked.
+ *   - FB SDK script is injected only at that moment.
+ *   - Listener is deregistered after success, failure, or cancellation.
+ *   - Hard guard at top of runEmbeddedConnect rejects any call when disabled.
+ *   - META_APP_ID and META_CONFIG_ID are never exposed to the browser from
+ *     this file — they come from /api/whatsapp/connections/config.
+ *   - META_APP_SECRET is never in the browser.
  */
 (function () {
   if (!/^\/dashboard(\/|$)/.test(location.pathname)) return;
 
-  var isWhatsAppPage  = /^\/dashboard\/whatsapp\/?$/.test(location.pathname);
-  var isSettingsPage  = /^\/dashboard\/settings\/?$/.test(location.pathname);
-  var ROOT_ID         = 'dma-wa-command-center';
+  var isWhatsAppPage = /^\/dashboard\/whatsapp\/?$/.test(location.pathname);
+  var isSettingsPage = /^\/dashboard\/settings\/?$/.test(location.pathname);
+  var ROOT_ID = 'dma-wa-command-center';
 
-  // ── Helpers ─────────────────────────────────────────────────────────────────
+  // ── Helpers ──────────────────────────────────────────────────────────────────
 
   function authHeaders() {
     var token = localStorage.getItem('token');
@@ -48,22 +60,21 @@
       headers: authHeaders(),
       credentials: 'include',
       body: JSON.stringify(body || {}),
-    }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); });
+    }).then(function (r) {
+      return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+    });
   }
 
-  // ── Shared FB SDK loader ─────────────────────────────────────────────────
-  // Only called from runEmbeddedConnect, which is only called when
-  // config.enabled === true (server returned enabled:true with appId+configId).
-  // Never called when WHATSAPP_EMBEDDED_SIGNUP_ENABLED=false.
+  // ── FB SDK loader ─────────────────────────────────────────────────────────────
+  // Only ever called from runEmbeddedConnect(), which is only called when
+  // config.enabled === true. Never runs when the feature flag is false.
 
   function loadFbSdk(appId, cb) {
     if (window.FB && window.__fbWaReady) { cb(); return; }
     if (window.__fbSdkLoader) {
-      if (typeof window.__fbSdkLoader.push === 'function') {
-        window.__fbSdkLoader.push(cb);
-      } else {
-        cb();
-      }
+      typeof window.__fbSdkLoader.push === 'function'
+        ? window.__fbSdkLoader.push(cb)
+        : cb();
       return;
     }
     window.__fbSdkLoader = [cb];
@@ -85,66 +96,8 @@
     }
   }
 
-  // ── Embedded Signup flow ──────────────────────────────────────────────────
-  // runEmbeddedConnect is only called when the server returns config.enabled===true.
-  // The postMessage listener for WA_EMBEDDED_SIGNUP is registered here, inside
-  // this function, so it is never active when Embedded Signup is disabled.
-
-  // ── Manual Connection flow ───────────────────────────────────────────────────
-
-  function runManualConnect(btnEl, errEl, stepsEl, onSuccess) {
-    var wabaId     = (document.getElementById('dma-wa-waba-id')      || {}).value || '';
-    var phoneId    = (document.getElementById('dma-wa-phone-id')     || {}).value || '';
-    var token      = (document.getElementById('dma-wa-token')        || {}).value || '';
-    var portfolioId = (document.getElementById('dma-wa-portfolio-id') || {}).value || '';
-
-    if (!wabaId.trim() || !phoneId.trim() || !token.trim()) {
-      if (errEl) { errEl.textContent = 'WABA ID, Phone Number ID, and Access Token are required.'; errEl.style.display = 'block'; }
-      return;
-    }
-
-    if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Validating…'; }
-    if (errEl) { errEl.style.display = 'none'; }
-    if (stepsEl) { stepsEl.innerHTML = '<p class="dma-wa-muted">Running validation…</p>'; }
-
-    apiPost('/api/whatsapp/connections/manual', {
-      access_token: token.trim(),
-      waba_id: wabaId.trim(),
-      phone_number_id: phoneId.trim(),
-      business_portfolio_id: portfolioId.trim(),
-    }).then(function (res) {
-      if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Validate & Connect'; }
-
-      // Render step-by-step progress
-      if (stepsEl && res.d && res.d.steps) {
-        stepsEl.innerHTML = res.d.steps.map(function (s) {
-          var icon = s.status === 'pass' ? '✓' : s.status === 'warn' ? '⚠' : '✗';
-          var cls  = s.status === 'pass' ? 'dma-step-pass' : s.status === 'warn' ? 'dma-step-warn' : 'dma-step-fail';
-          return '<div class="dma-step-row ' + cls + '">' +
-            '<span class="dma-step-icon">' + icon + '</span>' +
-            '<div><strong>Step ' + s.step + ': ' + esc(s.label) + '</strong>' +
-            (s.detail ? '<br><span class="dma-step-detail">' + esc(s.detail) + '</span>' : '') +
-            '</div></div>';
-        }).join('');
-      }
-
-      if (!res.ok) {
-        if (errEl) {
-          errEl.textContent = res.d.error || 'Validation failed — check the step details above.';
-          errEl.style.display = 'block';
-        }
-        return;
-      }
-
-      if (onSuccess) onSuccess(res.d);
-      else location.reload();
-    }).catch(function () {
-      if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Validate & Connect'; }
-      if (errEl) { errEl.textContent = 'Network error — check your connection and try again.'; errEl.style.display = 'block'; }
-    });
-  }
-
-  // ── Embedded Signup flow (only runs when config.enabled === true) ────────────
+  // ── Embedded Signup flow ──────────────────────────────────────────────────────
+  // waitForSessionInfo polls for the WA_EMBEDDED_SIGNUP postMessage.
 
   function waitForSessionInfo(cb) {
     if (window.__waSessionInfo) { cb(window.__waSessionInfo); return; }
@@ -159,33 +112,43 @@
   }
 
   function runEmbeddedConnect(config, btnEl, errEl, onSuccess) {
-    // ── Hard guard — must never run if server says disabled ────────────────
-    // This is a defence-in-depth check. The button is only rendered when
-    // config.enabled===true, so reaching here with enabled:false would mean
-    // the button was injected by something outside this file.
+    // ── Hard guard ────────────────────────────────────────────────────────────
+    // If the server says disabled, this function must never proceed further.
+    // The button is only rendered when config.enabled === true, but this
+    // guard provides a second layer of protection.
     if (!config || config.enabled !== true) {
       if (errEl) {
-        errEl.textContent =
-          'Meta Embedded Signup is currently disabled. Use Manual Meta Connection instead.';
+        errEl.textContent = 'WhatsApp connection is currently unavailable. Please try again later.';
         errEl.style.display = 'block';
       }
       return;
     }
 
-    // Register the postMessage listener now — only when actually launching.
-    // This prevents the listener from running on every /dashboard/* page load
-    // when Embedded Signup is disabled.
+    // ── Register postMessage listener ──────────────────────────────────────────
+    // Registered only at the moment the user clicks Connect — never at page load.
+    // Deregistered after success, failure, or cancellation via the cleanup flag.
+    var listenerRef = null;
     if (!window.__waSessionInfoListenerAdded) {
       window.__waSessionInfoListenerAdded = true;
-      window.addEventListener('message', function (ev) {
+      listenerRef = function (ev) {
         if (!ev.data || typeof ev.data !== 'object') return;
         var d = ev.data;
         if (d.type === 'WA_EMBEDDED_SIGNUP') { window.__waSessionInfo = d.data || d; }
         else if (d.event === 'FINISH')        { window.__waSessionInfo = d.data || d; }
         else if (d.waba_id || d.wabaId)       { window.__waSessionInfo = d; }
-      });
+      };
+      window.addEventListener('message', listenerRef);
     }
 
+    function cleanup() {
+      if (listenerRef) {
+        window.removeEventListener('message', listenerRef);
+        listenerRef = null;
+        window.__waSessionInfoListenerAdded = false;
+      }
+    }
+
+    // ── Launch ─────────────────────────────────────────────────────────────────
     window.__waSessionInfo = null;
     if (btnEl) { btnEl.disabled = true; btnEl.dataset.origText = btnEl.textContent; btnEl.textContent = 'Connecting…'; }
     if (errEl) errEl.style.display = 'none';
@@ -193,42 +156,50 @@
     loadFbSdk(config.appId, function () {
       FB.login(function (response) {
         if (!response.authResponse || !response.authResponse.code) {
-          if (errEl) { errEl.textContent = 'Meta signup cancelled. Try again.'; errEl.style.display = 'block'; }
-          if (btnEl) { btnEl.disabled = false; btnEl.textContent = btnEl.dataset.origText || 'Connect via Meta'; }
+          cleanup();
+          if (errEl) { errEl.textContent = 'Meta signup cancelled. Please try again.'; errEl.style.display = 'block'; }
+          if (btnEl) { btnEl.disabled = false; btnEl.textContent = btnEl.dataset.origText || 'Connect WhatsApp with Meta'; }
           return;
         }
+
         var code = response.authResponse.code;
         waitForSessionInfo(function (si) {
+          cleanup();
           si = si || {};
+
           apiPost('/api/whatsapp/connections/embedded', {
-            code: code,
-            waba_id: si.waba_id || si.wabaId || '',
-            phone_number_id: si.phone_number_id || si.phoneNumberId || '',
+            code:                 code,
+            waba_id:              si.waba_id              || si.wabaId              || '',
+            phone_number_id:      si.phone_number_id      || si.phoneNumberId      || '',
             display_phone_number: si.display_phone_number || si.displayPhoneNumber || '',
           }).then(function (res) {
-            if (btnEl) { btnEl.disabled = false; btnEl.textContent = btnEl.dataset.origText || 'Connect via Meta'; }
+            if (btnEl) { btnEl.disabled = false; btnEl.textContent = btnEl.dataset.origText || 'Connect WhatsApp with Meta'; }
             if (!res.ok) {
-              if (errEl) { errEl.textContent = res.d.error || 'Connection failed'; errEl.style.display = 'block'; }
+              if (errEl) { errEl.textContent = res.d.error || 'Connection failed. Please try again.'; errEl.style.display = 'block'; }
               return;
             }
             if (onSuccess) onSuccess(res.d);
             else location.reload();
           }).catch(function () {
-            if (btnEl) { btnEl.disabled = false; btnEl.textContent = btnEl.dataset.origText || 'Connect via Meta'; }
-            if (errEl) { errEl.textContent = 'Network error. Try again.'; errEl.style.display = 'block'; }
+            if (btnEl) { btnEl.disabled = false; btnEl.textContent = btnEl.dataset.origText || 'Connect WhatsApp with Meta'; }
+            if (errEl) { errEl.textContent = 'Network error. Check your connection and try again.'; errEl.style.display = 'block'; }
           });
         });
       }, {
-        config_id: config.configId,
-        response_type: 'code',
-        override_default_response_type: true,
-        scope: 'whatsapp_business_messaging,whatsapp_business_management,business_management',
-        extras: config.extras || { version: 'v4', sessionInfoVersion: '3', featureType: 'whatsapp_business_app_onboarding' },
+        config_id:                       config.configId,
+        response_type:                   'code',
+        override_default_response_type:  true,
+        scope:                           'whatsapp_business_messaging,whatsapp_business_management,business_management',
+        extras:                          config.extras || {
+          version:            'v4',
+          sessionInfoVersion: '3',
+          featureType:        'whatsapp_business_app_onboarding',
+        },
       });
     });
   }
 
-  // ── UI components ─────────────────────────────────────────────────────────────
+  // ── UI helpers ────────────────────────────────────────────────────────────────
 
   function statCard(label, value, sub) {
     return '<div class="dma-wa-stat">' +
@@ -238,57 +209,66 @@
       '</div>';
   }
 
+  // ── Connection panel: connected state ─────────────────────────────────────────
+
   function renderConnectedPanel(data) {
-    return '<p>Number <strong>' + esc(data.phoneNumber || data.displayName || 'WhatsApp Business') + '</strong> is live.' +
-      (data.connectionMethod === 'MANUAL' ? ' <span style="font-size:.75rem;color:#64748b">(Manual connection)</span>' : '') + '</p>' +
-      '<p class="dma-wa-muted">Webhook: ' + (data.webhookStatus === 'subscribed'
-        ? '<span style="color:#15803d">✓ subscribed</span>'
-        : '<span style="color:#b45309">⚠ ' + esc(data.webhookStatus || 'unknown') + '</span>') + '</p>' +
-      '<div class="dma-wa-actions" style="display:flex;gap:8px;flex-wrap:wrap">' +
-        '<button type="button" class="dma-wa-btn dma-wa-btn--ghost" id="dma-wa-disconnect">Disconnect</button>' +
+    var phoneDisplay = esc(data.phoneNumber || data.displayName || 'WhatsApp Business');
+    var webhookBadge = data.webhookStatus === 'subscribed'
+      ? '<span style="color:#15803d">✓ subscribed</span>'
+      : '<span style="color:#b45309">⚠ ' + esc(data.webhookStatus || 'unknown') + '</span>';
+
+    return '' +
+      '<div class="dma-wa-connected-info">' +
+        '<div class="dma-wa-phone-badge">' +
+          '<span class="dma-wa-phone-icon">📱</span>' +
+          '<div>' +
+            '<p class="dma-wa-phone-number">' + phoneDisplay + '</p>' +
+            '<p class="dma-wa-phone-meta">Connected through Meta · Webhook: ' + webhookBadge + '</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="dma-wa-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">' +
+        '<a href="/dashboard/messages/" class="dma-wa-btn dma-wa-btn--primary">Open WhatsApp Inbox</a>' +
         '<button type="button" class="dma-wa-btn dma-wa-btn--ghost" id="dma-wa-verify-waba">Check Webhook</button>' +
+        '<button type="button" class="dma-wa-btn dma-wa-btn--ghost" id="dma-wa-disconnect">Disconnect</button>' +
       '</div>' +
       '<div id="dma-wa-webhook-result" style="margin-top:10px;font-size:.8rem"></div>';
   }
 
-  function renderManualConnectPanel(config) {
-    return '<p>Enter your Meta credentials from <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener" style="color:#ea580c">Meta App Dashboard</a> → WhatsApp → API Setup.</p>' +
-      '<div class="dma-wa-form">' +
-        '<div class="dma-wa-field">' +
-          '<label>WABA ID <span style="color:#ef4444">*</span></label>' +
-          '<input type="text" id="dma-wa-waba-id" placeholder="Numeric WABA ID (e.g. 12345678901234)" autocomplete="off" />' +
-        '</div>' +
-        '<div class="dma-wa-field">' +
-          '<label>Phone Number ID <span style="color:#ef4444">*</span></label>' +
-          '<input type="text" id="dma-wa-phone-id" placeholder="Phone Number ID from API Setup page" autocomplete="off" />' +
-        '</div>' +
-        '<div class="dma-wa-field">' +
-          '<label>System User Access Token <span style="color:#ef4444">*</span></label>' +
-          '<input type="password" id="dma-wa-token" placeholder="System User permanent access token" autocomplete="off" />' +
-        '</div>' +
-        '<div class="dma-wa-field">' +
-          '<label>Business Portfolio ID <span style="color:#64748b;font-size:.75rem">(optional)</span></label>' +
-          '<input type="text" id="dma-wa-portfolio-id" placeholder="Meta Business Portfolio ID" autocomplete="off" />' +
-        '</div>' +
-      '</div>' +
+  // ── Connection panel: not-connected state ─────────────────────────────────────
+  // Only shows Embedded Signup button. No manual form. No token fields.
+
+  function renderConnectPanel(config) {
+    // Feature flag disabled
+    if (!config || config.enabled !== true) {
+      return '' +
+        '<div class="dma-wa-unavailable">' +
+          '<p style="color:#64748b;font-size:.9rem;margin:0 0 6px">WhatsApp connection is currently unavailable.</p>' +
+          '<p style="color:#94a3b8;font-size:.8rem;margin:0">Please contact your administrator.</p>' +
+        '</div>';
+    }
+
+    // Feature flag enabled — show Embedded Signup button
+    return '' +
+      '<p style="color:#475569;font-size:.9rem;margin:0 0 16px;line-height:1.6">' +
+        'Connect your clinic\'s WhatsApp Business account securely through Meta.' +
+      '</p>' +
       '<p id="dma-wa-error" class="dma-wa-error" style="display:none"></p>' +
-      '<div id="dma-wa-steps" class="dma-wa-steps-list"></div>' +
-      '<div class="dma-wa-actions" style="margin-top:14px">' +
-        '<button type="button" class="dma-wa-btn dma-wa-btn--primary" id="dma-wa-connect-manual">Validate &amp; Connect</button>' +
-        (config && config.enabled
-          ? '<button type="button" class="dma-wa-btn dma-wa-btn--ghost" id="dma-wa-connect-embedded" style="margin-left:8px">Connect via Meta Signup</button>'
-          : '') +
-      '</div>' +
-      '<p class="dma-wa-muted" style="margin-top:12px;font-size:.75rem">' +
-        'Need help? <a href="/dashboard/whatsapp/manual-connect.html" style="color:#ea580c">Step-by-step guide ↗</a>' +
-      '</p>';
+      '<div class="dma-wa-actions">' +
+        '<button type="button" class="dma-wa-btn dma-wa-btn--primary dma-wa-btn--whatsapp" id="dma-wa-connect-embedded">' +
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>' +
+          '&nbsp;Connect WhatsApp with Meta' +
+        '</button>' +
+      '</div>';
   }
+
+  // ── WABA webhook health panel ─────────────────────────────────────────────────
 
   function renderWabaHealthPanel(container) {
     if (!container) return;
     container.innerHTML =
       '<h2>Webhook health</h2>' +
-      '<p class="dma-wa-muted">Verifies your WABA is subscribed to receive inbound messages.</p>' +
+      '<p class="dma-wa-muted">Verifies inbound messages are being delivered to this clinic.</p>' +
       '<div id="dma-wa-waba-check-result"></div>' +
       '<div class="dma-wa-actions" style="margin-top:10px">' +
         '<button type="button" class="dma-wa-btn dma-wa-btn--ghost" id="dma-wa-waba-check-btn">Check subscription</button>' +
@@ -296,24 +276,22 @@
         '<button type="button" class="dma-wa-btn dma-wa-btn--primary" id="dma-wa-waba-fix-btn" style="display:none">Re-subscribe</button>' +
       '</div>';
 
-    var resultEl  = container.querySelector('#dma-wa-waba-check-result');
-    var checkBtn  = container.querySelector('#dma-wa-waba-check-btn');
-    var fixBtn    = container.querySelector('#dma-wa-waba-fix-btn');
+    var resultEl = container.querySelector('#dma-wa-waba-check-result');
+    var checkBtn = container.querySelector('#dma-wa-waba-check-btn');
+    var fixBtn   = container.querySelector('#dma-wa-waba-fix-btn');
 
     function runCheck(resubscribe) {
       checkBtn.disabled = fixBtn.disabled = true;
       resultEl.innerHTML = '<p class="dma-wa-muted">Checking…</p>';
-      var req = resubscribe
-        ? apiPost('/api/whatsapp/verify-waba', {})
-        : apiGet('/api/whatsapp/verify-waba');
+      var req = resubscribe ? apiPost('/api/whatsapp/verify-waba', {}) : apiGet('/api/whatsapp/verify-waba');
       req.then(function (d) {
         checkBtn.disabled = fixBtn.disabled = false;
         var data = resubscribe ? d.d : d;
         if (data.subscribed) {
-          resultEl.innerHTML = '<p style="color:#15803d;font-weight:600">✓ Subscribed — inbound messages will be delivered.</p>';
+          resultEl.innerHTML = '<p style="color:#15803d;font-weight:600">✓ Subscribed — inbound messages active.</p>';
           fixBtn.style.display = 'none';
         } else {
-          resultEl.innerHTML = '<p style="color:#b91c1c;font-weight:600">✗ Not subscribed — inbound messages will NOT arrive.</p>' +
+          resultEl.innerHTML = '<p style="color:#b91c1c;font-weight:600">✗ Not subscribed — inbound messages will not arrive.</p>' +
             (data.error ? '<p class="dma-wa-muted">' + esc(data.error) + '</p>' : '');
           fixBtn.style.display = '';
         }
@@ -324,7 +302,7 @@
     }
 
     checkBtn.onclick = function () { runCheck(false); };
-    fixBtn.onclick   = function () { runCheck(true); };
+    fixBtn.onclick   = function () { runCheck(true);  };
   }
 
   // ── Full hub renderer ─────────────────────────────────────────────────────────
@@ -350,13 +328,12 @@
         '<td>' +
           (m.isHandledByAI ? '<span class="dma-wa-pill dma-wa-pill--ai">AI</span>' : '') +
           (m.needsReview   ? ' <span class="dma-wa-pill dma-wa-pill--warn">Review</span>' : '') +
-        '</td></tr>';
+        '</td>' +
+      '</tr>';
     }).join('');
 
-    // Connection panel — manual form or connected status
-    var connectionContent = connected
-      ? renderConnectedPanel(data)
-      : renderManualConnectPanel(config);
+    var connPanelTitle = connected ? 'WhatsApp Connected' : 'Connect WhatsApp';
+    var connPanelContent = connected ? renderConnectedPanel(data) : renderConnectPanel(config);
 
     host.innerHTML =
       // Hero
@@ -368,36 +345,40 @@
         '</div>' +
         '<div class="dma-wa-hero__status ' + (connected ? 'is-connected' : 'is-off') + '">' +
           '<span class="dma-wa-hero__dot"></span>' +
-          (connected ? 'Connected · ' + esc(data.phoneNumber || data.displayName || 'WhatsApp') : 'Not connected') +
+          (connected
+            ? esc(data.phoneNumber || data.displayName || 'WhatsApp') + ' · Connected'
+            : 'Not connected') +
         '</div>' +
       '</div>' +
 
-      // Stats
-      '<div class="dma-wa-stats">' +
-        statCard('Messages today',  s.inboundToday       || 0, 'inbound') +
-        statCard('AI handled',      s.aiHandledToday     || 0, 'auto-replies') +
-        statCard('Needs you',       s.needsReview        || 0, 'escalations') +
-        statCard('Booked today',    s.appointmentsBooked || 0, 'via WhatsApp') +
-        statCard('Hot leads',       s.leadsHot           || 0, 'pipeline') +
-      '</div>' +
+      // Stats (only meaningful when connected)
+      (connected
+        ? '<div class="dma-wa-stats">' +
+            statCard('Messages today',  s.inboundToday        || 0, 'inbound') +
+            statCard('AI handled',      s.aiHandledToday      || 0, 'auto-replies') +
+            statCard('Needs you',       s.needsReview         || 0, 'escalations') +
+            statCard('Booked today',    s.appointmentsBooked  || 0, 'via WhatsApp') +
+            statCard('Hot leads',       s.leadsHot            || 0, 'pipeline') +
+          '</div>'
+        : '') +
 
       // Grid
       '<div class="dma-wa-grid">' +
 
         // Connection panel
         '<section class="dma-wa-panel" id="dma-wa-conn-panel">' +
-          '<h2>' + (connected ? 'Connection' : 'Connect WhatsApp — Manual Meta Connection') + '</h2>' +
-          connectionContent +
+          '<h2>' + esc(connPanelTitle) + '</h2>' +
+          connPanelContent +
         '</section>' +
 
         // Capabilities
         '<section class="dma-wa-panel">' +
-          '<h2>What your agent does 24/7</h2>' +
+          '<h2>What your AI receptionist does 24/7</h2>' +
           '<ul class="dma-wa-caps">' + caps + '</ul>' +
           '<p class="dma-wa-muted">Configure in <a href="/dashboard/settings/">Settings</a> — treatments, hours, intro message.</p>' +
         '</section>' +
 
-        // Webhook health (only when connected)
+        // Webhook health — only when connected
         (connected ? '<section class="dma-wa-panel" id="dma-wa-health-panel"></section>' : '') +
 
         // Quick actions
@@ -408,7 +389,6 @@
             '<a href="/dashboard/appointments/" class="dma-wa-quick__item"><strong>Appointments</strong><span>AI-booked slots</span></a>' +
             '<a href="/dashboard/ai/"           class="dma-wa-quick__item"><strong>AI settings</strong><span>Personality &amp; language</span></a>' +
             '<a href="/dashboard/settings/"     class="dma-wa-quick__item"><strong>Clinic profile</strong><span>Treatments &amp; hours</span></a>' +
-            '<a href="/dashboard/whatsapp/manual-connect.html" class="dma-wa-quick__item dma-wa-quick__item--adv"><strong>Connection guide</strong><span>Step-by-step setup</span></a>' +
           '</div>' +
         '</section>' +
 
@@ -417,17 +397,17 @@
           '<h2>Recent WhatsApp activity</h2>' +
           (logRows
             ? '<table class="dma-wa-log"><thead><tr><th></th><th>Contact</th><th>Message</th><th></th></tr></thead><tbody>' + logRows + '</tbody></table>'
-            : '<p class="dma-wa-muted">No messages yet. Connect WhatsApp and send a test message.</p>') +
+            : '<p class="dma-wa-muted">No messages yet — connect WhatsApp and send a test message from your phone.</p>') +
         '</section>' +
 
-      '</div>'; // end grid
+      '</div>';
 
-    // Wire up webhook health panel
+    // Wire: webhook health panel
     if (connected) {
       renderWabaHealthPanel(document.getElementById('dma-wa-health-panel'));
     }
 
-    // Disconnect button
+    // Wire: disconnect
     var discBtn = document.getElementById('dma-wa-disconnect');
     if (discBtn) {
       discBtn.onclick = function () {
@@ -439,7 +419,7 @@
       };
     }
 
-    // Inline verify-waba from connected panel
+    // Wire: inline webhook check
     var verifyBtn = document.getElementById('dma-wa-verify-waba');
     if (verifyBtn) {
       verifyBtn.onclick = function () {
@@ -455,54 +435,33 @@
       };
     }
 
-    // Manual connect form
-    var manualBtn = document.getElementById('dma-wa-connect-manual');
-    if (manualBtn) {
-      manualBtn.onclick = function () {
-        runManualConnect(
-          manualBtn,
-          document.getElementById('dma-wa-error'),
-          document.getElementById('dma-wa-steps'),
-          function () { boot(); }
-        );
-      };
-    }
-
-    // Embedded Signup button (only rendered when API says enabled:true)
-    var embeddedBtn = document.getElementById('dma-wa-connect-embedded');
-    if (embeddedBtn && config && config.enabled) {
-      embeddedBtn.onclick = function () {
-        runEmbeddedConnect(config, embeddedBtn, document.getElementById('dma-wa-error'), function () { boot(); });
+    // Wire: Embedded Signup connect button
+    var connectBtn = document.getElementById('dma-wa-connect-embedded');
+    if (connectBtn) {
+      connectBtn.onclick = function () {
+        runEmbeddedConnect(config, connectBtn, document.getElementById('dma-wa-error'), function () { boot(); });
       };
     }
   }
 
-  // ── CSS injection for form and step elements ──────────────────────────────────
+  // ── Extra CSS for connected-info layout ───────────────────────────────────────
 
-  function injectFormStyles() {
-    if (document.getElementById('dma-wa-form-styles')) return;
+  function injectStyles() {
+    if (document.getElementById('dma-wa-hub-styles')) return;
     var s = document.createElement('style');
-    s.id = 'dma-wa-form-styles';
+    s.id = 'dma-wa-hub-styles';
     s.textContent =
-      '.dma-wa-form{display:flex;flex-direction:column;gap:10px;margin:12px 0}' +
-      '.dma-wa-field{display:flex;flex-direction:column;gap:4px}' +
-      '.dma-wa-field label{font-size:.78rem;font-weight:600;color:#475569}' +
-      '.dma-wa-field input{padding:9px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#f8fafc;font-size:.85rem;font-family:Inter,sans-serif;outline:none;transition:border-color .15s}' +
-      '.dma-wa-field input:focus{border-color:#f97316}' +
-      '.dma-wa-steps-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}' +
-      '.dma-step-row{display:flex;gap:10px;align-items:flex-start;padding:7px 10px;border-radius:8px;font-size:.8rem;line-height:1.4}' +
-      '.dma-step-pass{background:#f0fdf4;border:1px solid #86efac}' +
-      '.dma-step-warn{background:#fffbeb;border:1px solid #fcd34d}' +
-      '.dma-step-fail{background:#fef2f2;border:1px solid #fca5a5}' +
-      '.dma-step-icon{font-weight:800;flex-shrink:0;margin-top:1px}' +
-      '.dma-step-pass .dma-step-icon{color:#15803d}' +
-      '.dma-step-warn .dma-step-icon{color:#92400e}' +
-      '.dma-step-fail .dma-step-icon{color:#b91c1c}' +
-      '.dma-step-detail{color:#64748b;font-size:.75rem}';
+      '.dma-wa-connected-info{margin-bottom:4px}' +
+      '.dma-wa-phone-badge{display:flex;align-items:center;gap:12px;background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:14px 16px}' +
+      '.dma-wa-phone-icon{font-size:1.5rem;flex-shrink:0}' +
+      '.dma-wa-phone-number{font-size:1.05rem;font-weight:700;color:#0f172a;margin:0 0 3px}' +
+      '.dma-wa-phone-meta{font-size:.75rem;color:#64748b;margin:0}' +
+      '.dma-wa-unavailable{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px;text-align:center}' +
+      '.dma-wa-btn--whatsapp{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#25d366,#128c7e)!important;font-size:.92rem!important}';
     document.head.appendChild(s);
   }
 
-  // ── Sidebar link ──────────────────────────────────────────────────────────────
+  // ── Sidebar link injection ────────────────────────────────────────────────────
 
   function injectSidebarLink() {
     var aside = document.querySelector('aside');
@@ -527,7 +486,7 @@
       var wrap = main.querySelector('div') || main;
       wrap.innerHTML = '<div id="' + ROOT_ID + '" class="dma-wa-root"><p class="dma-wa-muted">Loading WhatsApp…</p></div>';
       document.title = 'WhatsApp — Doctors My Agency';
-      injectFormStyles();
+      injectStyles();
       return;
     }
 
@@ -538,7 +497,7 @@
         t.id = 'dma-wa-settings-teaser';
         t.className = 'dma-wa-settings-teaser';
         t.innerHTML =
-          '<strong>WhatsApp Command Center</strong> — connect, stats &amp; activity at ' +
+          '<strong>WhatsApp Command Center</strong> — connect &amp; manage at ' +
           '<a href="/dashboard/whatsapp/">Dashboard → WhatsApp</a>';
         host.insertBefore(t, host.firstChild);
       }

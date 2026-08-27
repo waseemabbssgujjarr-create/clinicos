@@ -85,8 +85,7 @@
         '</div>' +
         '<div class="dma-whatsapp-body">' +
           '<p class="dma-whatsapp-hint">' +
-            'Use <strong>Manual Meta Connection</strong> to link your WhatsApp Business number. ' +
-            'You will need your WABA ID, Phone Number ID, and a System User access token from Meta.' +
+            'Connect your WhatsApp Business account securely through Meta Embedded Signup.' +
           '</p>' +
         '</div>' +
         '<div class="dma-whatsapp-actions">' +
