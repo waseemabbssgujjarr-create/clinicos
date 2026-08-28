@@ -35,7 +35,7 @@
     var root = page();
     var u = A().user();
     root.innerHTML =
-      '<div class="dma-head"><div><h1>' + greeting() + ', ' + esc(firstName()) + '</h1>' +
+      '<div class="dma-head dma-head-home"><div><h1>' + greeting() + ', ' + esc(firstName()) + '</h1>' +
       '<p>Your clinic today — appointments, leads, and WhatsApp in one place.</p></div>' +
       '<div class="dma-head-actions">' +
         '<a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">WhatsApp</a>' +
@@ -51,7 +51,7 @@
         '</div>' +
       '</div>' +
       '<section class="dma-panel" style="margin-top:16px"><div class="dma-panel-h"><h2>Quick actions</h2></div>' +
-        '<div class="dma-panel-b" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">' +
+        '<div class="dma-panel-b dma-qa-grid">' +
           '<a class="dma-btn dma-btn-ghost" href="/dashboard/patients/?action=new">Add patient</a>' +
           '<a class="dma-btn dma-btn-ghost" href="/dashboard/messages/">Open inbox</a>' +
           '<a class="dma-btn dma-btn-ghost" href="/dashboard/broadcasts/">Send broadcast</a>' +
@@ -128,7 +128,7 @@
   function appointments() {
     var root = page();
     root.innerHTML =
-      '<div class="dma-head"><div><h1>Appointments</h1><p>Schedule, confirm, and follow up from WhatsApp or the front desk.</p></div>' +
+      '<div class="dma-head dma-head-page"><div><h1>Appointments</h1><p>Schedule, confirm, and follow up from WhatsApp or the front desk.</p></div>' +
       '<div class="dma-head-actions"><button class="dma-btn dma-btn-primary" id="btn-book">New appointment</button></div></div>' +
       '<div class="dma-filters" id="appt-filters"></div>' +
       '<section class="dma-panel"><div class="dma-panel-b" id="appt-list">' + A().spinner() + '</div></section>';
@@ -281,7 +281,7 @@
   function patients() {
     var root = page();
     root.innerHTML =
-      '<div class="dma-head"><div><h1>Patients</h1><p>Charts, WhatsApp threads, and appointments for every patient.</p></div>' +
+      '<div class="dma-head dma-head-page"><div><h1>Patients</h1><p>Charts, WhatsApp threads, and appointments for every patient.</p></div>' +
       '<div class="dma-head-actions"><input class="dma-search" id="pt-search" placeholder="Search name or phone"><button class="dma-btn dma-btn-primary" id="pt-add">Add patient</button></div></div>' +
       '<section class="dma-panel"><div class="dma-table-wrap"><table class="dma-table"><thead><tr><th>Patient</th><th>Phone</th><th>Visits</th><th>Last visit</th><th></th></tr></thead><tbody id="pt-body"><tr><td colspan="5">' + A().spinner() + '</td></tr></tbody></table></div></section>';
 
@@ -373,7 +373,7 @@
   function messages() {
     var root = page();
     root.innerHTML =
-      '<div class="dma-head"><div><h1>Messages</h1><p>WhatsApp inbox — reply, escalate, or jump to the patient chart.</p></div>' +
+      '<div class="dma-head dma-head-page"><div><h1>Messages</h1><p>WhatsApp inbox — reply, escalate, or jump to the patient chart.</p></div>' +
       '<div class="dma-head-actions"><a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">Connection</a><a class="dma-btn dma-btn-primary" href="/dashboard/broadcasts/">Broadcast</a></div></div>' +
       '<div id="msg-wa"></div>' +
       '<div class="dma-inbox"><div class="dma-inbox-list" id="msg-list">' + A().spinner() + '</div><div class="dma-thread" id="msg-thread"></div></div>';
@@ -458,7 +458,7 @@
     var root = page();
     var tab = A().qs('tab', 'personality');
     root.innerHTML =
-      '<div class="dma-head"><div><h1>Train AI receptionist</h1><p>Same training architecture as a dedicated assistant — for this clinic only. No shop or catalog.</p></div>' +
+      '<div class="dma-head dma-head-page"><div><h1>Train AI receptionist</h1><p>Same training architecture as a dedicated assistant — for this clinic only. No shop or catalog.</p></div>' +
       '<div class="dma-head-actions"><a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">WhatsApp</a><a class="dma-btn dma-btn-primary" href="/dashboard/ai/?tab=test">Test chat</a></div></div>' +
       '<div class="dma-tabs" id="ai-tabs"></div><div id="ai-body">' + A().spinner() + '</div>';
 
@@ -496,7 +496,7 @@
               '<div class="dma-field"><label>Intro message</label><textarea id="ai-intro" rows="4" placeholder="Hello, thanks for contacting our clinic…"></textarea></div>' +
               '<div class="dma-row"><div class="dma-field"><label>Auto-confirm bookings</label><select id="ai-auto"><option value="true">Yes</option><option value="false">No — doctor confirms</option></select></div>' +
               '<div class="dma-field"><label>Reminder timing</label><select id="ai-rem"><option value="24h">24 hours before</option><option value="2h">2 hours before</option><option value="both">Both</option></select></div></div>' +
-              '<button class="dma-btn dma-btn-primary" id="ai-save">Save training</button>' +
+              '<div class="dma-btn-row"><button class="dma-btn dma-btn-primary" id="ai-save">Save training</button></div>' +
               '<p class="dma-hint" style="margin-top:10px">Treatments and working hours live in <a href="/dashboard/settings/?tab=treatments">Settings</a> — the receptionist reads them automatically.</p>' +
             '</div></section>';
           el('ai-lang').value = c.aiLanguage || 'english';
@@ -584,7 +584,7 @@
   function analytics() {
     var root = page();
     root.innerHTML =
-      '<div class="dma-head"><div><h1>Analytics</h1><p>Appointments, revenue, and WhatsApp volume for this clinic.</p></div>' +
+      '<div class="dma-head dma-head-page"><div><h1>Analytics</h1><p>Appointments, revenue, and WhatsApp volume for this clinic.</p></div>' +
       '<a class="dma-btn dma-btn-ghost" href="/dashboard/leads/">Lead conversion</a></div>' +
       '<div class="dma-kpis" id="an-kpis">' + A().spinner() + '</div>' +
       '<div class="dma-grid-2"><section class="dma-panel"><div class="dma-panel-h"><h2>Appointments (7 days)</h2></div><div class="dma-panel-b" id="an-week"></div></section>' +
@@ -626,7 +626,7 @@
   function reviews() {
     var root = page();
     root.innerHTML =
-      '<div class="dma-head"><div><h1>Reviews</h1><p>Request Google reviews from completed visits over WhatsApp.</p></div>' +
+      '<div class="dma-head dma-head-page"><div><h1>Reviews</h1><p>Request Google reviews from completed visits over WhatsApp.</p></div>' +
       '<button class="dma-btn dma-btn-primary" id="rv-req">Request reviews</button></div>' +
       '<div id="rv-body">' + A().spinner() + '</div>';
     A().get('/api/reviews').then(function (d) {
@@ -661,7 +661,7 @@
   function staff() {
     var root = page();
     root.innerHTML =
-      '<div class="dma-head"><div><h1>Team</h1><p>Invite reception and doctors. Permissions stay on this clinic.</p></div>' +
+      '<div class="dma-head dma-head-page"><div><h1>Team</h1><p>Invite reception and doctors. Permissions stay on this clinic.</p></div>' +
       '<button class="dma-btn dma-btn-primary" id="st-add">Invite staff</button></div>' +
       '<section class="dma-panel"><div class="dma-table-wrap"><table class="dma-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody id="st-body"></tbody></table></div></section>';
     function load() {
@@ -702,7 +702,7 @@
   function billing() {
     var root = page();
     root.innerHTML =
-      '<div class="dma-head"><div><h1>Billing</h1><p>Plan, invoices, and WhatsApp messaging allowance for this clinic.</p></div></div>' +
+      '<div class="dma-head dma-head-page"><div><h1>Billing</h1><p>Plan, invoices, and WhatsApp messaging allowance for this clinic.</p></div></div>' +
       '<div id="bl-body">' + A().spinner() + '</div>';
     Promise.all([A().get('/api/billing/subscription'), A().get('/api/billing/invoices').catch(function () { return []; })]).then(function (p) {
       var s = p[0] || {};
@@ -713,7 +713,7 @@
         '<div class="dma-panel-b"><p class="dma-hint">Staff seats: ' + esc(d.staff) + ' · Patients: ' + esc(d.patients) + ' · AI messages: ' + esc(d.aiMessages) + '</p>' +
         (s.trialEndsAt ? '<p class="dma-hint">Trial ends ' + A().fmtDate(s.trialEndsAt) + '</p>' : '') +
         (s.currentPeriodEnd ? '<p class="dma-hint">Renews ' + A().fmtDate(s.currentPeriodEnd) + '</p>' : '') +
-        '<div style="display:flex;gap:8px;margin-top:12px"><button class="dma-btn dma-btn-primary" id="bl-up">Upgrade</button><button class="dma-btn dma-btn-ghost" id="bl-portal">Manage payment</button></div>' +
+        '<div class="dma-btn-row"><button class="dma-btn dma-btn-primary" id="bl-up">Upgrade</button><button class="dma-btn dma-btn-ghost" id="bl-portal">Manage payment</button></div>' +
         '</div></section>' +
         '<section class="dma-panel"><div class="dma-panel-h"><h2>Need WhatsApp?</h2></div><div class="dma-panel-b"><p class="dma-hint">Connection is included with the clinic workspace. Finish Meta Embedded Signup on the WhatsApp page.</p><a class="dma-btn dma-btn-wa" href="/dashboard/whatsapp/">Open WhatsApp</a></div></section></div>' +
         '<section class="dma-panel" style="margin-top:16px"><div class="dma-panel-h"><h2>Invoices</h2></div><div class="dma-panel-b">' +
@@ -741,7 +741,7 @@
     var root = page();
     var tab = A().qs('tab', 'clinic');
     root.innerHTML =
-      '<div class="dma-head"><div><h1>Settings</h1><p>Clinic profile, hours, treatments — everything the receptionist and booking page use.</p></div></div>' +
+      '<div class="dma-head dma-head-page"><div><h1>Settings</h1><p>Clinic profile, hours, treatments — everything the receptionist and booking page use.</p></div></div>' +
       '<div class="dma-tabs" id="st-tabs"></div><div id="st-body"></div>';
     var tabs = [['clinic', 'Clinic'], ['hours', 'Hours'], ['treatments', 'Treatments'], ['booking', 'Booking page']];
     function draw() {
@@ -864,7 +864,7 @@
   function notifications() {
     var root = page();
     root.innerHTML =
-      '<div class="dma-head"><div><h1>Updates</h1><p>Bookings, WhatsApp escalations, and system notices.</p></div>' +
+      '<div class="dma-head dma-head-page"><div><h1>Updates</h1><p>Bookings, WhatsApp escalations, and system notices.</p></div>' +
       '<button class="dma-btn dma-btn-ghost" id="n-read">Mark all read</button></div>' +
       '<section class="dma-panel"><div class="dma-panel-b" id="n-list">' + A().spinner() + '</div></section>';
     function load() {

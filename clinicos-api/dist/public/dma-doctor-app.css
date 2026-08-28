@@ -16,7 +16,7 @@ html.doc-static {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
   margin-bottom: 22px;
   flex-wrap: wrap;
 }
@@ -28,8 +28,10 @@ html.doc-static {
   color: var(--text-1, #0F172A);
   letter-spacing: -.02em;
 }
-.dma-head p { margin: 4px 0 0; font-size: .8125rem; color: var(--muted, #64748B); }
-.dma-head-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.dma-head-page > div > h1 { display: none; }
+.dma-head p { margin: 0; font-size: .875rem; color: var(--muted, #64748B); line-height: 1.5; max-width: 52rem; }
+.dma-head-home p { margin: 4px 0 0; }
+.dma-head-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 
 /* Buttons */
 .dma-btn {
@@ -55,9 +57,11 @@ html.doc-static {
 .dma-kpis {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  gap: 16px;
   margin-bottom: 22px;
 }
+.dma-kpis:has(> :nth-child(3):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.dma-kpis:has(> :nth-child(1):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .dma-kpi {
   background: #fff;
   border: 1px solid #E2E8F0;
@@ -101,15 +105,21 @@ html.doc-static {
   font-family: Montserrat, Inter, sans-serif;
 }
 .dma-panel-h a { font-size: .75rem; font-weight: 700; color: var(--dma-blue); text-decoration: none; }
-.dma-panel-b { padding: 16px 18px; }
+.dma-panel-b { padding: 18px 20px 20px; }
 .dma-grid-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
 .dma-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .dma-stack { display: flex; flex-direction: column; gap: 16px; }
+.dma-qa-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+  gap: 12px;
+}
+.dma-btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
 
 /* Tabs — IQPigeon train page */
 .dma-tabs {
-  display: flex; gap: 2px; overflow-x: auto;
-  border-bottom: 1px solid #E2E8F0; margin-bottom: 18px;
+  display: flex; gap: 4px; overflow-x: auto;
+  border-bottom: 1px solid #E2E8F0; margin-bottom: 20px;
 }
 .dma-tabs button {
   background: none; border: none; cursor: pointer;
@@ -120,9 +130,9 @@ html.doc-static {
 .dma-tabs button.active { color: var(--dma-blue); border-bottom-color: var(--dma-blue); }
 
 /* Forms */
-.dma-field { margin-bottom: 14px; }
+.dma-field { margin-bottom: 16px; }
 .dma-field label {
-  display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px;
+  display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 8px;
 }
 .dma-field input, .dma-field select, .dma-field textarea {
   width: 100%; height: 40px; padding: 0 12px;
@@ -190,7 +200,7 @@ html.doc-static {
 .dma-row-item .sub { font-size: 12px; color: #64748B; margin-top: 1px; }
 
 /* Filter chips */
-.dma-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.dma-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
 .dma-filters button {
   height: 32px; padding: 0 12px; border-radius: 999px; border: 1.5px solid #E2E8F0;
   background: #fff; color: #64748B; font-size: .75rem; font-weight: 700; cursor: pointer;
@@ -215,7 +225,7 @@ html.doc-static {
 /* Banner */
 .dma-banner {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-  padding: 12px 16px; border-radius: 10px; margin-bottom: 16px;
+  padding: 12px 16px; border-radius: 10px; margin-bottom: 18px;
   border: 1px solid #BFDBFE; background: #EFF6FF; color: #1E3A8A; font-size: .8125rem;
 }
 .dma-banner.warn { background: #FFFBEB; border-color: #FDE68A; color: #92400E; }
@@ -234,7 +244,7 @@ html.doc-static {
 .dma-modal-h { padding: 16px 18px; border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: space-between; }
 .dma-modal-h h3 { margin: 0; font-size: 1rem; font-weight: 800; }
 .dma-modal-b { padding: 18px; }
-.dma-modal-f { padding: 12px 18px; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end; gap: 8px; }
+.dma-modal-f { padding: 14px 18px; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end; gap: 10px; }
 
 /* Toast */
 #dma-toast-root {

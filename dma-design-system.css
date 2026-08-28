@@ -132,6 +132,19 @@ body {
 img,video { max-width: 100%; height: auto; }
 * { max-width: 100%; }
 
+/* Clinic static shell owns its layout — the global max-width breaks flex nav. */
+html.doc-static {
+  --sidebar-bg:    #FFFFFF;
+  --sidebar-text:  #64748B;
+  --sidebar-hover: rgba(37,99,235,.08);
+  --sidebar-act:   #2563EB;
+  --sidebar-w:     240px;
+}
+html.doc-static,
+html.doc-static * { max-width: none; }
+html.doc-static img,
+html.doc-static video { max-width: 100%; height: auto; }
+
 /* ═══════════════════════════════════════════════════════════
    2. SIDEBAR
    ═══════════════════════════════════════════════════════════ */

@@ -84,20 +84,39 @@
     return (u.plan || 'Trial') + ' Plan';
   }
 
+  function initialsOf(name) {
+    var parts = String(name || 'Doctor').replace(/[^A-Za-z\s]/g, ' ').trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return 'DR';
+    return parts.slice(0, 2).map(function (p) { return p.charAt(0); }).join('').toUpperCase();
+  }
+
+  function bindLogout(btn) {
+    if (!btn || btn.dataset.bound === '1') return;
+    btn.dataset.bound = '1';
+    btn.onclick = function () {
+      if (global.DmaApp) DmaApp.logout();
+      else {
+        localStorage.removeItem('token');
+        localStorage.removeItem('clinicos-store');
+        location.replace('/doctor-login/');
+      }
+    };
+  }
+
   function renderStaticSidebar(container, activeHref) {
     if (!container) return;
     var u = getUser();
     var clinic = u.clinicName || u.name || 'Your clinic';
-    var owner = u.ownerName || u.name || 'Doctor';
     var plan = planLabel(u);
 
     var html = '<div class="doc-brand">' +
       '<div class="doc-brand-icon">DM</div>' +
       '<strong>Doctors My Agency</strong>' +
-      '<span>' + (clinic) + '</span></div>';
+      '<span>' + clinic + '</span></div>' +
+      '<nav class="doc-nav" aria-label="Clinic">';
 
     GROUPS.forEach(function (g) {
-      html += '<div class="doc-nav-section">' + g.label + '</div><nav>';
+      html += '<div class="doc-nav-section">' + g.label + '</div>';
       g.items.forEach(function (item) {
         var on = isActive(item.href) || (activeHref && item.href.replace(/\/+$/, '') === String(activeHref).replace(/\/+$/, ''));
         var cls = on ? 'active' : '';
@@ -106,38 +125,38 @@
           '<span class="doc-nav-icon" style="color:' + (on ? '#fff' : item.color) + '">' + (ICONS[item.icon] || '') + '</span>' +
           '<span>' + item.label + '</span>' +
           (item.id === 'whatsapp' ? '<span class="doc-wa-status" id="doc-wa-dot"></span>' : '') +
-          (item.id === 'updates' ? '<span class="doc-nav-badge" id="doc-upd-badge" hidden>0</span>' : '') +
+          (item.id === 'updates' ? '<span class="doc-nav-badge" id="doc-upd-badge" hidden></span>' : '') +
           '</a>';
       });
-      html += '</nav>';
     });
 
-    html +=
+    html += '</nav>' +
       '<div class="doc-plan-card">' +
         '<div class="text-faint">Current plan</div>' +
         '<strong>' + plan + '</strong>' +
         '<a href="/dashboard/billing/">Manage subscription</a>' +
-      '</div>' +
-      '<div class="doc-sidebar-footer">' +
-        '<div class="doc-sidebar-footer-avatar">' + (owner.slice(0, 2).toUpperCase() || 'DR') + '</div>' +
-        '<div class="doc-sidebar-footer-info"><strong>' + owner + '</strong><span>Owner</span></div>' +
-        '<button type="button" class="doc-logout" id="doc-logout">Logout</button>' +
       '</div>';
 
     container.innerHTML = html;
-
-    var logoutBtn = container.querySelector('#doc-logout');
-    if (logoutBtn) {
-      logoutBtn.onclick = function () {
-        if (global.DmaApp) DmaApp.logout();
-        else {
-          localStorage.removeItem('token');
-          localStorage.removeItem('clinicos-store');
-          location.replace('/doctor-login/');
-        }
-      };
-    }
     refreshBadges();
+  }
+
+  function paintHeader() {
+    var actions = document.querySelector('.doc-topbar-actions');
+    if (!actions) return;
+    var u = getUser();
+    var owner = u.ownerName || u.name || 'Doctor';
+    var links = [];
+    actions.querySelectorAll('a').forEach(function (a) {
+      links.push(a.outerHTML);
+    });
+    actions.innerHTML = links.join('') +
+      '<div class="doc-user-chip">' +
+        '<div class="doc-user-avatar" aria-hidden="true">' + initialsOf(owner) + '</div>' +
+        '<span class="doc-user-name" id="doc-user-label">' + owner + '</span>' +
+        '<button type="button" class="doc-logout" id="doc-logout">Logout</button>' +
+      '</div>';
+    bindLogout(document.getElementById('doc-logout'));
   }
 
   function refreshBadges() {
@@ -193,9 +212,7 @@
     if (menuBtn) menuBtn.onclick = open;
     if (backdrop) backdrop.onclick = close;
     renderBottomNav();
-    var label = document.getElementById('doc-user-label');
-    var u = getUser();
-    if (label) label.textContent = u.ownerName || u.name || 'Doctor';
+    paintHeader();
   }
 
   function initStaticPage(activeHref, pageTitle) {

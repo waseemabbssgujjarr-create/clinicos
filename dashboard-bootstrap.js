@@ -90,7 +90,8 @@
   }
 
   // ── CLINIC UI — light sidebar, blue brand, IQPigeon-inspired ────────────
-  if (!document.querySelector('link[href*="dma-clinic-ui.css"]')) {
+  var isDocStatic = document.documentElement.classList.contains('doc-static');
+  if (!isDocStatic && !document.querySelector('link[href*="dma-clinic-ui.css"]')) {
     var clinicUiLink = document.createElement('link');
     clinicUiLink.rel = 'stylesheet';
     clinicUiLink.href = '/dma-clinic-ui.css?v=2';
@@ -106,7 +107,7 @@
       document.head.appendChild(adminUiLink);
     }
   }
-  if (!document.querySelector('link[href*="dma-doctor-app.css"]')) {
+  if (!isDocStatic && !document.querySelector('link[href*="dma-doctor-app.css"]')) {
     var appCss = document.createElement('link');
     appCss.rel = 'stylesheet';
     appCss.href = '/dma-doctor-app.css?v=1';
@@ -169,7 +170,7 @@
   if (document.body) scheduleLiveBadgeMark();
   else document.addEventListener('DOMContentLoaded', scheduleLiveBadgeMark);
 
-  if (/^\/(dashboard|staff)(\/|$)/.test(location.pathname)) {
+  if (!isDocStatic && /^\/(dashboard|staff)(\/|$)/.test(location.pathname)) {
     if (!document.querySelector('link[href*="dashboard-professional.css"]')) {
       var proCss = document.createElement('link');
       proCss.rel = 'stylesheet';
@@ -208,7 +209,7 @@
     }
   }
 
-  if (/^\/dashboard\/reviews\/?$/.test(location.pathname)) {
+  if (!isDocStatic && /^\/dashboard\/reviews\/?$/.test(location.pathname)) {
     if (!document.querySelector('link[href*="dashboard-reviews.css"]')) {
       var revCss = document.createElement('link');
       revCss.rel = 'stylesheet';
@@ -245,13 +246,13 @@
         .catch(function () {});
     })();
 
-    if (!document.querySelector('link[href="/dashboard-signature.css"]')) {
+    if (!isDocStatic && !document.querySelector('link[href="/dashboard-signature.css"]')) {
       var sigCss = document.createElement('link');
       sigCss.rel = 'stylesheet';
       sigCss.href = '/dashboard-signature.css?v=3';
       document.head.appendChild(sigCss);
     }
-    if (!document.querySelector('script[src="/dashboard-signature.js"]')) {
+    if (!isDocStatic && !document.querySelector('script[src="/dashboard-signature.js"]')) {
       var sigJs = document.createElement('script');
       sigJs.src = '/dashboard-signature.js?v=4';
       sigJs.defer = true;

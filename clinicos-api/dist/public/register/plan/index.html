@@ -9,11 +9,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/landing.css?v=4" />
-  <link rel="stylesheet" href="/portal.css?v=4" />
+  <link rel="stylesheet" href="/portal.css?v=5" />
   <link rel="stylesheet" href="/platform-hovers.css?v=4" />
   <link rel="stylesheet" href="/dma-theme.css?v=4" />
   <script>
-    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(_){}})();
+    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light');}catch(_){document.documentElement.setAttribute('data-theme','light');}})();
   </script>
   <script src="/api-shim.js"></script>
   <style>
@@ -134,6 +134,7 @@
         }
         var email = sessionStorage.getItem('dma-verify-email') || '';
         if (email) return email;
+        // Never use superadmin/staff from clinicos-store — only the registering doctor
         var userRaw = localStorage.getItem('clinicos-store');
         if (userRaw) {
           var parsed = JSON.parse(userRaw);
@@ -189,6 +190,7 @@
         });
         if (!r.ok) return false;
         var data = await r.json();
+        // Ignore superadmin/staff session left open in same browser
         if (data.role && data.role !== 'DOCTOR') return false;
         if (expectEmail && data.email && data.email.toLowerCase() !== expectEmail.toLowerCase()) return false;
         return !!data.emailVerified;

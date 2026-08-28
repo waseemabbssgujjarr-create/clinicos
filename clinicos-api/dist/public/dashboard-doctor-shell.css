@@ -107,31 +107,33 @@ html.doc-static body {
   margin-top: 2px;
 }
 
-.doc-sidebar nav {
-  flex: 1;
-  padding: 10px 8px;
+.doc-nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 8px 8px 12px;
+  overflow-x: hidden;
   overflow-y: auto;
-  scrollbar-width: none;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 }
-
-.doc-sidebar nav::-webkit-scrollbar { display: none; }
 
 .doc-nav-section {
   font-size: .62rem;
   font-weight: 800;
   letter-spacing: .09em;
   text-transform: uppercase;
-  color: #475569;
-  padding: 14px 10px 4px;
+  color: #64748B;
+  padding: 14px 10px 6px;
   display: block;
 }
 
-.doc-sidebar nav a {
+.doc-nav a,
+.doc-sidebar .doc-nav a {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 9px 12px;
-  margin-bottom: 1px;
+  margin: 0 0 2px;
   border-radius: 8px;
   color: var(--doc-muted);
   text-decoration: none;
@@ -143,19 +145,21 @@ html.doc-static body {
   overflow: hidden;
 }
 
-.doc-sidebar nav a:hover {
+.doc-nav a:hover,
+.doc-sidebar .doc-nav a:hover {
   background: rgba(37,99,235,.08);
   color: var(--doc-blue);
 }
 
-.doc-sidebar nav a.active {
+.doc-nav a.active,
+.doc-sidebar .doc-nav a.active {
   background: var(--doc-blue);
   border-left-color: transparent;
   color: #fff;
   font-weight: 700;
 }
 
-.doc-sidebar nav a.active .doc-nav-icon { color: #fff !important; }
+.doc-nav a.active .doc-nav-icon { color: #fff !important; }
 
 .doc-nav-icon {
   width: 18px;
@@ -180,8 +184,9 @@ html.doc-static body {
   align-items: center;
   justify-content: center;
 }
+.doc-nav-badge[hidden] { display: none !important; }
 
-.doc-sidebar nav a.active .doc-nav-badge {
+.doc-nav a.active .doc-nav-badge {
   background: #fff;
   color: var(--doc-blue);
 }
@@ -197,7 +202,8 @@ html.doc-static body {
 .doc-wa-status.is-on { background: #22C55E; box-shadow: 0 0 0 3px rgba(34,197,94,.18); }
 
 .doc-plan-card {
-  margin: 8px 10px 4px;
+  flex-shrink: 0;
+  margin: 8px 12px 14px;
   padding: 12px;
   background: #F8FAFC;
   border: 1px solid var(--doc-border);
@@ -218,19 +224,52 @@ html.doc-static body {
 }
 .doc-plan-card a:hover { background: rgba(37,99,235,.08); }
 
+.doc-user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 4px;
+  padding-left: 14px;
+  border-left: 1px solid var(--doc-border);
+}
+.doc-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--doc-blue), var(--doc-blue-h));
+  color: #fff;
+  font-weight: 800;
+  font-size: .72rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.doc-user-name {
+  font-weight: 700;
+  color: var(--doc-text);
+  font-size: .8125rem;
+  white-space: nowrap;
+}
 .doc-logout {
-  margin-left: auto;
-  background: none;
-  border: none;
+  height: 32px;
+  padding: 0 12px;
+  border: 1.5px solid var(--doc-border);
+  border-radius: 8px;
+  background: #fff;
   color: var(--doc-muted);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
-  padding: 4px 0;
+  white-space: nowrap;
 }
-.doc-logout:hover { color: #DC2626; }
+.doc-logout:hover {
+  color: #DC2626;
+  border-color: #FECACA;
+  background: #FEF2F2;
+}
 
-.doc-sidebar nav a svg {
+.doc-nav a svg {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
@@ -321,7 +360,7 @@ html.doc-static body {
 .doc-topbar-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-size: .8125rem;
   color: var(--doc-muted);
 }
@@ -396,13 +435,90 @@ html[data-theme="dark"] .doc-sidebar {
 }
 
 html[data-theme="dark"] .doc-brand strong { color: #F9FAFB !important; }
-html[data-theme="dark"] .doc-brand span   { color: #6B7280 !important; }
-html[data-theme="dark"] .doc-sidebar nav a { color: #94A3B8 !important; }
-html[data-theme="dark"] .doc-sidebar nav a:hover { background: rgba(37,99,235,.18) !important; color: #93C5FD !important; }
-html[data-theme="dark"] .doc-sidebar nav a.active { background: rgba(37,99,235,.25) !important; color: #93C5FD !important; }
-html[data-theme="dark"] .doc-sidebar-footer { border-top-color: #1F2937 !important; background: transparent !important; }
-html[data-theme="dark"] .doc-sidebar-footer-info strong { color: #E2EAF4 !important; }
-html[data-theme="dark"] .doc-sidebar-footer-info span   { color: #64748B !important; }
+html[data-theme="dark"] .doc-brand span   { color: #94A3B8 !important; }
+html[data-theme="dark"] .doc-nav a { color: #94A3B8 !important; }
+html[data-theme="dark"] .doc-nav a:hover { background: rgba(37,99,235,.18) !important; color: #93C5FD !important; }
+html[data-theme="dark"] .doc-nav a.active { background: rgba(37,99,235,.28) !important; color: #fff !important; }
+html[data-theme="dark"] .doc-plan-card { background: #1E293B !important; border-color: #334155 !important; }
+html[data-theme="dark"] .doc-plan-card .text-faint { color: #94A3B8 !important; }
+html[data-theme="dark"] .doc-plan-card strong { color: #93C5FD !important; }
+html[data-theme="dark"] .doc-user-name { color: #F1F5F9 !important; }
+html[data-theme="dark"] .doc-logout { background: #1E293B; border-color: #334155; color: #94A3B8; }
+
+/* Beat dma-design-system.css generic `aside { }` rules on clinic pages */
+html.doc-static aside.doc-sidebar {
+  background: var(--doc-sidebar) !important;
+  color: var(--doc-muted) !important;
+  width: var(--doc-sidebar-w) !important;
+  min-width: var(--doc-sidebar-w) !important;
+  border-right: 1px solid var(--doc-sidebar-border) !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+html.doc-static aside.doc-sidebar .doc-brand {
+  padding: 16px 16px 14px !important;
+  border-bottom: 1px solid var(--doc-border) !important;
+  flex-shrink: 0 !important;
+}
+html.doc-static aside.doc-sidebar .doc-brand strong {
+  color: var(--doc-text) !important;
+  font-size: .9rem !important;
+}
+html.doc-static aside.doc-sidebar .doc-brand span {
+  color: var(--doc-muted) !important;
+}
+html.doc-static aside.doc-sidebar .doc-nav {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  padding: 8px 8px 12px !important;
+}
+html.doc-static aside.doc-sidebar .doc-nav-section {
+  color: #64748B !important;
+  padding: 14px 10px 6px !important;
+}
+html.doc-static aside.doc-sidebar a,
+html.doc-static aside.doc-sidebar .doc-nav a {
+  color: var(--doc-muted) !important;
+  background: transparent !important;
+  margin: 0 0 2px !important;
+  border-left: 2px solid transparent !important;
+}
+html.doc-static aside.doc-sidebar .doc-nav a:hover {
+  background: rgba(37,99,235,.08) !important;
+  color: var(--doc-blue) !important;
+}
+html.doc-static aside.doc-sidebar .doc-nav a.active {
+  background: var(--doc-blue) !important;
+  color: #fff !important;
+  border-left-color: transparent !important;
+}
+html.doc-static aside.doc-sidebar .doc-plan-card,
+html.doc-static aside.doc-sidebar > div:last-child {
+  background: #F8FAFC !important;
+  border: 1px solid var(--doc-border) !important;
+  border-top: 1px solid var(--doc-border) !important;
+  padding: 12px !important;
+  margin: 8px 12px 14px !important;
+  border-radius: 12px !important;
+}
+html.doc-static aside.doc-sidebar .doc-plan-card .text-faint,
+html.doc-static aside.doc-sidebar .doc-plan-card span {
+  color: var(--doc-muted) !important;
+}
+html.doc-static aside.doc-sidebar .doc-plan-card strong {
+  color: var(--doc-blue) !important;
+}
+html.doc-static aside.doc-sidebar .doc-plan-card a {
+  display: block !important;
+  text-align: center !important;
+  color: var(--doc-blue) !important;
+  background: transparent !important;
+  border: 1px solid var(--doc-blue) !important;
+  margin: 0 !important;
+}
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
@@ -439,4 +555,5 @@ html[data-theme="dark"] .doc-sidebar-footer-info span   { color: #64748B !import
 @media (max-width: 480px) {
   .doc-topbar h1 { font-size: .95rem; }
   .doc-topbar-actions a { font-size: .72rem; padding: 5px 8px; }
+  .doc-user-name { display: none; }
 }
