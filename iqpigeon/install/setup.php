@@ -178,8 +178,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $defaults = [
             'default_system_prompt' => 'You are an AI sales assistant. Qualify leads through natural conversation.',
             'trial_days' => (string) TRIAL_DAYS,
-            'ai_model' => DEEPSEEK_MODEL,
-            'openai_model' => DEEPSEEK_MODEL,
+            'ai_model' => OPENAI_MODEL,
+            'openai_model' => OPENAI_MODEL,
         ];
 
         foreach ($defaults as $key => $value) {

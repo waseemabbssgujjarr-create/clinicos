@@ -9,12 +9,11 @@ define('DB_NAME', 'iqpigeon_adb');
 define('DB_USER', 'iqpigeon_auser');
 define('DB_PASS', 'your_db_password');
 
-// DEEPSEEK AI — https://platform.deepseek.com/api_keys
-define('DEEPSEEK_API_KEY', '');  // sk-...
-define('DEEPSEEK_MODEL', 'deepseek-chat');
-define('DEEPSEEK_API_URL', 'https://api.deepseek.com/v1/chat/completions');
-define('OPENAI_API_KEY', DEEPSEEK_API_KEY);
-define('OPENAI_MODEL', DEEPSEEK_MODEL);
+// OPENAI — text, voice & vision — https://platform.openai.com/api-keys
+define('OPENAI_API_KEY', '');  // sk-...
+define('OPENAI_MODEL', 'gpt-4o-mini');
+define('OPENAI_API_URL', 'https://api.openai.com/v1/chat/completions');
+define('OPENAI_SSL_VERIFY', false);  // cPanel shared hosting often needs false
 
 // STRIPE
 define('STRIPE_SECRET_KEY', 'sk_test_...');
@@ -86,6 +85,8 @@ define('SMTP_FROM_NAME', 'IQ Pigeon');
 define('DEMO_BOT_ID', 0);
 define('WHATSAPP_MANUAL_MODE', false);  // true = manual Phone ID + token only
 define('WHATSAPP_PRE_REPLY_TYPING_MS', 4000);
+// Human tone only — set false to use simple fallback text (Meta send still works).
+define('WHATSAPP_HUMAN_LAYER_ENABLED', true);
 
 // Conversation turn engine (internal — not user-facing switches)
 define('TURN_TEXT_DEBOUNCE_MS', 5000);

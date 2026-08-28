@@ -15,6 +15,7 @@ header('Content-Type: application/json; charset=UTF-8');
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/integration-settings.php';
 require_once __DIR__ . '/../includes/openai.php';
 require_once __DIR__ . '/../includes/bot-knowledge.php';
 
@@ -108,7 +109,7 @@ $out = [
     ],
     'greeting_tests'    => $greetingTests,
     'fallback_previews' => $fallbackSamples,
-    'deepseek_key_set'  => defined('DEEPSEEK_API_KEY') && trim((string) DEEPSEEK_API_KEY) !== '',
+    'openai_key_set'  => integration_openai_chat_key() !== '',
 ];
 
 if ($runAi) {
@@ -122,7 +123,7 @@ if ($runAi) {
         'error'   => $ai['error'] ?? null,
     ];
     if (empty($ai['success'])) {
-        $out['ai_ping']['hint'] = 'Widget falls back to generic messages when DeepSeek fails. Fix DEEPSEEK_API_KEY in config.php.';
+        $out['ai_ping']['hint'] = 'Widget falls back to generic messages when OpenAI fails. Set key in Admin → Integrations.';
     }
 }
 

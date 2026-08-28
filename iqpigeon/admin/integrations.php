@@ -130,7 +130,7 @@ $embeddedSignupUrl = function_exists('whatsapp_embedded_onboard_url')
     ? whatsapp_embedded_onboard_url()
     : (defined('META_EMBEDDED_SIGNUP_URL') ? (string) META_EMBEDDED_SIGNUP_URL : '');
 
-$aiModel = get_setting('ai_model', get_setting('openai_model', defined('DEEPSEEK_MODEL') ? DEEPSEEK_MODEL : 'deepseek-chat'));
+$aiModel = get_setting('ai_model', get_setting('openai_model', defined('OPENAI_MODEL') ? OPENAI_MODEL : 'gpt-4o-mini'));
 $mailReady = mail_transport_ready();
 
 $bimi = [];
@@ -228,7 +228,6 @@ $navItems = [
     'wa'       => ['whatsapp', 'WhatsApp'],
     'meta'     => ['globe', 'Meta'],
     'openai'   => ['sparkles', 'OpenAI'],
-    'deepseek' => ['brain', 'DeepSeek'],
     'pay'      => ['card', 'Payment Gateways'],
     'google'   => ['globe', 'Google Sign In'],
     'fb'       => ['users', 'Facebook Sign In'],
@@ -380,6 +379,7 @@ if ($error !== '') {
             <?= $textField('meta_app_id', 'App ID', (string) ($integrations['meta_app_id'] ?: integration_config('META_APP_ID'))) ?>
             <?= $textField('meta_config_id', 'Config ID', (string) ($integrations['meta_config_id'] ?: integration_config('META_CONFIG_ID'))) ?>
           </div>
+          <p class="muted small" style="margin-top:-8px;margin-bottom:12px">WhatsApp Connect uses this Config ID. Catalog sync needs the config with <strong>Catalogs</strong> + <code>catalog_management</code> (current: <code>1647730086942089</code>). If this field still has the old messaging-only ID, paste the catalog config and Save. Then each bot must Disconnect and Connect WhatsApp again so Meta asks for catalog approval. Live apps also need App Review Advanced access for those permissions.</p>
           <?= $textField('meta_graph_api_version', 'Graph API version', (string) ($integrations['meta_graph_api_version'] ?: integration_meta_graph_api_version()), 'v25.0') ?>
           <?= $secretField('meta_app_secret', 'App secret', 'Exactly 32 hex characters from Meta → Settings → Basic.') ?>
           <p class="muted small">Credentials are re-verified with Meta when you save.</p>
@@ -387,30 +387,21 @@ if ($error !== '') {
       </div>
     </div>
 
-    <!-- OpenAI (media) -->
+    <!-- OpenAI -->
     <div class="tab-panel" data-panel="openai">
       <div class="card">
-        <?= $secHead('sparkles', 'OpenAI (media)', 'Voice transcription & image understanding', $secBadge($stMedia)) ?>
+        <?= $secHead('sparkles', 'OpenAI', 'Text replies, voice transcription & image understanding', $secBadge($stAi)) ?>
         <div class="card__body">
           <div class="grid grid-2">
-            <?= $secretField('openai_voice_api_key', 'OpenAI voice key (Whisper)', 'Transcribes WhatsApp voice/audio notes.') ?>
-            <?= $secretField('openai_image_api_key', 'OpenAI image key (vision)', 'Reads WhatsApp images (GPT-4o-mini). Same key works in both fields.') ?>
+            <?= $secretField('openai_api_key', 'OpenAI chat key', 'Powers WhatsApp text replies and chat widget. Same key works for all fields below.') ?>
+            <?= $textField('ai_model', 'Chat model', (string) $aiModel, 'gpt-4o-mini') ?>
           </div>
-          <?= $switchRow('media_understanding_enabled', 'Media understanding in chats', 'Voice transcription & image reading during conversations', integration_toggle_enabled('media_understanding_enabled', 'MEDIA_UNDERSTANDING_ENABLED', true)) ?>
-        </div>
-      </div>
-    </div>
-
-    <!-- DeepSeek (AI) -->
-    <div class="tab-panel" data-panel="deepseek">
-      <div class="card">
-        <?= $secHead('brain', 'AI (DeepSeek)', 'Core language model for replies', $secBadge($stAi)) ?>
-        <div class="card__body">
           <div class="grid grid-2">
-            <?= $secretField('deepseek_api_key', 'API key') ?>
-            <?= $textField('ai_model', 'Model', (string) $aiModel, 'deepseek-chat') ?>
+            <?= $secretField('openai_voice_api_key', 'Voice key (Whisper)', 'Transcribes WhatsApp voice/audio notes. Can be the same chat key.') ?>
+            <?= $secretField('openai_image_api_key', 'Image key (vision)', 'Reads WhatsApp images (GPT-4o-mini). Can be the same chat key.') ?>
           </div>
           <?= $switchRow('ai_responses_enabled', 'AI auto-replies', 'WhatsApp, chat widget and Instagram', integration_ai_responses_enabled()) ?>
+          <?= $switchRow('media_understanding_enabled', 'Media understanding in chats', 'Voice transcription & image reading during conversations', integration_toggle_enabled('media_understanding_enabled', 'MEDIA_UNDERSTANDING_ENABLED', true)) ?>
           <?= $switchRow('visitor_geo_enabled', 'Visitor country hint', 'Localise the widget greeting by country', integration_visitor_geo_enabled()) ?>
         </div>
       </div>

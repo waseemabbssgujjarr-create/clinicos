@@ -366,19 +366,22 @@ function qualification_prompt_block(array $bot): string
     $goals = bot_conversion_goals();
     $goalLabel = $goals[$flow['conversion_goal']] ?? $flow['conversion_goal'];
     $source = !empty($flow['custom'])
-        ? 'owner custom Qualify tab (overrides the industry template)'
-        : 'industry starter — owner can change this in Training → Qualify';
+        ? 'your Sales & Leads settings'
+        : 'industry starter — you can change this in Training → Sales & Leads';
 
     $lines = [
         '',
         '───── YOUR QUALIFICATION FLOW (' . $source . ') ─────',
         'Conversion goal: ' . $goalLabel . '.',
         'Qualify when: ' . $flow['qualify_trigger'],
+        'Discover this information through natural conversation. Do not interrogate. Do not list several questions in one message.',
+        'If the customer already provided an answer in this chat, treat it as collected and do not ask it again.',
+        'Ask at most one unanswered required question per reply.',
     ];
 
     $questions = $flow['questions'];
     if ($questions !== []) {
-        $lines[] = 'Ask these questions one at a time. Never skip a required one. Never invent extra qualification questions from another industry:';
+        $lines[] = 'Collect these (one at a time, skip any already answered). Never invent extra qualification questions from another industry:';
         foreach ($questions as $i => $q) {
             $req = !empty($q['required']) ? 'required' : 'optional';
             $lines[] = ($i + 1) . '. [' . ($q['type'] ?? 'Custom') . ', ' . $req . '] ' . ($q['text'] ?? '');

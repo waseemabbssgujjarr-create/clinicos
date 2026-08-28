@@ -126,28 +126,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ??
             $error = $e->getMessage();
         }
     } elseif ($action === 'sync_meta_catalog') {
-        $result = meta_catalog_sync_bot($botId, 100);
+        $result = meta_catalog_sync_bot($botId, 100, ['retry_after_reset' => true]);
         if (!empty($result['success'])) {
             $message = 'Synced ' . (int) ($result['synced'] ?? 0) . ' products to Meta WhatsApp catalog.';
             if (($result['failed'] ?? 0) > 0) {
-                $error = (int) $result['failed'] . ' products failed. ' . implode(' ', $result['errors'] ?? []);
+                $error = (int) $result['failed'] . ' products failed. ' . meta_catalog_human_error(implode(' ', $result['errors'] ?? []));
             }
         } else {
-            $error = implode(' ', $result['errors'] ?? ['Meta catalog sync failed.']);
+            $error = meta_catalog_human_error(implode(' ', $result['errors'] ?? ['Meta catalog sync failed.']));
         }
     } elseif ($action === 'reset_meta_catalog') {
-        $rejectCatalogId = trim((string) ($_POST['reject_catalog_id'] ?? catalog_bot_whatsapp_catalog_id($botId)));
         meta_catalog_reset_stale_catalog($botId);
-        $syncOpts = ['force_create' => true];
-        if ($rejectCatalogId !== '') {
-            $syncOpts['reject_catalog_ids'] = [$rejectCatalogId];
-        }
-        $result = meta_catalog_sync_bot($botId, 100, $syncOpts);
+        $result = meta_catalog_sync_bot($botId, 100, ['retry_after_reset' => true]);
         if (!empty($result['success'])) {
-            $message = 'Meta catalog reset and synced ' . (int) ($result['synced'] ?? 0) . ' products.';
+            $message = 'Rediscovered WhatsApp catalog and synced ' . (int) ($result['synced'] ?? 0) . ' products.';
         } else {
-            $message = 'Meta catalog reset.';
-            $error = implode(' ', $result['errors'] ?? ['Could not provision a new catalog. Re-connect WhatsApp with catalog permissions.']);
+            $message = 'Stored catalog ID cleared.';
+            $error = meta_catalog_human_error(implode(' ', $result['errors'] ?? ['Could not rediscover the WhatsApp catalog. Reconnect WhatsApp and finish Catalogue in Meta.']));
         }
     } elseif ($action === 'save_menu_keywords') {
         catalog_save_menu_keywords($botId, $userId, (string) ($_POST['catalog_menu_keywords'] ?? ''));
@@ -166,6 +161,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ??
             }
         }
     }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $botId > 0 && !isset($_GET['download_template'])) {
+    $waCatalogFlag = (string) ($_GET['wa_catalog'] ?? '');
+    if ($waCatalogFlag === '') {
+        $auto = meta_catalog_maybe_auto_sync_shop($botId);
+        if (!empty($auto['ran'])) {
+            $qs = $_GET;
+            $qs['bot_id'] = $botId;
+            $qs['wa_catalog'] = !empty($auto['success']) ? 'ok' : 'fail';
+            if (!empty($auto['success'])) {
+                $qs['wa_synced'] = (int) ($auto['synced'] ?? 0);
+            }
+            header('Location: /client/catalog?' . http_build_query($qs));
+            exit;
+        }
+    }
+}
+
+if (($_GET['wa_catalog'] ?? '') === 'ok' && $message === '') {
+    $syncedN = (int) ($_GET['wa_synced'] ?? 0);
+    $message = $syncedN > 0
+        ? 'Linked your connected WhatsApp number and synced ' . $syncedN . ' product' . ($syncedN === 1 ? '' : 's') . ' to the native catalog.'
+        : 'Linked the WhatsApp catalog on your connected number.';
 }
 
 $metaCatalogId = $botId ? catalog_bot_whatsapp_catalog_id($botId) : '';
@@ -203,6 +222,8 @@ if ($botId && $products !== []) {
 }
 
 $orders = catalog_orders_for_user($userId, $botId ?: null, 10);
+$waDisplayPhone = $userId > 0 ? whatsapp_client_display_phone($userId) : '';
+$waCatalogConnected = $botId > 0 && meta_catalog_bot_access($botId) !== null;
 
 $activeTab = 'catalog';
 require_once __DIR__ . '/../includes/iqp-ui.php';

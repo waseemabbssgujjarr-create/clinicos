@@ -151,6 +151,8 @@ $expiryLabel = email_verify_expiry_label();
             <a href="#" class="underline underline-offset-2" onclick="event.preventDefault();document.getElementById('connect-wa-primary')?.click();">Open Meta in popup</a>
             <span aria-hidden="true">·</span>
             <a href="/client/whatsapp-oauth-debug" class="underline underline-offset-2">Connection stuck?</a>
+            <span aria-hidden="true">·</span>
+            <a href="/client/whatsapp-reply-debug" class="underline underline-offset-2">No WhatsApp reply?</a>
         </p>
         <?php endif; ?>
 

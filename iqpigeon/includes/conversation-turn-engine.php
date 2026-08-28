@@ -418,6 +418,14 @@ function turn_engine_normalize_whatsapp_message(array $msg): array
             $normalized['raw_text'] = 'add #' . $m[1];
         } elseif (preg_match('/^clear_cart$/i', $replyId)) {
             $normalized['raw_text'] = 'clear cart';
+        } elseif (preg_match('/^(more|more_items)$/i', $replyId)) {
+            $normalized['raw_text'] = 'more';
+        } elseif (preg_match('/^(cart|view_cart)$/i', $replyId)) {
+            $normalized['raw_text'] = 'cart';
+        } elseif (preg_match('/^(checkout)$/i', $replyId)) {
+            $normalized['raw_text'] = 'checkout';
+        } elseif (preg_match('/^(view_catalog|catalog)$/i', $replyId)) {
+            $normalized['raw_text'] = 'show catalog';
         } elseif ($replyId !== '') {
             $normalized['raw_text'] = $replyId;
         } elseif ($replyTitle !== '') {
@@ -425,6 +433,25 @@ function turn_engine_normalize_whatsapp_message(array $msg): array
         } else {
             $normalized['message_type'] = 'unknown';
         }
+    } elseif ($type === 'order') {
+        $items = $msg['order']['product_items'] ?? [];
+        $parts = [];
+        if (is_array($items)) {
+            foreach ($items as $item) {
+                if (!is_array($item)) {
+                    continue;
+                }
+                $rid = trim((string) ($item['product_retailer_id'] ?? ''));
+                $qty = max(1, (int) ($item['quantity'] ?? 1));
+                if ($rid === '') {
+                    continue;
+                }
+                $parts[] = 'add ' . $qty . ' sku:' . $rid;
+            }
+        }
+        $normalized['message_type'] = 'text';
+        $normalized['metadata']['original_type'] = 'order';
+        $normalized['raw_text'] = $parts !== [] ? implode("\n", $parts) : 'checkout';
     } else {
         $normalized['message_type'] = 'unknown';
     }
@@ -467,15 +494,19 @@ function turn_engine_wa_message_replied(string $waMessageId): bool
     }
 
     $row = db_fetch(
-        'SELECT ct.status
-         FROM conversation_turn_messages ctm
+        'SELECT ct.id FROM conversation_turn_messages ctm
          INNER JOIN conversation_turns ct ON ct.id = ctm.turn_id
-         WHERE ctm.wa_message_id = ? LIMIT 1',
+         WHERE ctm.wa_message_id = ?
+         AND EXISTS (
+            SELECT 1 FROM conversation_turn_events e
+            WHERE e.turn_id = ct.id AND e.event_type = \'RESPONSE_SENT\'
+         )
+         LIMIT 1',
         's',
         [$waMessageId]
     );
 
-    return $row !== null && (string) ($row['status'] ?? '') === 'completed';
+    return $row !== null;
 }
 
 function turn_engine_resolve_lead(array $bot, string $senderPhone, string $contactName): int
@@ -517,6 +548,26 @@ function turn_engine_resolve_lead(array $bot, string $senderPhone, string $conta
 
 function turn_engine_customer_awaiting_reply(int $leadId): bool
 {
+    if ($leadId <= 0) {
+        return false;
+    }
+
+    $open = db_fetch(
+        'SELECT t.id FROM conversation_turns t
+         WHERE t.lead_id = ?
+         AND EXISTS (SELECT 1 FROM conversation_turn_messages ctm WHERE ctm.turn_id = t.id)
+         AND NOT EXISTS (
+            SELECT 1 FROM conversation_turn_events e
+            WHERE e.turn_id = t.id AND e.event_type = \'RESPONSE_SENT\'
+         )
+         LIMIT 1',
+        'i',
+        [$leadId]
+    );
+    if ($open !== null) {
+        return true;
+    }
+
     ensure_conversations_schema();
     $last = db_fetch(
         'SELECT role FROM conversations WHERE lead_id = ? ORDER BY id DESC LIMIT 1',
@@ -550,29 +601,66 @@ function turn_engine_get_or_create_buffering_turn(int $leadId, int $botId, strin
         return (int) $buffering['id'];
     }
 
-    // Customer sent more while we were generating — fold back into the same turn (never split mid-burst).
+    // Customer sent more while we were generating — fold back unless the turn is already too large.
     $processing = db_fetch(
-        'SELECT id FROM conversation_turns WHERE lead_id = ? AND status = \'processing\' ORDER BY id DESC LIMIT 1',
+        'SELECT id, message_count, processing_started_at, started_at, processing_generation
+         FROM conversation_turns WHERE lead_id = ? AND status = \'processing\' ORDER BY id DESC LIMIT 1',
         'i',
         [$leadId]
     );
     if ($processing) {
         $turnId = (int) $processing['id'];
-        db_execute(
-            'UPDATE conversation_turns SET status = \'buffering\', processing_started_at = NULL, finalized_at = NULL,
-             suppression_reason = NULL, processing_generation = processing_generation + 1 WHERE id = ?',
+        $alreadySent = db_fetch(
+            'SELECT id FROM conversation_turn_events WHERE turn_id = ? AND event_type = \'RESPONSE_SENT\' LIMIT 1',
             'i',
             [$turnId]
         );
-        require_once __DIR__ . '/conversation-intelligence.php';
-        conversation_intelligence_bump_context_version($leadId);
-        turn_engine_extend_buffer($turnId, $hasMedia);
-        turn_engine_log_event($turnId, 'TURN_REBUFFERED', [
-            'reason' => 'message_during_processing',
-            'processing_generation' => turn_engine_current_processing_generation($turnId),
-        ]);
+        if ($alreadySent !== null) {
+            db_execute(
+                'UPDATE conversation_turns SET status = \'completed\', processing_completed_at = COALESCE(processing_completed_at, NOW()) WHERE id = ?',
+                'i',
+                [$turnId]
+            );
+            $processing = null;
+        }
+    }
+    if ($processing) {
+        $turnId = (int) $processing['id'];
+        $msgCount = (int) ($processing['message_count'] ?? 0);
+        $procStarted = strtotime((string) ($processing['processing_started_at'] ?? ''));
+        $turnAge = time() - strtotime((string) ($processing['started_at'] ?? 'now'));
+        $gen = (int) ($processing['processing_generation'] ?? 0);
+        $procAge = $procStarted > 0 ? (time() - $procStarted) : 0;
+        $tooLarge = $msgCount >= 6 || $turnAge > 600 || $gen >= 4 || $procAge > 60;
 
-        return $turnId;
+        if ($tooLarge) {
+            whatsapp_release_lead_reply_lock($leadId);
+            db_execute(
+                'UPDATE conversation_turns SET status = \'failed\', suppression_reason = \'bloated_turn_split\',
+                 processing_completed_at = NOW() WHERE id = ?',
+                'i',
+                [$turnId]
+            );
+            turn_engine_log_event($turnId, 'AI_GENERATION_CANCELLED', [
+                'reason'        => 'bloated_turn_split',
+                'message_count' => $msgCount,
+                'generation'    => $gen,
+            ]);
+        } else {
+            db_execute(
+                'UPDATE conversation_turns SET status = \'buffering\', processing_started_at = NULL, finalized_at = NULL,
+                 suppression_reason = NULL, processing_generation = processing_generation + 1 WHERE id = ?',
+                'i',
+                [$turnId]
+            );
+            turn_engine_extend_buffer($turnId, $hasMedia);
+            turn_engine_log_event($turnId, 'TURN_REBUFFERED', [
+                'reason' => 'message_during_processing',
+                'processing_generation' => turn_engine_current_processing_generation($turnId),
+            ]);
+
+            return $turnId;
+        }
     }
 
     // Customer still waiting for our reply — keep one continuous burst (do not split mid-conversation).
@@ -672,9 +760,8 @@ function turn_engine_ingest(array $bot, string $phoneId, string $token, string $
             [$waId]
         );
         if ($existing && in_array((string) ($existing['status'] ?? ''), ['buffering', 'processing'], true)) {
-            turn_engine_schedule_lead_processing((int) $existing['lead_id']);
             turn_engine_log_event((int) $existing['turn_id'], 'DUPLICATE_REPROCESS', ['wa_message_id' => $waId]);
-            return ['success' => true, 'duplicate' => true, 'reprocess' => true, 'lead_id' => (int) $existing['lead_id']];
+            return ['success' => true, 'duplicate' => true, 'reprocess' => true, 'lead_id' => (int) $existing['lead_id'], 'turn_id' => (int) $existing['turn_id']];
         }
         turn_engine_log_event(0, 'DUPLICATE_EVENT_IGNORED', ['wa_message_id' => $waId]);
         return ['success' => true, 'duplicate' => true];
@@ -737,7 +824,6 @@ function turn_engine_ingest(array $bot, string $phoneId, string $token, string $
     );
 
     turn_engine_extend_buffer($turnId, $hasMedia);
-    turn_engine_consolidate_buffering_turns($leadId);
     turn_engine_log_event($turnId, 'MESSAGE_NORMALIZED', [
         'wa_message_id' => $waId,
         'type'          => $type,
@@ -746,11 +832,6 @@ function turn_engine_ingest(array $bot, string $phoneId, string $token, string $
         'wa_message_id' => $waId,
         'type'          => $type,
     ]);
-
-    // Never generate or show typing from ingest — wait until the client has been quiet.
-    if (!turn_engine_dispatch_worker([$leadId])) {
-        turn_engine_log_event($turnId, 'WORKER_DISPATCH_FAILED', ['lead_id' => $leadId]);
-    }
 
     return ['success' => true, 'turn_id' => $turnId, 'lead_id' => $leadId];
 }
@@ -826,7 +907,19 @@ function turn_engine_process_turn_media(int $turnId, string $token): void
         [$turnId]
     );
 
+    $mediaDeadline = (float) ($GLOBALS['wa_media_deadline'] ?? 0);
+
     foreach ($rows as $row) {
+        if ($mediaDeadline > 0 && microtime(true) > $mediaDeadline) {
+            db_execute(
+                'UPDATE conversation_turn_messages SET processing_status = \'failed\'
+                 WHERE turn_id = ? AND processing_status IN (\'pending\', \'processing\')',
+                'i',
+                [$turnId]
+            );
+            turn_engine_log_event($turnId, 'MEDIA_PROCESSING_TIMEOUT', ['budget_s' => 8]);
+            break;
+        }
         $type = (string) ($row['message_type'] ?? '');
         if (!turn_engine_message_is_media($type)) {
             db_execute(
@@ -1104,6 +1197,21 @@ function turn_engine_build_turn_payload(int $turnId): array
         }
     }
 
+    // Word-by-word bubbles ("How" / "Are" / "You") must all stay in the turn.
+    // Only trim when some parts are long (spam / paste).
+    if (count($textParts) > 24) {
+        $hasLong = false;
+        foreach ($textParts as $part) {
+            if (mb_strlen(trim((string) $part)) > 40) {
+                $hasLong = true;
+                break;
+            }
+        }
+        if ($hasLong) {
+            $textParts = array_slice($textParts, -12);
+        }
+    }
+
     $segments = [];
     if ($textParts !== []) {
         $segments[] = turn_engine_combine_text_parts($textParts);
@@ -1129,6 +1237,14 @@ function turn_engine_build_turn_payload(int $turnId): array
 function turn_engine_infer_state(string $combined, string $current): string
 {
     $t = mb_strtolower($combined);
+    if (preg_match('/\b(friends?|just (want to )?chat|how about you|introduc|tell me more)\b/u', $t)
+        && !preg_match('/\b(menu|order|book|price|checkout)\b/u', $t)
+    ) {
+        return 'CASUAL_CONVERSATION';
+    }
+    if (preg_match('/^(what|huh)\??$/u', $t) || preg_match('/\b(didn\'?t understand|confused)\b/u', $t)) {
+        return $current !== '' ? $current : 'CLARIFICATION';
+    }
     if (preg_match('/\b(hi+|hello+|hey+|salam|assalam)\b/u', $t)) {
         return 'GREETING';
     }
@@ -1243,6 +1359,20 @@ function turn_engine_merge_turn_messages(int $fromTurnId, int $toTurnId): void
 
     turn_engine_extend_buffer($toTurnId, ((int) ($counts['m'] ?? 0)) > 0);
 
+    $debounceSec = max(5, (int) ceil(turn_engine_constants()['text_debounce_ms'] / 1000));
+    db_execute(
+        'UPDATE conversation_turns SET
+            status = \'buffering\',
+            suppression_reason = NULL,
+            processing_started_at = NULL,
+            processing_completed_at = NULL,
+            finalized_at = NULL,
+            finalize_after = DATE_ADD(NOW(), INTERVAL ? SECOND)
+         WHERE id = ?',
+        'ii',
+        [$debounceSec, $toTurnId]
+    );
+
     db_execute(
         'UPDATE conversation_turns SET status = \'cancelled\', suppression_reason = \'merged_into_later_turn\' WHERE id = ?',
         'i',
@@ -1266,6 +1396,95 @@ function turn_engine_consolidate_buffering_turns(int $leadId): void
     $primaryId = (int) $turns[0]['id'];
     for ($i = 1, $n = count($turns); $i < $n; $i++) {
         turn_engine_merge_turn_messages((int) $turns[$i]['id'], $primaryId);
+    }
+}
+
+/** Re-open the latest unanswered turn when merges left every turn cancelled (webhook sent:0). */
+function turn_engine_repair_lead_turn(int $leadId): int
+{
+    if ($leadId <= 0) {
+        return 0;
+    }
+
+    turn_engine_ensure_schema();
+
+    $row = db_fetch(
+        'SELECT t.id, t.status FROM conversation_turns t
+         WHERE t.lead_id = ?
+         AND EXISTS (
+            SELECT 1 FROM conversation_turn_messages ctm WHERE ctm.turn_id = t.id
+         )
+         AND NOT EXISTS (
+            SELECT 1 FROM conversation_turn_events e
+            WHERE e.turn_id = t.id AND e.event_type = \'RESPONSE_SENT\'
+         )
+         ORDER BY t.last_message_at DESC, t.id DESC LIMIT 1',
+        'i',
+        [$leadId]
+    );
+    if (!$row) {
+        return 0;
+    }
+
+    $turnId = (int) ($row['id'] ?? 0);
+    if ($turnId <= 0) {
+        return 0;
+    }
+
+    $status = (string) ($row['status'] ?? '');
+    $debounceSec = turn_engine_quiet_seconds();
+
+    if ($status !== 'buffering') {
+        db_execute(
+            'UPDATE conversation_turns SET
+                status = \'buffering\',
+                suppression_reason = NULL,
+                processing_started_at = NULL,
+                processing_completed_at = NULL,
+                ai_response_text = NULL,
+                finalized_at = NULL,
+                finalize_after = DATE_ADD(NOW(), INTERVAL ? SECOND)
+             WHERE id = ?',
+            'ii',
+            [$debounceSec, $turnId]
+        );
+        turn_engine_log_event($turnId, 'TURN_REOPENED', ['reason' => 'repair_lead_turn', 'was' => $status]);
+    }
+
+    return $turnId;
+}
+
+/** Merge every unanswered turn for a lead into the newest open turn. */
+function turn_engine_consolidate_open_turns_for_lead(int $leadId): void
+{
+    if ($leadId <= 0) {
+        return;
+    }
+
+    turn_engine_consolidate_buffering_turns($leadId);
+
+    $open = db_fetch_all(
+        'SELECT t.id FROM conversation_turns t
+         WHERE t.lead_id = ?
+         AND t.status IN (\'buffering\', \'processing\', \'failed\', \'cancelled\')
+         AND NOT EXISTS (
+            SELECT 1 FROM conversation_turn_events e
+            WHERE e.turn_id = t.id AND e.event_type = \'RESPONSE_SENT\'
+         )
+         ORDER BY t.id DESC',
+        'i',
+        [$leadId]
+    ) ?: [];
+
+    if (count($open) <= 1) {
+        turn_engine_repair_lead_turn($leadId);
+
+        return;
+    }
+
+    $primaryId = (int) $open[0]['id'];
+    for ($i = 1, $n = count($open); $i < $n; $i++) {
+        turn_engine_merge_turn_messages((int) $open[$i]['id'], $primaryId);
     }
 }
 
@@ -1350,29 +1569,394 @@ function turn_engine_force_finalize_overdue(int $leadId, int $overdueSec = 30): 
     }
 }
 
-function turn_engine_recover_stuck_turns(int $maxAgeMinutes = 8): int
+/**
+ * Release AI turns that started but never finished (cPanel killed the webhook mid-generation).
+ */
+function turn_engine_recover_hung_processing(int $leadId = 0, int $maxAgeSec = 75, bool $forceAny = false, int $botId = 0): int
 {
     turn_engine_ensure_schema();
-    $maxAgeMinutes = max(8, $maxAgeMinutes);
+    $maxAgeSec = max(1, min(300, $maxAgeSec));
+    $params = $forceAny ? [] : [$maxAgeSec];
+    $leadSql = '';
+    if ($leadId > 0) {
+        $leadSql = ' AND t.lead_id = ?';
+        $params[] = $leadId;
+    }
+    $botSql = '';
+    if ($botId > 0) {
+        $botSql = ' AND t.bot_id = ?';
+        $params[] = $botId;
+    }
+
+    $ageSql = $forceAny
+        ? ' AND t.processing_started_at IS NOT NULL'
+        : ' AND t.processing_started_at IS NOT NULL AND t.processing_started_at < DATE_SUB(NOW(), INTERVAL ? SECOND)';
+
     $rows = db_fetch_all(
-        'SELECT id FROM conversation_turns
-         WHERE status = \'processing\'
+        'SELECT t.id, t.lead_id, t.bot_id, b.whatsapp_phone_id, b.whatsapp_token
+         FROM conversation_turns t
+         INNER JOIN bots b ON b.id = t.bot_id
+         WHERE t.status = \'processing\'
+         AND (t.ai_response_text IS NULL OR t.ai_response_text = \'\')' . $ageSql . $leadSql . $botSql,
+        str_repeat('i', count($params)),
+        $params
+    ) ?: [];
+
+    $n = 0;
+    foreach ($rows as $row) {
+        $turnId = (int) ($row['id'] ?? 0);
+        $rowLeadId = (int) ($row['lead_id'] ?? 0);
+        if ($turnId <= 0) {
+            continue;
+        }
+        whatsapp_release_lead_reply_lock($rowLeadId);
+        db_execute(
+            'UPDATE conversation_turns SET status = \'failed\', suppression_reason = \'hung_ai_timeout\',
+             processing_completed_at = NOW() WHERE id = ?',
+            'i',
+            [$turnId]
+        );
+        turn_engine_log_event($turnId, 'AI_GENERATION_CANCELLED', ['reason' => 'hung_processing_recovered']);
+        $n++;
+
+        try {
+            $bot = db_fetch('SELECT * FROM bots WHERE id = ?', 'i', [(int) ($row['bot_id'] ?? 0)]);
+            $token = bot_whatsapp_token_plain((string) ($row['whatsapp_token'] ?? ''));
+            $phoneId = trim((string) ($row['whatsapp_phone_id'] ?? ''));
+            if ($bot && is_string($token) && $token !== '' && $phoneId !== '' && $rowLeadId > 0) {
+                turn_engine_send_fallback_for_turn($turnId, $bot, $phoneId, $token, 'hung_recover');
+            }
+        } catch (Throwable $e) {
+            error_log('turn_engine_recover_hung_processing fallback: ' . $e->getMessage());
+        }
+    }
+
+    return $n;
+}
+
+/**
+ * Send a guaranteed fallback WhatsApp reply for one turn (used when AI/worker dies on cPanel).
+ *
+ * @param array<string, mixed> $bot
+ */
+function turn_engine_send_fallback_for_turn(int $turnId, array $bot, string $phoneId, string $token, string $path = 'fallback'): bool
+{
+    if ($turnId <= 0 || $phoneId === '' || $token === '') {
+        return false;
+    }
+
+    $turn = db_fetch('SELECT * FROM conversation_turns WHERE id = ?', 'i', [$turnId]);
+    if (!$turn) {
+        return false;
+    }
+
+    $alreadySent = db_fetch(
+        'SELECT id FROM conversation_turn_events WHERE turn_id = ? AND event_type = \'RESPONSE_SENT\' LIMIT 1',
+        'i',
+        [$turnId]
+    );
+    if ($alreadySent !== null) {
+        return true;
+    }
+
+    require_once __DIR__ . '/whatsapp-auto-reply-core.php';
+    $result = wa_auto_reply_deliver_turn($turn, $bot, $phoneId, $token, true);
+    if (!empty($result['ok'])) {
+        return true;
+    }
+
+    $leadId = (int) ($turn['lead_id'] ?? 0);
+    $sender = trim((string) ($turn['sender_phone'] ?? ''));
+    if ($sender === '' && $leadId > 0) {
+        $lead = db_fetch('SELECT phone, whatsapp_id FROM leads WHERE id = ?', 'i', [$leadId]);
+        $sender = trim((string) ($lead['phone'] ?? $lead['whatsapp_id'] ?? ''));
+    }
+    if ($sender === '') {
+        error_log('turn_engine_send_fallback_for_turn #' . $turnId . ': no sender phone');
+
+        return false;
+    }
+
+    $payload = turn_engine_build_turn_payload($turnId);
+    $combined = trim((string) ($payload['combined'] ?? ''));
+    $waIds = $payload['wa_message_ids'] ?? [];
+    $waId = $waIds !== [] ? (string) $waIds[count($waIds) - 1] : '';
+
+    $reply = "I'm here — what can I help you with?";
+    try {
+        require_once __DIR__ . '/human-agent-prompt.php';
+        if (function_exists('human_agent_warm_last_resort')) {
+            $reply = human_agent_warm_last_resort($bot, $combined !== '' ? $combined : 'Hi', $leadId);
+        }
+    } catch (Throwable $ignored) {
+    }
+
+    $sent = turn_engine_guaranteed_send($phoneId, $token, $sender, $reply, $waId);
+    if (empty($sent['success'])) {
+        if (function_exists('whatsapp_webhook_log_event')) {
+            whatsapp_webhook_log_event('Fallback send failed', [
+                'turn_id' => $turnId,
+                'lead_id' => $leadId,
+                'path'    => $path,
+                'error'   => (string) ($sent['message'] ?? 'unknown'),
+            ]);
+        }
+
+        return false;
+    }
+
+    try {
+        if ($combined !== '' && function_exists('conversation_insert')) {
+            conversation_insert($leadId, 'user', $combined, $payload['media_type'] ?? null, $payload['media_url'] ?? null);
+        }
+        conversation_store_sent_assistant_reply($leadId, $reply);
+        if ($waIds !== []) {
+            whatsapp_mark_many_inbound_replied($waIds);
+        }
+        db_execute(
+            'UPDATE conversation_turns SET status = \'completed\', ai_response_text = ?, processing_completed_at = NOW(), suppression_reason = ? WHERE id = ?',
+            'ssi',
+            [$reply, $path, $turnId]
+        );
+        turn_engine_log_event($turnId, 'RESPONSE_SENT', ['path' => $path]);
+    } catch (Throwable $e) {
+        error_log('turn_engine_send_fallback_for_turn persist #' . $turnId . ': ' . $e->getMessage());
+    }
+
+    return true;
+}
+
+/**
+ * Fast OpenAI reply for WhatsApp — minimal prompt, chat history, 12s timeout.
+ *
+ * @param array<string, mixed> $bot
+ */
+function turn_engine_fast_openai_reply(int $leadId, array $bot, string $userMessage): ?string
+{
+    if ($leadId <= 0 || trim($userMessage) === '') {
+        return null;
+    }
+
+    require_once __DIR__ . '/openai.php';
+    require_once __DIR__ . '/platform-training.php';
+
+    $lead = db_fetch('SELECT * FROM leads WHERE id = ?', 'i', [$leadId]) ?: [];
+    $company = (string) ($bot['company_name'] ?? (defined('APP_NAME') ? APP_NAME : 'Business'));
+
+    $system = build_runtime_bot_prompt($bot, $company, $lead);
+    if (mb_strlen($system) > 6000) {
+        $system = mb_substr($system, 0, 6000);
+    }
+    require_once __DIR__ . '/human-agent-prompt.php';
+    $system .= "\n\n" . human_agent_universal_turn_hint($userMessage, $leadId);
+
+    $history = db_fetch_all(
+        'SELECT role, message FROM conversations WHERE lead_id = ? ORDER BY id DESC LIMIT 12',
+        'i',
+        [$leadId]
+    ) ?: [];
+    $history = array_reverse($history);
+
+    $messages = [['role' => 'system', 'content' => $system]];
+    foreach ($history as $row) {
+        $role = (string) ($row['role'] ?? '');
+        if ($role === 'system') {
+            continue;
+        }
+        $messages[] = [
+            'role'    => $role === 'assistant' ? 'assistant' : 'user',
+            'content' => (string) ($row['message'] ?? ''),
+        ];
+    }
+    $messages[] = ['role' => 'user', 'content' => $userMessage];
+
+    $result = openai_chat($messages, [
+        'timeout'      => 15,
+        'max_attempts' => 1,
+        'max_tokens'   => 280,
+        'temperature'  => 0.35,
+    ]);
+
+    if (!empty($result['success']) && trim((string) ($result['content'] ?? '')) !== '') {
+        return trim((string) $result['content']);
+    }
+
+    error_log('turn_engine_fast_openai_reply lead #' . $leadId . ': ' . (string) ($result['error'] ?? 'empty'));
+
+    return null;
+}
+
+/**
+ * Lightweight debug recovery — no AI generation (avoids cPanel 503 timeouts).
+ *
+ * @return array{split: int, hung: int, ensured: int, worker: bool}
+ */
+function turn_engine_debug_force_recover(int $botId): array
+{
+    turn_engine_ensure_schema();
+    @set_time_limit(45);
+
+    $split = turn_engine_split_bloated_turns($botId);
+    $hung = turn_engine_recover_hung_processing(0, 1, true, $botId);
+
+    $ensured = 0;
+    $botRow = $botId > 0 ? db_fetch('SELECT * FROM bots WHERE id = ?', 'i', [$botId]) : null;
+    if (!$botRow) {
+        return ['split' => $split, 'hung' => $hung, 'ensured' => 0, 'worker' => false];
+    }
+
+    $phoneId = trim((string) ($botRow['whatsapp_phone_id'] ?? ''));
+    $token = bot_whatsapp_token_plain((string) ($botRow['whatsapp_token'] ?? ''));
+    if (!is_string($token) || $token === '' || $phoneId === '') {
+        return ['split' => $split, 'hung' => $hung, 'ensured' => 0, 'worker' => false];
+    }
+
+    $leadRows = db_fetch_all(
+        'SELECT DISTINCT lead_id FROM conversation_turns
+         WHERE bot_id = ?
          AND (
-            (processing_started_at IS NOT NULL AND processing_started_at < DATE_SUB(NOW(), INTERVAL ? MINUTE))
-            OR (processing_started_at IS NULL AND last_message_at < DATE_SUB(NOW(), INTERVAL ? MINUTE))
+            (status = \'failed\' AND processing_completed_at >= DATE_SUB(NOW(), INTERVAL 12 HOUR))
+            OR status IN (\'buffering\', \'processing\')
+         )',
+        'i',
+        [$botId]
+    ) ?: [];
+
+    $leadIds = [];
+    foreach ($leadRows as $row) {
+        $lid = (int) ($row['lead_id'] ?? 0);
+        if ($lid > 0) {
+            $leadIds[$lid] = $lid;
+        }
+    }
+
+    foreach ($leadIds as $lid) {
+        $turn = db_fetch(
+            'SELECT id, status FROM conversation_turns WHERE lead_id = ? ORDER BY id DESC LIMIT 1',
+            'i',
+            [$lid]
+        );
+        if (!$turn) {
+            continue;
+        }
+        $turnId = (int) ($turn['id'] ?? 0);
+        $sent = db_fetch(
+            'SELECT id FROM conversation_turn_events WHERE turn_id = ? AND event_type = \'RESPONSE_SENT\' LIMIT 1',
+            'i',
+            [$turnId]
+        );
+        if ($sent !== null) {
+            continue;
+        }
+        $status = (string) ($turn['status'] ?? '');
+        if (in_array($status, ['failed', 'buffering', 'processing'], true)) {
+            if (turn_engine_send_fallback_for_turn($turnId, $botRow, $phoneId, $token, 'debug_force')) {
+                $ensured++;
+            }
+        }
+    }
+
+    // Do not dispatch turn-worker here — it runs heavy AI (process_due) and causes cPanel 503.
+    return ['split' => $split, 'hung' => $hung, 'ensured' => $ensured, 'worker' => false];
+}
+
+function turn_engine_split_bloated_turns(int $botId = 0): int
+{
+    turn_engine_ensure_schema();
+    $params = [];
+    $botSql = '';
+    if ($botId > 0) {
+        $botSql = ' AND bot_id = ?';
+        $params[] = $botId;
+    }
+
+    $rows = db_fetch_all(
+        'SELECT id, lead_id, message_count, started_at, status FROM conversation_turns
+         WHERE status IN (\'buffering\', \'processing\')
+         AND (
+            message_count >= 8
+            OR started_at < DATE_SUB(NOW(), INTERVAL 15 MINUTE)
+         )' . $botSql . '
+         ORDER BY id ASC',
+        str_repeat('i', count($params)),
+        $params
+    ) ?: [];
+
+    $n = 0;
+    foreach ($rows as $row) {
+        $turnId = (int) ($row['id'] ?? 0);
+        $leadId = (int) ($row['lead_id'] ?? 0);
+        if ($turnId <= 0) {
+            continue;
+        }
+        whatsapp_release_lead_reply_lock($leadId);
+        $turn = db_fetch('SELECT * FROM conversation_turns WHERE id = ?', 'i', [$turnId]);
+        $bot = $turn ? db_fetch(
+            'SELECT b.*, u.company_name FROM bots b JOIN users u ON u.id = b.user_id WHERE b.id = ?',
+            'i',
+            [(int) ($turn['bot_id'] ?? 0)]
+        ) : null;
+        $phoneId = trim((string) ($bot['whatsapp_phone_id'] ?? ''));
+        $token = $bot ? bot_whatsapp_token_plain((string) ($bot['whatsapp_token'] ?? '')) : false;
+        $sentOk = false;
+        if ($turn && $bot && $phoneId !== '' && is_string($token) && $token !== '') {
+            require_once __DIR__ . '/whatsapp-auto-reply-core.php';
+            $delivered = wa_auto_reply_deliver_turn($turn, $bot, $phoneId, $token, true);
+            $sentOk = !empty($delivered['ok']);
+        }
+        if (!$sentOk) {
+            db_execute(
+                'UPDATE conversation_turns SET status = \'failed\', suppression_reason = \'bloated_turn_reset\',
+                 processing_completed_at = NOW() WHERE id = ?',
+                'i',
+                [$turnId]
+            );
+            turn_engine_log_event($turnId, 'AI_GENERATION_CANCELLED', [
+                'reason'        => 'bloated_turn_reset',
+                'message_count' => (int) ($row['message_count'] ?? 0),
+            ]);
+        }
+        $n++;
+    }
+
+    return $n;
+}
+
+function turn_engine_recover_stuck_turns(int $maxAgeMinutes = 1): int
+{
+    turn_engine_ensure_schema();
+    turn_engine_recover_hung_processing(0, max(45, $maxAgeMinutes * 60));
+    $maxAgeMinutes = max(1, min(15, $maxAgeMinutes));
+    $rows = db_fetch_all(
+        'SELECT t.id, t.lead_id, t.bot_id, b.whatsapp_phone_id, b.whatsapp_token
+         FROM conversation_turns t
+         INNER JOIN bots b ON b.id = t.bot_id
+         WHERE t.status = \'processing\'
+         AND (
+            (t.processing_started_at IS NOT NULL AND t.processing_started_at < DATE_SUB(NOW(), INTERVAL ? MINUTE))
+            OR (t.processing_started_at IS NULL AND t.last_message_at < DATE_SUB(NOW(), INTERVAL ? MINUTE))
          )',
         'ii',
         [$maxAgeMinutes, $maxAgeMinutes]
     );
     $n = 0;
     foreach ($rows as $row) {
-        db_execute(
-            'UPDATE conversation_turns SET status = \'buffering\', processing_started_at = NULL, finalized_at = NULL,
-             finalize_after = NOW(), suppression_reason = \'recovered_stuck\' WHERE id = ?',
-            'i',
-            [(int) $row['id']]
-        );
-        turn_engine_log_event((int) $row['id'], 'AI_GENERATION_CANCELLED', ['reason' => 'recovered_stuck']);
+        $leadId = (int) ($row['lead_id'] ?? 0);
+        $bot = db_fetch('SELECT * FROM bots WHERE id = ?', 'i', [(int) ($row['bot_id'] ?? 0)]);
+        $token = $bot ? bot_whatsapp_token_plain((string) ($row['whatsapp_token'] ?? '')) : false;
+        $phoneId = (string) ($row['whatsapp_phone_id'] ?? '');
+        turn_engine_log_event((int) $row['id'], 'AI_GENERATION_CANCELLED', ['reason' => 'recovered_stuck_send']);
+        if ($bot && is_string($token) && $token !== '' && $phoneId !== '' && $leadId > 0) {
+            turn_engine_ensure_lead_replied($leadId, $bot, $phoneId, $token, true);
+            turn_engine_send_if_customer_waiting($leadId, $bot, $phoneId, $token);
+        } else {
+            db_execute(
+                'UPDATE conversation_turns SET status = \'failed\', suppression_reason = \'recovered_stuck_no_token\',
+                 processing_completed_at = NOW() WHERE id = ?',
+                'i',
+                [(int) $row['id']]
+            );
+        }
         $n++;
     }
 
@@ -1602,7 +2186,7 @@ function turn_engine_finalize_turn(int $turnId, bool $force = false): bool
         return false;
     }
 
-    if (!turn_engine_row_is_quiet($turn)) {
+    if (!$force && !turn_engine_row_is_quiet($turn)) {
         turn_engine_rebuffer_for_quiet($turnId);
 
         return false;
@@ -1621,6 +2205,251 @@ function turn_engine_finalize_turn(int $turnId, bool $force = false): bool
     turn_engine_log_event($turnId, 'TURN_FINALIZED');
 
     return true;
+}
+
+/**
+ * Send WhatsApp text with only whatsapp.php — used when the AI stack fatals.
+ *
+ * @return array{success: bool, message?: string}
+ */
+function turn_engine_guaranteed_send(
+    string $phoneId,
+    string $token,
+    string $senderPhone,
+    string $text,
+    string $waMessageId = ''
+): array {
+    $text = trim($text);
+    if ($text === '') {
+        $text = "I'm here — what can I help you with?";
+    }
+    try {
+        if ($waMessageId !== '' && function_exists('whatsapp_typing_keepalive_stop')) {
+            whatsapp_typing_keepalive_stop($waMessageId);
+        }
+
+        return send_whatsapp_message($phoneId, $token, $senderPhone, $text);
+    } catch (Throwable $e) {
+        error_log('turn_engine_guaranteed_send: ' . $e->getMessage());
+
+        return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
+/**
+ * True when we already sent a WhatsApp reply for this lead in the last few seconds.
+ */
+function turn_engine_lead_just_got_reply(int $leadId, int $withinSec = 20): bool
+{
+    if ($leadId <= 0) {
+        return false;
+    }
+    $withinSec = max(3, min(60, $withinSec));
+    try {
+        $asst = db_fetch(
+            'SELECT created_at FROM conversations
+             WHERE lead_id = ? AND role = \'assistant\'
+             ORDER BY id DESC LIMIT 1',
+            'i',
+            [$leadId]
+        );
+        if ($asst) {
+            $at = strtotime((string) ($asst['created_at'] ?? ''));
+            if ($at > 0 && (time() - $at) <= $withinSec) {
+                return true;
+            }
+        }
+        $ev = db_fetch(
+            'SELECT e.created_at FROM conversation_turn_events e
+             INNER JOIN conversation_turns t ON t.id = e.turn_id
+             WHERE t.lead_id = ? AND e.event_type = \'RESPONSE_SENT\'
+             ORDER BY e.id DESC LIMIT 1',
+            'i',
+            [$leadId]
+        );
+        if ($ev) {
+            $at = strtotime((string) ($ev['created_at'] ?? ''));
+            if ($at > 0 && (time() - $at) <= $withinSec) {
+                return true;
+            }
+        }
+    } catch (Throwable $e) {
+        error_log('turn_engine_lead_just_got_reply: ' . $e->getMessage());
+    }
+
+    return false;
+}
+
+/**
+ * Pending outbound after typing started. Shutdown + finally flush this so a
+ * timeout/fatal cannot leave the customer seeing "typing…" with no message.
+ *
+ * @param array<string, mixed>|null $replace
+ * @return array<string, mixed>|null
+ */
+function turn_engine_must_send_bag(?array $replace = null, bool $clear = false): ?array
+{
+    static $bag = null;
+    if ($clear) {
+        $bag = null;
+
+        return null;
+    }
+    if ($replace !== null) {
+        $bag = $replace;
+    }
+
+    return $bag;
+}
+
+function turn_engine_must_send_is_armed(): bool
+{
+    $bag = turn_engine_must_send_bag();
+
+    return is_array($bag) && trim((string) ($bag['to'] ?? '')) !== '';
+}
+
+/**
+ * @param list<string> $waMessageIds
+ */
+function turn_engine_arm_must_send(
+    string $phoneId,
+    string $token,
+    string $senderPhone,
+    int $leadId,
+    int $turnId,
+    string $waMessageId,
+    array $waMessageIds
+): void {
+    turn_engine_must_send_bag([
+        'phone_id' => $phoneId,
+        'token'    => $token,
+        'to'       => $senderPhone,
+        'lead_id'  => $leadId,
+        'turn_id'  => $turnId,
+        'wa_id'    => $waMessageId,
+        'wa_ids'   => $waMessageIds,
+        'text'     => "I'm here — what can I help you with?",
+    ]);
+    static $registered = false;
+    if (!$registered) {
+        $registered = true;
+        register_shutdown_function('turn_engine_shutdown_flush_must_send');
+    }
+}
+
+function turn_engine_mark_must_send_done(): void
+{
+    turn_engine_must_send_bag(null, true);
+}
+
+function turn_engine_flush_must_send(?string $text = null): array
+{
+    $bag = turn_engine_must_send_bag();
+    if (!is_array($bag) || trim((string) ($bag['to'] ?? '')) === '') {
+        return ['success' => false, 'message' => 'not_armed'];
+    }
+
+    $leadId = (int) ($bag['lead_id'] ?? 0);
+    $turnId = (int) ($bag['turn_id'] ?? 0);
+    if ($turnId > 0 && function_exists('wa_recover_response_sent') && wa_recover_response_sent($turnId)) {
+        turn_engine_mark_must_send_done();
+
+        return ['success' => true, 'message' => 'already_sent'];
+    }
+    if ($leadId > 0 && turn_engine_lead_just_got_reply($leadId, 20)) {
+        turn_engine_mark_must_send_done();
+
+        return ['success' => true, 'message' => 'recent_reply'];
+    }
+
+    $fallback = "I'm here — what can I help you with?";
+    $text = trim((string) ($text ?? $bag['text'] ?? $fallback));
+    if ($text === '' || stripos($text, 'what can I help you with') !== false) {
+        $combined = '';
+        if ($turnId > 0 && function_exists('turn_engine_build_turn_payload')) {
+            try {
+                $payload = turn_engine_build_turn_payload($turnId);
+                $combined = trim((string) ($payload['combined'] ?? ''));
+            } catch (Throwable $ignored) {
+            }
+        }
+        if ($combined !== '' && $leadId > 0) {
+            try {
+                require_once __DIR__ . '/whatsapp-auto-reply-core.php';
+                $turnRow = $turnId > 0 ? db_fetch('SELECT bot_id FROM conversation_turns WHERE id = ?', 'i', [$turnId]) : null;
+                $botId = (int) ($turnRow['bot_id'] ?? 0);
+                $bot = $botId > 0
+                    ? db_fetch(
+                        'SELECT b.*, u.company_name FROM bots b INNER JOIN users u ON u.id = b.user_id WHERE b.id = ? LIMIT 1',
+                        'i',
+                        [$botId]
+                    )
+                    : null;
+                if (is_array($bot) && function_exists('wa_webhook_mind_reply')) {
+                    $text = trim(wa_webhook_mind_reply($bot, $leadId, $combined));
+                }
+            } catch (Throwable $e) {
+                error_log('turn_engine_flush_must_send compose: ' . $e->getMessage());
+            }
+        }
+        if ($text === '' || stripos($text, 'what can I help you with') !== false) {
+            $text = $combined !== ''
+                ? 'Got your message — tell me the next bit so I can answer that.'
+                : 'Got it — what should I do next?';
+        }
+    }
+
+    $sent = turn_engine_guaranteed_send(
+        (string) $bag['phone_id'],
+        (string) $bag['token'],
+        (string) $bag['to'],
+        $text,
+        (string) ($bag['wa_id'] ?? '')
+    );
+
+    if (!empty($sent['success'])) {
+        $leadId = (int) ($bag['lead_id'] ?? 0);
+        $turnId = (int) ($bag['turn_id'] ?? 0);
+        try {
+            if ($leadId > 0 && function_exists('conversation_store_sent_assistant_reply')) {
+                conversation_store_sent_assistant_reply($leadId, $text);
+            }
+            if ($turnId > 0) {
+                db_execute(
+                    'UPDATE conversation_turns
+                     SET status = \'completed\', ai_response_text = ?, processing_completed_at = NOW(),
+                         suppression_reason = \'must_send_flush\'
+                     WHERE id = ? AND status IN (\'processing\', \'failed\')',
+                    'si',
+                    [$text, $turnId]
+                );
+                turn_engine_log_event($turnId, 'RESPONSE_SENT', ['path' => 'must_send_flush']);
+            }
+            $ids = $bag['wa_ids'] ?? [];
+            if (is_array($ids) && $ids !== [] && function_exists('whatsapp_mark_many_inbound_replied')) {
+                whatsapp_mark_many_inbound_replied($ids);
+            }
+        } catch (Throwable $e) {
+            error_log('turn_engine_flush_must_send persist: ' . $e->getMessage());
+        }
+        turn_engine_mark_must_send_done();
+    }
+
+    return $sent;
+}
+
+function turn_engine_shutdown_flush_must_send(): void
+{
+    if (!turn_engine_must_send_is_armed()) {
+        return;
+    }
+    error_log('turn_engine_shutdown_flush_must_send: sending after unexpected exit');
+    try {
+        turn_engine_flush_must_send();
+    } catch (Throwable $e) {
+        error_log('turn_engine_shutdown_flush_must_send: ' . $e->getMessage());
+    }
 }
 
 /**
@@ -1660,18 +2489,55 @@ function turn_engine_process_turn(int $turnId, array $bot, string $phoneId, stri
     $snapshotGeneration = (int) ($turn['processing_generation'] ?? 0);
     $generationId = '';
     $analysis = [];
+    if (!whatsapp_acquire_lead_reply_lock($leadId, 0)) {
+        error_log('turn_engine_process_turn #' . $turnId . ': lock busy, not stampeding lead #' . $leadId);
+        return ['success' => true, 'suppressed' => 'lock_busy'];
+    }
+    try {
     if (function_exists('conversation_consume_shop_menu_send')) {
         conversation_consume_shop_menu_send();
     }
 
     $earlyPayload = turn_engine_build_turn_payload($turnId);
     $earlyIds = $earlyPayload['wa_message_ids'] ?? [];
+    $combined = (string) ($earlyPayload['combined'] ?? '');
+    $waMessageIds = $earlyIds;
     if ($earlyIds !== []) {
         $primaryWaId = $earlyIds[count($earlyIds) - 1];
-        whatsapp_mark_message_read($phoneId, $token, $primaryWaId);
+        try {
+            whatsapp_mark_message_read($phoneId, $token, $primaryWaId);
+        } catch (Throwable $e) {
+            error_log('turn_engine_process_turn mark read: ' . $e->getMessage());
+        }
     }
 
-    require_once __DIR__ . '/conversation-intelligence.php';
+    try {
+        require_once __DIR__ . '/conversation-intelligence.php';
+    } catch (Throwable $e) {
+        error_log('turn_engine_process_turn intelligence include #' . $turnId . ': ' . $e->getMessage());
+        $sent = turn_engine_guaranteed_send(
+            $phoneId,
+            $token,
+            $senderPhone,
+            "I'm here — what can I help you with?",
+            $primaryWaId
+        );
+        if (!empty($sent['success'])) {
+            conversation_store_sent_assistant_reply($leadId, "I'm here — what can I help you with?");
+            db_execute(
+                'UPDATE conversation_turns SET status = \'completed\', ai_response_text = ?, processing_completed_at = NOW(), suppression_reason = \'intelligence_include_failed\' WHERE id = ?',
+                'si',
+                ["I'm here — what can I help you with?", $turnId]
+            );
+            return ['success' => true, 'reply' => "I'm here — what can I help you with?"];
+        }
+        db_execute(
+            'UPDATE conversation_turns SET status = \'failed\', suppression_reason = ?, processing_completed_at = NOW() WHERE id = ?',
+            'si',
+            [mb_substr($e->getMessage(), 0, 200), $turnId]
+        );
+        return ['success' => false, 'error' => $e->getMessage()];
+    }
     $generationId = conversation_intelligence_start_generation(
         $turnId,
         $leadId,
@@ -1683,8 +2549,6 @@ function turn_engine_process_turn(int $turnId, array $bot, string $phoneId, stri
         'processing_generation' => $snapshotGeneration,
         'generation_id'         => $generationId,
     ]);
-
-    require_once __DIR__ . '/whatsapp-typing-keepalive.php';
 
     $lead = db_fetch('SELECT * FROM leads WHERE id = ?', 'i', [$leadId]) ?: [];
     if ($lead !== [] && is_lead_bot_paused($lead)) {
@@ -1727,10 +2591,6 @@ function turn_engine_process_turn(int $turnId, array $bot, string $phoneId, stri
         return ['success' => true, 'suppressed' => 'auto_reply_off'];
     }
 
-    if (!whatsapp_acquire_lead_reply_lock($leadId, 5)) {
-        return ['success' => false, 'error' => 'Lock busy'];
-    }
-
     try {
         turn_engine_process_turn_media($turnId, $token);
         $payload = turn_engine_build_turn_payload($turnId);
@@ -1738,10 +2598,7 @@ function turn_engine_process_turn(int $turnId, array $bot, string $phoneId, stri
         $waMessageIds = $payload['wa_message_ids'];
         $primaryWaId = $waMessageIds !== [] ? $waMessageIds[count($waMessageIds) - 1] : '';
 
-        // Mark read as soon as we start processing — never wait on AI includes.
-        if ($primaryWaId !== '') {
-            whatsapp_mark_message_read($phoneId, $token, $primaryWaId);
-        }
+        require_once __DIR__ . '/whatsapp-typing-keepalive.php';
 
         if ($combined === '') {
             if (turn_engine_defer_if_customer_still_typing($turnId, $leadId, $messageCountSnapshot)) {
@@ -1749,30 +2606,13 @@ function turn_engine_process_turn(int $turnId, array $bot, string $phoneId, stri
 
                 return ['success' => true, 'suppressed' => 'merged_empty_wait'];
             }
-            $fallback = 'I got your message — could you tell me a bit more about what you need? A product name or photo with a caption helps.';
-            $primaryWaId = $waMessageIds !== [] ? $waMessageIds[count($waMessageIds) - 1] : '';
-            $gate = turn_engine_should_suppress_outbound($turnId, $leadId, $snapshotGeneration, $lead);
-            if ($gate['suppress']) {
-                conversation_intelligence_finish_generation($generationId, 'suppressed');
-
-                return ['success' => true, 'suppressed' => $gate['reason']];
-            }
-            whatsapp_deliver_inbound_reply($phoneId, $token, $senderPhone, $bot, $leadId, '', $fallback, $primaryWaId, $waMessageIds);
-            db_execute(
-                'UPDATE conversation_turns SET status = \'completed\', ai_response_text = ?, suppression_reason = \'empty_turn_fallback\', processing_completed_at = NOW() WHERE id = ?',
-                'si',
-                [$fallback, $turnId]
-            );
-            conversation_intelligence_finish_generation($generationId, 'completed');
-
-            return ['success' => true, 'reply' => $fallback];
         }
 
         if (!turn_engine_turn_still_processing($turnId)) {
             return ['success' => true, 'suppressed' => 'rebuffered'];
         }
 
-        if (turn_engine_defer_if_customer_still_typing($turnId, $leadId, $messageCountSnapshot)) {
+        if ($combined !== '' && turn_engine_defer_if_customer_still_typing($turnId, $leadId, $messageCountSnapshot)) {
             db_execute(
                 'UPDATE conversation_turns SET processing_completed_at = NOW() WHERE id = ?',
                 'i',
@@ -1786,6 +2626,7 @@ function turn_engine_process_turn(int $turnId, array $bot, string $phoneId, stri
         $payload = turn_engine_build_turn_payload($turnId);
         $combined = $payload['combined'];
         $waMessageIds = $payload['wa_message_ids'];
+        $primaryWaId = $waMessageIds !== [] ? $waMessageIds[count($waMessageIds) - 1] : '';
         $countRow = db_fetch('SELECT message_count FROM conversation_turns WHERE id = ?', 'i', [$turnId]);
         $messageCountSnapshot = (int) ($countRow['message_count'] ?? $messageCountSnapshot);
 
@@ -1795,7 +2636,7 @@ function turn_engine_process_turn(int $turnId, array $bot, string $phoneId, stri
             [$combined, turn_engine_update_conversation_state($leadId, $combined), $turnId]
         );
 
-        if (whatsapp_should_skip_auto_reply($leadId, $combined, $waMessageIds)) {
+        if ($combined !== '' && whatsapp_should_skip_auto_reply($leadId, $combined, $waMessageIds)) {
             db_execute(
                 'UPDATE conversation_turns SET status = \'completed\', suppression_reason = \'duplicate\', processing_completed_at = NOW() WHERE id = ?',
                 'i',
@@ -1807,128 +2648,135 @@ function turn_engine_process_turn(int $turnId, array $bot, string $phoneId, stri
             return ['success' => true, 'suppressed' => 'duplicate'];
         }
 
-        require_once __DIR__ . '/../api/ai-respond.php';
-        require_once __DIR__ . '/catalog.php';
-        $primaryWaId = $waMessageIds !== [] ? $waMessageIds[count($waMessageIds) - 1] : '';
-
-        $catalogBlock = turn_engine_catalog_context_block((int) $bot['id'], $turnId);
-        $analysis = conversation_intelligence_run_for_turn($turnId, $bot, $leadId, $combined, $payload);
-        $intelBlock = conversation_intelligence_prompt_block($analysis);
-        $GLOBALS['turn_engine_catalog_prompt_block'] = trim($catalogBlock . "\n" . conversation_intelligence_catalog_block($analysis['catalog'] ?? []));
-        $GLOBALS['turn_engine_state_prompt_block'] = "\nConversation state: " . turn_engine_update_conversation_state($leadId, $combined) . "\n";
-        $GLOBALS['turn_engine_live_agent_block'] = turn_engine_build_live_agent_prompt();
-        $GLOBALS['turn_engine_intelligence_block'] = $intelBlock;
-        require_once __DIR__ . '/human-agent-prompt.php';
-        $GLOBALS['turn_engine_system_hint'] = trim(human_agent_universal_turn_hint($combined, $leadId) . "\n\n" . $intelBlock);
-
-        if (turn_engine_defer_if_customer_still_typing($turnId, $leadId, $messageCountSnapshot)) {
-            turn_engine_dispatch_worker([$leadId]);
-
-            return ['success' => true, 'suppressed' => 'merged_pre_ai'];
-        }
-
+        // Read receipt now; send the text as soon as it is ready (no typing loop).
+        turn_engine_arm_must_send($phoneId, $token, $senderPhone, $leadId, $turnId, $primaryWaId, $waMessageIds);
         if ($primaryWaId !== '') {
-            whatsapp_send_typing_indicator($phoneId, $token, $primaryWaId);
-            whatsapp_typing_keepalive_start($phoneId, $token, $primaryWaId);
+            whatsapp_mark_message_read($phoneId, $token, $primaryWaId);
         }
+
+        if ($combined === '') {
+            $fallback = 'I got your message — could you tell me a bit more about what you need? A product name or photo with a caption helps.';
+            $sent = turn_engine_guaranteed_send($phoneId, $token, $senderPhone, $fallback, $primaryWaId);
+            if (!empty($sent['success'])) {
+                turn_engine_mark_must_send_done();
+                conversation_store_sent_assistant_reply($leadId, $fallback);
+                db_execute(
+                    'UPDATE conversation_turns SET status = \'completed\', ai_response_text = ?, suppression_reason = \'empty_turn_fallback\', processing_completed_at = NOW() WHERE id = ?',
+                    'si',
+                    [$fallback, $turnId]
+                );
+                conversation_intelligence_finish_generation($generationId, 'completed');
+
+                return ['success' => true, 'reply' => $fallback];
+            }
+
+            return ['success' => false, 'error' => (string) ($sent['message'] ?? 'empty_send_failed')];
+        }
+
+        $ai = [];
+        $analysis = [];
+        $reply = "I'm here — what can I help you with?";
+        $productIndexes = [];
 
         conversation_insert($leadId, 'user', $combined, $payload['media_type'], $payload['media_url']);
+        require_once __DIR__ . '/human-agent-prompt.php';
 
-        if (!whatsapp_ai_rate_limit_ok((int) $bot['id'])) {
-            $msg = whatsapp_ai_rate_limit_message();
-            whatsapp_deliver_inbound_reply($phoneId, $token, $senderPhone, $bot, $leadId, $combined, $msg, $primaryWaId, $waMessageIds);
-            db_execute(
-                'UPDATE conversation_turns SET status = \'completed\', ai_response_text = ?, processing_completed_at = NOW() WHERE id = ?',
-                'si',
-                [$msg, $turnId]
-            );
-
-            return ['success' => true, 'reply' => $msg];
-        }
-
-        $GLOBALS['behavior_defer_consolidation'] = true;
-        $GLOBALS['human_agent_customer_turn'] = true;
-        $ai = get_ai_response($leadId, (int) $bot['id'], $combined, [
-            'skip_user_insert' => true,
-            'customer_turn'    => true,
-            'system_hint'      => (string) ($GLOBALS['turn_engine_system_hint'] ?? ''),
-        ]);
-        unset($GLOBALS['behavior_defer_consolidation'], $GLOBALS['turn_engine_catalog_prompt_block'], $GLOBALS['turn_engine_state_prompt_block'], $GLOBALS['turn_engine_live_agent_block'], $GLOBALS['turn_engine_system_hint'], $GLOBALS['turn_engine_intelligence_block'], $GLOBALS['human_agent_customer_turn']);
-
-        if (turn_engine_defer_if_customer_still_typing($turnId, $leadId, $messageCountSnapshot)) {
-            if (!empty($ai['user_message_id'])) {
-                turn_engine_rollback_ai_turn($leadId, (int) $ai['user_message_id']);
+        try {
+            if (!whatsapp_ai_rate_limit_ok((int) $bot['id'])) {
+                $reply = whatsapp_ai_rate_limit_message();
+            } else {
+                $fast = turn_engine_fast_openai_reply($leadId, $bot, $combined);
+                if ($fast !== null && trim($fast) !== '') {
+                    $reply = human_agent_finalize_reply($bot, $leadId, $fast, $combined);
+                    turn_engine_log_event($turnId, 'AI_GENERATION_COMPLETED', ['path' => 'fast_openai']);
+                } else {
+                    $reply = human_agent_warm_last_resort($bot, $combined, $leadId);
+                    turn_engine_log_event($turnId, 'AI_GENERATION_FAILED', ['path' => 'fast_openai', 'fallback' => true]);
+                }
             }
-            turn_engine_dispatch_worker([$leadId]);
-
-            return ['success' => true, 'suppressed' => 'merged_post_ai'];
-        }
-
-        $gate = turn_engine_should_suppress_outbound($turnId, $leadId, $snapshotGeneration, $lead);
-        if (!empty($gate['suppress'])) {
-            if (!empty($ai['user_message_id'])) {
-                turn_engine_rollback_ai_turn($leadId, (int) $ai['user_message_id']);
+        } catch (Throwable $aiErr) {
+            error_log('turn_engine_process_turn fast AI #' . $turnId . ': ' . $aiErr->getMessage());
+            turn_engine_log_event($turnId, 'AI_GENERATION_FAILED', ['error' => $aiErr->getMessage()]);
+            try {
+                $reply = human_agent_warm_last_resort($bot, $combined, $leadId);
+            } catch (Throwable $ignored) {
             }
-            turn_engine_dispatch_worker([$leadId]);
-
-            return ['success' => true, 'suppressed' => (string) ($gate['reason'] ?? 'stale')];
         }
 
-        $freshPayload = turn_engine_build_turn_payload($turnId);
-        if (count($freshPayload['wa_message_ids'] ?? []) > count($waMessageIds)) {
-            if (!empty($ai['user_message_id'])) {
-                turn_engine_rollback_ai_turn($leadId, (int) $ai['user_message_id']);
+        if (trim($reply) === '') {
+            $reply = "I'm here — what can I help you with?";
+        }
+
+        if (!turn_engine_turn_still_processing($turnId)) {
+            return ['success' => true, 'suppressed' => 'already_closed'];
+        }
+
+        $sent = turn_engine_guaranteed_send($phoneId, $token, $senderPhone, $reply, $primaryWaId);
+        if (empty($sent['success'])) {
+            $sent = turn_engine_flush_must_send($reply);
+        }
+
+        if (empty($sent['success'])) {
+            $sendErr = (string) ($sent['message'] ?? 'send_failed');
+            turn_engine_log_event($turnId, 'RESPONSE_SEND_FAILED', ['error' => $sendErr]);
+            if (function_exists('whatsapp_reply_debug_log')) {
+                whatsapp_reply_debug_log('turn_send_failed', [
+                    'turn_id' => $turnId,
+                    'lead_id' => $leadId,
+                    'bot_id'  => (int) ($bot['id'] ?? 0),
+                    'error'   => $sendErr,
+                ]);
             }
-            turn_engine_rebuffer_for_quiet($turnId);
-            turn_engine_dispatch_worker([$leadId]);
-
-            return ['success' => true, 'suppressed' => 'new_bubbles_before_send'];
+            $plainFallback = "I'm here — what can I help you with?";
+            try {
+                if (function_exists('human_agent_warm_last_resort')) {
+                    $plainFallback = human_agent_warm_last_resort($bot, $combined, $leadId);
+                }
+            } catch (Throwable $ignored) {
+            }
+            if ($plainFallback !== $reply) {
+                $sent = turn_engine_guaranteed_send($phoneId, $token, $senderPhone, $plainFallback, $primaryWaId);
+                if (!empty($sent['success'])) {
+                    $reply = $plainFallback;
+                }
+            }
         }
-
-        if (!empty($ai['paused'])) {
-            db_execute(
-                'UPDATE conversation_turns SET status = \'human_handled\', suppression_reason = \'paused\' WHERE id = ?',
-                'i',
-                [$turnId]
-            );
-            whatsapp_mark_many_inbound_replied($waMessageIds);
-            conversation_intelligence_finish_generation($generationId, 'suppressed');
-
-            return ['success' => true, 'suppressed' => 'paused'];
-        }
-
-        $reply = human_agent_ensure_customer_reply($bot, $leadId, (int) $bot['id'], $combined, $ai);
-        $reply = human_agent_finalize_reply($bot, $leadId, $reply, $combined);
-
-        $productIndexes = $ai['product_indexes'] ?? [];
-        require_once __DIR__ . '/whatsapp-shop-ux.php';
-        $wantsCard = $combined !== '' && whatsapp_shop_customer_wants_visual_card($combined);
-        if ($productIndexes === [] && $wantsCard && catalog_has_clear_shopping_intent($combined)) {
-            require_once __DIR__ . '/catalog.php';
-            $productIndexes = catalog_auto_product_indexes((int) $bot['id'], $combined, []);
-        }
-
-        $sent = whatsapp_deliver_inbound_reply($phoneId, $token, $senderPhone, $bot, $leadId, $combined, $reply, $primaryWaId, $waMessageIds);
 
         if (!empty($sent['success'])) {
+            turn_engine_mark_must_send_done();
             conversation_store_sent_assistant_reply($leadId, $reply);
-            bot_whatsapp_mark_verified((int) $bot['id']);
-            require_once __DIR__ . '/whatsapp-shop-ux.php';
-            whatsapp_shop_followup_after_reply(
-                $bot,
-                $leadId,
-                $senderPhone,
-                array_merge($ai, [
-                    'product_indexes' => $productIndexes,
-                    'menu_card'       => !empty($ai['menu_card']),
-                    'menu_card_title' => (string) ($ai['menu_card_title'] ?? ''),
-                ]),
-                $reply,
-                $combined
-            );
-            if (!empty($ai['send_receipt_image']) && !empty($ai['shipment_id'])) {
-                require_once __DIR__ . '/shipment.php';
-                shipment_send_receipt_image((int) $ai['shipment_id']);
+            try {
+                require_once __DIR__ . '/whatsapp-shop-ux.php';
+                $wantsCard = whatsapp_shop_customer_wants_visual_card($combined);
+                if ($productIndexes === [] && $wantsCard && function_exists('catalog_has_clear_shopping_intent')
+                    && catalog_has_clear_shopping_intent($combined)) {
+                    require_once __DIR__ . '/catalog.php';
+                    $productIndexes = catalog_auto_product_indexes((int) $bot['id'], $combined, []);
+                }
+                bot_whatsapp_mark_verified((int) $bot['id']);
+                if ($ai !== [] && function_exists('whatsapp_shop_followup_after_reply')) {
+                    whatsapp_shop_followup_after_reply(
+                        $bot,
+                        $leadId,
+                        $senderPhone,
+                        array_merge($ai, [
+                            'product_indexes' => $productIndexes,
+                            'menu_card'       => !empty($ai['menu_card']),
+                            'menu_card_title' => (string) ($ai['menu_card_title'] ?? ''),
+                        ]),
+                        $reply,
+                        $combined
+                    );
+                }
+                if (!empty($ai['send_receipt_image']) && !empty($ai['shipment_id'])) {
+                    require_once __DIR__ . '/shipment.php';
+                    shipment_send_receipt_image((int) $ai['shipment_id']);
+                }
+                if ($analysis !== [] && function_exists('conversation_intelligence_after_send')) {
+                    conversation_intelligence_after_send($turnId, $leadId, (int) $bot['id'], $analysis, $reply);
+                }
+            } catch (Throwable $afterErr) {
+                error_log('turn_engine_process_turn after-send #' . $turnId . ': ' . $afterErr->getMessage());
             }
             db_execute(
                 'UPDATE conversation_turns SET status = \'completed\', ai_response_text = ?, processing_completed_at = NOW() WHERE id = ?',
@@ -1936,74 +2784,50 @@ function turn_engine_process_turn(int $turnId, array $bot, string $phoneId, stri
                 [$reply, $turnId]
             );
             turn_engine_log_event($turnId, 'RESPONSE_SENT');
-            conversation_intelligence_after_send($turnId, $leadId, (int) $bot['id'], $analysis, $reply);
             conversation_intelligence_finish_generation($generationId, 'completed');
         } else {
             db_execute(
-                'UPDATE conversation_turns SET status = \'failed\', suppression_reason = ? WHERE id = ?',
-                'si',
-                [(string) ($sent['message'] ?? 'send_failed'), $turnId]
+                'UPDATE conversation_turns SET status = \'failed\', ai_response_text = ?, suppression_reason = ?, processing_completed_at = NOW() WHERE id = ?',
+                'ssi',
+                [$reply, mb_substr((string) ($sent['message'] ?? 'send_failed'), 0, 200), $turnId]
             );
-            if (!empty($ai['user_message_id'])) {
-                whatsapp_remove_unsent_assistant_turn($leadId, (int) $ai['user_message_id']);
-            }
-            $fallback = human_agent_warm_last_resort($bot, $combined, $leadId);
-            $retry = whatsapp_deliver_inbound_reply($phoneId, $token, $senderPhone, $bot, $leadId, $combined, $fallback, $primaryWaId, $waMessageIds);
-            if (!empty($retry['success'])) {
-                conversation_store_sent_assistant_reply($leadId, $fallback);
-                db_execute(
-                    'UPDATE conversation_turns SET status = \'completed\', ai_response_text = ?, processing_completed_at = NOW() WHERE id = ?',
-                    'si',
-                    [$fallback, $turnId]
-                );
-                turn_engine_log_event($turnId, 'RESPONSE_SENT', ['path' => 'fallback_after_fail']);
-
-                return ['success' => true, 'reply' => $fallback];
-            }
+            conversation_intelligence_finish_generation($generationId, 'failed');
         }
 
-        return ['success' => !empty($sent['success']), 'reply' => $reply];
+        return ['success' => !empty($sent['success']), 'reply' => $reply, 'error' => empty($sent['success']) ? (string) ($sent['message'] ?? 'send_failed') : null];
     } catch (Throwable $e) {
         error_log('turn_engine_process_turn #' . $turnId . ': ' . $e->getMessage());
         turn_engine_log_event($turnId, 'AI_GENERATION_FAILED', ['error' => $e->getMessage()]);
 
-        if (turn_engine_turn_still_processing($turnId)) {
-            if (turn_engine_defer_if_customer_still_typing($turnId, $leadId, $messageCountSnapshot)) {
-                turn_engine_dispatch_worker([$leadId]);
-
-                return ['success' => true, 'suppressed' => 'merged_on_exception'];
-            }
-            try {
-                if ($combined === '' || $waMessageIds === []) {
-                    $payload = turn_engine_build_turn_payload($turnId);
-                    if ($combined === '') {
-                        $combined = (string) ($payload['combined'] ?? '');
-                    }
-                    if ($waMessageIds === []) {
-                        $waMessageIds = $payload['wa_message_ids'] ?? [];
-                    }
-                }
-                if ($primaryWaId === '' && $waMessageIds !== []) {
-                    $primaryWaId = $waMessageIds[count($waMessageIds) - 1];
-                }
-                require_once __DIR__ . '/human-agent-prompt.php';
+        $fallback = "I'm here — what can I help you with?";
+        try {
+            if (function_exists('human_agent_warm_last_resort')) {
                 $fallback = human_agent_warm_last_resort($bot, $combined !== '' ? $combined : 'message', $leadId);
-                $sent = whatsapp_deliver_inbound_reply($phoneId, $token, $senderPhone, $bot, $leadId, $combined, $fallback, $primaryWaId, $waMessageIds);
-                if (!empty($sent['success'])) {
-                    conversation_store_sent_assistant_reply($leadId, $fallback);
-                    db_execute(
-                        'UPDATE conversation_turns SET status = \'completed\', ai_response_text = ?, processing_completed_at = NOW(), suppression_reason = \'exception_fallback\' WHERE id = ?',
-                        'si',
-                        [$fallback, $turnId]
-                    );
-                    turn_engine_log_event($turnId, 'RESPONSE_SENT', ['path' => 'exception_fallback']);
-                    conversation_intelligence_finish_generation($generationId, 'completed');
-
-                    return ['success' => true, 'reply' => $fallback];
-                }
-            } catch (Throwable $inner) {
-                error_log('turn_engine_process_turn fallback: ' . $inner->getMessage());
             }
+        } catch (Throwable $ignored) {
+        }
+
+        $sent = turn_engine_must_send_is_armed()
+            ? turn_engine_flush_must_send($fallback)
+            : turn_engine_guaranteed_send($phoneId, $token, $senderPhone, $fallback, $primaryWaId);
+
+        if (!empty($sent['success'])) {
+            try {
+                conversation_store_sent_assistant_reply($leadId, $fallback);
+                db_execute(
+                    'UPDATE conversation_turns SET status = \'completed\', ai_response_text = ?, processing_completed_at = NOW(), suppression_reason = \'exception_fallback\' WHERE id = ?',
+                    'si',
+                    [$fallback, $turnId]
+                );
+                turn_engine_log_event($turnId, 'RESPONSE_SENT', ['path' => 'exception_fallback']);
+                if ($generationId !== '' && function_exists('conversation_intelligence_finish_generation')) {
+                    conversation_intelligence_finish_generation($generationId, 'completed');
+                }
+            } catch (Throwable $ignored) {
+            }
+            turn_engine_mark_must_send_done();
+
+            return ['success' => true, 'reply' => $fallback];
         }
 
         db_execute(
@@ -2014,11 +2838,17 @@ function turn_engine_process_turn(int $turnId, array $bot, string $phoneId, stri
 
         return ['success' => false, 'error' => $e->getMessage()];
     } finally {
-        if (!empty($primaryWaId)) {
-            if (function_exists('whatsapp_typing_keepalive_stop')) {
-                whatsapp_typing_keepalive_stop($primaryWaId);
-            }
+        if (turn_engine_must_send_is_armed()) {
+            turn_engine_flush_must_send();
         }
+        if (!empty($primaryWaId) && function_exists('whatsapp_typing_keepalive_stop')) {
+            whatsapp_typing_keepalive_stop($primaryWaId);
+        }
+        if (!empty($leadId)) {
+            whatsapp_release_lead_reply_lock($leadId);
+        }
+    }
+    } finally {
         if (!empty($leadId)) {
             whatsapp_release_lead_reply_lock($leadId);
         }
@@ -2042,6 +2872,11 @@ function turn_engine_process_due(int $limit = 20, array $leadIds = []): array
         $leadRows = db_fetch_all(
             'SELECT DISTINCT lead_id FROM conversation_turns
              WHERE ' . turn_engine_quiet_due_sql() . '
+                OR (
+                    status = \'processing\'
+                    AND processing_started_at IS NOT NULL
+                    AND processing_started_at < DATE_SUB(NOW(), INTERVAL 1 MINUTE)
+                )
              ORDER BY finalize_after ASC LIMIT ' . $limit,
             '',
             []
@@ -2081,6 +2916,31 @@ function turn_engine_process_due(int $limit = 20, array $leadIds = []): array
             }
 
             $phoneId = (string) ($turn['whatsapp_phone_id'] ?? '');
+            if ((int) ($bot['whatsapp_auto_reply'] ?? 1) === 1) {
+                $lite = turn_engine_lite_auto_reply_leads([$leadId], false, $phoneId, $token, true);
+                $results[] = [
+                    'turn_id' => (int) $turn['id'],
+                    'lead_id' => $leadId,
+                    'success' => ($lite['sent'] ?? 0) > 0,
+                    'path'    => 'lite_auto_reply',
+                    'results' => $lite['results'] ?? [],
+                ];
+                $processed++;
+                continue;
+            }
+
+            if ((string) ($turn['status'] ?? '') === 'processing') {
+                turn_engine_ensure_lead_replied($leadId, $bot, $phoneId, $token, true);
+                turn_engine_send_if_customer_waiting($leadId, $bot, $phoneId, $token);
+                $results[] = [
+                    'turn_id' => (int) $turn['id'],
+                    'lead_id' => $leadId,
+                    'success' => true,
+                    'path'    => 'stuck_force_send',
+                ];
+                $processed++;
+                continue;
+            }
             $result = turn_engine_process_turn((int) $turn['id'], $bot, $phoneId, $token);
             $results[] = array_merge(['turn_id' => (int) $turn['id'], 'lead_id' => $leadId], $result);
             $processed++;
@@ -2105,83 +2965,963 @@ function turn_engine_background_process(array $leadIds, ?int $maxWaitMs = null):
         return;
     }
 
-    $const = turn_engine_constants();
-    $quietSec = turn_engine_quiet_seconds();
-    $maxWaitMs = $maxWaitMs ?? (int) $const['background_ms'];
-    $maxWaitMs = max($maxWaitMs, ($quietSec + 2) * 1000);
-    $deadline = microtime(true) + ($maxWaitMs / 1000);
-    $inList = implode(',', $leadIds);
+    turn_engine_lite_auto_reply_leads($leadIds, true, '', '', true);
+}
 
-    turn_engine_recover_stuck_turns(8);
+function turn_engine_latest_wa_message_id(int $leadId): string
+{
+    $row = db_fetch(
+        'SELECT ctm.wa_message_id FROM conversation_turn_messages ctm
+         INNER JOIN conversation_turns ct ON ct.id = ctm.turn_id
+         WHERE ct.lead_id = ? ORDER BY ctm.id DESC LIMIT 1',
+        'i',
+        [$leadId]
+    );
 
-    do {
-        foreach ($leadIds as $leadId) {
-            turn_engine_consolidate_buffering_turns($leadId);
-        }
+    return trim((string) ($row['wa_message_id'] ?? ''));
+}
 
-        turn_engine_process_due(15, $leadIds);
+function turn_engine_should_route_before_ai(string $combined): bool
+{
+    $msg = mb_strtolower(trim($combined));
+    if ($msg === '') {
+        return false;
+    }
 
-        $pending = db_fetch(
-            'SELECT COUNT(*) AS c FROM conversation_turns
-             WHERE lead_id IN (' . $inList . ") AND status IN ('buffering', 'processing')",
-            '',
-            []
-        );
+    return (bool) preg_match(
+        '/\b(menu|order|price|catalog|checkout|cart|items?|products?|offer(?:ing|s)?|'
+        . 'what you have|what are you|what do you|send me|show me|top items?|'
+        . 'how to order|how to choose|best item|relevant|here in whatsapp|in chat|on whatsapp)\b/u',
+        $msg
+    );
+}
 
-        if ((int) ($pending['c'] ?? 0) === 0) {
-            break;
-        }
+/**
+ * Rich OpenAI reply — full business prompt, multi-bubble context, voice/image already in $combined.
+ *
+ * @param array<string, mixed> $bot
+ */
+function turn_engine_smart_openai_reply(int $leadId, array $bot, string $combined, int $turnId = 0): ?string
+{
+    if ($leadId <= 0 || trim($combined) === '') {
+        return null;
+    }
 
-        $next = db_fetch(
-            'SELECT MIN(finalize_after) AS next_at, MAX(last_message_at) AS last_at FROM conversation_turns
-             WHERE lead_id IN (' . $inList . ") AND status = 'buffering'",
-            '',
-            []
-        );
+    require_once __DIR__ . '/openai.php';
+    require_once __DIR__ . '/human-agent-prompt.php';
+    require_once __DIR__ . '/integration-settings.php';
 
-        if (!$next || empty($next['next_at'])) {
-            usleep(300000);
+    if (integration_openai_chat_key() === '') {
+        return null;
+    }
+
+    $lead = db_fetch('SELECT * FROM leads WHERE id = ?', 'i', [$leadId]) ?: [];
+    $company = (string) ($bot['company_name'] ?? (defined('APP_NAME') ? APP_NAME : 'Business'));
+
+    try {
+        require_once __DIR__ . '/platform-training.php';
+        $system = build_runtime_bot_prompt($bot, $company, $lead);
+    } catch (Throwable $e) {
+        error_log('turn_engine_smart_openai_reply prompt #' . $leadId . ': ' . $e->getMessage());
+        $system = 'You are a helpful WhatsApp assistant for ' . $company . '. Reply naturally in 1–4 short sentences.';
+    }
+    if (mb_strlen($system) > 6500) {
+        $system = mb_substr($system, 0, 6500);
+    }
+    $system .= "\n\n" . human_agent_universal_turn_hint($combined, $leadId);
+
+    $history = db_fetch_all(
+        'SELECT role, message FROM conversations WHERE lead_id = ? ORDER BY id DESC LIMIT 10',
+        'i',
+        [$leadId]
+    ) ?: [];
+    $history = array_reverse($history);
+
+    $messages = [['role' => 'system', 'content' => $system]];
+    foreach ($history as $row) {
+        $role = (string) ($row['role'] ?? '');
+        if ($role === 'system') {
             continue;
         }
+        $messages[] = [
+            'role'    => $role === 'assistant' ? 'assistant' : 'user',
+            'content' => mb_substr((string) ($row['message'] ?? ''), 0, 600),
+        ];
+    }
+    $messages[] = ['role' => 'user', 'content' => mb_substr($combined, 0, 1200)];
 
-        $waitUntil = strtotime((string) $next['next_at']);
-        $lastAt = !empty($next['last_at']) ? strtotime((string) $next['last_at']) : 0;
-        $quietUntil = $lastAt > 0 ? $lastAt + $quietSec : $waitUntil;
-        $target = max($waitUntil, $quietUntil);
-        if ($target > time()) {
-            $sleepMs = min(1000, max(200, ($target - time()) * 1000));
-            usleep((int) ($sleepMs * 1000));
-        } else {
-            usleep(200000);
-        }
-    } while (microtime(true) < $deadline);
+    $result = openai_chat($messages, [
+        'timeout'      => 15,
+        'max_attempts' => 1,
+        'max_tokens'   => 300,
+        'temperature'  => 0.35,
+    ]);
 
-    // One extra quiet drain — never force a reply while bubbles are still arriving.
-    $lastRow = db_fetch(
-        'SELECT MAX(last_message_at) AS last_at FROM conversation_turns
-         WHERE lead_id IN (' . $inList . ") AND status = 'buffering'",
-        '',
-        []
-    );
-    $lastAt = !empty($lastRow['last_at']) ? strtotime((string) $lastRow['last_at']) : 0;
-    if ($lastAt > 0) {
-        $remain = $quietSec - (time() - $lastAt);
-        if ($remain > 0) {
-            usleep(min($remain, $quietSec) * 1000000);
+    if (!empty($result['success']) && trim((string) ($result['content'] ?? '')) !== '') {
+        $draft = trim((string) $result['content']);
+        if (!human_agent_is_robotic_reply($draft) && !human_agent_is_bad_fallback($draft)) {
+            return human_agent_finalize_reply($bot, $leadId, $draft, $combined);
         }
     }
 
-    turn_engine_process_due(25, $leadIds);
+    if ($turnId > 0) {
+        turn_engine_log_event($turnId, 'AI_GENERATION_FAILED', [
+            'path'  => 'smart_openai',
+            'error' => (string) ($result['error'] ?? 'empty_or_robotic'),
+        ]);
+    }
 
-    $stillWaiting = db_fetch(
-        'SELECT COUNT(*) AS c FROM conversation_turns
-         WHERE lead_id IN (' . $inList . ") AND status = 'buffering'
-         AND last_message_at > DATE_SUB(NOW(), INTERVAL " . $quietSec . ' SECOND)',
-        '',
-        []
+    return null;
+}
+
+/**
+ * Human-quality webhook reply — media, merged bubbles, catalog/order routes, OpenAI, no generic glitches.
+ *
+ * @param array<string, mixed> $turn
+ * @param array<string, mixed> $bot
+ * @return array{ok: bool, turn_id: int, lead_id: int, reply?: string, error?: string, path?: string}
+ */
+function turn_engine_smart_reply_turn(array $turn, array $bot, string $phoneId, string $token, bool $useAi = true): array
+{
+    require_once __DIR__ . '/whatsapp-auto-reply-core.php';
+
+    try {
+        $one = wa_auto_reply_deliver_turn($turn, $bot, $phoneId, $token, $useAi);
+        if (!empty($one['ok']) || ($one['path'] ?? '') === 'already_sent') {
+            return $one;
+        }
+    } catch (Throwable $e) {
+        error_log('turn_engine_smart_reply_turn core #' . (int) ($turn['id'] ?? 0) . ': ' . $e->getMessage());
+    }
+
+    return wa_auto_reply_deliver_turn($turn, $bot, $phoneId, $token, false);
+}
+
+function turn_engine_is_chase_nudge(string $text): bool
+{
+    $t = mb_strtolower(trim($text));
+    if ($t === '') {
+        return false;
+    }
+
+    return (bool) preg_match(
+        '/\b(why (don\'?t|didn\'?t|won\'?t) you (reply|respond|answer)|'
+        . 'you (don\'?t|didn\'?t) reply|not replying|please reply|'
+        . 'are you there|anyone there|hello\?+|still waiting)\b/iu',
+        $t
     );
-    if ((int) ($stillWaiting['c'] ?? 0) > 0) {
-        turn_engine_dispatch_worker($leadIds);
+}
+
+function turn_engine_turn_chase_should_reply(int $turnId): bool
+{
+    if ($turnId <= 0) {
+        return false;
+    }
+    $rows = db_fetch_all(
+        'SELECT raw_text FROM conversation_turn_messages
+         WHERE turn_id = ? AND message_type = \'text\'
+         ORDER BY sort_order ASC, id ASC',
+        'i',
+        [$turnId]
+    ) ?: [];
+    if (count($rows) < 2) {
+        return false;
+    }
+    $last = trim((string) ($rows[count($rows) - 1]['raw_text'] ?? ''));
+    if (!turn_engine_is_chase_nudge($last)) {
+        return false;
+    }
+    foreach (array_slice($rows, 0, -1) as $row) {
+        $prev = trim((string) ($row['raw_text'] ?? ''));
+        if ($prev !== '' && !turn_engine_is_chase_nudge($prev)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Wait until customer stops typing (5s debounce resets on each bubble).
+ *
+ * @param list<int> $leadIds
+ */
+function turn_engine_webhook_wait_quiet(array $leadIds, string $phoneId = '', string $token = ''): void
+{
+    unset($phoneId, $token);
+    // Silent wait until 5s after last bubble. Typing here is "type then leave" when PHP dies next.
+    $maxWaitMs = 8000;
+    $deadline = microtime(true) + ($maxWaitMs / 1000);
+
+    while (microtime(true) < $deadline) {
+        $waiting = false;
+        foreach ($leadIds as $leadId) {
+            if ($leadId <= 0) {
+                continue;
+            }
+            $turn = db_fetch(
+                'SELECT id, last_message_at, status FROM conversation_turns
+                 WHERE lead_id = ? AND status = \'buffering\'
+                 ORDER BY id DESC LIMIT 1',
+                'i',
+                [$leadId]
+            );
+            if ($turn && !turn_engine_row_is_quiet($turn)) {
+                if (turn_engine_turn_chase_should_reply((int) ($turn['id'] ?? 0))) {
+                    continue;
+                }
+                $waiting = true;
+                break;
+            }
+        }
+        if (!$waiting) {
+            return;
+        }
+        usleep(250000);
+    }
+}
+
+function turn_engine_wait_lead_quiet(int $leadId, int $maxSec = 10): bool
+{
+    if ($leadId <= 0) {
+        return false;
+    }
+
+    $deadline = time() + max(1, $maxSec);
+    while (time() < $deadline) {
+        $turn = db_fetch(
+            'SELECT id, last_message_at, status FROM conversation_turns
+             WHERE lead_id = ? AND status = \'buffering\'
+             ORDER BY id DESC LIMIT 1',
+            'i',
+            [$leadId]
+        );
+        if (!$turn) {
+            return true;
+        }
+        if (turn_engine_row_is_quiet($turn)) {
+            return true;
+        }
+        usleep(350000);
+    }
+
+    return false;
+}
+
+/**
+ * Latest open turn for a lead (no RESPONSE_SENT yet).
+ *
+ * @return array<string, mixed>|null
+ */
+function turn_engine_fetch_open_turn(int $leadId): ?array
+{
+    if ($leadId <= 0) {
+        return null;
+    }
+
+    turn_engine_repair_lead_turn($leadId);
+
+    return db_fetch(
+        'SELECT t.* FROM conversation_turns t
+         WHERE t.lead_id = ?
+         AND t.status IN (\'buffering\', \'processing\', \'failed\')
+         AND NOT EXISTS (
+            SELECT 1 FROM conversation_turn_events e
+            WHERE e.turn_id = t.id AND e.event_type = \'RESPONSE_SENT\'
+         )
+         AND EXISTS (
+            SELECT 1 FROM conversation_turn_messages ctm WHERE ctm.turn_id = t.id
+         )
+         ORDER BY t.id DESC LIMIT 1',
+        'i',
+        [$leadId]
+    );
+}
+
+/**
+ * Webhook inline reply — smart path per lead (media + context + catalog).
+ *
+ * @param list<int> $leadIds
+ * @return array{ok: bool, sent: int, results: list<array<string, mixed>>}
+ */
+function turn_engine_webhook_reply_leads(array $leadIds, bool $useAi = true, string $phoneId = '', string $token = ''): array
+{
+    $leadIds = array_values(array_unique(array_filter(array_map('intval', $leadIds))));
+    $results = [];
+    $sent = 0;
+
+    foreach ($leadIds as $leadId) {
+        if ($leadId <= 0) {
+            continue;
+        }
+
+        turn_engine_consolidate_open_turns_for_lead($leadId);
+        turn_engine_recover_hung_processing($leadId, 20);
+
+        $turn = turn_engine_fetch_open_turn($leadId);
+        if (!$turn) {
+            continue;
+        }
+
+        $turnId = (int) ($turn['id'] ?? 0);
+        $status = (string) ($turn['status'] ?? '');
+
+        if ($status === 'buffering') {
+            if (!turn_engine_finalize_turn($turnId, true)) {
+                turn_engine_wait_lead_quiet($leadId, 4);
+                turn_engine_finalize_turn($turnId, true);
+            }
+            $turn = turn_engine_fetch_open_turn($leadId)
+                ?: db_fetch('SELECT * FROM conversation_turns WHERE id = ?', 'i', [$turnId]);
+            if (!$turn) {
+                continue;
+            }
+            $turnId = (int) ($turn['id'] ?? 0);
+            $status = (string) ($turn['status'] ?? '');
+        } elseif ($status === 'processing') {
+            $started = strtotime((string) ($turn['processing_started_at'] ?? ''));
+            $ageSec = $started > 0 ? (time() - $started) : 0;
+            if ($ageSec >= 8) {
+                turn_engine_recover_hung_processing($leadId, 8);
+                $turn = turn_engine_fetch_open_turn($leadId);
+                if (!$turn) {
+                    continue;
+                }
+                $turnId = (int) ($turn['id'] ?? 0);
+                $status = (string) ($turn['status'] ?? '');
+            }
+        }
+
+        if ($status === 'failed') {
+            db_execute(
+                'UPDATE conversation_turns SET status = \'buffering\', processing_started_at = NULL,
+                 suppression_reason = NULL WHERE id = ?',
+                'i',
+                [$turnId]
+            );
+            turn_engine_finalize_turn($turnId, true);
+            $turn = db_fetch('SELECT * FROM conversation_turns WHERE id = ?', 'i', [$turnId]) ?: $turn;
+        }
+
+        $already = db_fetch(
+            'SELECT id FROM conversation_turn_events WHERE turn_id = ? AND event_type = \'RESPONSE_SENT\' LIMIT 1',
+            'i',
+            [$turnId]
+        );
+        if ($already !== null) {
+            $results[] = ['ok' => true, 'turn_id' => $turnId, 'lead_id' => $leadId, 'path' => 'already_sent'];
+            continue;
+        }
+
+        $botIdRow = (int) ($turn['bot_id'] ?? 0);
+        $bot = db_fetch(
+            'SELECT b.*, u.company_name FROM bots b JOIN users u ON u.id = b.user_id WHERE b.id = ?',
+            'i',
+            [$botIdRow]
+        );
+        if (!$bot) {
+            $results[] = ['ok' => false, 'turn_id' => $turnId, 'lead_id' => $leadId, 'error' => 'bot missing'];
+            continue;
+        }
+
+        $usePhoneId = $phoneId !== '' ? $phoneId : trim((string) ($bot['whatsapp_phone_id'] ?? ''));
+        $useToken = $token;
+        if ($useToken === '') {
+            $useToken = bot_whatsapp_token_plain((string) ($bot['whatsapp_token'] ?? ''));
+            $useToken = is_string($useToken) ? $useToken : '';
+        }
+
+        require_once __DIR__ . '/whatsapp-auto-reply-core.php';
+        try {
+            $one = wa_auto_reply_deliver_turn($turn, $bot, $usePhoneId, $useToken, $useAi);
+        } catch (Throwable $coreErr) {
+            error_log('turn_engine_webhook_reply_leads core #' . $turnId . ': ' . $coreErr->getMessage());
+            $one = wa_auto_reply_deliver_turn($turn, $bot, $usePhoneId, $useToken, true);
+            $one['path'] = ($one['path'] ?? 'core') . '_after_error';
+        }
+        if (empty($one['ok']) && ($one['path'] ?? '') !== 'already_sent') {
+            turn_engine_send_fallback_for_turn($turnId, $bot, $usePhoneId, $useToken, 'webhook_reply_fallback');
+            $one = ['ok' => true, 'turn_id' => $turnId, 'lead_id' => $leadId, 'path' => 'webhook_reply_fallback'];
+        }
+        $results[] = $one;
+        if (!empty($one['ok']) && ($one['path'] ?? '') !== 'already_sent') {
+            $sent++;
+        }
+    }
+
+    return ['ok' => true, 'sent' => $sent, 'results' => $results];
+}
+
+/**
+ * Lead IDs with an open turn that never got RESPONSE_SENT.
+ *
+ * @return list<int>
+ */
+function turn_engine_leads_needing_reply(int $botId = 0, int $limit = 50): array
+{
+    $params = [];
+    $botSql = '';
+    if ($botId > 0) {
+        $botSql = ' AND t.bot_id = ?';
+        $params[] = $botId;
+    }
+    $limit = max(1, min(100, $limit));
+
+    $rows = db_fetch_all(
+        'SELECT DISTINCT t.lead_id FROM conversation_turns t
+         WHERE t.lead_id > 0
+         AND EXISTS (SELECT 1 FROM conversation_turn_messages ctm WHERE ctm.turn_id = t.id)
+         AND NOT EXISTS (
+            SELECT 1 FROM conversation_turn_events e
+            WHERE e.turn_id = t.id AND e.event_type = \'RESPONSE_SENT\'
+         )' . $botSql . '
+         ORDER BY t.lead_id DESC
+         LIMIT ' . $limit,
+        str_repeat('i', count($params)),
+        $params
+    ) ?: [];
+
+    return array_values(array_unique(array_filter(array_map(
+        static fn ($r) => (int) ($r['lead_id'] ?? 0),
+        $rows
+    ))));
+}
+
+/**
+ * Lite auto-reply after debounce — same path as webhook (wa_auto_reply_deliver_turn).
+ * Does NOT call heavy turn_engine_process_turn / platform-training.
+ *
+ * @param list<int> $leadIds
+ * @return array{ok: bool, sent: int, results: list<array<string, mixed>>}
+ */
+function turn_engine_lite_auto_reply_leads(
+    array $leadIds,
+    bool $waitQuiet = true,
+    string $phoneId = '',
+    string $token = '',
+    bool $ensureReply = false
+): array {
+    $leadIds = array_values(array_unique(array_filter(array_map('intval', $leadIds))));
+    if ($leadIds === []) {
+        return ['ok' => true, 'sent' => 0, 'results' => []];
+    }
+
+    foreach ($leadIds as $leadId) {
+        turn_engine_force_max_window_due($leadId);
+        turn_engine_force_finalize_overdue($leadId, 0);
+        turn_engine_consolidate_open_turns_for_lead($leadId);
+        turn_engine_repair_lead_turn($leadId);
+        turn_engine_recover_hung_processing($leadId, 6);
+    }
+
+    if ($waitQuiet) {
+        turn_engine_webhook_wait_quiet($leadIds, $phoneId, $token);
+    }
+
+    $inline = turn_engine_webhook_reply_leads($leadIds, true, $phoneId, $token);
+
+    if ($ensureReply) {
+        foreach ($leadIds as $leadId) {
+            if ($leadId <= 0) {
+                continue;
+            }
+            if ($phoneId !== '' && $token !== '') {
+                $bot = db_fetch(
+                    'SELECT b.*, u.company_name FROM bots b
+                     INNER JOIN users u ON u.id = b.user_id
+                     INNER JOIN leads l ON l.bot_id = b.id
+                     WHERE l.id = ? LIMIT 1',
+                    'i',
+                    [$leadId]
+                );
+                if ($bot) {
+                    turn_engine_finalize_webhook_leads([$leadId], $bot, $phoneId, $token);
+                }
+                continue;
+            }
+            $bot = db_fetch(
+                'SELECT b.*, u.company_name FROM bots b
+                 INNER JOIN users u ON u.id = b.user_id
+                 INNER JOIN leads l ON l.bot_id = b.id
+                 WHERE l.id = ? LIMIT 1',
+                'i',
+                [$leadId]
+            );
+            if (!$bot) {
+                continue;
+            }
+            $pid = trim((string) ($bot['whatsapp_phone_id'] ?? ''));
+            $tok = bot_whatsapp_token_plain((string) ($bot['whatsapp_token'] ?? ''));
+            if ($pid !== '' && is_string($tok) && $tok !== '') {
+                turn_engine_finalize_webhook_leads([$leadId], $bot, $pid, $tok);
+            }
+        }
+    }
+
+    return $inline;
+}
+
+/**
+ * Send replies in the webhook request BEFORE Meta ACK (cPanel kills PHP after echo OK).
+ *
+ * @param list<int> $leadIds
+ * @param array<string, mixed> $bot
+ * @return array{sent: int, results: list<array<string, mixed>>}
+ */
+function turn_engine_send_leads_now(array $leadIds, array $bot, string $phoneId, string $token): array
+{
+    $leadIds = array_values(array_unique(array_filter(array_map('intval', $leadIds))));
+    $results = [];
+    $sent = 0;
+    if ($leadIds === [] || $phoneId === '' || $token === '') {
+        return ['sent' => 0, 'results' => []];
+    }
+
+    $GLOBALS['wa_webhook_budget'] = true;
+    $GLOBALS['wa_webhook_t0'] = microtime(true);
+    $GLOBALS['wa_skip_openai'] = true;
+    unset($GLOBALS['wa_webhook_fast_compose']);
+
+    require_once __DIR__ . '/whatsapp-auto-reply-core.php';
+
+    foreach ($leadIds as $leadId) {
+        $heldLock = false;
+        try {
+            turn_engine_repair_lead_turn($leadId);
+            $turn = turn_engine_fetch_open_turn($leadId);
+            if (!$turn) {
+                if (!turn_engine_lead_just_got_reply($leadId, 20)) {
+                    turn_engine_send_if_customer_waiting($leadId, $bot, $phoneId, $token);
+                }
+                $results[] = ['ok' => true, 'lead_id' => $leadId, 'path' => 'no_open_turn'];
+                continue;
+            }
+
+            $turnId = (int) ($turn['id'] ?? 0);
+            $sender = trim((string) ($turn['sender_phone'] ?? ''));
+            if ($sender === '') {
+                $lead = db_fetch('SELECT phone, whatsapp_id FROM leads WHERE id = ?', 'i', [$leadId]);
+                $sender = trim((string) ($lead['phone'] ?? $lead['whatsapp_id'] ?? ''));
+            }
+
+            // One waiter per lead: other burst webhooks ingest then leave.
+            if (function_exists('whatsapp_acquire_lead_reply_lock') && !whatsapp_acquire_lead_reply_lock($leadId, 0)) {
+                $results[] = ['ok' => true, 'lead_id' => $leadId, 'path' => 'lock_busy'];
+                continue;
+            }
+            $heldLock = true;
+            $GLOBALS['wa_reply_lock_held'][$leadId] = true;
+
+            $waId = turn_engine_latest_wa_message_id($leadId);
+            if ($waId !== '' && function_exists('whatsapp_send_typing_indicator')) {
+                try {
+                    whatsapp_send_typing_indicator($phoneId, $token, $waId);
+                } catch (Throwable $ignored) {
+                }
+            }
+
+            turn_engine_webhook_wait_quiet([$leadId], $phoneId, $token);
+
+            if (function_exists('wa_recover_response_sent') && $turnId > 0 && wa_recover_response_sent($turnId)) {
+                $results[] = ['ok' => true, 'lead_id' => $leadId, 'path' => 'already_sent'];
+                continue;
+            }
+            if (turn_engine_lead_just_got_reply($leadId, 20)) {
+                $results[] = ['ok' => true, 'lead_id' => $leadId, 'path' => 'recent_reply'];
+                continue;
+            }
+
+            $turn = db_fetch('SELECT * FROM conversation_turns WHERE id = ?', 'i', [$turnId]) ?: $turn;
+            $waId = turn_engine_latest_wa_message_id($leadId);
+            $payload = $turnId > 0 && function_exists('turn_engine_build_turn_payload')
+                ? turn_engine_build_turn_payload($turnId)
+                : [];
+            $waIds = $payload['wa_message_ids'] ?? ($waId !== '' ? [$waId] : []);
+
+            if ($sender !== '' && function_exists('turn_engine_arm_must_send')) {
+                turn_engine_arm_must_send($phoneId, $token, $sender, $leadId, $turnId, $waId, is_array($waIds) ? $waIds : []);
+            }
+
+            if ((string) ($turn['status'] ?? '') === 'buffering') {
+                turn_engine_finalize_turn($turnId, true);
+                $turn = db_fetch('SELECT * FROM conversation_turns WHERE id = ?', 'i', [$turnId]) ?: $turn;
+            }
+
+            $one = wa_auto_reply_deliver_turn($turn, $bot, $phoneId, $token, true);
+            if (function_exists('turn_engine_mark_must_send_done')) {
+                turn_engine_mark_must_send_done();
+            }
+            $results[] = $one;
+            $path = (string) ($one['path'] ?? '');
+            if (!empty($one['ok']) && !in_array($path, ['already_sent', 'no_open_turn', 'lock_busy', 'recent_reply'], true)) {
+                $sent++;
+            }
+        } catch (Throwable $e) {
+            error_log('turn_engine_send_leads_now lead #' . $leadId . ': ' . $e->getMessage());
+            $results[] = ['ok' => false, 'lead_id' => $leadId, 'error' => $e->getMessage()];
+            if (function_exists('turn_engine_must_send_is_armed') && turn_engine_must_send_is_armed()
+                && !turn_engine_lead_just_got_reply($leadId, 20)
+            ) {
+                try {
+                    turn_engine_flush_must_send();
+                } catch (Throwable $ignored) {
+                }
+            } elseif (function_exists('turn_engine_mark_must_send_done')) {
+                turn_engine_mark_must_send_done();
+            }
+        } finally {
+            unset($GLOBALS['wa_reply_lock_held'][$leadId]);
+            if ($heldLock && function_exists('whatsapp_release_lead_reply_lock')) {
+                whatsapp_release_lead_reply_lock($leadId);
+            }
+            if (function_exists('turn_engine_must_send_is_armed') && turn_engine_must_send_is_armed()
+                && ($heldLock === false || turn_engine_lead_just_got_reply($leadId, 5))
+            ) {
+                turn_engine_mark_must_send_done();
+            }
+        }
+    }
+
+    unset($GLOBALS['wa_webhook_budget'], $GLOBALS['wa_skip_openai']);
+
+    return ['sent' => $sent, 'results' => $results];
+}
+
+/**
+ * Webhook pipeline: worker backup + inline wait/process (Clinicos-style).
+ * A quiet customer turn must get a WhatsApp message in this request.
+ *
+ * @param list<int> $leadIds
+ */
+function turn_engine_run_webhook_pipeline(array $leadIds, ?int $maxWaitMs = null, string $phoneId = '', string $token = ''): void
+{
+    $leadIds = array_values(array_unique(array_filter(array_map('intval', $leadIds))));
+    if ($leadIds === []) {
+        return;
+    }
+
+    foreach ($leadIds as $leadId) {
+        turn_engine_repair_lead_turn($leadId);
+    }
+
+    $inline = turn_engine_lite_auto_reply_leads($leadIds, true, $phoneId, $token, false);
+    if (function_exists('whatsapp_webhook_log_event')) {
+        whatsapp_webhook_log_event('Webhook smart reply', [
+            'leads'     => $leadIds,
+            'sent'      => (int) ($inline['sent'] ?? 0),
+            'processed' => count($inline['results'] ?? []),
+        ]);
+    }
+    if (function_exists('whatsapp_reply_debug_log')) {
+        whatsapp_reply_debug_log('webhook_smart_reply', [
+            'leads'   => $leadIds,
+            'sent'    => (int) ($inline['sent'] ?? 0),
+            'results' => $inline['results'] ?? [],
+        ]);
+    }
+
+    $inList = implode(',', $leadIds);
+    if ($inList !== '') {
+        $pending = db_fetch(
+            'SELECT COUNT(*) AS c FROM conversation_turns t
+             WHERE t.lead_id IN (' . $inList . ")
+             AND t.status IN ('buffering', 'processing', 'failed')
+             AND NOT EXISTS (
+                SELECT 1 FROM conversation_turn_events e
+                WHERE e.turn_id = t.id AND e.event_type = 'RESPONSE_SENT'
+             )",
+            '',
+            []
+        );
+        if ((int) ($pending['c'] ?? 0) > 0) {
+            turn_engine_dispatch_worker($leadIds);
+            if (function_exists('whatsapp_webhook_log_event')) {
+                whatsapp_webhook_log_event('Worker dispatched (still pending)', [
+                    'leads'   => $leadIds,
+                    'pending' => (int) ($pending['c'] ?? 0),
+                ]);
+            }
+        }
+    }
+}
+
+/**
+ * After webhook wait/worker dispatch — send fallback for failed turns with no outbound reply.
+ *
+ * @param list<int> $leadIds
+ * @param array<string, mixed> $bot
+ */
+function turn_engine_finalize_webhook_leads(array $leadIds, array $bot, string $phoneId, string $token): void
+{
+    foreach ($leadIds as $leadId) {
+        if ($leadId <= 0) {
+            continue;
+        }
+        // Pipeline only waits ~20s — recover hung AI after 12s so fallback sends before webhook ends.
+        turn_engine_recover_hung_processing($leadId, 8);
+
+        $turn = turn_engine_fetch_open_turn($leadId);
+        if (!$turn) {
+            turn_engine_send_if_customer_waiting($leadId, $bot, $phoneId, $token);
+            continue;
+        }
+
+        $turnId = (int) ($turn['id'] ?? 0);
+        $status = (string) ($turn['status'] ?? '');
+        $started = strtotime((string) ($turn['processing_started_at'] ?? ''));
+        $ageSec = $started > 0 ? (time() - $started) : 0;
+
+        if ($status === 'processing' && $ageSec >= 8) {
+            turn_engine_recover_hung_processing($leadId, 8);
+            $turn = turn_engine_fetch_open_turn($leadId);
+            if (!$turn) {
+                turn_engine_send_if_customer_waiting($leadId, $bot, $phoneId, $token);
+                continue;
+            }
+            $turnId = (int) ($turn['id'] ?? 0);
+            $status = (string) ($turn['status'] ?? '');
+        }
+
+        $sent = db_fetch(
+            'SELECT id FROM conversation_turn_events WHERE turn_id = ? AND event_type = \'RESPONSE_SENT\' LIMIT 1',
+            'i',
+            [$turnId]
+        );
+
+        if ($status === 'failed' && $sent === null) {
+            turn_engine_send_fallback_for_turn($turnId, $bot, $phoneId, $token, 'webhook_ensure_reply');
+        } elseif (in_array($status, ['buffering', 'processing', 'failed'], true) && $sent === null) {
+            if ($status === 'buffering') {
+                turn_engine_finalize_turn($turnId, true);
+            }
+            $fullTurn = db_fetch('SELECT * FROM conversation_turns WHERE id = ?', 'i', [$turnId]) ?: $turn;
+            require_once __DIR__ . '/whatsapp-auto-reply-core.php';
+            $lite = wa_auto_reply_deliver_turn($fullTurn, $bot, $phoneId, $token, true);
+            if (empty($lite['ok']) && ($lite['path'] ?? '') !== 'already_sent') {
+                turn_engine_send_fallback_for_turn($turnId, $bot, $phoneId, $token, 'webhook_ensure_reply');
+            }
+        } elseif ($status !== 'processing' && $status !== 'completed') {
+            turn_engine_ensure_lead_replied($leadId, $bot, $phoneId, $token, true);
+        }
+
+        turn_engine_send_if_customer_waiting($leadId, $bot, $phoneId, $token);
+    }
+}
+
+/**
+ * Last resort: if this lead still has a quiet unanswered turn, send a human reply.
+ *
+ * @param array<string, mixed> $bot
+ */
+function turn_engine_ensure_lead_replied(int $leadId, array $bot, string $phoneId, string $token, bool $force = false): void
+{
+    if ($leadId <= 0 || $phoneId === '' || $token === '') {
+        return;
+    }
+
+    $turn = db_fetch(
+        'SELECT * FROM conversation_turns
+         WHERE lead_id = ? AND status IN (\'buffering\', \'processing\', \'failed\')
+         ORDER BY id DESC LIMIT 1',
+        'i',
+        [$leadId]
+    );
+    if (!$turn) {
+        return;
+    }
+
+    $turnId = (int) $turn['id'];
+    $status = (string) ($turn['status'] ?? '');
+
+    $alreadySent = db_fetch(
+        'SELECT id FROM conversation_turn_events WHERE turn_id = ? AND event_type = \'RESPONSE_SENT\' LIMIT 1',
+        'i',
+        [$turnId]
+    );
+    if ($alreadySent !== null) {
+        return;
+    }
+
+    // Live evidence: process_turn holds GET_LOCK, starts AI, never returns, so this
+    // fallback never ran. Force path sends immediately.
+    if (!$force && $status === 'buffering' && turn_engine_row_is_quiet($turn)) {
+        try {
+            turn_engine_process_turn($turnId, $bot, $phoneId, $token);
+        } catch (Throwable $e) {
+            error_log('turn_engine_ensure_lead_replied process #' . $turnId . ': ' . $e->getMessage());
+        }
+        $turn = db_fetch('SELECT * FROM conversation_turns WHERE id = ?', 'i', [$turnId]) ?: $turn;
+        $status = (string) ($turn['status'] ?? '');
+    }
+
+    if (in_array($status, ['completed', 'human_handled', 'cancelled'], true)) {
+        return;
+    }
+
+    if ($status === 'processing') {
+        $started = strtotime((string) ($turn['processing_started_at'] ?? ''));
+        $ageSec = $started > 0 ? (time() - $started) : 999;
+        if (!$force && $ageSec < 8) {
+            return;
+        }
+        if (!$force && $ageSec < 12) {
+            return;
+        }
+    }
+
+    if (!$force && $status === 'buffering' && !turn_engine_row_is_quiet($turn)) {
+        turn_engine_dispatch_worker([$leadId]);
+
+        return;
+    }
+
+    $payload = turn_engine_build_turn_payload($turnId);
+    $combined = trim((string) ($payload['combined'] ?? ''));
+    $waIds = $payload['wa_message_ids'] ?? [];
+    $waId = $waIds !== [] ? (string) $waIds[count($waIds) - 1] : '';
+    $sender = (string) ($turn['sender_phone'] ?? '');
+    if ($sender === '') {
+        return;
+    }
+
+    $reply = "I'm here — what can I help you with?";
+    try {
+        require_once __DIR__ . '/human-agent-prompt.php';
+        if (function_exists('human_agent_warm_last_resort')) {
+            $reply = human_agent_warm_last_resort($bot, $combined !== '' ? $combined : 'message', $leadId);
+        }
+    } catch (Throwable $ignored) {
+    }
+
+    $sent = turn_engine_guaranteed_send($phoneId, $token, $sender, $reply, $waId);
+    if (empty($sent['success'])) {
+        error_log('turn_engine_ensure_lead_replied send failed lead #' . $leadId . ': ' . (string) ($sent['message'] ?? 'unknown'));
+        if (function_exists('whatsapp_webhook_log_event')) {
+            whatsapp_webhook_log_event('Ensure reply send failed', [
+                'lead_id' => $leadId,
+                'error'   => (string) ($sent['message'] ?? 'unknown'),
+            ]);
+        }
+
+        return;
+    }
+
+    try {
+        if ($combined !== '' && function_exists('conversation_insert')) {
+            $userExists = db_fetch(
+                'SELECT id FROM conversations WHERE lead_id = ? AND role = \'user\' AND message = ? ORDER BY id DESC LIMIT 1',
+                'is',
+                [$leadId, $combined]
+            );
+            if (!$userExists) {
+                conversation_insert($leadId, 'user', $combined, $payload['media_type'] ?? null, $payload['media_url'] ?? null);
+            }
+        }
+        conversation_store_sent_assistant_reply($leadId, $reply);
+        if ($waIds !== []) {
+            whatsapp_mark_many_inbound_replied($waIds);
+        }
+        db_execute(
+            'UPDATE conversation_turns SET status = \'completed\', ai_response_text = ?, processing_completed_at = NOW(), suppression_reason = \'webhook_ensure_reply\' WHERE id = ?',
+            'si',
+            [$reply, $turnId]
+        );
+        turn_engine_log_event($turnId, 'RESPONSE_SENT', ['path' => 'webhook_ensure_reply']);
+    } catch (Throwable $e) {
+        error_log('turn_engine_ensure_lead_replied persist: ' . $e->getMessage());
+    }
+}
+
+/**
+ * If the last chat line is still the customer, send a reply even when the turn
+ * was already marked completed (the "I'm doing well then silence" case).
+ *
+ * @param array<string, mixed> $bot
+ */
+function turn_engine_send_if_customer_waiting(int $leadId, array $bot, string $phoneId, string $token): void
+{
+    if ($leadId <= 0 || $phoneId === '' || $token === '') {
+        return;
+    }
+    if (turn_engine_lead_just_got_reply($leadId, 20)) {
+        return;
+    }
+    if (!turn_engine_customer_awaiting_reply($leadId)) {
+        return;
+    }
+    if (function_exists('whatsapp_acquire_lead_reply_lock') && empty($GLOBALS['wa_reply_lock_held'][$leadId])
+        && !whatsapp_acquire_lead_reply_lock($leadId, 0)
+    ) {
+        return;
+    }
+    $release = empty($GLOBALS['wa_reply_lock_held'][$leadId]);
+    try {
+        if (turn_engine_lead_just_got_reply($leadId, 20) || !turn_engine_customer_awaiting_reply($leadId)) {
+            return;
+        }
+
+    $lead = db_fetch('SELECT * FROM leads WHERE id = ?', 'i', [$leadId]);
+    $sender = trim((string) ($lead['external_id'] ?? ''));
+    $lastUser = db_fetch(
+        'SELECT message FROM conversations WHERE lead_id = ? AND role = \'user\' ORDER BY id DESC LIMIT 1',
+        'i',
+        [$leadId]
+    );
+    $text = trim((string) ($lastUser['message'] ?? ''));
+    if ($sender === '' || $text === '') {
+        $turn = db_fetch(
+            'SELECT sender_phone, id FROM conversation_turns WHERE lead_id = ? ORDER BY id DESC LIMIT 1',
+            'i',
+            [$leadId]
+        );
+        $sender = $sender !== '' ? $sender : trim((string) ($turn['sender_phone'] ?? ''));
+        if ($text === '' && $turn) {
+            $payload = turn_engine_build_turn_payload((int) $turn['id']);
+            $text = trim((string) ($payload['combined'] ?? ''));
+        }
+    }
+    if ($sender === '' || $text === '') {
+        return;
+    }
+
+    $reply = 'Got it — what should I do next?';
+    try {
+        require_once __DIR__ . '/whatsapp-auto-reply-core.php';
+        $composed = wa_auto_reply_compose($bot, $leadId, $text, 0, true);
+        if (trim((string) ($composed['reply'] ?? '')) !== '') {
+            $reply = trim((string) $composed['reply']);
+        }
+    } catch (Throwable $ignored) {
+        try {
+            require_once __DIR__ . '/human-agent-prompt.php';
+            $reply = human_agent_warm_last_resort($bot, $text, $leadId);
+        } catch (Throwable $ignored2) {
+        }
+    }
+
+    $sent = turn_engine_guaranteed_send($phoneId, $token, $sender, $reply);
+    if (empty($sent['success'])) {
+        error_log('turn_engine_send_if_customer_waiting send failed lead #' . $leadId);
+
+        return;
+    }
+
+    try {
+        conversation_store_sent_assistant_reply($leadId, $reply);
+        db_execute(
+            'UPDATE conversation_turns SET status = \'completed\', ai_response_text = ?, processing_completed_at = NOW(),
+             suppression_reason = \'waiting_customer_reply\' WHERE lead_id = ? AND status IN (\'buffering\', \'processing\', \'failed\')',
+            'si',
+            [$reply, $leadId]
+        );
+        turn_engine_log_event(0, 'RESPONSE_SENT', ['path' => 'waiting_customer', 'lead_id' => $leadId]);
+    } catch (Throwable $e) {
+        error_log('turn_engine_send_if_customer_waiting persist: ' . $e->getMessage());
+    }
+    } finally {
+        if ($release && function_exists('whatsapp_release_lead_reply_lock')) {
+            whatsapp_release_lead_reply_lock($leadId);
+        }
     }
 }
 
@@ -2198,7 +3938,14 @@ function turn_engine_fetch_due_turn_row(int $leadId): ?array
         'SELECT t.*, b.whatsapp_phone_id, b.whatsapp_token, b.id AS bot_row_id, b.user_id, b.name, b.persona_description
          FROM conversation_turns t
          INNER JOIN bots b ON b.id = t.bot_id
-         WHERE t.lead_id = ? AND ' . turn_engine_quiet_due_sql('t') . '
+         WHERE t.lead_id = ? AND (
+            (' . turn_engine_quiet_due_sql('t') . ')
+            OR (
+                t.status = \'processing\'
+                AND t.processing_started_at IS NOT NULL
+                AND t.processing_started_at < DATE_SUB(NOW(), INTERVAL 1 MINUTE)
+            )
+         )
          ORDER BY t.finalize_after ASC LIMIT 1',
         'i',
         [$leadId]
@@ -2246,11 +3993,48 @@ function turn_engine_dispatch_worker(array $leadIds): bool
         return false;
     }
 
+    // Detached curl keeps the worker HTTP request open (~90s) so LiteSpeed
+    // does not abort it when the webhook client disconnects.
+    if (turn_engine_dispatch_worker_detached($url, $body)) {
+        return true;
+    }
     if (turn_engine_dispatch_worker_curl($url, $body)) {
         return true;
     }
 
     return turn_engine_dispatch_worker_fsockopen($url, $body);
+}
+
+/**
+ * Spawn a background curl that waits for the worker to finish (cPanel/LiteSpeed).
+ */
+function turn_engine_dispatch_worker_detached(string $url, string $body): bool
+{
+    if (!function_exists('exec') || stripos(PHP_OS, 'WIN') === 0) {
+        return false;
+    }
+
+    $payloadFile = tempnam(sys_get_temp_dir(), 'iqp_turn_');
+    if ($payloadFile === false) {
+        return false;
+    }
+    if (@file_put_contents($payloadFile, $body) === false) {
+        @unlink($payloadFile);
+
+        return false;
+    }
+    @chmod($payloadFile, 0600);
+
+    $cmd = sprintf(
+        'nohup curl -sS -m 90 -X POST -H %s --data-binary @%s %s >/dev/null 2>&1; rm -f %s &',
+        escapeshellarg('Content-Type: application/json'),
+        escapeshellarg($payloadFile),
+        escapeshellarg($url),
+        escapeshellarg($payloadFile)
+    );
+    @exec($cmd);
+
+    return true;
 }
 
 function turn_engine_dispatch_worker_curl(string $url, string $body): bool
@@ -2276,14 +4060,19 @@ function turn_engine_dispatch_worker_curl(string $url, string $body): bool
         CURLOPT_SSL_VERIFYHOST => defined('META_GRAPH_SSL_VERIFY') && !META_GRAPH_SSL_VERIFY ? 0 : 2,
     ]);
 
-    $ok = @curl_exec($ch) !== false;
+    @curl_exec($ch);
     $errno = curl_errno($ch);
-    if (!$ok && $errno !== 0) {
-        error_log('turn_engine_dispatch_worker: curl failed errno=' . $errno . ' ' . curl_error($ch));
-    }
     curl_close($ch);
 
-    return $ok;
+    // 28 = operation timed out. Fire-and-forget: the POST was sent; the worker
+    // keeps running after this client disconnects.
+    if ($errno !== 0 && $errno !== 28) {
+        error_log('turn_engine_dispatch_worker: curl failed errno=' . $errno);
+
+        return false;
+    }
+
+    return true;
 }
 
 function turn_engine_dispatch_worker_fsockopen(string $url, string $body): bool

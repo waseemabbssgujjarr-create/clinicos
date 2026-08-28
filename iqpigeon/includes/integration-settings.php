@@ -112,7 +112,7 @@ function integration_secret_field_map(): array
 
     return [
 
-        'deepseek_api_key'      => 'DEEPSEEK_API_KEY',
+        'openai_api_key'        => 'OPENAI_API_KEY',
 
         'meta_app_secret'       => 'META_APP_SECRET',
 
@@ -192,7 +192,7 @@ function integration_public_field_map(): array
 
         'facebook_redirect_uri'  => 'FACEBOOK_REDIRECT_URI',
 
-        'ai_model'               => 'DEEPSEEK_MODEL',
+        'ai_model'               => 'OPENAI_MODEL',
 
     ];
 
@@ -230,7 +230,23 @@ function get_integration_settings(): array
 
 
 
-    return array_merge($defaults, $decoded);
+    $merged = array_merge($defaults, $decoded);
+    $rawVer = trim((string) ($merged['meta_graph_api_version'] ?? ''));
+    $normVer = integration_normalize_graph_api_version($rawVer !== '' ? $rawVer : 'v25.0');
+    if ($rawVer !== $normVer) {
+        $merged['meta_graph_api_version'] = $normVer;
+        if (empty($GLOBALS['_integration_graph_version_healed'])) {
+            $GLOBALS['_integration_graph_version_healed'] = true;
+            $decoded['meta_graph_api_version'] = $normVer;
+            set_setting(
+                'integrations_json',
+                json_encode(array_merge($defaults, $decoded), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+            );
+            $GLOBALS['_integration_override_cache'] = null;
+        }
+    }
+
+    return $merged;
 
 }
 
@@ -263,7 +279,9 @@ function save_integration_settings(array $settings, array $newSecrets = []): voi
 
         'meta_config_id'            => trim((string) ($settings['meta_config_id'] ?? '')),
 
-        'meta_graph_api_version'    => trim((string) ($settings['meta_graph_api_version'] ?? $defaults['meta_graph_api_version'])),
+        'meta_graph_api_version'    => integration_normalize_graph_api_version(
+            trim((string) ($settings['meta_graph_api_version'] ?? $defaults['meta_graph_api_version']))
+        ),
 
         'webhook_verify_token'      => trim((string) ($settings['webhook_verify_token'] ?? '')),
 
@@ -954,7 +972,9 @@ function integration_load_overrides(): array
         }
 
         if ($value !== '' && $value !== '0') {
-
+            if ($constant === 'META_GRAPH_API_VERSION') {
+                $value = integration_normalize_graph_api_version((string) $value);
+            }
             $overrides[$constant] = (string) $value;
 
         }
@@ -987,8 +1007,16 @@ function integration_load_overrides(): array
 
     if (!empty($settings['ai_model'])) {
 
-        $overrides['DEEPSEEK_MODEL'] = (string) $settings['ai_model'];
+        $overrides['OPENAI_MODEL'] = (string) $settings['ai_model'];
 
+    }
+
+    // Legacy: migrate stored DeepSeek key to OpenAI chat key if chat key not set yet.
+    if (empty($overrides['OPENAI_API_KEY']) && !empty($stored['deepseek_api_key'])) {
+        $legacy = decrypt_token($stored['deepseek_api_key']);
+        if ($legacy !== false && $legacy !== '') {
+            $overrides['OPENAI_API_KEY'] = $legacy;
+        }
     }
 
 
@@ -1075,22 +1103,66 @@ function integration_meta_configured(): bool
 
 
 
-function integration_ai_configured(): bool
-
+function integration_openai_chat_key(): string
 {
-
-    $key = integration_config('DEEPSEEK_API_KEY');
-
-    if ($key === '' || integration_is_placeholder_secret($key)) {
-
-        $key = integration_config('OPENAI_API_KEY');
-
+    $key = trim(integration_config('OPENAI_API_KEY'));
+    if ($key !== '' && !integration_is_placeholder_secret($key)) {
+        return $key;
     }
 
+    foreach (['OPENAI_VOICE_API_KEY', 'OPENAI_IMAGE_API_KEY', 'OPENAI_MEDIA_KEY'] as $constant) {
+        $fallback = trim(integration_config($constant));
+        if ($fallback !== '' && !integration_is_placeholder_secret($fallback)) {
+            return $fallback;
+        }
+    }
 
+    return '';
+}
 
-    return $key !== '' && !integration_is_placeholder_secret($key);
+function integration_openai_model(): string
+{
+    $model = trim((string) get_setting('ai_model', ''));
+    if ($model === '') {
+        $model = trim((string) get_setting('openai_model', ''));
+    }
+    if ($model === '') {
+        $model = trim(integration_config('OPENAI_MODEL'));
+    }
 
+    $model = strtolower($model !== '' ? $model : 'gpt-4o-mini');
+    // Normalize common config typos (e.g. "GPT-4o" in config.local.php).
+    if ($model === 'gpt-4.0' || $model === 'gpt4o') {
+        $model = 'gpt-4o';
+    }
+
+    return $model;
+}
+
+function integration_openai_api_url(): string
+{
+    $url = trim(integration_config('OPENAI_API_URL'));
+    if ($url === '') {
+        return 'https://api.openai.com/v1/chat/completions';
+    }
+
+    $url = rtrim($url, '/');
+    if (str_ends_with($url, '/chat/completions')) {
+        return $url;
+    }
+    if (str_ends_with($url, '/v1')) {
+        return $url . '/chat/completions';
+    }
+    if (!str_contains($url, 'chat/completions')) {
+        return $url . '/chat/completions';
+    }
+
+    return $url;
+}
+
+function integration_ai_configured(): bool
+{
+    return integration_openai_chat_key() !== '';
 }
 
 
@@ -1144,6 +1216,10 @@ function integration_gemini_configured(): bool
 
 function integration_openai_media_configured(): bool
 {
+    if (integration_openai_chat_key() !== '') {
+        return true;
+    }
+
     $voice = trim(integration_config('OPENAI_VOICE_API_KEY'));
     $image = trim(integration_config('OPENAI_IMAGE_API_KEY'));
     $legacy = trim(integration_config('OPENAI_MEDIA_KEY'));
@@ -1211,11 +1287,11 @@ function integration_status_overview(): array
 
         'ai' => [
 
-            'label'  => 'DeepSeek AI',
+            'label'  => 'OpenAI (chat)',
 
             'ok'     => integration_ai_configured(),
 
-            'detail' => integration_ai_configured() ? 'API key set' : 'DeepSeek API key missing',
+            'detail' => integration_ai_configured() ? 'API key set' : 'OpenAI chat API key missing',
 
         ],
 

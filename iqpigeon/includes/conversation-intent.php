@@ -111,7 +111,8 @@ function conversation_is_location_question(string $message): bool
 
     return (bool) preg_match(
         '/\b(where are you|where(?:\'?re| are) you|where you at|where r u|where are u|'
-        . 'where are you based|where are you located|your location|which city are you in)\b/u',
+        . 'where are you based|where are you located|your location|which city are you in|'
+        . 'where is (the |your )?(restaurant|shop|store|clinic|office|branch)|your address)\b/u',
         $lower
     );
 }

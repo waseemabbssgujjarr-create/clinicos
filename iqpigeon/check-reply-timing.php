@@ -63,7 +63,7 @@ $config = [
     'HUMAN_REPLY_DELAY_MAX_MS'    => defined('HUMAN_REPLY_DELAY_MAX_MS') ? (int) HUMAN_REPLY_DELAY_MAX_MS : 90000,
     'WHATSAPP_INBOUND_DEBOUNCE_MS'=> whatsapp_inbound_debounce_ms(),
     'WHATSAPP_TYPING_PULSE_MS'    => defined('WHATSAPP_TYPING_PULSE_MS') ? (int) WHATSAPP_TYPING_PULSE_MS : 18000,
-    'DEEPSEEK_MODEL'              => defined('DEEPSEEK_MODEL') ? DEEPSEEK_MODEL : 'deepseek-chat',
+    'OPENAI_MODEL'              => defined('OPENAI_MODEL') ? OPENAI_MODEL : 'gpt-4o-mini',
 ];
 
 $simulations = [];
@@ -191,7 +191,7 @@ header('Content-Type: text/html; charset=utf-8');
         <h2 style="margin-top:0">How the pipeline works</h2>
         <ol>
             <li><strong>Debounce</strong> — wait <?= fmt_ms($config['WHATSAPP_INBOUND_DEBOUNCE_MS']) ?> so rapid messages merge (config: <code>WHATSAPP_INBOUND_DEBOUNCE_MS</code>)</li>
-            <li><strong>AI (DeepSeek)</strong> — generate reply (usually <strong>3–15 s</strong>; measured live below)</li>
+            <li><strong>AI (OpenAI)</strong> — generate reply (usually <strong>3–15 s</strong>; measured live below)</li>
             <li><strong>Human delay</strong> — simulated “reading” + “typing” before send (config: <code>HUMAN_READ_WPM</code>, <code>HUMAN_REPLY_WPM</code>)</li>
             <li><strong>Send</strong> — Meta API (usually &lt; 1 s)</li>
         </ol>
@@ -308,7 +308,7 @@ header('Content-Type: text/html; charset=utf-8');
 
     <div class="card">
         <h2 style="margin-top:0">Run live AI timing test</h2>
-        <p>Calls DeepSeek once and measures AI time + projected human delay. <strong>Inserts messages into the conversation.</strong></p>
+        <p>Calls OpenAI once and measures AI time + projected human delay. <strong>Inserts messages into the conversation.</strong></p>
         <form method="get">
             <label>Bot
                 <select name="bot_id">
@@ -330,7 +330,7 @@ header('Content-Type: text/html; charset=utf-8');
         <h2 style="margin-top:0">Why you saw ~30–50 seconds</h2>
         <ul>
             <li><strong>~2 s</strong> — inbound debounce on every message</li>
-            <li><strong>~5–15 s</strong> — DeepSeek API (network + model)</li>
+            <li><strong>~5–15 s</strong> — OpenAI API (network + model)</li>
             <li><strong>~2–22 s</strong> — human delay at <?= (int) $config['HUMAN_READ_WPM'] ?> read / <?= (int) $config['HUMAN_REPLY_WPM'] ?> type WPM (~<?= (int) round(60000 / $config['HUMAN_REPLY_WPM']) ?> ms per reply word; max <?= fmt_ms($config['HUMAN_REPLY_DELAY_MAX_MS']) ?>)</li>
         </ul>
         <p>Typical total with current settings: <strong>~10–20 s</strong> for short replies, <strong>~15–25 s</strong> for longer ones (plus AI time).</p>

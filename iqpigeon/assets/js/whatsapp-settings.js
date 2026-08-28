@@ -117,20 +117,24 @@ const WhatsAppSettings = {
     },
 
     async disconnect() {
-        App.confirm('Disconnect WhatsApp? Your WABA stays on Meta — only this app link is removed.', async () => {
-            const res = await fetch('/api/whatsapp/disconnect.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ client_id: this.clientId }),
-            });
-            const data = await res.json();
-            if (data.success) {
-                App.toast('WhatsApp disconnected', 'success');
-                setTimeout(() => location.reload(), 800);
-            } else {
-                App.toast(data.error || 'Disconnect failed', 'error');
-            }
-        });
+        App.confirm(
+            'Your WhatsApp Business account stays on Meta. Only this app connection is removed.',
+            async () => {
+                const res = await fetch('/api/whatsapp/disconnect.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ client_id: this.clientId }),
+                });
+                const data = await res.json();
+                if (data.success) {
+                    App.toast('WhatsApp disconnected', 'success');
+                    setTimeout(() => location.reload(), 800);
+                } else {
+                    App.toast(data.error || 'Disconnect failed', 'error');
+                }
+            },
+            { title: 'Disconnect WhatsApp?', confirmLabel: 'Disconnect', danger: true }
+        );
     },
 
     async sendTest() {
@@ -389,17 +393,20 @@ const WhatsAppSettings = {
                         }
                     });
             }
-        }, {
-            config_id: configId,
-            response_type: 'code',
-            override_default_response_type: true,
-            extras: {
-                setup: {},
-                featureType: 'whatsapp_business_app_onboarding',
-                sessionInfoVersion: '3',
-                version: 'v4',
-            },
-        });
+        }, (window.App && typeof App.waFbLoginOptions === 'function')
+            ? App.waFbLoginOptions(configId)
+            : {
+                config_id: configId,
+                auth_type: 'rerequest',
+                response_type: 'code',
+                override_default_response_type: true,
+                extras: {
+                    setup: {},
+                    featureType: 'whatsapp_business_app_onboarding',
+                    sessionInfoVersion: '3',
+                    version: 'v4',
+                },
+            });
     },
 };
 

@@ -21,6 +21,21 @@ if (isset($_GET['tab']) && (string) $_GET['tab'] === 'training') {
     redirect('/client/training?tab=knowledge');
 }
 
+$tabAliases = [
+    'industry'  => 'business',
+    'hours'     => 'business',
+    'menu'      => 'knowledge',
+    'triggers'  => 'knowledge',
+    'qualify'   => 'sales',
+    'behavior'  => 'conversation',
+];
+$requestedTab = preg_replace('/[^a-z_]/', '', (string) ($_GET['tab'] ?? ''));
+if ($requestedTab !== '' && isset($tabAliases[$requestedTab]) && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+    $qs = $_GET;
+    $qs['tab'] = $tabAliases[$requestedTab];
+    redirect('/client/training?' . http_build_query($qs));
+}
+
 ensure_bots_schema();
 ensure_lead_lifecycle_schema();
 ensure_qualification_flow_schema();
@@ -41,13 +56,34 @@ $error   = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ?? '')) {
     $action = trim($_POST['action'] ?? '');
 
+    if ($action === 'save_rep_name') {
+        $repName = mb_substr(trim((string) ($_POST['rep_name'] ?? '')), 0, 30);
+        if ($repName === '') {
+            $error = 'Enter a name for your assistant.';
+        } else {
+            db_execute(
+                'UPDATE bots SET rep_name=?, knowledge_updated_at=NOW() WHERE id=? AND user_id=?',
+                'sii',
+                [$repName, $botId, $userId]
+            );
+            redirect('/client/training?tab=conversation&saved=name');
+        }
+        $bot = db_fetch('SELECT * FROM bots WHERE id=? AND user_id=?', 'ii', [$botId, $userId]);
+    }
+
     if ($action === 'save_business_info') {
-        $repName  = mb_substr(trim($_POST['rep_name'] ?? ''), 0, 30);
+        $repName  = mb_substr(bot_persist_field((string) ($_POST['rep_name'] ?? ''), (string) ($bot['rep_name'] ?? '')), 0, 30);
         $bizName  = mb_substr(trim($_POST['company_name'] ?? ''), 0, 120);
-        $industry = mb_substr(trim($_POST['industry'] ?? ''), 0, 80);
+        $postedIndustryKey = industry_key_from_posted((string) ($_POST['industry_key'] ?? $_POST['industry'] ?? ''));
+        $oldIndustryKey = preg_replace('/[^a-z0-9_]/', '', mb_strtolower(trim((string) ($bot['industry_key'] ?? '')))) ?: '';
+        $industryKeySave = $postedIndustryKey !== '' ? $postedIndustryKey : $oldIndustryKey;
+        $industryTpl = $industryKeySave !== '' ? industry_template($industryKeySave) : null;
+        $industry = is_array($industryTpl)
+            ? (string) $industryTpl['label']
+            : mb_substr(bot_persist_field((string) ($_POST['industry'] ?? ''), (string) ($user['industry'] ?? '')), 0, 80);
         $bizEmail = mb_substr(trim($_POST['business_email'] ?? ''), 0, 120);
         $bizPhone = mb_substr(trim($_POST['business_phone'] ?? ''), 0, 30);
-        $website  = mb_substr(trim($_POST['website_url'] ?? ''), 0, 255);
+        $website  = mb_substr(bot_persist_field((string) ($_POST['website_url'] ?? ''), (string) ($bot['website_url'] ?? '')), 0, 255);
         $desc     = mb_substr(trim($_POST['business_description'] ?? ''), 0, 500);
         $address  = mb_substr(trim($_POST['business_address'] ?? ''), 0, 255);
         $timezone = mb_substr(trim($_POST['timezone'] ?? ''), 0, 80);
@@ -82,24 +118,105 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ??
             }
         }
 
+        $postedPersona = trim((string) ($_POST['rep_persona'] ?? ''));
+        $repPersona = $postedPersona !== ''
+            ? bot_limit_words($postedPersona, 5000)
+            : (string) ($bot['rep_persona'] ?? '');
+        if (mb_strlen($repPersona) > 200000) {
+            $repPersona = mb_substr($repPersona, 0, 200000);
+        }
+
+        $tzOptions = [
+            'Asia/Karachi'     => 'Asia/Karachi',
+            'UTC'              => 'UTC',
+            'Asia/Kolkata'     => 'Asia/Kolkata',
+            'America/New_York' => 'America/New_York',
+            'Europe/London'    => 'Europe/London',
+            'Asia/Dubai'       => 'Asia/Dubai',
+        ];
+        $timezoneIana = $timezone;
+        if (!isset($tzOptions[$timezoneIana])) {
+            $timezoneIana = (string) ($user['pref_timezone'] ?? 'Asia/Karachi');
+        }
+        $currencySave = strtoupper($currency);
+        if (!in_array($currencySave, ['PKR', 'USD', 'EUR', 'GBP'], true)) {
+            $currencySave = (string) ($user['pref_currency'] ?? 'PKR');
+        }
+
         if ($error === '') {
+            require_once dirname(__DIR__) . '/includes/bot-knowledge.php';
+            ensure_bots_schema();
             db_execute(
-                'UPDATE bots SET rep_name=?, website_url=?, knowledge_updated_at=NOW() WHERE id=? AND user_id=?',
-                'ssii',
-                [$repName, $website, $botId, $userId]
+                'UPDATE bots SET rep_name=?, website_url=?, rep_persona=?, knowledge_updated_at=NOW() WHERE id=? AND user_id=?',
+                'sssii',
+                [$repName, $website, $repPersona, $botId, $userId]
             );
+            if ($industryKeySave !== '') {
+                if ($industryKeySave !== $oldIndustryKey) {
+                    $applied = industry_apply_key_change($bot, $industryKeySave, $oldIndustryKey);
+                    $keepCustomQualify = function_exists('qualification_is_custom') && qualification_is_custom($bot);
+                    $modeSave = $keepCustomQualify
+                        ? (string) ($bot['business_mode'] ?? 'mixed')
+                        : ($applied['business_mode'] !== '' ? $applied['business_mode'] : (string) ($bot['business_mode'] ?? 'mixed'));
+                    $goalSave = $keepCustomQualify
+                        ? (string) ($bot['conversion_goal'] ?? '')
+                        : ($applied['conversion_goal'] !== '' ? $applied['conversion_goal'] : (string) ($bot['conversion_goal'] ?? ''));
+                    db_execute(
+                        'UPDATE bots SET industry_key=?, business_model=?, bot_knowledge=?, business_mode=?, conversion_goal=?, knowledge_updated_at=NOW() WHERE id=? AND user_id=?',
+                        'sssssii',
+                        [
+                            $industryKeySave,
+                            $applied['business_model'],
+                            $applied['bot_knowledge'],
+                            $modeSave,
+                            $goalSave,
+                            $botId,
+                            $userId,
+                        ]
+                    );
+                    if (!$keepCustomQualify && $oldIndustryKey === '') {
+                        $seedBot = array_merge($bot, [
+                            'industry_key'    => $industryKeySave,
+                            'business_mode'   => $modeSave,
+                            'conversion_goal' => $goalSave,
+                        ]);
+                        $existingQs = qualification_load_for_bot($seedBot);
+                        $hasQ = false;
+                        foreach ((array) ($existingQs['questions'] ?? []) as $q) {
+                            if (trim((string) ($q['text'] ?? '')) !== '') {
+                                $hasQ = true;
+                                break;
+                            }
+                        }
+                        if (!$hasQ) {
+                            qualification_save_for_bot($botId, $userId, qualification_defaults_for_bot($seedBot), false);
+                        }
+                    }
+                } else {
+                    db_execute(
+                        'UPDATE bots SET industry_key=? WHERE id=? AND user_id=?',
+                        'sii',
+                        [$industryKeySave, $botId, $userId]
+                    );
+                }
+            }
             if ($bizName !== '') {
                 db_execute('UPDATE bots SET name=? WHERE id=? AND user_id=?', 'sii', [$bizName, $botId, $userId]);
             }
 
             $companyForUser = $bizName !== '' ? $bizName : trim((string) ($user['company_name'] ?? ''));
-            $sql = 'UPDATE users SET company_name=?, industry=?, bio=?, address=?, phone=?';
-            $types = 'sssss';
-            $params = [$companyForUser, $industry, $desc, $address, $bizPhone];
+            $sql = 'UPDATE users SET company_name=?, industry=?, bio=?, address=?, phone=?, pref_timezone=?, pref_currency=?';
+            $types = 'sssssss';
+            $params = [$companyForUser, $industry, $desc, $address, $bizPhone, $timezoneIana, $currencySave];
             if ($logoUpdate !== '') {
                 $sql .= ', avatar_url=?';
                 $types .= 's';
                 $params[] = $logoUpdate;
+            }
+            if ($bizEmail !== '') {
+                $sql .= ', business_email=?';
+                $types .= 's';
+                $params[] = $bizEmail;
             }
             $sql .= ' WHERE id=?';
             $types .= 'i';
@@ -120,6 +237,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ??
             'sii', [$knowledge, $botId, $userId]);
         $message = 'Knowledge saved.';
         $bot = db_fetch('SELECT * FROM bots WHERE id=? AND user_id=?', 'ii', [$botId, $userId]);
+        redirect('/client/training?tab=knowledge&saved=1');
     }
 
     if ($action === 'save_menu_cards' || $action === 'auto_menu_cards') {
@@ -171,6 +289,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ??
 
         bot_training_meta_update($botId, $userId, ['menu_cards' => $cards]);
         $bot = db_fetch('SELECT * FROM bots WHERE id=? AND user_id=?', 'ii', [$botId, $userId]);
+        redirect('/client/training?tab=knowledge&saved=menu');
     }
 
     if ($action === 'apply_industry') {
@@ -179,35 +298,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ??
         ensure_qualification_flow_schema();
         $key        = preg_replace('/[^a-z0-9_]/', '', mb_strtolower(trim($_POST['industry_key'] ?? '')));
         $currentKey = preg_replace('/[^a-z0-9_]/', '', mb_strtolower(trim((string) ($bot['industry_key'] ?? ''))));
-        $force      = !empty($_POST['overwrite_existing']) || ($currentKey !== '' && $currentKey !== $key);
-        $keepQual   = qualification_is_custom($bot) && empty($_POST['overwrite_qualification']);
         $tpl        = industry_template($key);
         if ($tpl === null) {
-            $error = 'Pick a valid industry template.';
+            $error = 'Pick a valid industry.';
         } else {
-            $applied = industry_apply_to_bot($bot, $key, $force);
-            if ($keepQual) {
-                db_execute(
-                    'UPDATE bots SET industry_key=?, business_model=?, bot_knowledge=?, knowledge_updated_at=NOW() WHERE id=? AND user_id=?',
-                    'sssii',
-                    [$key, $applied['business_model'], $applied['bot_knowledge'], $botId, $userId]
-                );
-                db_execute('UPDATE users SET industry = ? WHERE id = ?', 'si', [$tpl['label'], $userId]);
-                redirect('/client/training?tab=industry&applied=1&kept_qualify=1');
-            }
+            $applied = industry_apply_key_change($bot, $key, $currentKey);
+            $keepCustomQualify = qualification_is_custom($bot);
+            $modeSave = $keepCustomQualify
+                ? (string) ($bot['business_mode'] ?? 'mixed')
+                : $applied['business_mode'];
+            $goalSave = $keepCustomQualify
+                ? (string) ($bot['conversion_goal'] ?? '')
+                : $applied['conversion_goal'];
             db_execute(
                 'UPDATE bots SET industry_key=?, business_model=?, bot_knowledge=?, business_mode=?, conversion_goal=?, knowledge_updated_at=NOW() WHERE id=? AND user_id=?',
                 'sssssii',
-                [$key, $applied['business_model'], $applied['bot_knowledge'], $applied['business_mode'], $applied['conversion_goal'], $botId, $userId]
+                [$key, $applied['business_model'], $applied['bot_knowledge'], $modeSave, $goalSave, $botId, $userId]
             );
             db_execute('UPDATE users SET industry = ? WHERE id = ?', 'si', [$tpl['label'], $userId]);
-            $seedBot = array_merge($bot, [
-                'industry_key'    => $key,
-                'business_mode'   => $applied['business_mode'],
-                'conversion_goal' => $applied['conversion_goal'],
-            ]);
-            qualification_save_for_bot($botId, $userId, qualification_defaults_for_bot($seedBot), false);
-            redirect('/client/training?tab=industry&applied=1');
+            redirect('/client/training?tab=business&applied=1');
         }
     }
 
@@ -225,13 +334,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ??
             'business_mode'      => $_POST['business_mode'] ?? 'mixed',
             'conversion_goal'    => $_POST['conversion_goal'] ?? '',
         ], true);
-        redirect('/client/training?tab=qualify&saved=1');
+        redirect('/client/training?tab=sales&saved=1');
     }
 
     if ($action === 'reset_qualification') {
         require_once __DIR__ . '/../includes/qualification-flow.php';
         if (qualification_reset_from_industry($bot, $userId)) {
-            redirect('/client/training?tab=qualify&reset=1');
+            redirect('/client/training?tab=sales&reset=1');
         }
         $error = 'Apply an industry template first, then reset Qualify to its starter questions.';
     }
@@ -250,15 +359,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ??
         bot_training_meta_update($botId, $userId, [
             'operating_hours' => ['always_open' => $alwaysOpen, 'days' => $days],
         ]);
-        $message = 'Operating hours saved.';
-        $bot = db_fetch('SELECT * FROM bots WHERE id=? AND user_id=?', 'ii', [$botId, $userId]);
+        redirect('/client/training?tab=business&saved=hours');
     }
 
     if ($action === 'save_closed_behavior') {
         $text = mb_substr(trim($_POST['closed_behavior'] ?? ''), 0, 500);
         bot_training_meta_update($botId, $userId, ['closed_behavior' => $text]);
-        $message = 'Closed-hours behavior saved.';
-        $bot = db_fetch('SELECT * FROM bots WHERE id=? AND user_id=?', 'ii', [$botId, $userId]);
+        redirect('/client/training?tab=business&saved=hours');
+    }
+
+    if ($action === 'save_conversation') {
+        require_once __DIR__ . '/../includes/ai-instruction-layers.php';
+        $repName = mb_substr(trim((string) ($_POST['rep_name'] ?? '')), 0, 30);
+        if ($repName === '') {
+            $repName = (string) ($bot['rep_name'] ?? '');
+        }
+        $postedPersona = trim((string) ($_POST['rep_persona'] ?? ''));
+        $repPersona = $postedPersona !== ''
+            ? bot_limit_words($postedPersona, 5000)
+            : '';
+        if (mb_strlen($repPersona) > 200000) {
+            $repPersona = mb_substr($repPersona, 0, 200000);
+        }
+        db_execute(
+            'UPDATE bots SET rep_name=?, rep_persona=?, knowledge_updated_at=NOW() WHERE id=? AND user_id=?',
+            'ssii',
+            [$repName, $repPersona, $botId, $userId]
+        );
+        $conv = [
+            'tone'             => ai_normalize_allowed_value((string) ($_POST['tone'] ?? ''), ai_allowed_customer_tone_values()),
+            'formality'        => ai_normalize_allowed_value((string) ($_POST['formality'] ?? ''), ai_allowed_customer_formality_values()),
+            'language'         => ai_normalize_allowed_value((string) ($_POST['language'] ?? ''), ai_allowed_customer_language_values()),
+            'response_length'  => ai_normalize_allowed_value((string) ($_POST['response_length'] ?? ''), ai_allowed_customer_length_values(), 'Concise'),
+            'emoji'            => ai_normalize_allowed_value((string) ($_POST['emoji'] ?? ''), ai_allowed_customer_emoji_values(), 'Occasional'),
+            'personal_touches' => !empty($_POST['personal_touches']),
+        ];
+        bot_training_meta_update($botId, $userId, ['conversation' => $conv]);
+        redirect('/client/training?tab=conversation&saved=1');
     }
 
     if ($action === 'add_trigger_word') {
@@ -270,8 +407,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ??
             $meta = bot_training_meta($bot);
             $meta['trigger_words'][] = ['word' => $word, 'intent' => $intent, 'is_active' => true];
             bot_training_meta_update($botId, $userId, ['trigger_words' => $meta['trigger_words']]);
-            $message = 'Trigger word added.';
-            $bot = db_fetch('SELECT * FROM bots WHERE id=? AND user_id=?', 'ii', [$botId, $userId]);
+            $message = 'Keyword hint added.';
+            redirect('/client/training?tab=knowledge&saved=hints');
         }
     }
 
@@ -281,8 +418,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ??
         if (isset($meta['trigger_words'][$idx])) {
             unset($meta['trigger_words'][$idx]);
             bot_training_meta_update($botId, $userId, ['trigger_words' => array_values($meta['trigger_words'])]);
-            $message = 'Trigger word removed.';
-            $bot = db_fetch('SELECT * FROM bots WHERE id=? AND user_id=?', 'ii', [$botId, $userId]);
+            redirect('/client/training?tab=knowledge&saved=hints');
         }
     }
 
@@ -292,7 +428,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ??
         if (isset($meta['trigger_words'][$idx])) {
             $meta['trigger_words'][$idx]['is_active'] = empty($meta['trigger_words'][$idx]['is_active']);
             bot_training_meta_update($botId, $userId, ['trigger_words' => $meta['trigger_words']]);
-            $bot = db_fetch('SELECT * FROM bots WHERE id=? AND user_id=?', 'ii', [$botId, $userId]);
+            redirect('/client/training?tab=knowledge&saved=hints');
         }
     }
 }
@@ -300,14 +436,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ??
 // Data for view
 $repName         = trim((string) ($bot['rep_name'] ?? ''));
 $repNamePreview  = $repName !== '' ? $repName : 'Assistant';
+$repPersona      = trim((string) ($bot['rep_persona'] ?? ''));
 $bizName     = (string)($user['company_name'] ?? '');
 $industry    = (string)($user['industry'] ?? '');
 $knowledge   = (string)($bot['bot_knowledge'] ?? '');
 $websiteUrl  = (string)($bot['website_url'] ?? '');
 $updated     = (string)($bot['knowledge_updated_at'] ?? '');
-$industryKey = (string)($bot['industry_key'] ?? '');
+$industryKey = preg_replace('/[^a-z0-9_]/', '', mb_strtolower(trim((string) ($bot['industry_key'] ?? '')))) ?: '';
+if ($industryKey === '' && $industry !== '') {
+    $industryKey = industry_key_from_posted($industry);
+}
 $trainingMeta = bot_training_meta($bot);
 $menuCards = (array) ($trainingMeta['menu_cards'] ?? []);
+$conversationPrefs = is_array($trainingMeta['conversation'] ?? null) ? $trainingMeta['conversation'] : [];
+require_once __DIR__ . '/../includes/ai-instruction-layers.php';
+$trainingReady = ai_training_readiness($bot, $user);
 $industryTemplates = industry_templates_all();
 $qualifyFlow = qualification_load_for_bot($bot);
 $qualifyTypes = qualification_question_types();

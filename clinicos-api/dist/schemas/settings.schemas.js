@@ -10,6 +10,8 @@ exports.UpdateClinicSchema = zod_1.z.object({
     specialty: zod_1.z.string().optional(),
     address: zod_1.z.string().optional(),
     timezone: zod_1.z.string().optional(),
+    googlePlaceId: zod_1.z.string().optional(),
+    defaultFee: zod_1.z.number().positive().optional(),
     bookingSlug: zod_1.z
         .string()
         .regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens')

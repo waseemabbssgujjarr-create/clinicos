@@ -1053,7 +1053,9 @@ function whatsapp_complete_oauth_connection(
     string $wabaIdInput = '',
     string $phoneNumberIdInput = '',
     string $displayNumberInput = '',
-    string $exchangeMode = 'redirect'
+    string $exchangeMode = 'redirect',
+    string $catalogIdInput = '',
+    string $businessIdInput = ''
 ): array {
     require_once __DIR__ . '/../lib/Encryption.php';
 
@@ -1165,7 +1167,13 @@ function whatsapp_complete_oauth_connection(
     }
 
     require_once __DIR__ . '/meta-catalog-sync.php';
-    meta_catalog_after_whatsapp_connect($clientId, $assets['waba_id'], $accessToken);
+    $catalogId = function_exists('meta_catalog_normalize_id')
+        ? meta_catalog_normalize_id($catalogIdInput)
+        : trim($catalogIdInput);
+    $businessId = function_exists('meta_catalog_normalize_id')
+        ? meta_catalog_normalize_id($businessIdInput)
+        : trim($businessIdInput);
+    meta_catalog_after_whatsapp_connect($clientId, $assets['waba_id'], $accessToken, $catalogId, $businessId);
 
     whatsapp_sync_user_business_phone($clientId, $assets['display_number']);
 
@@ -1173,5 +1181,7 @@ function whatsapp_complete_oauth_connection(
         'success'      => true,
         'phone_number' => $assets['display_number'],
         'waba_id'      => $assets['waba_id'],
+        'catalog_id'   => $catalogId,
+        'business_id'  => $businessId,
     ];
 }

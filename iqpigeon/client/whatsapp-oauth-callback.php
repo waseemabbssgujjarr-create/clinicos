@@ -80,6 +80,19 @@ $phoneId = trim((string) (
     ?? $_SESSION['wa_oauth_phone_id']
     ?? ''
 ));
+$catalogId = trim((string) (
+    $_GET['catalog_id']
+    ?? ''
+));
+if ($catalogId === '') {
+    $catalogIdsRaw = $_GET['catalog_ids'] ?? '';
+    if (is_array($catalogIdsRaw)) {
+        $catalogId = trim((string) ($catalogIdsRaw[0] ?? ''));
+    } else {
+        $catalogId = trim((string) $catalogIdsRaw);
+    }
+}
+$businessId = trim((string) ($_GET['business_id'] ?? ''));
 
 unset(
     $_SESSION['wa_oauth_state'],
@@ -118,7 +131,7 @@ if ($code === '') {
 }
 
 try {
-    $result = whatsapp_complete_oauth_connection($clientId, $code, $wabaId, $phoneId);
+    $result = whatsapp_complete_oauth_connection($clientId, $code, $wabaId, $phoneId, '', 'redirect', $catalogId, $businessId);
 } catch (Throwable $e) {
     error_log('whatsapp oauth callback exception client=' . $clientId . ' ' . $e->getMessage());
     whatsapp_oauth_debug_log('callback_exchange_failed', [
@@ -143,6 +156,8 @@ whatsapp_oauth_debug_log('callback_saved', [
     'client_id'    => $clientId,
     'waba_id'      => $result['waba_id'] ?? '',
     'phone_number' => $result['phone_number'] ?? '',
+    'catalog_id'   => $result['catalog_id'] ?? '',
+    'business_id'  => $result['business_id'] ?? '',
 ]);
 
 whatsapp_oauth_finish_flow($returnPath, ['connected' => '1'], $popup);

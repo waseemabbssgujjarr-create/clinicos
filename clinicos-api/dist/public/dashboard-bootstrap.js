@@ -55,7 +55,7 @@
     var href = el.getAttribute('href');
     if (!href) return;
     if (/^\/superadmin\/clinics\/[a-zA-Z0-9]+\/?$/.test(href) ||
-        /^\/dashboard\/patients\/[a-zA-Z0-9]+\/?$/.test(href)) {
+        /^\/dashboard(\/|$)/.test(href)) {
       e.preventDefault();
       e.stopPropagation();
       window.location.href = href;
@@ -65,7 +65,7 @@
   if (!document.querySelector('link[href*="platform-polish.css"]')) {
     var polishLink = document.createElement('link');
     polishLink.rel = 'stylesheet';
-    polishLink.href = '/platform-polish.css?v=2';
+    polishLink.href = '/platform-polish.css?v=4';
     document.head.appendChild(polishLink);
   }
   if (!document.querySelector('link[href*="platform-hovers.css"]')) {
@@ -77,9 +77,42 @@
   if (!document.querySelector('link[href*="dma-dashboard.css"]')) {
     var dashLink = document.createElement('link');
     dashLink.rel = 'stylesheet';
-    dashLink.href = '/dma-dashboard.css?v=8';
+    dashLink.href = '/dma-dashboard.css?v=10';
     document.head.appendChild(dashLink);
   }
+
+  // ── NEW DESIGN SYSTEM v4 ────────────────────────────────────────────────
+  if (!document.querySelector('link[href*="dma-design-system.css"]')) {
+    var dsLink = document.createElement('link');
+    dsLink.rel = 'stylesheet';
+    dsLink.href = '/dma-design-system.css?v=4';
+    document.head.appendChild(dsLink);
+  }
+
+  // ── CLINIC UI — light sidebar, blue brand, IQPigeon-inspired ────────────
+  if (!document.querySelector('link[href*="dma-clinic-ui.css"]')) {
+    var clinicUiLink = document.createElement('link');
+    clinicUiLink.rel = 'stylesheet';
+    clinicUiLink.href = '/dma-clinic-ui.css?v=2';
+    document.head.appendChild(clinicUiLink);
+  }
+
+  // ── ADMIN UI — dark-blue sidebar, blue brand for superadmin ─────────────
+  if (/^\/superadmin(\/|$)/.test(location.pathname)) {
+    if (!document.querySelector('link[href*="dma-admin-ui.css"]')) {
+      var adminUiLink = document.createElement('link');
+      adminUiLink.rel = 'stylesheet';
+      adminUiLink.href = '/dma-admin-ui.css?v=1';
+      document.head.appendChild(adminUiLink);
+    }
+  }
+  if (!document.querySelector('link[href*="dma-doctor-app.css"]')) {
+    var appCss = document.createElement('link');
+    appCss.rel = 'stylesheet';
+    appCss.href = '/dma-doctor-app.css?v=1';
+    document.head.appendChild(appCss);
+  }
+
   if (!document.querySelector('link[href*="Montserrat"]')) {
     var fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
@@ -137,27 +170,39 @@
   else document.addEventListener('DOMContentLoaded', scheduleLiveBadgeMark);
 
   if (/^\/(dashboard|staff)(\/|$)/.test(location.pathname)) {
+    if (!document.querySelector('link[href*="dashboard-professional.css"]')) {
+      var proCss = document.createElement('link');
+      proCss.rel = 'stylesheet';
+      proCss.href = '/dashboard-professional.css?v=1';
+      document.head.appendChild(proCss);
+    }
+    if (!document.querySelector('link[href*="dashboard-unified.css"]')) {
+      var unifiedCss = document.createElement('link');
+      unifiedCss.rel = 'stylesheet';
+      unifiedCss.href = '/dashboard-unified.css?v=3';
+      document.head.appendChild(unifiedCss);
+    }
     if (!document.querySelector('link[href*="dashboard-layout.css"]')) {
       var layoutCss = document.createElement('link');
       layoutCss.rel = 'stylesheet';
-      layoutCss.href = '/dashboard-layout.css?v=5';
+      layoutCss.href = '/dashboard-layout.css?v=7';
       document.head.appendChild(layoutCss);
     }
     if (!document.querySelector('link[href*="dashboard-fixes.css"]')) {
       var fixesCss = document.createElement('link');
       fixesCss.rel = 'stylesheet';
-      fixesCss.href = '/dashboard-fixes.css?v=2';
+      fixesCss.href = '/dashboard-fixes.css?v=3';
       document.head.appendChild(fixesCss);
     }
     if (!document.querySelector('script[src*="dashboard-layout.js"]')) {
       var layoutJs = document.createElement('script');
-      layoutJs.src = '/dashboard-layout.js?v=4';
+      layoutJs.src = '/dashboard-layout.js?v=6';
       layoutJs.defer = true;
       (document.head || document.documentElement).appendChild(layoutJs);
     }
     if (!document.querySelector('script[src*="dashboard-fixes.js"]')) {
       var fixesJs = document.createElement('script');
-      fixesJs.src = '/dashboard-fixes.js?v=2';
+      fixesJs.src = '/dashboard-fixes.js?v=3';
       fixesJs.defer = true;
       (document.head || document.documentElement).appendChild(fixesJs);
     }
@@ -167,7 +212,7 @@
     if (!document.querySelector('link[href*="dashboard-reviews.css"]')) {
       var revCss = document.createElement('link');
       revCss.rel = 'stylesheet';
-      revCss.href = '/dashboard-reviews.css?v=1';
+      revCss.href = '/dashboard-reviews.css?v=2';
       document.head.appendChild(revCss);
     }
     if (!document.querySelector('script[src*="dashboard-reviews.js"]')) {
@@ -208,13 +253,24 @@
     }
     if (!document.querySelector('script[src="/dashboard-signature.js"]')) {
       var sigJs = document.createElement('script');
-      sigJs.src = '/dashboard-signature.js?v=3';
+      sigJs.src = '/dashboard-signature.js?v=4';
       sigJs.defer = true;
       (document.head || document.documentElement).appendChild(sigJs);
     }
   }
 
   if (/^\/superadmin(\/|$)/.test(location.pathname)) {
+    if (!document.querySelector('link[href*="dashboard-unified.css"]')) {
+      var saUnified = document.createElement('link');
+      saUnified.rel = 'stylesheet';
+      saUnified.href = '/dashboard-unified.css?v=2';
+      document.head.appendChild(saUnified);
+    }
+    if (!document.querySelector('script[src*="superadmin-nav-fix.js"]')) {
+      var saNavFix = document.createElement('script');
+      saNavFix.src = '/superadmin-nav-fix.js?v=1';
+      (document.head || document.documentElement).appendChild(saNavFix);
+    }
     if (!document.querySelector('link[href*="superadmin-theme.css"]')) {
       var saCss = document.createElement('link');
       saCss.rel = 'stylesheet';
@@ -290,6 +346,22 @@
       }
     }
 
+    function injectWhatsAppLink(aside) {
+      if (!aside || aside.querySelector('a[href="/superadmin/whatsapp/"], a[href="/superadmin/whatsapp"]')) return;
+      var users = aside.querySelector('a[href="/superadmin/users"], a[href="/superadmin/users/"]');
+      var a = document.createElement('a');
+      a.href = '/superadmin/whatsapp/';
+      a.className = (users && users.className) || 'nav-item flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold';
+      a.innerHTML =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>' +
+        '<span>WhatsApp</span>';
+      if (users && users.parentNode) users.parentNode.insertBefore(a, users.nextSibling);
+      else {
+        var nav = aside.querySelector('nav') || aside;
+        nav.appendChild(a);
+      }
+    }
+
     function injectIntegrationsLink(aside) {
       if (!aside || aside.querySelector('a[href="/superadmin/integrations/"], a[href="/superadmin/integrations"]')) return;
       var settings = aside.querySelector('a[href="/superadmin/settings"], a[href="/superadmin/settings/"]');
@@ -313,6 +385,7 @@
         var map = {
           '/superadmin/subscriptions': 'Subscriptions',
           '/superadmin/users': 'Users',
+          '/superadmin/whatsapp': 'WhatsApp',
           '/superadmin/settings': 'Settings',
           '/superadmin/stripe': 'Connect Stripe',
           '/superadmin/integrations': 'Integrations',
@@ -356,6 +429,7 @@
       var aside = document.querySelector('aside');
       if (!aside) return;
       ensureReactMobileNav();
+      injectWhatsAppLink(aside);
       injectIntegrationsLink(aside);
       normalizeNavLabels(aside);
       if (aside.dataset.dmaRebranded) return;
@@ -383,6 +457,31 @@
     if (window.MutationObserver && document.body && !window.__dmaSaRebrandObserver) {
       window.__dmaSaRebrandObserver = true;
       new MutationObserver(function () { rebrandSuperadmin(); }).observe(document.body, { childList: true, subtree: true });
+    }
+  }
+
+  if (/^\/dashboard(\/|$)/.test(location.pathname)) {
+    if (!document.querySelector('link[href*="dashboard-doctor-shell.css"]')) {
+      var docShellCss = document.createElement('link');
+      docShellCss.rel = 'stylesheet';
+      docShellCss.href = '/dashboard-doctor-shell.css?v=2';
+      document.head.appendChild(docShellCss);
+    }
+    if (!document.querySelector('script[src*="dashboard-doctor-shell.js"]')) {
+      var docShellJs = document.createElement('script');
+      docShellJs.src = '/dashboard-doctor-shell.js?v=1';
+      (document.head || document.documentElement).appendChild(docShellJs);
+    }
+    if (!document.querySelector('link[href*="dashboard-whatsapp-hub.css"]')) {
+      var waHubCss = document.createElement('link');
+      waHubCss.rel = 'stylesheet';
+      waHubCss.href = '/dashboard-whatsapp-hub.css?v=4';
+      document.head.appendChild(waHubCss);
+    }
+    if (!document.querySelector('script[src*="dashboard-whatsapp-hub.js"]')) {
+      var waHubJs = document.createElement('script');
+      waHubJs.src = '/dashboard-whatsapp-hub.js?v=2';
+      (document.head || document.documentElement).appendChild(waHubJs);
     }
   }
 
@@ -427,4 +526,98 @@
     setTimeout(fillSettingsPlaceholders, 1500);
     setTimeout(fillSettingsPlaceholders, 3000);
   }
+})();
+
+// ═══════════════════════════════════════════════════════════
+// DARK THEME TOGGLE + MOBILE NAV INJECTION
+// Appended by design system v4 upgrade
+// ═══════════════════════════════════════════════════════════
+(function () {
+  // ── 1. Apply stored theme immediately (before paint) ──
+  var savedTheme = 'light';
+  try { savedTheme = localStorage.getItem('dma-theme') || 'light'; } catch (_) {}
+  document.documentElement.setAttribute('data-theme', savedTheme);
+
+  function isDashboard() {
+    return /^\/(dashboard|staff|superadmin)(\/|$)/.test(location.pathname);
+  }
+
+  if (!isDashboard()) return;
+
+  // ── 2. Inject dark/light toggle button ──
+  function injectThemeToggle() {
+    if (document.getElementById('dma-theme-toggle')) return;
+    var btn = document.createElement('button');
+    btn.id = 'dma-theme-toggle';
+    btn.setAttribute('aria-label', 'Toggle dark mode');
+    btn.title = 'Toggle dark / light mode';
+
+    function getIcon(theme) {
+      return theme === 'dark'
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>'
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    }
+
+    var current = document.documentElement.getAttribute('data-theme') || 'light';
+    btn.innerHTML = getIcon(current);
+
+    btn.onclick = function () {
+      var now = document.documentElement.getAttribute('data-theme') || 'light';
+      var next = now === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('dma-theme', next); } catch (_) {}
+      btn.innerHTML = getIcon(next);
+    };
+
+    document.body.appendChild(btn);
+  }
+
+  // ── 3. Inject mobile bottom navigation ──
+  function injectMobileNav() {
+    if (document.getElementById('dma-mobile-nav')) return;
+    if (!/^\/dashboard(\/|$)/.test(location.pathname)) return;
+
+    var path = location.pathname.replace(/\/$/, '') || '/dashboard';
+
+    function isActive(href) {
+      var h = href.replace(/\/$/, '');
+      return path === h || path.startsWith(h + '/') ? ' active' : '';
+    }
+
+    var nav = document.createElement('nav');
+    nav.id = 'dma-mobile-nav';
+    nav.setAttribute('aria-label', 'Mobile navigation');
+    nav.innerHTML =
+      '<a href="/dashboard/" class="' + isActive('/dashboard') + '" aria-label="Dashboard">' +
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>' +
+        'Home' +
+      '</a>' +
+      '<a href="/dashboard/appointments/" class="' + isActive('/dashboard/appointments') + '" aria-label="Appointments">' +
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' +
+        'Appts' +
+      '</a>' +
+      '<a href="/dashboard/patients/" class="' + isActive('/dashboard/patients') + '" aria-label="Patients">' +
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' +
+        'Patients' +
+      '</a>' +
+      '<a href="/dashboard/messages/" class="' + isActive('/dashboard/messages') + '" aria-label="Messages">' +
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' +
+        'Messages' +
+      '</a>' +
+      '<a href="/dashboard/analytics/" class="' + isActive('/dashboard/analytics') + '" aria-label="Analytics">' +
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>' +
+        'Analytics' +
+      '</a>';
+
+    document.body.appendChild(nav);
+  }
+
+  // ── 4. Run after DOM ready ──
+  function run() {
+    injectThemeToggle();
+    injectMobileNav();
+  }
+
+  if (document.body) run();
+  else document.addEventListener('DOMContentLoaded', run);
 })();

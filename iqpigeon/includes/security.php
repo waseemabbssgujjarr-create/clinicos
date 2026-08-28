@@ -295,7 +295,7 @@ function security_send_headers(): void
             . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com; "
             . "img-src 'self' data: https: blob:; "
             . "font-src 'self' https://fonts.gstatic.com data:; "
-            . "connect-src 'self' https://cdn.tailwindcss.com https://api.deepseek.com https://graph.facebook.com https://connect.facebook.net https://www.facebook.com https://web.facebook.com https://business.facebook.com https://ip-api.com https://generativelanguage.googleapis.com; "
+            . "connect-src 'self' https://cdn.tailwindcss.com https://api.openai.com https://graph.facebook.com https://connect.facebook.net https://www.facebook.com https://web.facebook.com https://business.facebook.com https://ip-api.com https://generativelanguage.googleapis.com; "
             . "frame-src https://js.stripe.com https://hooks.stripe.com https://www.facebook.com https://web.facebook.com https://business.facebook.com https://staticxx.facebook.com; "
             . "frame-ancestors 'self'; form-action 'self'; base-uri 'self'; object-src 'none'";
         header('Content-Security-Policy: ' . $csp);

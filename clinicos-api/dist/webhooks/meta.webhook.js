@@ -1,12 +1,29 @@
 "use strict";
+/**
+ * Meta WhatsApp Webhook — Doctors My Agency
+ *
+ * Receives inbound events from Meta Cloud API.
+ * Routes to the correct clinic via PhoneNumberId lookup.
+ *
+ * Security:
+ *   - HMAC-SHA256 signature verified on every POST (X-Hub-Signature-256)
+ *   - Idempotent: duplicate meta message IDs are skipped
+ *   - ACK 200 immediately before processing (Meta retry logic)
+ *
+ * Message types handled:
+ *   text, image, audio, voice, video, document, sticker,
+ *   location, contacts, button, interactive, reaction, order
+ *
+ * No IQPigeon dependency. Webhook URL: https://doctorsmyagency.com/api/webhooks/meta
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const crypto_1 = require("crypto");
-const prisma_1 = require("../lib/prisma");
-const meta_whatsapp_service_1 = require("../services/meta-whatsapp.service");
+const crypto_1  = require("crypto");
+const prisma_1  = require("../lib/prisma");
+const logger_1  = require("../lib/logger");
+const whatsapp_connection_1 = require("../services/meta/whatsapp-connection.service");
 const inbound_message_service_1 = require("../services/inbound-message.service");
-const twilio_service_1 = require("../services/twilio.service");
-const logger_1 = require("../lib/logger");
+const whatsapp_provider_1 = require("../services/meta/whatsapp-provider.service");
 
 const router = (0, express_1.Router)();
 
@@ -17,41 +34,30 @@ const CLINIC_SELECT = {
     planStatus: true, customIntroMsg: true, defaultFee: true,
 };
 
-function normalizePhone(raw) {
-    if (!raw) return "";
-    return String(raw).replace(/\D/g, "");
-}
-
 // ── HMAC signature verification ───────────────────────────────────────────────
-//
-// Meta signs every webhook POST with:
-//   X-Hub-Signature-256: sha256=<hex>
-// where the HMAC key is your App Secret.
-// Without this check, anyone who knows your webhook URL can inject fake messages.
-//
+
+let _sigWarnLogged = false;
+
 function verifyWebhookSignature(req) {
     const appSecret = process.env.META_APP_SECRET || "";
     if (!appSecret) {
-        // App secret not configured — skip verification but warn once per process
-        if (!verifyWebhookSignature._warned) {
+        if (!_sigWarnLogged) {
             logger_1.logger.warn(
-                "META_APP_SECRET not set — webhook signature verification is DISABLED. " +
-                "Set META_APP_SECRET in .env to enable it."
+                "META_APP_SECRET not configured — webhook HMAC verification is DISABLED. " +
+                "Set META_APP_SECRET in Superadmin → Integrations to enable security."
             );
-            verifyWebhookSignature._warned = true;
+            _sigWarnLogged = true;
         }
-        return true;
+        return true; // allow but warn
     }
 
-    const sigHeader = req.headers["x-hub-signature-256"] || "";
-    if (!sigHeader) {
-        logger_1.logger.warn("Meta webhook: missing X-Hub-Signature-256 header");
+    const sigHeader = String(req.headers["x-hub-signature-256"] || "");
+    if (!sigHeader.startsWith("sha256=")) {
+        logger_1.logger.warn("Meta webhook: missing or malformed X-Hub-Signature-256 header");
         return false;
     }
 
-    // req.body must be the raw buffer — Express must be configured with
-    // express.raw() for this route, OR we fall back to re-serialising the
-    // parsed JSON (less ideal but still works in practice for this platform).
+    // Use raw body if available (Stripe raw body pattern), otherwise re-serialize
     const rawBody = Buffer.isBuffer(req.rawBody)
         ? req.rawBody
         : Buffer.from(JSON.stringify(req.body || {}), "utf8");
@@ -70,119 +76,103 @@ function verifyWebhookSignature(req) {
         return false;
     }
 }
-verifyWebhookSignature._warned = false;
 
-// ── Extract human-readable body from any message type ─────────────────────────
-//
-// Previously the webhook only handled type="text" and silently dropped every
-// other message type. A patient sending a voice note, image, sticker, or
-// location would get no reply at all — not even the fallback "our team will
-// contact you" message. This function extracts a descriptive body for every
-// supported type so the AI / fallback pipeline can still respond.
-//
+// ── Message body extractor — all supported types ──────────────────────────────
+
 function extractMessageBody(msg) {
     if (!msg) return null;
-
     switch (msg.type) {
         case "text":
             return msg.text?.body || null;
-
         case "image":
-            return msg.image?.caption
-                ? `[Image] ${msg.image.caption}`
-                : "[Patient sent an image]";
-
+            return msg.image?.caption ? `[Image] ${msg.image.caption}` : "[Patient sent an image]";
         case "audio":
         case "voice":
             return "[Patient sent a voice note]";
-
         case "video":
-            return msg.video?.caption
-                ? `[Video] ${msg.video.caption}`
-                : "[Patient sent a video]";
-
-        case "document":
-            return msg.document?.filename
-                ? `[Document: ${msg.document.filename}]`
-                : "[Patient sent a document]";
-
+            return msg.video?.caption ? `[Video] ${msg.video.caption}` : "[Patient sent a video]";
+        case "document": {
+            const fn = msg.document?.filename || msg.document?.caption || "";
+            return fn ? `[Document: ${fn}]` : "[Patient sent a document]";
+        }
         case "sticker":
             return "[Patient sent a sticker]";
-
         case "location": {
             const loc = msg.location || {};
-            const parts = ["[Patient shared their location"];
-            if (loc.name) parts.push(loc.name);
+            const parts = ["[Patient shared location"];
+            if (loc.name)    parts.push(loc.name);
             if (loc.address) parts.push(loc.address);
             return parts.join(" — ") + "]";
         }
-
         case "contacts": {
-            const contacts = msg.contacts || [];
-            if (contacts.length) {
-                const names = contacts
-                    .map((c) => c.name?.formatted_name || "Unknown")
-                    .join(", ");
-                return `[Patient shared contact(s): ${names}]`;
-            }
-            return "[Patient shared a contact]";
+            const names = (msg.contacts || [])
+                .map((c) => c.name?.formatted_name || "Unknown")
+                .join(", ");
+            return names ? `[Patient shared contact: ${names}]` : "[Patient shared a contact]";
         }
-
         case "button":
-            // Quick-reply button tap
             return msg.button?.text || "[Button tap]";
-
         case "interactive": {
             const ia = msg.interactive || {};
             if (ia.type === "button_reply") return ia.button_reply?.title || "[Button reply]";
-            if (ia.type === "list_reply") return ia.list_reply?.title || "[List reply]";
+            if (ia.type === "list_reply")   return ia.list_reply?.title   || "[List reply]";
             return "[Interactive reply]";
         }
-
         case "reaction":
-            // Patient reacted with an emoji — not actionable, skip silently
-            return null;
-
+            return null; // reactions don't need AI reply — skip silently
         case "order":
             return "[Patient placed an order via WhatsApp]";
-
         default:
             return `[Patient sent a ${msg.type || "unknown"} message]`;
     }
 }
 
-// ── GET — webhook verification (Meta "subscribe" handshake) ───────────────────
+// ── Idempotency check — deduplicate Meta retry deliveries ─────────────────────
 
-// #8 — also serves as a probe: returns JSON with clinic count when called with
-//       ?probe=1 so ops can confirm the webhook URL is reachable and wired up.
+async function isMessageAlreadyProcessed(metaMessageId) {
+    if (!metaMessageId) return false;
+    try {
+        const existing = await prisma_1.prisma.message.findFirst({
+            where: { metaMessageId },
+            select: { id: true },
+        });
+        return !!existing;
+    } catch (_) {
+        return false; // on DB error, allow processing (better to duplicate than lose)
+    }
+}
+
+// ── GET — Meta webhook verification handshake ─────────────────────────────────
+
 router.get("/", async (req, res) => {
-    // Probe mode (no Meta params)
+    // Probe mode: ?probe=1 — confirms webhook is reachable, no Meta params needed
     if (req.query["probe"] === "1") {
         try {
-            const count = await prisma_1.prisma.$queryRawUnsafe(
-                "SELECT COUNT(*) AS cnt FROM ClinicWhatsAppAccount WHERE connectionStatus = 'active'"
-            );
-            const connected = Number(Array.isArray(count) ? count[0]?.cnt : 0);
+            const count = await prisma_1.prisma.clinicWhatsAppConnection.count({
+                where: { connectionStatus: "active" },
+            });
             res.json({
                 ok: true,
-                webhook: "meta-whatsapp",
-                connectedClinics: connected,
+                service: "doctors-my-agency-webhook",
+                connectedClinics: count,
                 timestamp: new Date().toISOString(),
             });
         } catch (_) {
-            res.json({ ok: true, webhook: "meta-whatsapp", note: "DB not yet initialised" });
+            res.json({
+                ok: true,
+                service: "doctors-my-agency-webhook",
+                note: "DB not yet initialised",
+                timestamp: new Date().toISOString(),
+            });
         }
         return;
     }
 
     // Standard Meta verification handshake
-    const mode = req.query["hub.mode"];
-    const token = req.query["hub.verify_token"];
+    const mode      = req.query["hub.mode"];
+    const token     = req.query["hub.verify_token"];
     const challenge = req.query["hub.challenge"];
-    const verifyToken =
-        process.env.META_WEBHOOK_VERIFY_TOKEN ||
-        process.env.WEBHOOK_VERIFY_TOKEN ||
-        "";
+    const verifyToken = process.env.META_WEBHOOK_VERIFY_TOKEN || process.env.WEBHOOK_VERIFY_TOKEN || "";
 
     if (mode === "subscribe" && token && verifyToken && token === verifyToken) {
         res.status(200).send(challenge || "");
@@ -191,13 +181,13 @@ router.get("/", async (req, res) => {
     res.status(403).send("Forbidden");
 });
 
-// ── POST — receive Meta webhook events ────────────────────────────────────────
+// ── POST — receive Meta webhook events ───────────────────────────────────────
 
 router.post("/", async (req, res) => {
-    // Always ACK immediately — Meta will retry if we don't respond within 20 s
+    // ACK immediately — Meta retries if response takes > 20s
     res.status(200).send("EVENT_RECEIVED");
 
-    // Signature check — reject spoofed payloads
+    // Reject payloads with invalid signatures
     if (!verifyWebhookSignature(req)) {
         logger_1.logger.warn("Meta webhook: invalid HMAC signature — payload rejected");
         return;
@@ -205,65 +195,67 @@ router.post("/", async (req, res) => {
 
     try {
         const body = req.body || {};
-        const entries = body.entry || [];
+        if (body.object !== "whatsapp_business_account") return;
 
-        for (const entry of entries) {
-            const changes = entry.changes || [];
-            for (const change of changes) {
+        for (const entry of body.entry || []) {
+            for (const change of entry.changes || []) {
                 if (change.field !== "messages") continue;
 
-                const value = change.value || {};
-                const phoneNumberId = value.metadata?.phone_number_id;
-                const displayNumber =
-                    value.metadata?.display_phone_number || phoneNumberId;
-
+                const value        = change.value || {};
+                const phoneNumberId = String(value.metadata?.phone_number_id || "");
                 if (!phoneNumberId) continue;
 
-                const account = await (0, meta_whatsapp_service_1.getAccountByPhoneNumberId)(
-                    String(phoneNumberId)
-                );
-                if (!account) {
-                    logger_1.logger.warn(
-                        `Meta webhook: no clinic for phone_number_id ${phoneNumberId}`
-                    );
+                let conn;
+                try {
+                    conn = await whatsapp_connection_1.getConnectionByPhoneNumberId(phoneNumberId);
+                } catch (decryptErr) {
+                    // WRONG_KEY or AUTH_FAILURE: log clearly, skip message.
+                    // Never silently swallow — must be visible in logs for diagnosis.
+                    logger_1.logger.error("Meta webhook: token decryption failed — skipping event", {
+                        phoneNumberId,
+                        code: decryptErr?.code,
+                        error: decryptErr instanceof Error ? decryptErr.message : String(decryptErr),
+                    });
+                    continue;
+                }
+                if (!conn) {
+                    logger_1.logger.warn(`Meta webhook: no clinic for phone_number_id ${phoneNumberId}`);
                     continue;
                 }
 
                 const clinic = await prisma_1.prisma.clinic.findUnique({
-                    where: { id: account.clinicId },
+                    where: { id: conn.clinicId },
                     select: CLINIC_SELECT,
                 });
                 if (!clinic) continue;
 
-                const messages = value.messages || [];
-                for (const msg of messages) {
-                    // Extract body for ALL message types (not just text)
-                    const msgBody = extractMessageBody(msg);
+                const displayNumber = value.metadata?.display_phone_number
+                    || conn.phoneNumber
+                    || clinic.phone;
 
-                    // Reactions and truly unknown types return null — skip silently
-                    if (msgBody === null) continue;
+                for (const msg of value.messages || []) {
+                    // Idempotency — skip if already processed
+                    if (await isMessageAlreadyProcessed(msg.id)) {
+                        logger_1.logger.debug(`Meta webhook: duplicate message ${msg.id} — skipped`);
+                        continue;
+                    }
+
+                    const msgBody = extractMessageBody(msg);
+                    if (msgBody === null) continue; // reactions etc.
 
                     const fromPhone = normalizePhone(msg.from);
-                    const toPhone =
-                        normalizePhone(displayNumber) ||
-                        (clinic.phone || "").replace(/\D/g, "");
+                    const toPhone   = normalizePhone(displayNumber) || normalizePhone(clinic.phone);
 
-                    const sendReply = async (to, text, channel) => {
-                        if (channel === "WHATSAPP") {
-                            await (0, meta_whatsapp_service_1.sendWhatsAppForClinic)(
-                                clinic.id, to, text
-                            );
-                        } else {
-                            await (0, twilio_service_1.sendSMS)(to, text);
-                        }
+                    const sendReply = async (to, text, _channel) => {
+                        await whatsapp_provider_1.sendText(clinic.id, to, text);
                     };
 
-                    await (0, inbound_message_service_1.processInboundPatientMessage)({
+                    await inbound_message_service_1.processInboundPatientMessage({
                         clinic,
-                        fromPhone: fromPhone.startsWith("+") ? fromPhone : `+${fromPhone}`,
-                        toPhone: toPhone.startsWith("+") ? toPhone : `+${toPhone}`,
-                        body: msgBody,
-                        channel: "WHATSAPP",
+                        fromPhone: ensurePlus(fromPhone),
+                        toPhone:   ensurePlus(toPhone),
+                        body:      msgBody,
+                        channel:   "WHATSAPP",
                         externalMessageId: msg.id,
                         sendReply,
                     });
@@ -271,8 +263,20 @@ router.post("/", async (req, res) => {
             }
         }
     } catch (err) {
-        logger_1.logger.error("Meta webhook error", { err });
+        logger_1.logger.error("Meta webhook processing error", { err });
     }
 });
 
 exports.default = router;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function normalizePhone(raw) {
+    if (!raw) return "";
+    return String(raw).replace(/\D/g, "");
+}
+
+function ensurePlus(digits) {
+    if (!digits) return digits;
+    return digits.startsWith("+") ? digits : `+${digits}`;
+}

@@ -205,7 +205,7 @@ if (empty($result['success'])) {
         'success' => false,
         'error'   => trim((string) ($result['error'] ?? '')) !== ''
             ? (string) $result['error']
-            : 'AI could not generate a reply. Check DeepSeek API key in config.php.',
+            : 'AI could not generate a reply. Check OpenAI API key in Admin → Integrations.',
     ], 500);
 }
 

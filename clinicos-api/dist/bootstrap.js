@@ -155,12 +155,19 @@ async function deferredBootWork() {
     log('PlatformSetting deferred error (non-fatal): ' + String(e && e.message ? e.message : e));
   }
 
-  // Prefer Doctors My Agency branding if leftover ClinicOS values remain
-  if (!process.env.APP_NAME || /ClinicOS|MediCore/i.test(process.env.APP_NAME)) {
+  // Ensure correct branding — overwrite any leftover ClinicOS / MediCore / old-platform values
+  if (!process.env.APP_NAME || /ClinicOS|MediCore|clinicos/i.test(process.env.APP_NAME)) {
     process.env.APP_NAME = 'Doctors My Agency';
   }
-  if (!process.env.APP_URL || /aderalabs/i.test(process.env.APP_URL)) {
-    if (!process.env.APP_URL) process.env.APP_URL = 'https://clinicos.workee.online';
+  // Overwrite stale domain fallbacks from previous deployments
+  if (!process.env.APP_URL
+    || /aderalabs|workee\.online|clinicos\.workee/i.test(process.env.APP_URL)) {
+    process.env.APP_URL = 'https://doctorsmyagency.com';
+    log('APP_URL reset to doctorsmyagency.com (stale domain detected)');
+  }
+  if (!process.env.FRONTEND_URL
+    || /aderalabs|workee\.online|clinicos\.workee/i.test(process.env.FRONTEND_URL)) {
+    process.env.FRONTEND_URL = process.env.APP_URL;
   }
 
   try {
@@ -168,9 +175,20 @@ async function deferredBootWork() {
     if (typeof emailSvc.sanitizeSmtpEnv === 'function') emailSvc.sanitizeSmtpEnv();
   } catch (_) {}
 
-  log('AI_ENGINE=' + (process.env.AI_PROVIDER ? 'configured' : 'default'));
-  log('AI_READY=' + (process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY ? 'yes' : 'no'));
-  log('SMTP configured=' + Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS));
+    log('AI_ENGINE=' + (process.env.AI_PROVIDER ? 'configured (' + process.env.AI_PROVIDER + ')' : 'default(deepseek)'));
+    log('AI_READY=' + (process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY ? 'yes' : 'no'));
+    log('SMTP configured=' + Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS));
+    log('APP_URL=' + (process.env.APP_URL || 'unset'));
+    log('APP_NAME=' + (process.env.APP_NAME || 'Doctors My Agency'));
+
+    // META_ENCRYPTION_KEY is mandatory for WhatsApp token storage.
+    // The app starts regardless — but log a prominent warning if missing.
+    const encKey = (process.env.META_ENCRYPTION_KEY || '').trim();
+    if (!encKey || encKey.length < 16) {
+      log('WARN: META_ENCRYPTION_KEY is not configured or too short. WhatsApp connections cannot be saved until this is set in Hostinger Environment Variables or Superadmin → Integrations. Generate: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"');
+    } else {
+      log('META_ENCRYPTION_KEY: configured (' + encKey.length + ' chars)');
+    }
 
   // SMTP verify: off by default on boot (SKIP_SMTP_VERIFY=0 to enable). Never block listen.
   const skipSmtp =
@@ -203,9 +221,6 @@ async function deferredBootWork() {
       const host = process.env.DATABASE_URL.match(/@([^:/]+):\d+/);
       log('DATABASE_URL user=' + (u ? u[1] : '?'));
       log('DATABASE_URL host=' + (host ? host[1] : '?'));
-      if (u && u[1] !== 'digitals_clinicuser') {
-        log('WARN: expected MySQL user digitals_clinicuser — got ' + u[1]);
-      }
     }
 
     // Light sanitize only — no DB, no SMTP network

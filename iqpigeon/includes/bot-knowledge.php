@@ -52,6 +52,7 @@ function ensure_bot_training_schema(): void
         'knowledge_updated_at'  => 'DATETIME NULL AFTER website_url',
         'industry_key'          => 'VARCHAR(64) NULL AFTER knowledge_updated_at',
         'training_meta'         => 'LONGTEXT NULL AFTER industry_key',
+        'rep_persona'           => 'MEDIUMTEXT NULL AFTER rep_name',
     ];
 
     foreach ($columns as $col => $definition) {
@@ -68,6 +69,21 @@ function ensure_bot_training_schema(): void
                 error_log("ensure_bot_training_schema {$col}: " . $e->getMessage());
             }
         }
+    }
+
+    try {
+        $personaCol = db_fetch(
+            'SELECT DATA_TYPE FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA = ? AND TABLE_NAME = \'bots\' AND COLUMN_NAME = \'rep_persona\'',
+            's',
+            [DB_NAME]
+        );
+        $personaType = strtolower((string) ($personaCol['DATA_TYPE'] ?? ''));
+        if ($personaType === 'text' || $personaType === 'tinytext' || $personaType === 'varchar') {
+            db_connect()->query('ALTER TABLE bots MODIFY COLUMN rep_persona MEDIUMTEXT NULL');
+        }
+    } catch (Throwable $e) {
+        error_log('ensure_bot_training_schema rep_persona size: ' . $e->getMessage());
     }
 
     $done = true;
@@ -91,6 +107,14 @@ function bot_training_meta(array $bot): array
         'closed_behavior' => '',
         'trigger_words'   => [],
         'menu_cards'      => [],
+        'conversation'    => [
+            'tone'             => '',
+            'formality'        => '',
+            'language'         => '',
+            'response_length'  => '',
+            'emoji'            => '',
+            'personal_touches' => false,
+        ],
     ];
     $raw = trim((string) ($bot['training_meta'] ?? ''));
     if ($raw === '') {
@@ -101,7 +125,15 @@ function bot_training_meta(array $bot): array
         return $defaults;
     }
 
-    return array_merge($defaults, array_intersect_key($decoded, $defaults));
+    $merged = array_merge($defaults, array_intersect_key($decoded, $defaults));
+    if (isset($decoded['conversation']) && is_array($decoded['conversation'])) {
+        $merged['conversation'] = array_merge(
+            $defaults['conversation'],
+            array_intersect_key($decoded['conversation'], $defaults['conversation'])
+        );
+    }
+
+    return $merged;
 }
 
 /**
@@ -199,6 +231,10 @@ function bot_operating_hours_prompt_block(array $meta): string
 {
     $hours = $meta['operating_hours'] ?? ['always_open' => true, 'days' => []];
     if (!empty($hours['always_open']) || empty($hours['days'])) {
+        if (!empty($hours['always_open'])) {
+            return "───── OPERATING HOURS ─────\nThis business is always open. Do not tell customers the business is currently closed.";
+        }
+
         return '';
     }
 
@@ -809,6 +845,125 @@ function bot_persist_field(string $posted, string $existing): string
 }
 
 /**
+ * Owner profile fields used for venue address vs the rep's personal city.
+ *
+ * @param array<string, mixed> $bot
+ * @return array{address: string, industry: string, bio: string, company_name: string}
+ */
+function bot_owner_profile_fields(array $bot): array
+{
+    $out = [
+        'address'      => trim((string) ($bot['address'] ?? '')),
+        'industry'     => trim((string) ($bot['owner_industry'] ?? '')),
+        'bio'          => trim((string) ($bot['bio'] ?? '')),
+        'company_name' => trim((string) ($bot['company_name'] ?? '')),
+    ];
+    if ($out['address'] !== '' && $out['company_name'] !== '') {
+        return $out;
+    }
+    $uid = (int) ($bot['user_id'] ?? 0);
+    if ($uid <= 0) {
+        return $out;
+    }
+    try {
+        $u = db_fetch('SELECT address, industry, bio, company_name FROM users WHERE id = ?', 'i', [$uid]);
+    } catch (Throwable $e) {
+        return $out;
+    }
+    if (!is_array($u)) {
+        return $out;
+    }
+    if ($out['address'] === '') {
+        $out['address'] = trim((string) ($u['address'] ?? ''));
+    }
+    if ($out['industry'] === '') {
+        $out['industry'] = trim((string) ($u['industry'] ?? ''));
+    }
+    if ($out['bio'] === '') {
+        $out['bio'] = trim((string) ($u['bio'] ?? ''));
+    }
+    if ($out['company_name'] === '') {
+        $out['company_name'] = trim((string) ($u['company_name'] ?? ''));
+    }
+
+    return $out;
+}
+
+function bot_extract_city(string $address): string
+{
+    $address = trim($address);
+    if ($address === '') {
+        return '';
+    }
+    if (preg_match(
+        '/\b(Lahore|Karachi|Islamabad|Rawalpindi|Multan|Faisalabad|Peshawar|Quetta|London|Dubai|Riyadh)\b/u',
+        $address,
+        $m
+    )) {
+        return (string) $m[1];
+    }
+    $parts = array_values(array_filter(array_map('trim', explode(',', $address)), static fn ($p) => $p !== ''));
+    if ($parts === []) {
+        return '';
+    }
+    $last = $parts[count($parts) - 1];
+    if (preg_match('/\b(pakistan|india|uae|uk|usa|ksa)\b/iu', $last) && count($parts) >= 2) {
+        $last = $parts[count($parts) - 2];
+    }
+
+    return mb_substr($last, 0, 40);
+}
+
+/**
+ * True only when THIS bot actually sells catalog items (food, retail SKUs).
+ * Coaching, freelance, education, and similar must never fall through to a restaurant menu.
+ *
+ * @param array<string, mixed> $bot
+ */
+function bot_uses_shop_catalog(array $bot): bool
+{
+    $key = preg_replace('/[^a-z0-9_]/', '', mb_strtolower(trim((string) ($bot['industry_key'] ?? '')))) ?: '';
+    if (in_array($key, ['freelancer', 'education', 'services', 'saas', 'health', 'realestate', 'travel'], true)) {
+        return false;
+    }
+    if (in_array($key, ['restaurant', 'ecommerce'], true)) {
+        return true;
+    }
+    $mode = mb_strtolower(trim((string) ($bot['business_mode'] ?? '')));
+    if (in_array($mode, ['restaurant', 'ecommerce'], true)) {
+        return true;
+    }
+    if ($key === '' && function_exists('catalog_bot_is_restaurant')) {
+        $botId = (int) ($bot['id'] ?? 0);
+        if ($botId > 0 && catalog_bot_is_restaurant($botId)) {
+            return true;
+        }
+    }
+
+    return in_array($key, ['automotive', 'b2b', 'local'], true)
+        && (int) ($bot['id'] ?? 0) > 0
+        && function_exists('catalog_bot_has_products')
+        && catalog_bot_has_products((int) $bot['id']);
+}
+
+/**
+ * Trim text to a maximum number of whitespace-separated words.
+ */
+function bot_limit_words(string $text, int $maxWords): string
+{
+    $text = trim($text);
+    if ($text === '' || $maxWords < 1) {
+        return '';
+    }
+    $words = preg_split('/\s+/u', $text, -1, PREG_SPLIT_NO_EMPTY);
+    if (!is_array($words) || count($words) <= $maxWords) {
+        return $text;
+    }
+
+    return implode(' ', array_slice($words, 0, $maxWords));
+}
+
+/**
  * Rep personality without trailing " Tone: …" suffix.
  */
 function bot_rep_persona_plain(array $bot): string
@@ -936,9 +1091,10 @@ function knowledge_offer_reply_text(array $bot, string $userMessage, int $leadId
     require_once __DIR__ . '/catalog.php';
 
     $botId = (int) ($bot['id'] ?? 0);
-    $catalogLine = knowledge_catalog_offer_line($bot, $botId);
+    $catalogLine = bot_uses_shop_catalog($bot) ? knowledge_catalog_offer_line($bot, $botId) : '';
 
-    $offer = knowledge_short_offer_line($bot, $userMessage);
+    $listed = knowledge_offer_list_reply($bot);
+    $offer = $listed !== '' ? $listed : knowledge_short_offer_line($bot, $userMessage);
     if ($offer !== '' && knowledge_text_has_unresolved_placeholders($offer)) {
         $offer = knowledge_resolve_placeholders($offer, $bot);
     }
@@ -1146,8 +1302,136 @@ function knowledge_try_local_reply(array $bot, string $userMessage, int $leadId 
     return null;
 }
 
+/**
+ * Owner-configured first greeting, if present in training.
+ *
+ * @param array<string, mixed> $bot
+ */
+function knowledge_configured_greeting(array $bot): string
+{
+    $text = (string) ($bot['bot_knowledge'] ?? '');
+    if ($text === '') {
+        return '';
+    }
+    if (!preg_match('/greet customers?(?:[^\n:]{0,80})?:\s*(.+)/iu', $text, $m)) {
+        return '';
+    }
+    $line = trim((string) $m[1]);
+    $line = trim(explode("\n", $line)[0]);
+    $line = trim($line, " \t\"'");
+    if (mb_strlen($line) < 12 || mb_strlen($line) > 280) {
+        return '';
+    }
+
+    return $line;
+}
+
+/**
+ * @param array<string, mixed> $bot
+ * @return list<string>
+ */
+function knowledge_extract_service_lines(array $bot): array
+{
+    $text = trim((string) ($bot['bot_knowledge'] ?? '') . "\n" . (string) ($bot['business_model'] ?? ''));
+    if ($text === '') {
+        return [];
+    }
+    $lines = [];
+    if (preg_match(
+        '/list of services offered:\s*(.+)$/is',
+        $text,
+        $m
+    )) {
+        foreach (preg_split('/\r?\n/', (string) $m[1]) ?: [] as $line) {
+            $line = trim((string) $line, " \t-•*");
+            if ($line !== '' && mb_strlen($line) >= 3 && mb_strlen($line) <= 90) {
+                $lines[] = $line;
+            }
+        }
+    }
+    if ($lines === [] && preg_match_all('/^[\-\*•]\s+([A-Za-z][^\n]{2,80})$/m', $text, $m)) {
+        foreach ($m[1] as $line) {
+            $line = trim((string) $line);
+            if ($line === '' || preg_match('/^\[|http/i', $line)) {
+                continue;
+            }
+            $lines[] = $line;
+        }
+        $lines = array_slice(array_values(array_unique($lines)), 0, 8);
+    }
+
+    return array_values(array_unique($lines));
+}
+
+/**
+ * @param array<string, mixed> $bot
+ */
+function knowledge_extract_hourly_rate(array $bot): string
+{
+    $text = (string) ($bot['bot_knowledge'] ?? '') . ' ' . (string) ($bot['business_model'] ?? '');
+    if (preg_match('/\$\s*(\d+(?:\.\d+)?)\s*\/\s*(?:hour|hr)\b/iu', $text, $m)) {
+        return '$' . $m[1] . '/hour';
+    }
+    if (preg_match('/rate\s*[:\-]?\s*\$?\s*(\d+(?:\.\d+)?)\s*(?:per\s+hour|\/\s*(?:hour|hr)|an hour)/iu', $text, $m)) {
+        return '$' . $m[1] . '/hour';
+    }
+
+    return '';
+}
+
+/**
+ * Customer-facing services answer from THIS business's training — never another industry's catalog.
+ *
+ * @param array<string, mixed> $bot
+ */
+function knowledge_offer_list_reply(array $bot): string
+{
+    $services = knowledge_extract_service_lines($bot);
+    $rate = knowledge_extract_hourly_rate($bot);
+    if ($services !== []) {
+        $out = "We currently offer:\n• " . implode("\n• ", $services);
+        if ($rate !== '') {
+            $out .= "\n\n1:1 sessions are {$rate}.";
+        }
+
+        return $out;
+    }
+    if ($rate !== '') {
+        return '1:1 sessions are ' . $rate . '. I can also walk you through what we cover.';
+    }
+
+    return '';
+}
+
+function knowledge_price_from_training(array $bot): string
+{
+    $rate = knowledge_extract_hourly_rate($bot);
+    if ($rate !== '') {
+        return 'The 1:1 rate is ' . $rate . '.';
+    }
+
+    return '';
+}
+
+function knowledge_first_greeting(array $bot): string
+{
+    $g = knowledge_configured_greeting($bot);
+    if ($g !== '') {
+        return $g;
+    }
+    $rep = function_exists('get_bot_rep_name') ? get_bot_rep_name($bot) : 'I';
+    $brand = function_exists('get_bot_brand_label') ? get_bot_brand_label($bot) : trim((string) ($bot['company_name'] ?? $bot['name'] ?? 'us'));
+
+    return "Hey — I'm {$rep} at {$brand}. How can I help you today?";
+}
+
 function knowledge_short_offer_line(array $bot, string $userMessage = ''): string
 {
+    $listed = knowledge_offer_list_reply($bot);
+    if ($listed !== '' && !preg_match('/^i can walk you through/iu', $listed)) {
+        return $listed;
+    }
+
     $detailed = knowledge_user_wants_detailed_answer($userMessage);
     $shortLimit = $detailed ? 380 : 220;
     $lineLimit = $detailed ? 420 : 280;
@@ -1292,6 +1576,9 @@ function knowledge_resolve_placeholders(string $text, array $bot): string
     }
 
     $serviceHint = $isRestaurant ? $productHint : ($productHint !== '' ? $productHint : 'our services');
+    $profile = bot_owner_profile_fields($bot);
+    $bizCity = bot_extract_city((string) ($profile['address'] ?? ''));
+    $placeHint = $bizCity !== '' ? $bizCity : ($profile['address'] !== '' ? $profile['address'] : 'your area');
     $map = [
         'cuisine'                    => $isRestaurant ? $productHint : $productHint,
         'products'                   => $productHint,
@@ -1312,11 +1599,11 @@ function knowledge_resolve_placeholders(string $text, array $bot): string
         'company'                    => $brand,
         'brand'                      => $brand,
         'business type'              => $industryLabel !== '' ? $industryLabel : $brand,
-        'location'                   => 'your area',
-        'city'                       => 'your city',
-        'area'                       => 'your area',
-        'areas'                      => 'your area',
-        'regions'                    => 'your area',
+        'location'                   => $placeHint,
+        'city'                       => $bizCity !== '' ? $bizCity : 'your city',
+        'area'                       => $placeHint,
+        'areas'                      => $placeHint,
+        'regions'                    => $placeHint,
         'destinations'               => $productHint,
         'target clients'             => 'clients like you',
         'price range'                => $priceHint !== '' ? $priceHint : 'on request',
@@ -1354,7 +1641,7 @@ function knowledge_resolve_placeholders(string $text, array $bot): string
 function knowledge_catalog_offer_line(array $bot, int $botId): string
 {
     require_once __DIR__ . '/catalog.php';
-    if ($botId <= 0 || !catalog_bot_has_products($botId)) {
+    if ($botId <= 0 || !bot_uses_shop_catalog($bot) || !catalog_bot_has_products($botId)) {
         return '';
     }
 
@@ -1382,7 +1669,8 @@ function knowledge_sanitize_for_customer(string $text): string
         '/\btechnology solutions provider\b/iu'        => 'team',
         '/\bplatform integration\b/iu'                   => 'setup',
         '/\bautomated\b/iu'                            => '',
-        '/\bAI\b/u'                                    => '',
+        '/\bas an AI\b/iu'                             => '',
+        '/\bI am (an? )?(AI|language model)\b/iu'      => '',
     ];
 
     foreach ($replacements as $pattern => $replacement) {

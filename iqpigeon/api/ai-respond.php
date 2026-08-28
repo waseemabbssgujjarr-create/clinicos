@@ -45,7 +45,7 @@ require_once __DIR__ . '/../includes/human-agent-prompt.php';
 
  * @param string $userMessage
 
- * @param array{locale?: string, country?: string, skip_user_insert?: bool, user_message_id?: int, system_hint?: string, customer_turn?: bool, ai_only?: bool} $options
+ * @param array{locale?: string, country?: string, skip_user_insert?: bool, skip_assistant_insert?: bool, user_message_id?: int, system_hint?: string, customer_turn?: bool, ai_only?: bool} $options
 
  * @return array{success: bool, reply?: string, signals?: array<string>, error?: string, user_message_id?: int}
 
@@ -60,6 +60,7 @@ function get_ai_response(int $leadId, int $botId, string $userMessage, array $op
 
 
     $skipUserInsert = !empty($options['skip_user_insert']);
+    $skipAssistantInsert = !empty($options['skip_assistant_insert']);
     $customerTurn = !empty($options['customer_turn']);
     $aiOnly = !empty($options['ai_only']);
 
@@ -280,6 +281,10 @@ function get_ai_response(int $leadId, int $botId, string $userMessage, array $op
     }
 
     $chatOptions = get_ai_sales_chat_options($botId, false, $userMessage);
+    if ($customerTurn) {
+        $chatOptions['timeout'] = 8;
+        $chatOptions['max_attempts'] = 1;
+    }
 
 
 
@@ -446,7 +451,7 @@ function get_ai_response(int $leadId, int $botId, string $userMessage, array $op
 
 
 
-    if (ai_reply_needs_language_retry($rawReply, $customerLang)) {
+    if (!$customerTurn && ai_reply_needs_language_retry($rawReply, $customerLang)) {
 
         $langRetryMessages = $messages;
 
@@ -470,8 +475,8 @@ function get_ai_response(int $leadId, int $botId, string $userMessage, array $op
 
 
 
-    if (ai_reply_is_repetitive($rawReply, $lastAssistantBefore)
-        || ($customerTurn && function_exists('human_agent_is_bad_fallback') && human_agent_is_bad_fallback($rawReply))
+    if (!$customerTurn && (ai_reply_is_repetitive($rawReply, $lastAssistantBefore)
+        || (function_exists('human_agent_is_bad_fallback') && human_agent_is_bad_fallback($rawReply)))
     ) {
 
         $retryMessages = $messages;
@@ -789,17 +794,13 @@ function get_ai_response(int $leadId, int $botId, string $userMessage, array $op
 
 
 
-    db_insert(
-
-        'INSERT INTO conversations (lead_id, role, message) VALUES (?, \'assistant\', ?)',
-
-        'is',
-
-        [$leadId, $finalReply]
-
-    );
-
-
+    if (!$skipAssistantInsert) {
+        db_insert(
+            'INSERT INTO conversations (lead_id, role, message) VALUES (?, \'assistant\', ?)',
+            'is',
+            [$leadId, $finalReply]
+        );
+    }
 
     return [
 

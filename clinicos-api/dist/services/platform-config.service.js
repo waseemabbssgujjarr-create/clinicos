@@ -7,16 +7,16 @@
 const { prisma } = require("../lib/prisma");
 
 const CATALOG = [
-  { key: "APP_URL", group: "app", label: "Public app URL", secret: false, placeholder: "https://clinicos.workee.online", guide: "Used in emails and webhooks." },
-  { key: "FRONTEND_URL", group: "app", label: "Frontend URL", secret: false, placeholder: "https://clinicos.workee.online", guide: "CORS / redirects." },
+  { key: "APP_URL", group: "app", label: "Public app URL", secret: false, placeholder: "https://doctorsmyagency.com", guide: "Used in emails, webhooks, and OAuth redirects." },
+  { key: "FRONTEND_URL", group: "app", label: "Frontend URL", secret: false, placeholder: "https://doctorsmyagency.com", guide: "CORS origin and redirect target." },
   { key: "APP_NAME", group: "app", label: "Platform name", secret: false, placeholder: "Doctors My Agency", guide: "Shown in emails and branding." },
   { key: "TRIAL_DAYS", group: "app", label: "Trial days", secret: false, placeholder: "14", guide: "New clinic trial length." },
 
-  { key: "SMTP_HOST", group: "email", label: "SMTP host", secret: false, placeholder: "mail.workee.online", guide: "cPanel mail server hostname." },
+  { key: "SMTP_HOST", group: "email", label: "SMTP host", secret: false, placeholder: "mail.doctorsmyagency.com", guide: "Your mail server hostname." },
   { key: "SMTP_PORT", group: "email", label: "SMTP port", secret: false, placeholder: "465", guide: "465 (SSL) or 587 (STARTTLS)." },
-  { key: "SMTP_USER", group: "email", label: "SMTP username", secret: false, placeholder: "support@yourdomain.com", guide: "Full mailbox email." },
+  { key: "SMTP_USER", group: "email", label: "SMTP username", secret: false, placeholder: "info@doctorsmyagency.com", guide: "Full mailbox email address." },
   { key: "SMTP_PASS", group: "email", label: "SMTP password", secret: true, placeholder: "", guide: "Mailbox password. Leave blank to keep existing." },
-  { key: "SMTP_FROM", group: "email", label: "From address", secret: false, placeholder: "Doctors My Agency <support@yourdomain.com>", guide: "Visible From on outgoing mail." },
+  { key: "SMTP_FROM", group: "email", label: "From address", secret: false, placeholder: "Doctors My Agency <info@doctorsmyagency.com>", guide: "Visible From on outgoing email." },
 
   { key: "AI_PROVIDER", group: "ai", label: "AI provider", secret: false, placeholder: "deepseek", guide: "deepseek or openai." },
   { key: "DEEPSEEK_API_KEY", group: "ai", label: "DeepSeek API key", secret: true, placeholder: "", guide: "Required for AI receptionist." },
@@ -30,12 +30,13 @@ const CATALOG = [
   { key: "TWILIO_WHATSAPP_NUMBER", group: "twilio", label: "WhatsApp number", secret: false, placeholder: "whatsapp:+14155238886", guide: "Webhook: {APP_URL}/api/webhooks/twilio" },
   { key: "TWILIO_SMS_NUMBER", group: "twilio", label: "SMS number", secret: false, placeholder: "+1XXXXXXXXXX", guide: "E.164 format." },
 
-  { key: "META_APP_ID", group: "meta", label: "Meta App ID", secret: false, placeholder: "552479924130015", guide: "Same Meta app as iqpigeon.com — add clinicos domain in Meta console." },
-  { key: "META_APP_SECRET", group: "meta", label: "Meta App Secret", secret: true, placeholder: "", guide: "From Meta → App Settings → Basic." },
-  { key: "META_CONFIG_ID", group: "meta", label: "Embedded Signup Config ID", secret: false, placeholder: "", guide: "WhatsApp → Embedded Signup configuration id." },
-  { key: "META_GRAPH_API_VERSION", group: "meta", label: "Graph API version", secret: false, placeholder: "v21.0", guide: "Usually v21.0 or newer." },
-  { key: "META_WEBHOOK_VERIFY_TOKEN", group: "meta", label: "Webhook verify token", secret: false, placeholder: "clinicos_webhook_2025", guide: "Must match Meta webhook subscription." },
-  { key: "META_ENCRYPTION_KEY", group: "meta", label: "Token encryption key", secret: true, placeholder: "", guide: "32+ chars — encrypts per-clinic WhatsApp tokens at rest." },
+  { key: "META_APP_ID", group: "meta", label: "Meta App ID", secret: false, placeholder: "", guide: "Your Doctors My Agency Meta App ID. From Meta App Dashboard → Settings → Basic." },
+  { key: "META_APP_SECRET", group: "meta", label: "Meta App Secret", secret: true, placeholder: "", guide: "From Meta → App Settings → Basic. Keep this secret." },
+  { key: "META_CONFIG_ID", group: "meta", label: "Embedded Signup Config ID", secret: false, placeholder: "", guide: "From your approved Doctors My Agency Meta App → WhatsApp → Embedded Signup. Required for clinic Connect with Meta." },
+  { key: "META_GRAPH_API_VERSION", group: "meta", label: "Graph API version", secret: false, placeholder: "v21.0", guide: "Meta Graph API version. Update when Meta deprecates older versions." },
+  { key: "META_WEBHOOK_VERIFY_TOKEN", group: "meta", label: "Webhook verify token", secret: false, placeholder: "", guide: "Random string. Must match Meta App → WhatsApp → Configuration → Verify token." },
+  { key: "META_ENCRYPTION_KEY", group: "meta", label: "Token encryption key", secret: true, placeholder: "", guide: "MANDATORY. 32+ char random hex. Encrypts per-clinic WhatsApp tokens at rest. Set ONCE — never change after clinics have connected or all tokens become unreadable. Generate: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"" },
+  { key: "WHATSAPP_EMBEDDED_SIGNUP_ENABLED", group: "meta", label: "Embedded Signup enabled", secret: false, placeholder: "true", guide: "Set true after Meta App Review. Clinic dashboard uses Embedded Signup only (no shop/catalog onboarding)." },
 
   { key: "STRIPE_SECRET_KEY", group: "stripe", label: "Stripe secret key", secret: true, placeholder: "sk_live_… or sk_test_…", guide: "Billing after trial." },
   { key: "STRIPE_WEBHOOK_SECRET", group: "stripe", label: "Stripe webhook secret", secret: true, placeholder: "whsec_…", guide: "Webhook: {APP_URL}/api/webhooks/stripe" },
@@ -54,7 +55,7 @@ const GROUP_META = {
   email: { title: "Email (SMTP)", description: "Password reset, verification, staff invites, daily briefs." },
   ai: { title: "AI Receptionist", description: "DeepSeek / OpenAI for chat booking and CRM AI features." },
   twilio: { title: "Twilio (WhatsApp / SMS)", description: "Legacy fallback. Prefer Meta WhatsApp for clinics." },
-  meta: { title: "Meta WhatsApp (Cloud API)", description: "Embedded Signup + webhooks for clinic-owned WhatsApp numbers." },
+  meta: { title: "Meta WhatsApp (Cloud API)", description: "Approved Doctors My Agency Meta app. Clinics connect with Embedded Signup." },
   stripe: { title: "Stripe billing", description: "Required only when trials convert to paid plans." },
   cloudinary: { title: "Cloudinary", description: "Optional clinic logo / media uploads." },
 };
@@ -156,7 +157,7 @@ function statusForGroup(group) {
   if (group === "email") status = envReady("SMTP_HOST") && envReady("SMTP_USER") && envReady("SMTP_PASS") ? "ready" : configured ? "partial" : "empty";
   else if (group === "ai") status = envReady("DEEPSEEK_API_KEY") || envReady("OPENAI_API_KEY") ? "ready" : configured ? "partial" : "empty";
   else if (group === "twilio") status = envReady("TWILIO_ACCOUNT_SID") && envReady("TWILIO_AUTH_TOKEN") ? "ready" : configured ? "partial" : "empty";
-  else if (group === "meta") status = envReady("META_APP_ID") && envReady("META_APP_SECRET") && envReady("META_CONFIG_ID") ? "ready" : configured ? "partial" : "empty";
+  else if (group === "meta") status = envReady("META_APP_ID") && envReady("META_APP_SECRET") && envReady("META_WEBHOOK_VERIFY_TOKEN") && envReady("META_ENCRYPTION_KEY") ? "ready" : configured ? "partial" : "empty";
   else if (group === "stripe") status = envReady("STRIPE_SECRET_KEY") ? "ready" : configured ? "partial" : "empty";
   else if (group === "cloudinary") status = envReady("CLOUDINARY_CLOUD_NAME") && envReady("CLOUDINARY_API_KEY") ? "ready" : configured ? "partial" : "empty";
   else if (group === "app") status = envReady("APP_URL") ? "ready" : configured ? "partial" : "empty";

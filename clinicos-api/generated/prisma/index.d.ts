@@ -88,6 +88,11 @@ export type DailyBrief = $Result.DefaultSelection<Prisma.$DailyBriefPayload>
  * 
  */
 export type PasswordReset = $Result.DefaultSelection<Prisma.$PasswordResetPayload>
+/**
+ * Model PlatformSetting
+ * 
+ */
+export type PlatformSetting = $Result.DefaultSelection<Prisma.$PlatformSettingPayload>
 
 /**
  * Enums
@@ -515,6 +520,16 @@ export class PrismaClient<
     * ```
     */
   get passwordReset(): Prisma.PasswordResetDelegate<ExtArgs>;
+
+  /**
+   * `prisma.platformSetting`: Exposes CRUD operations for the **PlatformSetting** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PlatformSettings
+    * const platformSettings = await prisma.platformSetting.findMany()
+    * ```
+    */
+  get platformSetting(): Prisma.PlatformSettingDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1006,7 +1021,8 @@ export namespace Prisma {
     Lead: 'Lead',
     MissedCall: 'MissedCall',
     DailyBrief: 'DailyBrief',
-    PasswordReset: 'PasswordReset'
+    PasswordReset: 'PasswordReset',
+    PlatformSetting: 'PlatformSetting'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1023,7 +1039,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     meta: {
-      modelProps: 'superAdmin' | 'clinic' | 'staffMember' | 'patient' | 'appointment' | 'message' | 'aILog' | 'notification' | 'broadcast' | 'invoice' | 'plan' | 'lead' | 'missedCall' | 'dailyBrief' | 'passwordReset'
+      modelProps: 'superAdmin' | 'clinic' | 'staffMember' | 'patient' | 'appointment' | 'message' | 'aILog' | 'notification' | 'broadcast' | 'invoice' | 'plan' | 'lead' | 'missedCall' | 'dailyBrief' | 'passwordReset' | 'platformSetting'
       txIsolationLevel: Prisma.TransactionIsolationLevel
     },
     model: {
@@ -2014,6 +2030,72 @@ export namespace Prisma {
           count: {
             args: Prisma.PasswordResetCountArgs<ExtArgs>,
             result: $Utils.Optional<PasswordResetCountAggregateOutputType> | number
+          }
+        }
+      }
+      PlatformSetting: {
+        payload: Prisma.$PlatformSettingPayload<ExtArgs>
+        fields: Prisma.PlatformSettingFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PlatformSettingFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$PlatformSettingPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PlatformSettingFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$PlatformSettingPayload>
+          }
+          findFirst: {
+            args: Prisma.PlatformSettingFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$PlatformSettingPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PlatformSettingFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$PlatformSettingPayload>
+          }
+          findMany: {
+            args: Prisma.PlatformSettingFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$PlatformSettingPayload>[]
+          }
+          create: {
+            args: Prisma.PlatformSettingCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$PlatformSettingPayload>
+          }
+          createMany: {
+            args: Prisma.PlatformSettingCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.PlatformSettingDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$PlatformSettingPayload>
+          }
+          update: {
+            args: Prisma.PlatformSettingUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$PlatformSettingPayload>
+          }
+          deleteMany: {
+            args: Prisma.PlatformSettingDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PlatformSettingUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.PlatformSettingUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$PlatformSettingPayload>
+          }
+          aggregate: {
+            args: Prisma.PlatformSettingAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregatePlatformSetting>
+          }
+          groupBy: {
+            args: Prisma.PlatformSettingGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<PlatformSettingGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PlatformSettingCountArgs<ExtArgs>,
+            result: $Utils.Optional<PlatformSettingCountAggregateOutputType> | number
           }
         }
       }
@@ -3253,6 +3335,9 @@ export namespace Prisma {
     planStatus: $Enums.PlanStatus | null
     trialEndsAt: Date | null
     currentPeriodEnd: Date | null
+    emailVerified: boolean | null
+    emailVerifyToken: string | null
+    emailVerifyExpires: Date | null
     isActive: boolean | null
     onboardingDone: boolean | null
     createdAt: Date | null
@@ -3289,6 +3374,9 @@ export namespace Prisma {
     planStatus: $Enums.PlanStatus | null
     trialEndsAt: Date | null
     currentPeriodEnd: Date | null
+    emailVerified: boolean | null
+    emailVerifyToken: string | null
+    emailVerifyExpires: Date | null
     isActive: boolean | null
     onboardingDone: boolean | null
     createdAt: Date | null
@@ -3325,6 +3413,9 @@ export namespace Prisma {
     planStatus: number
     trialEndsAt: number
     currentPeriodEnd: number
+    emailVerified: number
+    emailVerifyToken: number
+    emailVerifyExpires: number
     isActive: number
     onboardingDone: number
     createdAt: number
@@ -3371,6 +3462,9 @@ export namespace Prisma {
     planStatus?: true
     trialEndsAt?: true
     currentPeriodEnd?: true
+    emailVerified?: true
+    emailVerifyToken?: true
+    emailVerifyExpires?: true
     isActive?: true
     onboardingDone?: true
     createdAt?: true
@@ -3407,6 +3501,9 @@ export namespace Prisma {
     planStatus?: true
     trialEndsAt?: true
     currentPeriodEnd?: true
+    emailVerified?: true
+    emailVerifyToken?: true
+    emailVerifyExpires?: true
     isActive?: true
     onboardingDone?: true
     createdAt?: true
@@ -3443,6 +3540,9 @@ export namespace Prisma {
     planStatus?: true
     trialEndsAt?: true
     currentPeriodEnd?: true
+    emailVerified?: true
+    emailVerifyToken?: true
+    emailVerifyExpires?: true
     isActive?: true
     onboardingDone?: true
     createdAt?: true
@@ -3566,6 +3666,9 @@ export namespace Prisma {
     planStatus: $Enums.PlanStatus
     trialEndsAt: Date | null
     currentPeriodEnd: Date | null
+    emailVerified: boolean
+    emailVerifyToken: string | null
+    emailVerifyExpires: Date | null
     isActive: boolean
     onboardingDone: boolean
     createdAt: Date
@@ -3621,6 +3724,9 @@ export namespace Prisma {
     planStatus?: boolean
     trialEndsAt?: boolean
     currentPeriodEnd?: boolean
+    emailVerified?: boolean
+    emailVerifyToken?: boolean
+    emailVerifyExpires?: boolean
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: boolean
@@ -3669,6 +3775,9 @@ export namespace Prisma {
     planStatus?: boolean
     trialEndsAt?: boolean
     currentPeriodEnd?: boolean
+    emailVerified?: boolean
+    emailVerifyToken?: boolean
+    emailVerifyExpires?: boolean
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: boolean
@@ -3737,6 +3846,9 @@ export namespace Prisma {
       planStatus: $Enums.PlanStatus
       trialEndsAt: Date | null
       currentPeriodEnd: Date | null
+      emailVerified: boolean
+      emailVerifyToken: string | null
+      emailVerifyExpires: Date | null
       isActive: boolean
       onboardingDone: boolean
       createdAt: Date
@@ -4185,6 +4297,9 @@ export namespace Prisma {
     readonly planStatus: FieldRef<"Clinic", 'PlanStatus'>
     readonly trialEndsAt: FieldRef<"Clinic", 'DateTime'>
     readonly currentPeriodEnd: FieldRef<"Clinic", 'DateTime'>
+    readonly emailVerified: FieldRef<"Clinic", 'Boolean'>
+    readonly emailVerifyToken: FieldRef<"Clinic", 'String'>
+    readonly emailVerifyExpires: FieldRef<"Clinic", 'DateTime'>
     readonly isActive: FieldRef<"Clinic", 'Boolean'>
     readonly onboardingDone: FieldRef<"Clinic", 'Boolean'>
     readonly createdAt: FieldRef<"Clinic", 'DateTime'>
@@ -4741,6 +4856,9 @@ export namespace Prisma {
     passwordHash: string | null
     role: $Enums.StaffRole | null
     isActive: boolean | null
+    emailVerified: boolean | null
+    emailVerifyToken: string | null
+    emailVerifyExpires: Date | null
     inviteToken: string | null
     inviteExpiry: Date | null
     lastLogin: Date | null
@@ -4757,6 +4875,9 @@ export namespace Prisma {
     passwordHash: string | null
     role: $Enums.StaffRole | null
     isActive: boolean | null
+    emailVerified: boolean | null
+    emailVerifyToken: string | null
+    emailVerifyExpires: Date | null
     inviteToken: string | null
     inviteExpiry: Date | null
     lastLogin: Date | null
@@ -4773,6 +4894,9 @@ export namespace Prisma {
     passwordHash: number
     role: number
     isActive: number
+    emailVerified: number
+    emailVerifyToken: number
+    emailVerifyExpires: number
     inviteToken: number
     inviteExpiry: number
     lastLogin: number
@@ -4791,6 +4915,9 @@ export namespace Prisma {
     passwordHash?: true
     role?: true
     isActive?: true
+    emailVerified?: true
+    emailVerifyToken?: true
+    emailVerifyExpires?: true
     inviteToken?: true
     inviteExpiry?: true
     lastLogin?: true
@@ -4807,6 +4934,9 @@ export namespace Prisma {
     passwordHash?: true
     role?: true
     isActive?: true
+    emailVerified?: true
+    emailVerifyToken?: true
+    emailVerifyExpires?: true
     inviteToken?: true
     inviteExpiry?: true
     lastLogin?: true
@@ -4823,6 +4953,9 @@ export namespace Prisma {
     passwordHash?: true
     role?: true
     isActive?: true
+    emailVerified?: true
+    emailVerifyToken?: true
+    emailVerifyExpires?: true
     inviteToken?: true
     inviteExpiry?: true
     lastLogin?: true
@@ -4912,6 +5045,9 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.StaffRole
     isActive: boolean
+    emailVerified: boolean
+    emailVerifyToken: string | null
+    emailVerifyExpires: Date | null
     inviteToken: string | null
     inviteExpiry: Date | null
     lastLogin: Date | null
@@ -4945,6 +5081,9 @@ export namespace Prisma {
     passwordHash?: boolean
     role?: boolean
     isActive?: boolean
+    emailVerified?: boolean
+    emailVerifyToken?: boolean
+    emailVerifyExpires?: boolean
     inviteToken?: boolean
     inviteExpiry?: boolean
     lastLogin?: boolean
@@ -4962,6 +5101,9 @@ export namespace Prisma {
     passwordHash?: boolean
     role?: boolean
     isActive?: boolean
+    emailVerified?: boolean
+    emailVerifyToken?: boolean
+    emailVerifyExpires?: boolean
     inviteToken?: boolean
     inviteExpiry?: boolean
     lastLogin?: boolean
@@ -4989,6 +5131,9 @@ export namespace Prisma {
       passwordHash: string
       role: $Enums.StaffRole
       isActive: boolean
+      emailVerified: boolean
+      emailVerifyToken: string | null
+      emailVerifyExpires: Date | null
       inviteToken: string | null
       inviteExpiry: Date | null
       lastLogin: Date | null
@@ -5397,6 +5542,9 @@ export namespace Prisma {
     readonly passwordHash: FieldRef<"StaffMember", 'String'>
     readonly role: FieldRef<"StaffMember", 'StaffRole'>
     readonly isActive: FieldRef<"StaffMember", 'Boolean'>
+    readonly emailVerified: FieldRef<"StaffMember", 'Boolean'>
+    readonly emailVerifyToken: FieldRef<"StaffMember", 'String'>
+    readonly emailVerifyExpires: FieldRef<"StaffMember", 'DateTime'>
     readonly inviteToken: FieldRef<"StaffMember", 'String'>
     readonly inviteExpiry: FieldRef<"StaffMember", 'DateTime'>
     readonly lastLogin: FieldRef<"StaffMember", 'DateTime'>
@@ -18079,6 +18227,852 @@ export namespace Prisma {
 
 
   /**
+   * Model PlatformSetting
+   */
+
+  export type AggregatePlatformSetting = {
+    _count: PlatformSettingCountAggregateOutputType | null
+    _min: PlatformSettingMinAggregateOutputType | null
+    _max: PlatformSettingMaxAggregateOutputType | null
+  }
+
+  export type PlatformSettingMinAggregateOutputType = {
+    key: string | null
+    value: string | null
+    updatedAt: Date | null
+    updatedBy: string | null
+  }
+
+  export type PlatformSettingMaxAggregateOutputType = {
+    key: string | null
+    value: string | null
+    updatedAt: Date | null
+    updatedBy: string | null
+  }
+
+  export type PlatformSettingCountAggregateOutputType = {
+    key: number
+    value: number
+    updatedAt: number
+    updatedBy: number
+    _all: number
+  }
+
+
+  export type PlatformSettingMinAggregateInputType = {
+    key?: true
+    value?: true
+    updatedAt?: true
+    updatedBy?: true
+  }
+
+  export type PlatformSettingMaxAggregateInputType = {
+    key?: true
+    value?: true
+    updatedAt?: true
+    updatedBy?: true
+  }
+
+  export type PlatformSettingCountAggregateInputType = {
+    key?: true
+    value?: true
+    updatedAt?: true
+    updatedBy?: true
+    _all?: true
+  }
+
+  export type PlatformSettingAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PlatformSetting to aggregate.
+     */
+    where?: PlatformSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PlatformSettings to fetch.
+     */
+    orderBy?: PlatformSettingOrderByWithRelationInput | PlatformSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PlatformSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PlatformSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PlatformSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PlatformSettings
+    **/
+    _count?: true | PlatformSettingCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PlatformSettingMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PlatformSettingMaxAggregateInputType
+  }
+
+  export type GetPlatformSettingAggregateType<T extends PlatformSettingAggregateArgs> = {
+        [P in keyof T & keyof AggregatePlatformSetting]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePlatformSetting[P]>
+      : GetScalarType<T[P], AggregatePlatformSetting[P]>
+  }
+
+
+
+
+  export type PlatformSettingGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PlatformSettingWhereInput
+    orderBy?: PlatformSettingOrderByWithAggregationInput | PlatformSettingOrderByWithAggregationInput[]
+    by: PlatformSettingScalarFieldEnum[] | PlatformSettingScalarFieldEnum
+    having?: PlatformSettingScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PlatformSettingCountAggregateInputType | true
+    _min?: PlatformSettingMinAggregateInputType
+    _max?: PlatformSettingMaxAggregateInputType
+  }
+
+  export type PlatformSettingGroupByOutputType = {
+    key: string
+    value: string
+    updatedAt: Date
+    updatedBy: string | null
+    _count: PlatformSettingCountAggregateOutputType | null
+    _min: PlatformSettingMinAggregateOutputType | null
+    _max: PlatformSettingMaxAggregateOutputType | null
+  }
+
+  type GetPlatformSettingGroupByPayload<T extends PlatformSettingGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PlatformSettingGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PlatformSettingGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PlatformSettingGroupByOutputType[P]>
+            : GetScalarType<T[P], PlatformSettingGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PlatformSettingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    key?: boolean
+    value?: boolean
+    updatedAt?: boolean
+    updatedBy?: boolean
+  }, ExtArgs["result"]["platformSetting"]>
+
+  export type PlatformSettingSelectScalar = {
+    key?: boolean
+    value?: boolean
+    updatedAt?: boolean
+    updatedBy?: boolean
+  }
+
+
+
+  export type $PlatformSettingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PlatformSetting"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      key: string
+      value: string
+      updatedAt: Date
+      updatedBy: string | null
+    }, ExtArgs["result"]["platformSetting"]>
+    composites: {}
+  }
+
+
+  type PlatformSettingGetPayload<S extends boolean | null | undefined | PlatformSettingDefaultArgs> = $Result.GetResult<Prisma.$PlatformSettingPayload, S>
+
+  type PlatformSettingCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<PlatformSettingFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: PlatformSettingCountAggregateInputType | true
+    }
+
+  export interface PlatformSettingDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PlatformSetting'], meta: { name: 'PlatformSetting' } }
+    /**
+     * Find zero or one PlatformSetting that matches the filter.
+     * @param {PlatformSettingFindUniqueArgs} args - Arguments to find a PlatformSetting
+     * @example
+     * // Get one PlatformSetting
+     * const platformSetting = await prisma.platformSetting.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends PlatformSettingFindUniqueArgs<ExtArgs>>(
+      args: SelectSubset<T, PlatformSettingFindUniqueArgs<ExtArgs>>
+    ): Prisma__PlatformSettingClient<$Result.GetResult<Prisma.$PlatformSettingPayload<ExtArgs>, T, 'findUnique'> | null, null, ExtArgs>
+
+    /**
+     * Find one PlatformSetting that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {PlatformSettingFindUniqueOrThrowArgs} args - Arguments to find a PlatformSetting
+     * @example
+     * // Get one PlatformSetting
+     * const platformSetting = await prisma.platformSetting.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends PlatformSettingFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, PlatformSettingFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__PlatformSettingClient<$Result.GetResult<Prisma.$PlatformSettingPayload<ExtArgs>, T, 'findUniqueOrThrow'>, never, ExtArgs>
+
+    /**
+     * Find the first PlatformSetting that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PlatformSettingFindFirstArgs} args - Arguments to find a PlatformSetting
+     * @example
+     * // Get one PlatformSetting
+     * const platformSetting = await prisma.platformSetting.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends PlatformSettingFindFirstArgs<ExtArgs>>(
+      args?: SelectSubset<T, PlatformSettingFindFirstArgs<ExtArgs>>
+    ): Prisma__PlatformSettingClient<$Result.GetResult<Prisma.$PlatformSettingPayload<ExtArgs>, T, 'findFirst'> | null, null, ExtArgs>
+
+    /**
+     * Find the first PlatformSetting that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PlatformSettingFindFirstOrThrowArgs} args - Arguments to find a PlatformSetting
+     * @example
+     * // Get one PlatformSetting
+     * const platformSetting = await prisma.platformSetting.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends PlatformSettingFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, PlatformSettingFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__PlatformSettingClient<$Result.GetResult<Prisma.$PlatformSettingPayload<ExtArgs>, T, 'findFirstOrThrow'>, never, ExtArgs>
+
+    /**
+     * Find zero or more PlatformSettings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PlatformSettingFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PlatformSettings
+     * const platformSettings = await prisma.platformSetting.findMany()
+     * 
+     * // Get first 10 PlatformSettings
+     * const platformSettings = await prisma.platformSetting.findMany({ take: 10 })
+     * 
+     * // Only select the `key`
+     * const platformSettingWithKeyOnly = await prisma.platformSetting.findMany({ select: { key: true } })
+     * 
+    **/
+    findMany<T extends PlatformSettingFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, PlatformSettingFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PlatformSettingPayload<ExtArgs>, T, 'findMany'>>
+
+    /**
+     * Create a PlatformSetting.
+     * @param {PlatformSettingCreateArgs} args - Arguments to create a PlatformSetting.
+     * @example
+     * // Create one PlatformSetting
+     * const PlatformSetting = await prisma.platformSetting.create({
+     *   data: {
+     *     // ... data to create a PlatformSetting
+     *   }
+     * })
+     * 
+    **/
+    create<T extends PlatformSettingCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, PlatformSettingCreateArgs<ExtArgs>>
+    ): Prisma__PlatformSettingClient<$Result.GetResult<Prisma.$PlatformSettingPayload<ExtArgs>, T, 'create'>, never, ExtArgs>
+
+    /**
+     * Create many PlatformSettings.
+     * @param {PlatformSettingCreateManyArgs} args - Arguments to create many PlatformSettings.
+     * @example
+     * // Create many PlatformSettings
+     * const platformSetting = await prisma.platformSetting.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+    **/
+    createMany<T extends PlatformSettingCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, PlatformSettingCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a PlatformSetting.
+     * @param {PlatformSettingDeleteArgs} args - Arguments to delete one PlatformSetting.
+     * @example
+     * // Delete one PlatformSetting
+     * const PlatformSetting = await prisma.platformSetting.delete({
+     *   where: {
+     *     // ... filter to delete one PlatformSetting
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends PlatformSettingDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, PlatformSettingDeleteArgs<ExtArgs>>
+    ): Prisma__PlatformSettingClient<$Result.GetResult<Prisma.$PlatformSettingPayload<ExtArgs>, T, 'delete'>, never, ExtArgs>
+
+    /**
+     * Update one PlatformSetting.
+     * @param {PlatformSettingUpdateArgs} args - Arguments to update one PlatformSetting.
+     * @example
+     * // Update one PlatformSetting
+     * const platformSetting = await prisma.platformSetting.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends PlatformSettingUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, PlatformSettingUpdateArgs<ExtArgs>>
+    ): Prisma__PlatformSettingClient<$Result.GetResult<Prisma.$PlatformSettingPayload<ExtArgs>, T, 'update'>, never, ExtArgs>
+
+    /**
+     * Delete zero or more PlatformSettings.
+     * @param {PlatformSettingDeleteManyArgs} args - Arguments to filter PlatformSettings to delete.
+     * @example
+     * // Delete a few PlatformSettings
+     * const { count } = await prisma.platformSetting.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends PlatformSettingDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, PlatformSettingDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PlatformSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PlatformSettingUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PlatformSettings
+     * const platformSetting = await prisma.platformSetting.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends PlatformSettingUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, PlatformSettingUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one PlatformSetting.
+     * @param {PlatformSettingUpsertArgs} args - Arguments to update or create a PlatformSetting.
+     * @example
+     * // Update or create a PlatformSetting
+     * const platformSetting = await prisma.platformSetting.upsert({
+     *   create: {
+     *     // ... data to create a PlatformSetting
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PlatformSetting we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends PlatformSettingUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, PlatformSettingUpsertArgs<ExtArgs>>
+    ): Prisma__PlatformSettingClient<$Result.GetResult<Prisma.$PlatformSettingPayload<ExtArgs>, T, 'upsert'>, never, ExtArgs>
+
+    /**
+     * Count the number of PlatformSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PlatformSettingCountArgs} args - Arguments to filter PlatformSettings to count.
+     * @example
+     * // Count the number of PlatformSettings
+     * const count = await prisma.platformSetting.count({
+     *   where: {
+     *     // ... the filter for the PlatformSettings we want to count
+     *   }
+     * })
+    **/
+    count<T extends PlatformSettingCountArgs>(
+      args?: Subset<T, PlatformSettingCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PlatformSettingCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PlatformSetting.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PlatformSettingAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PlatformSettingAggregateArgs>(args: Subset<T, PlatformSettingAggregateArgs>): Prisma.PrismaPromise<GetPlatformSettingAggregateType<T>>
+
+    /**
+     * Group by PlatformSetting.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PlatformSettingGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PlatformSettingGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PlatformSettingGroupByArgs['orderBy'] }
+        : { orderBy?: PlatformSettingGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PlatformSettingGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPlatformSettingGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PlatformSetting model
+   */
+  readonly fields: PlatformSettingFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PlatformSetting.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PlatformSettingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+
+
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>;
+  }
+
+
+
+  /**
+   * Fields of the PlatformSetting model
+   */ 
+  interface PlatformSettingFieldRefs {
+    readonly key: FieldRef<"PlatformSetting", 'String'>
+    readonly value: FieldRef<"PlatformSetting", 'String'>
+    readonly updatedAt: FieldRef<"PlatformSetting", 'DateTime'>
+    readonly updatedBy: FieldRef<"PlatformSetting", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PlatformSetting findUnique
+   */
+  export type PlatformSettingFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PlatformSetting
+     */
+    select?: PlatformSettingSelect<ExtArgs> | null
+    /**
+     * Filter, which PlatformSetting to fetch.
+     */
+    where: PlatformSettingWhereUniqueInput
+  }
+
+  /**
+   * PlatformSetting findUniqueOrThrow
+   */
+  export type PlatformSettingFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PlatformSetting
+     */
+    select?: PlatformSettingSelect<ExtArgs> | null
+    /**
+     * Filter, which PlatformSetting to fetch.
+     */
+    where: PlatformSettingWhereUniqueInput
+  }
+
+  /**
+   * PlatformSetting findFirst
+   */
+  export type PlatformSettingFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PlatformSetting
+     */
+    select?: PlatformSettingSelect<ExtArgs> | null
+    /**
+     * Filter, which PlatformSetting to fetch.
+     */
+    where?: PlatformSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PlatformSettings to fetch.
+     */
+    orderBy?: PlatformSettingOrderByWithRelationInput | PlatformSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PlatformSettings.
+     */
+    cursor?: PlatformSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PlatformSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PlatformSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PlatformSettings.
+     */
+    distinct?: PlatformSettingScalarFieldEnum | PlatformSettingScalarFieldEnum[]
+  }
+
+  /**
+   * PlatformSetting findFirstOrThrow
+   */
+  export type PlatformSettingFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PlatformSetting
+     */
+    select?: PlatformSettingSelect<ExtArgs> | null
+    /**
+     * Filter, which PlatformSetting to fetch.
+     */
+    where?: PlatformSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PlatformSettings to fetch.
+     */
+    orderBy?: PlatformSettingOrderByWithRelationInput | PlatformSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PlatformSettings.
+     */
+    cursor?: PlatformSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PlatformSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PlatformSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PlatformSettings.
+     */
+    distinct?: PlatformSettingScalarFieldEnum | PlatformSettingScalarFieldEnum[]
+  }
+
+  /**
+   * PlatformSetting findMany
+   */
+  export type PlatformSettingFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PlatformSetting
+     */
+    select?: PlatformSettingSelect<ExtArgs> | null
+    /**
+     * Filter, which PlatformSettings to fetch.
+     */
+    where?: PlatformSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PlatformSettings to fetch.
+     */
+    orderBy?: PlatformSettingOrderByWithRelationInput | PlatformSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PlatformSettings.
+     */
+    cursor?: PlatformSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PlatformSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PlatformSettings.
+     */
+    skip?: number
+    distinct?: PlatformSettingScalarFieldEnum | PlatformSettingScalarFieldEnum[]
+  }
+
+  /**
+   * PlatformSetting create
+   */
+  export type PlatformSettingCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PlatformSetting
+     */
+    select?: PlatformSettingSelect<ExtArgs> | null
+    /**
+     * The data needed to create a PlatformSetting.
+     */
+    data: XOR<PlatformSettingCreateInput, PlatformSettingUncheckedCreateInput>
+  }
+
+  /**
+   * PlatformSetting createMany
+   */
+  export type PlatformSettingCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PlatformSettings.
+     */
+    data: PlatformSettingCreateManyInput | PlatformSettingCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PlatformSetting update
+   */
+  export type PlatformSettingUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PlatformSetting
+     */
+    select?: PlatformSettingSelect<ExtArgs> | null
+    /**
+     * The data needed to update a PlatformSetting.
+     */
+    data: XOR<PlatformSettingUpdateInput, PlatformSettingUncheckedUpdateInput>
+    /**
+     * Choose, which PlatformSetting to update.
+     */
+    where: PlatformSettingWhereUniqueInput
+  }
+
+  /**
+   * PlatformSetting updateMany
+   */
+  export type PlatformSettingUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PlatformSettings.
+     */
+    data: XOR<PlatformSettingUpdateManyMutationInput, PlatformSettingUncheckedUpdateManyInput>
+    /**
+     * Filter which PlatformSettings to update
+     */
+    where?: PlatformSettingWhereInput
+  }
+
+  /**
+   * PlatformSetting upsert
+   */
+  export type PlatformSettingUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PlatformSetting
+     */
+    select?: PlatformSettingSelect<ExtArgs> | null
+    /**
+     * The filter to search for the PlatformSetting to update in case it exists.
+     */
+    where: PlatformSettingWhereUniqueInput
+    /**
+     * In case the PlatformSetting found by the `where` argument doesn't exist, create a new PlatformSetting with this data.
+     */
+    create: XOR<PlatformSettingCreateInput, PlatformSettingUncheckedCreateInput>
+    /**
+     * In case the PlatformSetting was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PlatformSettingUpdateInput, PlatformSettingUncheckedUpdateInput>
+  }
+
+  /**
+   * PlatformSetting delete
+   */
+  export type PlatformSettingDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PlatformSetting
+     */
+    select?: PlatformSettingSelect<ExtArgs> | null
+    /**
+     * Filter which PlatformSetting to delete.
+     */
+    where: PlatformSettingWhereUniqueInput
+  }
+
+  /**
+   * PlatformSetting deleteMany
+   */
+  export type PlatformSettingDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PlatformSettings to delete
+     */
+    where?: PlatformSettingWhereInput
+  }
+
+  /**
+   * PlatformSetting without action
+   */
+  export type PlatformSettingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PlatformSetting
+     */
+    select?: PlatformSettingSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -18133,6 +19127,9 @@ export namespace Prisma {
     planStatus: 'planStatus',
     trialEndsAt: 'trialEndsAt',
     currentPeriodEnd: 'currentPeriodEnd',
+    emailVerified: 'emailVerified',
+    emailVerifyToken: 'emailVerifyToken',
+    emailVerifyExpires: 'emailVerifyExpires',
     isActive: 'isActive',
     onboardingDone: 'onboardingDone',
     createdAt: 'createdAt',
@@ -18151,6 +19148,9 @@ export namespace Prisma {
     passwordHash: 'passwordHash',
     role: 'role',
     isActive: 'isActive',
+    emailVerified: 'emailVerified',
+    emailVerifyToken: 'emailVerifyToken',
+    emailVerifyExpires: 'emailVerifyExpires',
     inviteToken: 'inviteToken',
     inviteExpiry: 'inviteExpiry',
     lastLogin: 'lastLogin',
@@ -18394,6 +19394,16 @@ export namespace Prisma {
   export type PasswordResetScalarFieldEnum = (typeof PasswordResetScalarFieldEnum)[keyof typeof PasswordResetScalarFieldEnum]
 
 
+  export const PlatformSettingScalarFieldEnum: {
+    key: 'key',
+    value: 'value',
+    updatedAt: 'updatedAt',
+    updatedBy: 'updatedBy'
+  };
+
+  export type PlatformSettingScalarFieldEnum = (typeof PlatformSettingScalarFieldEnum)[keyof typeof PlatformSettingScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -18615,6 +19625,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFilter<"Clinic"> | $Enums.PlanStatus
     trialEndsAt?: DateTimeNullableFilter<"Clinic"> | Date | string | null
     currentPeriodEnd?: DateTimeNullableFilter<"Clinic"> | Date | string | null
+    emailVerified?: BoolFilter<"Clinic"> | boolean
+    emailVerifyToken?: StringNullableFilter<"Clinic"> | string | null
+    emailVerifyExpires?: DateTimeNullableFilter<"Clinic"> | Date | string | null
     isActive?: BoolFilter<"Clinic"> | boolean
     onboardingDone?: BoolFilter<"Clinic"> | boolean
     createdAt?: DateTimeFilter<"Clinic"> | Date | string
@@ -18662,6 +19675,9 @@ export namespace Prisma {
     planStatus?: SortOrder
     trialEndsAt?: SortOrderInput | SortOrder
     currentPeriodEnd?: SortOrderInput | SortOrder
+    emailVerified?: SortOrder
+    emailVerifyToken?: SortOrderInput | SortOrder
+    emailVerifyExpires?: SortOrderInput | SortOrder
     isActive?: SortOrder
     onboardingDone?: SortOrder
     createdAt?: SortOrder
@@ -18686,6 +19702,7 @@ export namespace Prisma {
     bookingSlug?: string
     stripeCustomerId?: string
     stripeSubId?: string
+    emailVerifyToken?: string
     AND?: ClinicWhereInput | ClinicWhereInput[]
     OR?: ClinicWhereInput[]
     NOT?: ClinicWhereInput | ClinicWhereInput[]
@@ -18712,6 +19729,8 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFilter<"Clinic"> | $Enums.PlanStatus
     trialEndsAt?: DateTimeNullableFilter<"Clinic"> | Date | string | null
     currentPeriodEnd?: DateTimeNullableFilter<"Clinic"> | Date | string | null
+    emailVerified?: BoolFilter<"Clinic"> | boolean
+    emailVerifyExpires?: DateTimeNullableFilter<"Clinic"> | Date | string | null
     isActive?: BoolFilter<"Clinic"> | boolean
     onboardingDone?: BoolFilter<"Clinic"> | boolean
     createdAt?: DateTimeFilter<"Clinic"> | Date | string
@@ -18727,7 +19746,7 @@ export namespace Prisma {
     leads?: LeadListRelationFilter
     missedCalls?: MissedCallListRelationFilter
     dailyBriefs?: DailyBriefListRelationFilter
-  }, "id" | "phone" | "email" | "bookingSlug" | "stripeCustomerId" | "stripeSubId">
+  }, "id" | "phone" | "email" | "bookingSlug" | "stripeCustomerId" | "stripeSubId" | "emailVerifyToken">
 
   export type ClinicOrderByWithAggregationInput = {
     id?: SortOrder
@@ -18759,6 +19778,9 @@ export namespace Prisma {
     planStatus?: SortOrder
     trialEndsAt?: SortOrderInput | SortOrder
     currentPeriodEnd?: SortOrderInput | SortOrder
+    emailVerified?: SortOrder
+    emailVerifyToken?: SortOrderInput | SortOrder
+    emailVerifyExpires?: SortOrderInput | SortOrder
     isActive?: SortOrder
     onboardingDone?: SortOrder
     createdAt?: SortOrder
@@ -18803,6 +19825,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusWithAggregatesFilter<"Clinic"> | $Enums.PlanStatus
     trialEndsAt?: DateTimeNullableWithAggregatesFilter<"Clinic"> | Date | string | null
     currentPeriodEnd?: DateTimeNullableWithAggregatesFilter<"Clinic"> | Date | string | null
+    emailVerified?: BoolWithAggregatesFilter<"Clinic"> | boolean
+    emailVerifyToken?: StringNullableWithAggregatesFilter<"Clinic"> | string | null
+    emailVerifyExpires?: DateTimeNullableWithAggregatesFilter<"Clinic"> | Date | string | null
     isActive?: BoolWithAggregatesFilter<"Clinic"> | boolean
     onboardingDone?: BoolWithAggregatesFilter<"Clinic"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Clinic"> | Date | string
@@ -18821,6 +19846,9 @@ export namespace Prisma {
     passwordHash?: StringFilter<"StaffMember"> | string
     role?: EnumStaffRoleFilter<"StaffMember"> | $Enums.StaffRole
     isActive?: BoolFilter<"StaffMember"> | boolean
+    emailVerified?: BoolFilter<"StaffMember"> | boolean
+    emailVerifyToken?: StringNullableFilter<"StaffMember"> | string | null
+    emailVerifyExpires?: DateTimeNullableFilter<"StaffMember"> | Date | string | null
     inviteToken?: StringNullableFilter<"StaffMember"> | string | null
     inviteExpiry?: DateTimeNullableFilter<"StaffMember"> | Date | string | null
     lastLogin?: DateTimeNullableFilter<"StaffMember"> | Date | string | null
@@ -18838,6 +19866,9 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
+    emailVerified?: SortOrder
+    emailVerifyToken?: SortOrderInput | SortOrder
+    emailVerifyExpires?: SortOrderInput | SortOrder
     inviteToken?: SortOrderInput | SortOrder
     inviteExpiry?: SortOrderInput | SortOrder
     lastLogin?: SortOrderInput | SortOrder
@@ -18849,6 +19880,7 @@ export namespace Prisma {
   export type StaffMemberWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     email?: string
+    emailVerifyToken?: string
     inviteToken?: string
     AND?: StaffMemberWhereInput | StaffMemberWhereInput[]
     OR?: StaffMemberWhereInput[]
@@ -18859,12 +19891,14 @@ export namespace Prisma {
     passwordHash?: StringFilter<"StaffMember"> | string
     role?: EnumStaffRoleFilter<"StaffMember"> | $Enums.StaffRole
     isActive?: BoolFilter<"StaffMember"> | boolean
+    emailVerified?: BoolFilter<"StaffMember"> | boolean
+    emailVerifyExpires?: DateTimeNullableFilter<"StaffMember"> | Date | string | null
     inviteExpiry?: DateTimeNullableFilter<"StaffMember"> | Date | string | null
     lastLogin?: DateTimeNullableFilter<"StaffMember"> | Date | string | null
     createdAt?: DateTimeFilter<"StaffMember"> | Date | string
     updatedAt?: DateTimeFilter<"StaffMember"> | Date | string
     clinic?: XOR<ClinicRelationFilter, ClinicWhereInput>
-  }, "id" | "email" | "inviteToken">
+  }, "id" | "email" | "emailVerifyToken" | "inviteToken">
 
   export type StaffMemberOrderByWithAggregationInput = {
     id?: SortOrder
@@ -18875,6 +19909,9 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
+    emailVerified?: SortOrder
+    emailVerifyToken?: SortOrderInput | SortOrder
+    emailVerifyExpires?: SortOrderInput | SortOrder
     inviteToken?: SortOrderInput | SortOrder
     inviteExpiry?: SortOrderInput | SortOrder
     lastLogin?: SortOrderInput | SortOrder
@@ -18897,6 +19934,9 @@ export namespace Prisma {
     passwordHash?: StringWithAggregatesFilter<"StaffMember"> | string
     role?: EnumStaffRoleWithAggregatesFilter<"StaffMember"> | $Enums.StaffRole
     isActive?: BoolWithAggregatesFilter<"StaffMember"> | boolean
+    emailVerified?: BoolWithAggregatesFilter<"StaffMember"> | boolean
+    emailVerifyToken?: StringNullableWithAggregatesFilter<"StaffMember"> | string | null
+    emailVerifyExpires?: DateTimeNullableWithAggregatesFilter<"StaffMember"> | Date | string | null
     inviteToken?: StringNullableWithAggregatesFilter<"StaffMember"> | string | null
     inviteExpiry?: DateTimeNullableWithAggregatesFilter<"StaffMember"> | Date | string | null
     lastLogin?: DateTimeNullableWithAggregatesFilter<"StaffMember"> | Date | string | null
@@ -20102,6 +21142,53 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"PasswordReset"> | Date | string
   }
 
+  export type PlatformSettingWhereInput = {
+    AND?: PlatformSettingWhereInput | PlatformSettingWhereInput[]
+    OR?: PlatformSettingWhereInput[]
+    NOT?: PlatformSettingWhereInput | PlatformSettingWhereInput[]
+    key?: StringFilter<"PlatformSetting"> | string
+    value?: StringFilter<"PlatformSetting"> | string
+    updatedAt?: DateTimeFilter<"PlatformSetting"> | Date | string
+    updatedBy?: StringNullableFilter<"PlatformSetting"> | string | null
+  }
+
+  export type PlatformSettingOrderByWithRelationInput = {
+    key?: SortOrder
+    value?: SortOrder
+    updatedAt?: SortOrder
+    updatedBy?: SortOrderInput | SortOrder
+  }
+
+  export type PlatformSettingWhereUniqueInput = Prisma.AtLeast<{
+    key?: string
+    AND?: PlatformSettingWhereInput | PlatformSettingWhereInput[]
+    OR?: PlatformSettingWhereInput[]
+    NOT?: PlatformSettingWhereInput | PlatformSettingWhereInput[]
+    value?: StringFilter<"PlatformSetting"> | string
+    updatedAt?: DateTimeFilter<"PlatformSetting"> | Date | string
+    updatedBy?: StringNullableFilter<"PlatformSetting"> | string | null
+  }, "key">
+
+  export type PlatformSettingOrderByWithAggregationInput = {
+    key?: SortOrder
+    value?: SortOrder
+    updatedAt?: SortOrder
+    updatedBy?: SortOrderInput | SortOrder
+    _count?: PlatformSettingCountOrderByAggregateInput
+    _max?: PlatformSettingMaxOrderByAggregateInput
+    _min?: PlatformSettingMinOrderByAggregateInput
+  }
+
+  export type PlatformSettingScalarWhereWithAggregatesInput = {
+    AND?: PlatformSettingScalarWhereWithAggregatesInput | PlatformSettingScalarWhereWithAggregatesInput[]
+    OR?: PlatformSettingScalarWhereWithAggregatesInput[]
+    NOT?: PlatformSettingScalarWhereWithAggregatesInput | PlatformSettingScalarWhereWithAggregatesInput[]
+    key?: StringWithAggregatesFilter<"PlatformSetting"> | string
+    value?: StringWithAggregatesFilter<"PlatformSetting"> | string
+    updatedAt?: DateTimeWithAggregatesFilter<"PlatformSetting"> | Date | string
+    updatedBy?: StringNullableWithAggregatesFilter<"PlatformSetting"> | string | null
+  }
+
   export type SuperAdminCreateInput = {
     id?: string
     email: string
@@ -20188,6 +21275,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -20235,6 +21325,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -20282,6 +21375,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20329,6 +21425,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20376,6 +21475,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -20412,6 +21514,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20448,6 +21553,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20462,6 +21570,9 @@ export namespace Prisma {
     passwordHash: string
     role?: $Enums.StaffRole
     isActive?: boolean
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     inviteToken?: string | null
     inviteExpiry?: Date | string | null
     lastLogin?: Date | string | null
@@ -20479,6 +21590,9 @@ export namespace Prisma {
     passwordHash: string
     role?: $Enums.StaffRole
     isActive?: boolean
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     inviteToken?: string | null
     inviteExpiry?: Date | string | null
     lastLogin?: Date | string | null
@@ -20494,6 +21608,9 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     inviteToken?: NullableStringFieldUpdateOperationsInput | string | null
     inviteExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -20511,6 +21628,9 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     inviteToken?: NullableStringFieldUpdateOperationsInput | string | null
     inviteExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -20527,6 +21647,9 @@ export namespace Prisma {
     passwordHash: string
     role?: $Enums.StaffRole
     isActive?: boolean
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     inviteToken?: string | null
     inviteExpiry?: Date | string | null
     lastLogin?: Date | string | null
@@ -20542,6 +21665,9 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     inviteToken?: NullableStringFieldUpdateOperationsInput | string | null
     inviteExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -20558,6 +21684,9 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     inviteToken?: NullableStringFieldUpdateOperationsInput | string | null
     inviteExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -21943,6 +23072,55 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type PlatformSettingCreateInput = {
+    key: string
+    value: string
+    updatedAt?: Date | string
+    updatedBy?: string | null
+  }
+
+  export type PlatformSettingUncheckedCreateInput = {
+    key: string
+    value: string
+    updatedAt?: Date | string
+    updatedBy?: string | null
+  }
+
+  export type PlatformSettingUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type PlatformSettingUncheckedUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type PlatformSettingCreateManyInput = {
+    key: string
+    value: string
+    updatedAt?: Date | string
+    updatedBy?: string | null
+  }
+
+  export type PlatformSettingUpdateManyMutationInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type PlatformSettingUncheckedUpdateManyInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -22223,6 +23401,9 @@ export namespace Prisma {
     planStatus?: SortOrder
     trialEndsAt?: SortOrder
     currentPeriodEnd?: SortOrder
+    emailVerified?: SortOrder
+    emailVerifyToken?: SortOrder
+    emailVerifyExpires?: SortOrder
     isActive?: SortOrder
     onboardingDone?: SortOrder
     createdAt?: SortOrder
@@ -22263,6 +23444,9 @@ export namespace Prisma {
     planStatus?: SortOrder
     trialEndsAt?: SortOrder
     currentPeriodEnd?: SortOrder
+    emailVerified?: SortOrder
+    emailVerifyToken?: SortOrder
+    emailVerifyExpires?: SortOrder
     isActive?: SortOrder
     onboardingDone?: SortOrder
     createdAt?: SortOrder
@@ -22299,6 +23483,9 @@ export namespace Prisma {
     planStatus?: SortOrder
     trialEndsAt?: SortOrder
     currentPeriodEnd?: SortOrder
+    emailVerified?: SortOrder
+    emailVerifyToken?: SortOrder
+    emailVerifyExpires?: SortOrder
     isActive?: SortOrder
     onboardingDone?: SortOrder
     createdAt?: SortOrder
@@ -22405,6 +23592,9 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
+    emailVerified?: SortOrder
+    emailVerifyToken?: SortOrder
+    emailVerifyExpires?: SortOrder
     inviteToken?: SortOrder
     inviteExpiry?: SortOrder
     lastLogin?: SortOrder
@@ -22421,6 +23611,9 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
+    emailVerified?: SortOrder
+    emailVerifyToken?: SortOrder
+    emailVerifyExpires?: SortOrder
     inviteToken?: SortOrder
     inviteExpiry?: SortOrder
     lastLogin?: SortOrder
@@ -22437,6 +23630,9 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     isActive?: SortOrder
+    emailVerified?: SortOrder
+    emailVerifyToken?: SortOrder
+    emailVerifyExpires?: SortOrder
     inviteToken?: SortOrder
     inviteExpiry?: SortOrder
     lastLogin?: SortOrder
@@ -23397,6 +24593,27 @@ export namespace Prisma {
     expiresAt?: SortOrder
     used?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type PlatformSettingCountOrderByAggregateInput = {
+    key?: SortOrder
+    value?: SortOrder
+    updatedAt?: SortOrder
+    updatedBy?: SortOrder
+  }
+
+  export type PlatformSettingMaxOrderByAggregateInput = {
+    key?: SortOrder
+    value?: SortOrder
+    updatedAt?: SortOrder
+    updatedBy?: SortOrder
+  }
+
+  export type PlatformSettingMinOrderByAggregateInput = {
+    key?: SortOrder
+    value?: SortOrder
+    updatedAt?: SortOrder
+    updatedBy?: SortOrder
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -24736,6 +25953,9 @@ export namespace Prisma {
     passwordHash: string
     role?: $Enums.StaffRole
     isActive?: boolean
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     inviteToken?: string | null
     inviteExpiry?: Date | string | null
     lastLogin?: Date | string | null
@@ -24751,6 +25971,9 @@ export namespace Prisma {
     passwordHash: string
     role?: $Enums.StaffRole
     isActive?: boolean
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     inviteToken?: string | null
     inviteExpiry?: Date | string | null
     lastLogin?: Date | string | null
@@ -25232,6 +26455,9 @@ export namespace Prisma {
     passwordHash?: StringFilter<"StaffMember"> | string
     role?: EnumStaffRoleFilter<"StaffMember"> | $Enums.StaffRole
     isActive?: BoolFilter<"StaffMember"> | boolean
+    emailVerified?: BoolFilter<"StaffMember"> | boolean
+    emailVerifyToken?: StringNullableFilter<"StaffMember"> | string | null
+    emailVerifyExpires?: DateTimeNullableFilter<"StaffMember"> | Date | string | null
     inviteToken?: StringNullableFilter<"StaffMember"> | string | null
     inviteExpiry?: DateTimeNullableFilter<"StaffMember"> | Date | string | null
     lastLogin?: DateTimeNullableFilter<"StaffMember"> | Date | string | null
@@ -25634,6 +26860,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -25680,6 +26909,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -25742,6 +26974,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25788,6 +27023,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25834,6 +27072,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -25880,6 +27121,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -26098,6 +27342,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26144,6 +27391,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26238,6 +27488,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -26284,6 +27537,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -26403,6 +27659,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26449,6 +27708,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26558,6 +27820,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -26604,6 +27869,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -26723,6 +27991,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26769,6 +28040,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26878,6 +28152,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -26924,6 +28201,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -26986,6 +28266,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27032,6 +28315,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27078,6 +28364,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -27124,6 +28413,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -27186,6 +28478,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27232,6 +28527,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27278,6 +28576,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -27324,6 +28625,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -27386,6 +28690,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27432,6 +28739,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27478,6 +28788,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -27524,6 +28837,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -27586,6 +28902,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27632,6 +28951,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27678,6 +29000,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -27724,6 +29049,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -27843,6 +29171,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27889,6 +29220,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27998,6 +29332,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -28044,6 +29381,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -28106,6 +29446,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -28152,6 +29495,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -28198,6 +29544,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -28244,6 +29593,9 @@ export namespace Prisma {
     planStatus?: $Enums.PlanStatus
     trialEndsAt?: Date | string | null
     currentPeriodEnd?: Date | string | null
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     isActive?: boolean
     onboardingDone?: boolean
     createdAt?: Date | string
@@ -28306,6 +29658,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -28352,6 +29707,9 @@ export namespace Prisma {
     planStatus?: EnumPlanStatusFieldUpdateOperationsInput | $Enums.PlanStatus
     trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     onboardingDone?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -28376,6 +29734,9 @@ export namespace Prisma {
     passwordHash: string
     role?: $Enums.StaffRole
     isActive?: boolean
+    emailVerified?: boolean
+    emailVerifyToken?: string | null
+    emailVerifyExpires?: Date | string | null
     inviteToken?: string | null
     inviteExpiry?: Date | string | null
     lastLogin?: Date | string | null
@@ -28556,6 +29917,9 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     inviteToken?: NullableStringFieldUpdateOperationsInput | string | null
     inviteExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -28571,6 +29935,9 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     inviteToken?: NullableStringFieldUpdateOperationsInput | string | null
     inviteExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -28586,6 +29953,9 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifyToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerifyExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     inviteToken?: NullableStringFieldUpdateOperationsInput | string | null
     inviteExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -29419,6 +30789,10 @@ export namespace Prisma {
      * @deprecated Use PasswordResetDefaultArgs instead
      */
     export type PasswordResetArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PasswordResetDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use PlatformSettingDefaultArgs instead
+     */
+    export type PlatformSettingArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PlatformSettingDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

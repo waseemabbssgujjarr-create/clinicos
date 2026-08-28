@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ??
                     'questions'       => $questions,
                 ]);
                 $message = 'Industry template saved.';
-                header('Location: /admin/ai?tab=industry&saved=' . $key);
+                header('Location: /admin/ai?tab=templates&saved=' . $key);
                 exit;
             }
         } elseif ($action === 'delete_industry_template') {
@@ -115,10 +115,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ??
     }
 }
 
-$deepseekKey    = defined('DEEPSEEK_API_KEY') && DEEPSEEK_API_KEY;
-$openaiKey      = defined('OPENAI_API_KEY')   && OPENAI_API_KEY;
-$anyKey         = $deepseekKey || $openaiKey;
-$activeModel    = (string) get_setting('ai_model', defined('DEEPSEEK_MODEL') ? DEEPSEEK_MODEL : 'deepseek-chat');
+require_once __DIR__ . '/../includes/integration-settings.php';
+
+$openaiKey      = integration_openai_chat_key() !== '';
+$anyKey         = $openaiKey;
+$activeModel    = integration_openai_model();
 $basePrompt     = (string) get_setting('ai_base_prompt', '');
 $behaviorPrompt = (string) get_setting('ai_behavior_prompt',
     "You are a live WhatsApp sales representative for this business. Help customers with their questions, stay human and concise, and never invent prices or stock.\nAnswer what they just said first. Stay short unless they asked for detail.");
@@ -129,30 +130,52 @@ $principles     = get_ai_core_principles();
 $guardrails     = get_ai_guardrails();
 $snapshots      = list_ai_master_behavior_snapshots();
 
-// Page tab
-$mainTab = preg_replace('/[^a-z_]/', '', (string) ($_GET['tab'] ?? 'master')) ?: 'master';
-// Left inner-nav section for master behavior
+$mainTab = preg_replace('/[^a-z_]/', '', (string) ($_GET['tab'] ?? 'templates')) ?: 'templates';
+$adminTabAliases = [
+    'industry' => 'templates',
+    'master'   => 'behavior',
+    'guardrails' => 'safety',
+];
+if (isset($adminTabAliases[$mainTab])) {
+    $secQs = isset($_GET['sec']) ? '&sec=' . preg_replace('/[^a-z_]/', '', (string) $_GET['sec']) : '';
+    header('Location: /admin/ai?tab=' . $adminTabAliases[$mainTab] . $secQs, true, 302);
+    exit;
+}
+// Left inner-nav section for AI Behavior / Safety
 $section = preg_replace('/[^a-z_]/', '', (string) ($_GET['sec'] ?? 'behavior')) ?: 'behavior';
+if ($mainTab === 'safety' && !isset($_GET['sec'])) {
+    $section = 'guardrails';
+}
+if ($mainTab === 'behavior' && in_array($section, ['data', 'fallback', 'knowledge', 'rules', 'disallowed', 'guardrails'], true)) {
+    header('Location: /admin/ai?tab=safety&sec=' . $section, true, 302);
+    exit;
+}
 
 $csrf = csrf_token();
 
 $mainTabs = [
-    ['industry', 'Industry Templates', '<path d="M2 20h20M5 20V8l7-6 7 6v12"/>'],
-    ['master', 'Master Behavior (Global)', '<path d="M12 3 3 7l9 4 9-4-9-4Z"/><path d="M3 12l9 4 9-4"/><path d="M3 17l9 4 9-4"/>'],
-    ['intelligence', 'Conversation Intelligence', '<path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.2"/>'],
-    ['guardrails', 'Global Guardrails', '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>'],
+    ['templates', 'Templates', '<path d="M2 20h20M5 20V8l7-6 7 6v12"/>'],
+    ['behavior', 'AI Behavior', '<path d="M12 3 3 7l9 4 9-4-9-4Z"/><path d="M3 12l9 4 9-4"/><path d="M3 17l9 4 9-4"/>'],
+    ['intelligence', 'Conversation Engine', '<path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.2"/>'],
+    ['safety', 'Safety & Control', '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>'],
     ['versioning', 'Model Version Control', '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'],
 ];
 
 $sectionIds = ai_master_section_ids();
 $leftNav = [
-    ['behavior', 'Behavior & Personality'],
-    ['flow', 'Conversation Flow Rules'],
+    ['behavior', 'Personality & Tone'],
+    ['flow', 'Conversation Rules'],
     ['response', 'Response Rules'],
+    ['tone', 'Tone notes'],
 ];
-foreach ($sectionIds as $sid => $slabel) {
-    $leftNav[] = [$sid, $slabel];
-}
+$safetyNav = [
+    ['guardrails', 'Global Guardrails'],
+    ['data', 'Knowledge & Data'],
+    ['knowledge', 'Missing information'],
+    ['fallback', 'Fallback & Escalation'],
+    ['rules', 'Business Rules'],
+    ['disallowed', 'Disallowed Actions'],
+];
 
 $sectionCopy = [
     'flow'       => 'Behavior, tone and response rules below govern how a conversation flows for every business.',
@@ -166,8 +189,8 @@ $sectionCopy = [
 ];
 
 iqp_admin_begin($user, 'ai', [
-    'title'    => 'AI Model &amp; Guardrails',
-    'subtitle' => 'Everything here is live — saved settings are injected into every business\'s AI replies immediately. There is no separate training job.',
+    'title'    => 'AI Training &amp; Templates',
+    'subtitle' => 'Admin defines what IQPigeon can do. Businesses define what it knows. Saved settings are live on the next reply — there is no training job.',
     'actions'  => '<button type="button" id="iqpTestAssistantBtn" class="btn btn--primary btn--sm" style="display:flex;align-items:center;gap:7px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Test Assistant</button>',
 ]);
 iqp_flash($message);
@@ -185,7 +208,7 @@ foreach ($mainTabs as [$tid, $tlabel, $ticon]) {
 iqp_tab_nav($mainTab, $aiNavTabs, ['variant' => 'admin', 'select_label' => 'Section']);
 ?>
 
-<?php if ($mainTab === 'master'): ?>
+<?php if ($mainTab === 'behavior'): ?>
 <!-- ===================== MASTER BEHAVIOR (GLOBAL) ===================== -->
 <div class="grid" style="grid-template-columns:220px minmax(0,1fr) 320px;gap:18px;align-items:start">
 
@@ -194,7 +217,7 @@ iqp_tab_nav($mainTab, $aiNavTabs, ['variant' => 'admin', 'select_label' => 'Sect
     <?php
     $secNav = [];
     foreach ($leftNav as [$sid, $slabel]) {
-        $secNav[] = [$sid, $slabel, '/admin/ai?tab=master&sec=' . $sid];
+        $secNav[] = [$sid, $slabel, '/admin/ai?tab=behavior&sec=' . $sid];
     }
     iqp_section_nav($section, $secNav, ['class' => 'iqp-section-nav--pad']);
     ?>
@@ -213,8 +236,8 @@ iqp_tab_nav($mainTab, $aiNavTabs, ['variant' => 'admin', 'select_label' => 'Sect
       <!-- Card header with Active badge + Actions -->
       <div class="card__head" style="flex-wrap:wrap;gap:10px">
         <div class="grow">
-          <div class="strong" style="font-size:16px">Master Behavior (Global)</div>
-          <div class="muted small" style="margin-top:3px">Define the core behavior, tone and response rules that govern all AI bots across every business and template</div>
+          <div class="strong" style="font-size:16px">AI Behavior</div>
+          <div class="muted small" style="margin-top:3px">Platform-wide personality, conversation rules, and response shape. Businesses can soften tone but cannot override safety.</div>
         </div>
         <span class="badge badge--green" style="font-size:12.5px">
           <span style="width:7px;height:7px;border-radius:50%;background:currentColor"></span> Active
@@ -251,11 +274,11 @@ iqp_tab_nav($mainTab, $aiNavTabs, ['variant' => 'admin', 'select_label' => 'Sect
           <input type="hidden" name="csrf_token" value="<?= sanitize($csrf) ?>"/>
           <input type="hidden" name="action" value="save_behavior"/>
 
-          <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px">Core Personality &amp; Behavior</div>
+          <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px">Personality &amp; Behavior</div>
           <div class="muted small" style="margin-bottom:14px">Define how the AI should behave in all conversations.</div>
 
           <div class="field">
-            <label class="form-label">System Behavior Prompt</label>
+            <label class="form-label">How IQPigeon should behave</label>
             <div style="position:relative">
               <textarea class="textarea" name="behavior_prompt" id="behaviorPrompt" rows="5"
                 oninput="document.getElementById('behaviorCount').textContent=this.value.length"
@@ -453,7 +476,7 @@ iqp_tab_nav($mainTab, $aiNavTabs, ['variant' => 'admin', 'select_label' => 'Sect
   </div><!-- /right rail -->
 </div><!-- /3-col grid -->
 
-<?php elseif ($mainTab === 'industry'): ?>
+<?php elseif ($mainTab === 'templates'): ?>
 <!-- ===================== INDUSTRY TEMPLATES ===================== -->
 <?php
 $editKey = isset($_GET['edit']) ? preg_replace('/[^a-z0-9_]/', '', (string) $_GET['edit']) : '';
@@ -470,7 +493,7 @@ $tileColors = ['green', 'blue', 'red', 'purple', 'amber', 'pink', 'cyan', 'orang
   <div class="card__head">
     <span class="card__title"><?= $editTpl ? 'Edit Template — ' . sanitize($editTpl['label']) : 'Add Industry Template' ?></span>
     <span class="spacer"></span>
-    <a href="/admin/ai?tab=industry" class="btn btn--ghost btn--sm">Cancel</a>
+    <a href="/admin/ai?tab=templates" class="btn btn--ghost btn--sm">Cancel</a>
   </div>
   <div class="card__body">
     <form method="POST">
@@ -524,7 +547,7 @@ $tileColors = ['green', 'blue', 'red', 'purple', 'amber', 'pink', 'cyan', 'orang
   <div class="card__head">
     <span class="card__title">Industry Templates</span>
     <span class="spacer"></span>
-    <a class="btn btn--primary btn--sm" href="/admin/ai?tab=industry&new=1" style="display:flex;align-items:center;gap:6px">
+    <a class="btn btn--primary btn--sm" href="/admin/ai?tab=templates&new=1" style="display:flex;align-items:center;gap:6px">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
       Add Template
     </a>
@@ -546,7 +569,7 @@ $tileColors = ['green', 'blue', 'red', 'purple', 'amber', 'pink', 'cyan', 'orang
           </div>
           <div class="muted small" style="margin-bottom:12px;min-height:36px"><?= sanitize(mb_strimwidth((string) ($tpl['offer'] ?? ''), 0, 90, '…')) ?></div>
           <div style="display:flex;gap:6px">
-            <a href="/admin/ai?tab=industry&edit=<?= sanitize($tkey) ?>" class="btn btn--ghost btn--sm" style="flex:1;justify-content:center">Edit</a>
+            <a href="/admin/ai?tab=templates&edit=<?= sanitize($tkey) ?>" class="btn btn--ghost btn--sm" style="flex:1;justify-content:center">Edit</a>
             <?php if ($isCustom): ?>
             <form method="POST" onsubmit="return confirm('Delete this custom template?');">
               <input type="hidden" name="csrf_token" value="<?= sanitize($csrf) ?>"/>
@@ -563,7 +586,7 @@ $tileColors = ['green', 'blue', 'red', 'purple', 'amber', 'pink', 'cyan', 'orang
       </div>
       <?php endforeach; ?>
     </div>
-    <p class="muted small" style="margin-top:14px">These are the templates clients pick from in <strong>Client → Assistant → Industry</strong> to pre-fill their knowledge base. Edits here apply to every new "Apply Template" click platform-wide.</p>
+    <p class="muted small" style="margin-top:14px">These templates are industry defaults. Businesses pick a type under Training → Business. Changing type never wipes their knowledge. Edits here affect new associations and empty fields only.</p>
   </div>
 </div>
 <?php endif; ?>
@@ -577,8 +600,8 @@ $engineStatus = conversation_engine_core_status();
 <div class="card">
   <div class="card__head" style="flex-wrap:wrap;gap:10px">
     <div class="grow">
-      <div class="strong" style="font-size:16px">Conversation Intelligence</div>
-      <div class="muted small" style="margin-top:3px">Always on for every business. These are product behaviours, not optional switches.</div>
+      <div class="strong" style="font-size:16px">Conversation Engine</div>
+      <div class="muted small" style="margin-top:3px">Intent, context, and turn handling. Always on. Customer keyword hints remain compatibility data — the engine should understand meaning, not only exact words.</div>
     </div>
     <span class="badge badge--green" style="font-size:12.5px">
       <span style="width:7px;height:7px;border-radius:50%;background:currentColor"></span> Active
@@ -597,21 +620,43 @@ $engineStatus = conversation_engine_core_status();
       </div>
       <?php endforeach; ?>
     </div>
-    <div style="background:var(--blue-50);border:1px solid var(--blue-100);border-radius:10px;padding:12px 16px;margin-top:16px;display:flex;align-items:flex-start;gap:10px">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue-600)" stroke-width="2" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-      <span style="font-size:13px;color:var(--blue-700);line-height:1.5">
-        There is no toggle to disable this. Open a lead under <strong>Conversations</strong> to inspect turn diagnostics (messages, media, suppression reasons).
-      </span>
+    <?php
+      require_once __DIR__ . '/../includes/conversation-intelligence.php';
+      $intentList = defined('CI_INTENTS') ? CI_INTENTS : [];
+    ?>
+    <?php if ($intentList !== []): ?>
+    <div style="margin-top:18px">
+      <div class="strong small" style="margin-bottom:8px">Recognized intents</div>
+      <p class="muted small" style="margin-bottom:10px">Do not create a second intent catalog. Keyword hints from businesses remain compatibility examples for these intents.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <?php foreach ($intentList as $intentName): ?>
+        <span class="badge" style="font-size:11px"><?= sanitize((string) $intentName) ?></span>
+        <?php endforeach; ?>
+      </div>
     </div>
+    <?php endif; ?>
   </div>
 </div>
 
-<?php elseif ($mainTab === 'guardrails'): ?>
-<!-- ===================== GLOBAL GUARDRAILS ===================== -->
+<?php elseif ($mainTab === 'safety'): ?>
+<!-- ===================== SAFETY & CONTROL ===================== -->
+<div class="grid" style="grid-template-columns:220px minmax(0,1fr);gap:18px;align-items:start">
+  <div class="card" style="position:sticky;top:16px">
+    <?php
+    $secNav = [];
+    foreach ($safetyNav as [$sid, $slabel]) {
+        $secNav[] = [$sid, $slabel, '/admin/ai?tab=safety&sec=' . $sid];
+    }
+    iqp_section_nav($section, $secNav, ['class' => 'iqp-section-nav--pad']);
+    ?>
+    <div class="muted small" style="padding:12px">These rules outrank business knowledge, industry templates, and customer tone.</div>
+  </div>
+  <div>
+<?php if ($section === 'guardrails'): ?>
 <div class="card">
   <div class="card__head"><span class="card__title">Global Guardrails</span></div>
   <div class="card__body">
-    <p class="muted" style="margin-bottom:16px">Define hard limits and safety rules that apply to all AI responses across the platform. Enabled rules are appended to every business's live system prompt.</p>
+    <p class="muted" style="margin-bottom:16px">Hard limits for every business. Enabled rules are injected above business knowledge on every reply.</p>
     <form method="POST">
       <input type="hidden" name="csrf_token" value="<?= sanitize($csrf) ?>"/>
       <input type="hidden" name="action" value="save_guardrails"/>
@@ -628,8 +673,31 @@ $engineStatus = conversation_engine_core_status();
         </div>
         <?php endforeach; ?>
       </div>
-      <button type="submit" class="btn btn--primary" style="margin-top:16px">Save Guardrails</button>
+      <button type="submit" class="btn btn--primary" style="margin-top:16px">Save Changes</button>
     </form>
+  </div>
+</div>
+<?php elseif (isset($sectionIds[$section])): ?>
+<div class="card">
+  <div class="card__body">
+        <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px"><?= sanitize($sectionIds[$section]) ?></div>
+        <div class="muted small" style="margin-bottom:14px"><?= sanitize($sectionCopy[$section] ?? '') ?></div>
+        <form method="POST">
+          <input type="hidden" name="csrf_token" value="<?= sanitize($csrf) ?>"/>
+          <input type="hidden" name="action" value="save_section"/>
+          <input type="hidden" name="section_id" value="<?= sanitize($section) ?>"/>
+          <div class="field">
+            <textarea class="textarea" name="section_text" rows="10" style="font-size:13.5px;line-height:1.6"
+              placeholder="Write the rule(s) for this category — they apply to every business and cannot be overridden by customer settings."
+            ><?= sanitize((string) get_setting('ai_section_' . $section, '')) ?></textarea>
+          </div>
+          <div style="display:flex;justify-content:flex-end">
+            <button type="submit" class="btn btn--primary">Save Changes</button>
+          </div>
+        </form>
+  </div>
+</div>
+<?php endif; ?>
   </div>
 </div>
 
@@ -644,13 +712,13 @@ $engineStatus = conversation_engine_core_status();
           <div class="strong">Active Provider</div>
           <span class="badge badge--green"><span class="dot"></span>Live</span>
         </div>
-        <div style="font-size:22px;font-weight:800;color:var(--ink)"><?= sanitize($deepseekKey ? 'DeepSeek' : ($openaiKey ? 'OpenAI' : 'Not configured')) ?></div>
+        <div style="font-size:22px;font-weight:800;color:var(--ink)"><?= sanitize($openaiKey ? 'OpenAI' : 'Not configured') ?></div>
         <div class="muted small" style="margin-top:4px">Model: <?= sanitize($activeModel ?: '—') ?></div>
       </div></div>
       <div class="card"><div class="card__body">
-        <div class="strong" style="margin-bottom:6px">Fallback Provider</div>
-        <div style="font-size:18px;font-weight:700;color:var(--ink)"><?= sanitize($openaiKey ? 'OpenAI' : 'Not configured') ?></div>
-        <div class="muted small" style="margin-top:4px">Used if primary fails</div>
+        <div class="strong" style="margin-bottom:6px">Media (voice & vision)</div>
+        <div style="font-size:18px;font-weight:700;color:var(--ink)"><?= sanitize(openai_media_configured() ? 'OpenAI' : 'Not configured') ?></div>
+        <div class="muted small" style="margin-top:4px">Whisper + GPT-4o vision for WhatsApp media</div>
       </div></div>
     </div>
     <p class="muted small" style="margin-top:12px">API keys are managed in <a href="/admin/integrations" style="color:var(--green-700)">Integrations</a>. Keys are never displayed here.</p>

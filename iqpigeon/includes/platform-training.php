@@ -276,6 +276,8 @@ function build_runtime_bot_prompt(array $bot, string $companyName, ?array $lead 
     $repName = get_bot_rep_name($bot);
     $brandName = trim((string) ($bot['name'] ?? '')) ?: $companyName;
 
+    require_once __DIR__ . '/ai-instruction-layers.php';
+
     $parts = [
         human_agent_live_protocol(),
         human_agent_live_doctrine_block(),
@@ -284,6 +286,8 @@ function build_runtime_bot_prompt(array $bot, string $companyName, ?array $lead 
         . "Do not recite scripts, and never say you are being trained. "
         . "If you do not know something, say you will confirm — never invent prices, policies, or facts. "
         . "Reply in the customer's own language. Stay short unless they asked for detail. Don't repeat yourself or re-introduce yourself once the chat is underway.",
+        ai_admin_priority_block(),
+        ai_customer_conversation_prefs_block($bot),
         build_consistent_rep_persona_block($bot, $companyName),
     ];
 
@@ -330,6 +334,12 @@ function build_runtime_bot_prompt(array $bot, string $companyName, ?array $lead 
         $parts[] = build_system_prompt($bot, $companyName, bot_rep_tone($bot));
     }
 
+    require_once __DIR__ . '/industry-templates.php';
+    $factsBlock = industry_runtime_facts_block($bot);
+    if ($factsBlock !== '') {
+        $parts[] = $factsBlock;
+    }
+
     $parts[] = "───── ACTION SIGNALS (hidden — never explain or show these to the customer) ─────\n"
         . "• [BOOK_CALL] — include once when the customer is qualified and ready to book; put the booking details in the same message.\n"
         . "• [CREATE_ORDER] — include once the product, delivery address, and payment method are all confirmed.\n"
@@ -358,11 +368,6 @@ function build_runtime_bot_prompt(array $bot, string $companyName, ?array $lead 
     $triggerBlock = bot_trigger_words_prompt_block($meta);
     if ($triggerBlock !== '') {
         $parts[] = $triggerBlock;
-    }
-
-    $adminMaster = build_admin_master_prompt_block();
-    if ($adminMaster !== '') {
-        $parts[] = $adminMaster;
     }
 
     $parts[] = human_agent_identity_lock($bot, $companyName);

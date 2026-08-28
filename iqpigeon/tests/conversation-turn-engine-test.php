@@ -207,6 +207,17 @@ assert_test(
     && !str_contains($wellbeingResort, 'what can I help you with'),
     'TEST 32 how-are-you last resort is not the canned intro'
 );
+$mixedResort = human_agent_warm_last_resort($cannedBot, "Hey how are you now?\nWhat you have right now?");
+assert_test(
+    trim($mixedResort) !== ''
+    && !str_contains(mb_strtolower($mixedResort), 'doing well'),
+    'TEST 32d mixed how-are-you + what do you have answers the real ask'
+);
+assert_test(
+    function_exists('turn_engine_send_if_customer_waiting')
+    && str_contains(file_get_contents($root . '/api/whatsapp-webhook.php') ?: '', 'turn_engine_send_leads_now'),
+    'TEST 32e webhook sends in-request if the customer is still waiting'
+);
 $typoResort = human_agent_warm_last_resort($cannedBot, $typoBurst);
 assert_test(
     str_contains(mb_strtolower($typoResort), 'doing well')
@@ -235,23 +246,82 @@ assert_test(
 $keepSrc = file_get_contents($root . '/includes/whatsapp-typing-keepalive.php') ?: '';
 assert_test(
     str_contains($keepSrc, 'whatsapp_typing_active_path')
-    && str_contains($keepSrc, 'stopped'),
-    'TEST 38d typing keepalive stops when a newer session takes over'
+    && str_contains($keepSrc, 'stopped')
+    && str_contains($keepSrc, 'Typing keepalive is disabled'),
+    'TEST 38d typing keepalive does not pulse in the background'
 );
 assert_test(
-    (bool) preg_match(
-        '/if \(!whatsapp_acquire_lead_reply_lock\(\$leadId, 5\)\) \{\s+return \[\'success\' => false, \'error\' => \'Lock busy\'\];/s',
-        $engineSrc
-    ),
+    str_contains($engineSrc, 'whatsapp_acquire_lead_reply_lock($leadId, 20)')
+    && str_contains($engineSrc, 'lock busy, rescheduling')
+    && !preg_match('/if \(!whatsapp_acquire_lead_reply_lock\(\$leadId, \d+\)\) \{\s+turn_engine_rebuffer/', $engineSrc),
     'TEST 38e lock busy does not yank a live turn back to buffering'
 );
 $cronSrc = file_get_contents($root . '/api/cron.php') ?: '';
 $workerRecover = file_get_contents($root . '/api/turn-worker.php') ?: '';
 assert_test(
-    str_contains($engineSrc, 'max(8, $maxAgeMinutes)')
+    str_contains($engineSrc, 'max(1, min(15, $maxAgeMinutes))')
     && !str_contains($cronSrc, 'recover_stuck_turns(2)')
+    && !str_contains($cronSrc, 'turn_engine_process_due')
+    && !str_contains($cronSrc, 'conversation-turn-engine.php')
     && !str_contains($workerRecover, 'recover_stuck_turns(2)'),
-    'TEST 38f stuck-turn recovery waits until AI can finish'
+    'TEST 38f cron does not process WhatsApp turns; stuck recovery waits for AI'
+);
+assert_test(
+    function_exists('turn_engine_arm_must_send')
+    && str_contains($engineSrc, 'turn_engine_arm_must_send')
+    && str_contains($engineSrc, 'turn_engine_shutdown_flush_must_send')
+    && str_contains($engineSrc, 'CURLE_OPERATION_TIMEDOUT') === false
+    && str_contains($engineSrc, '$errno !== 28'),
+    'TEST 38g typing commits a must-send; worker curl timeout is not a dispatch failure'
+);
+$webhookSrc = file_get_contents($root . '/api/whatsapp-webhook.php') ?: '';
+assert_test(
+    str_contains($webhookSrc, 'turn_engine_send_leads_now')
+    && str_contains($webhookSrc, 'whatsapp_mark_message_read')
+    && strpos($webhookSrc, 'turn_engine_ingest') < strrpos($webhookSrc, "echo 'OK'")
+    && str_contains($engineSrc, 'function turn_engine_send_leads_now')
+    && str_contains($engineSrc, 'function turn_engine_ensure_lead_replied'),
+    'TEST 38h webhook marks read and ingests before acking Meta'
+);
+$processFn = strpos($engineSrc, 'function turn_engine_process_turn');
+$intelReq = $processFn === false ? false : strpos($engineSrc, 'conversation-intelligence.php', $processFn);
+$processHead = ($processFn !== false && $intelReq !== false)
+    ? substr($engineSrc, $processFn, $intelReq - $processFn)
+    : '';
+assert_test(
+    str_contains($processHead, 'whatsapp_mark_message_read')
+    && str_contains($engineSrc, 'turn_engine_ingest mark read early'),
+    'TEST 38i mark-read happens before AI/intelligence work'
+);
+$workerSrcDebug = file_get_contents($root . '/api/turn-worker.php') ?: '';
+assert_test(
+    str_contains($workerSrcDebug, "(\$_GET['debug'] ?? '') === '1'")
+    && str_contains($workerSrcDebug, 'already_replied_per_turn'),
+    'TEST 38j worker health exposes a live debug dump'
+);
+assert_test(
+    str_contains($webhookSrc, 'turn_engine_send_leads_now')
+    && str_contains($webhookSrc, 'Inline send before Meta ACK')
+    && str_contains($engineSrc, 'function turn_engine_send_leads_now')
+    && strpos($webhookSrc, 'turn_engine_send_leads_now') < strrpos($webhookSrc, "echo 'OK'")
+    && !str_contains($webhookSrc, 'fastcgi_finish_request()'),
+    'TEST 38k webhook force-sends a reply in-request after quiet wait'
+);
+$recoverSrc = file_get_contents($root . '/includes/wa-recover-lite.php') ?: '';
+$coreSrc = file_get_contents($root . '/includes/whatsapp-auto-reply-core.php') ?: '';
+$waitFn = strpos($engineSrc, 'function turn_engine_webhook_wait_quiet');
+$waitSrc = $waitFn !== false ? substr($engineSrc, $waitFn, 900) : '';
+assert_test(
+    str_contains($engineSrc, '$maxWaitMs = 8000')
+    && str_contains($waitSrc, 'Silent wait')
+    && !str_contains($waitSrc, 'whatsapp_send_typing_indicator')
+    && str_contains($coreSrc, 'function wa_webhook_mind_reply')
+    && str_contains($coreSrc, "'path' => 'webhook_mind'")
+    && str_contains($engineSrc, "\$GLOBALS['wa_skip_openai'] = true")
+    && str_contains($webhookSrc, 'DUPLICATE_REQUEUE_SEND')
+    && str_contains($recoverSrc, 'no unanswered inbound turn')
+    && !str_contains($coreSrc, 'wa_recover_lead_already_replied($leadId)'),
+    'TEST 38l webhook waits silently then sends a mind/menu/cart line (no OpenAI/catalog/GD)'
 );
 assert_test(str_contains(human_agent_live_protocol(), 'Word-by-word'), 'TEST 38b protocol treats split bubbles as one thought');
 assert_test(
@@ -415,11 +485,143 @@ assert_test(
     'TEST 46 checkout reads name/phone and does not treat complaints as intros'
 );
 assert_test(
-    catalog_has_clear_shopping_intent('What you have?')
+    catalog_has_clear_shopping_intent('What you have tonight?')
     && catalog_message_is_browse_intent('Send me your best item menu')
     && conversation_is_generic_menu_prompt_reply('The Sicilian Restaurant — what are you in the mood for? I can send the menu once you tell me the section or item.')
     && conversation_wants_commercial_context('Can you send menu pics?'),
     'TEST 45b menu asks are shopping, not a canned section pitch'
+);
+
+require_once $root . '/includes/whatsapp-auto-reply-core.php';
+$alexBurst = turn_engine_combine_text_parts(['Are you', 'Sure', 'You', 'Are', 'Alex?']);
+assert_test(
+    str_contains(mb_strtolower($alexBurst), 'alex')
+    && str_contains(mb_strtolower($alexBurst), 'are you'),
+    'TEST 47 split Are-you-Alex bubbles join as one question'
+);
+$personaBot = [
+    'rep_name' => 'Alex',
+    'name' => 'The Sicilian Restaurant',
+    'company_name' => 'The Sicilian Restaurant',
+    'rep_persona' => 'Sara lives in Lahore, likes cricket and chai, movies — thrillers and comedy.',
+];
+$hobby = wa_webhook_answer_what_they_asked($personaBot, 0, 'What are your hobbies?', 'what are your hobbies?');
+$who = wa_webhook_answer_what_they_asked($personaBot, 0, 'Are you sure you are Alex?', 'are you sure you are alex?');
+assert_test(
+    str_contains(mb_strtolower($hobby), 'cricket')
+    && str_contains(mb_strtolower($who), 'alex')
+    && !str_contains(mb_strtolower($who), 'what can i help you with'),
+    'TEST 47b replies to hobbies and identity from persona, not a canned intro'
+);
+require_once $root . '/includes/conversation-mind.php';
+$promptDoc = '1. Identity & Role. You are the restaurant\'s Customer Relations & Lead Management Agent. Your name, business name, restaurant details,';
+$promptBot = [
+    'rep_name' => 'Alex',
+    'name' => 'The Sicilian Restaurant',
+    'company_name' => 'The Sicilian Restaurant',
+    'rep_persona' => $promptDoc,
+];
+$facts = conversation_mind_personal_facts($promptBot);
+$factBlob = mb_strtolower(implode(' ', $facts));
+$introCtx = ['intent' => 'PERSONAL_CONVERSATION', 'facts' => $facts, 'mode' => 'PERSONAL_CONVERSATION', 'summary' => '', 'history' => []];
+$intro = conversation_mind_grounded_fallback($promptBot, 'Introduce yourself please', $introCtx);
+$howYou = conversation_mind_grounded_fallback($promptBot, 'How about you?', ['intent' => 'PERSONAL_CONVERSATION', 'facts' => $facts, 'mode' => 'PERSONAL_CONVERSATION', 'summary' => '', 'history' => []]);
+$friends = conversation_mind_grounded_fallback($promptBot, "I don't want anything I just want to be friends", ['intent' => 'CASUAL_CONVERSATION', 'facts' => $facts, 'mode' => 'CASUAL_CONVERSATION', 'summary' => '', 'history' => []]);
+$missed = conversation_mind_grounded_fallback($promptBot, "You didn't understand", ['intent' => 'CLARIFICATION', 'facts' => $facts, 'mode' => 'CASUAL_CONVERSATION', 'summary' => '', 'history' => []]);
+$guarded = conversation_mind_guard_reply($promptBot, 0, 'Introduce yourself please', 'From my side — 1. Identity & Role You are the restaurant\'s Customer Relations');
+assert_test(
+    conversation_mind_is_instruction_doc($promptDoc)
+    && conversation_mind_is_leak('From my side — 1. Identity & Role')
+    && !str_contains($factBlob, 'lead management agent')
+    && !conversation_mind_is_leak($intro)
+    && str_contains(mb_strtolower($howYou), 'good')
+    && str_contains(mb_strtolower($friends), 'chat')
+    && str_contains(mb_strtolower($missed), 'right')
+    && !str_contains(mb_strtolower($guarded), 'identity')
+    && conversation_mind_intent('tell me more', [['role' => 'user', 'message' => 'Introduce yourself please'], ['role' => 'assistant', 'message' => "I'm Alex with The Sicilian"]], 'PERSONAL_CONVERSATION') === 'PERSONAL_CONVERSATION',
+    'TEST 47d persona stays internal; intro/friends/how-about-you never dump the prompt'
+);
+$sendNowFn = strpos($engineSrc, 'function turn_engine_send_leads_now');
+$sendNowSrc = $sendNowFn !== false ? substr($engineSrc, $sendNowFn, 3500) : '';
+assert_test(
+    str_contains($sendNowSrc, 'whatsapp_acquire_lead_reply_lock($leadId, 0)')
+    && strpos($sendNowSrc, 'whatsapp_acquire_lead_reply_lock($leadId, 0)') < strpos($sendNowSrc, 'turn_engine_webhook_wait_quiet')
+    && str_contains($coreSrc, 'function wa_webhook_answer_what_they_asked')
+    && str_contains($coreSrc, "empty(\$GLOBALS['wa_skip_openai'])")
+    && str_contains(file_get_contents($root . '/includes/whatsapp-auto-reply-core.php') ?: '', 'conversation_mind_reply')
+    && is_file($root . '/includes/conversation-mind.php'),
+    'TEST 47c one waiter per lead; conversation mind generates from hidden persona facts'
+);
+
+require_once $root . '/includes/industry-templates.php';
+require_once $root . '/includes/bot-knowledge.php';
+$locBot = [
+    'rep_name' => 'Sara',
+    'name' => 'The Sicilian Restaurant',
+    'company_name' => 'The Sicilian Restaurant',
+    'industry_key' => 'restaurant',
+    'address' => 'Street Number 10, Shalimar Colony, Main Bosan Road Multan.',
+    'rep_persona' => 'Sara lives in Lahore, likes cricket and chai.',
+];
+$facts = conversation_mind_personal_facts($locBot);
+$factBlob = mb_strtolower(implode(' ', $facts));
+$bizBlock = mb_strtolower(industry_runtime_facts_block($locBot));
+$whereBiz = wa_webhook_answer_what_they_asked($locBot, 0, 'Where is the restaurant?', 'where is the restaurant?');
+$whereYou = wa_webhook_answer_what_they_asked($locBot, 0, 'Where are you?', 'where are you?');
+assert_test(
+    industry_key_from_posted('Education / Coaching') === 'education'
+    && industry_key_from_posted('Education / Training') === 'education'
+    && industry_key_from_posted('restaurant') === 'restaurant'
+    && str_contains($factBlob, 'lives_in: lahore')
+    && !str_contains($factBlob, 'city: lahore')
+    && str_contains($bizBlock, 'multan')
+    && str_contains($bizBlock, 'lahore')
+    && str_contains(mb_strtolower($whereBiz), 'multan')
+    && !str_contains(mb_strtolower($whereBiz), 'lahore')
+    && str_contains(mb_strtolower($whereYou), 'multan')
+    && !str_contains(mb_strtolower($whereYou), 'lahore')
+    && turn_engine_is_chase_nudge("why don't you reply")
+    && !turn_engine_is_chase_nudge('What are your opening hours?')
+    && str_contains($engineSrc, 'whatsapp_send_typing_indicator($phoneId, $token, $waId)')
+    && str_contains(file_get_contents($root . '/client/training.php') ?: '', 'save_rep_name')
+    && str_contains(file_get_contents($root . '/includes/views/client-training.php') ?: '', 'name="industry_key"'),
+    'TEST 48 industry keys match admin; venue is Multan not Lahore; typing + chase wait'
+);
+
+$coachKb = "Waqar Tayyub is a business and performance coach.\n"
+    . "Rate \$80/hour — 1:1 coaching sessions\n"
+    . "Greet Customers when they text you with: This is Salman from Waqar Tayyub & Co. How can I help you today?\n"
+    . "List of Services Offered:\n"
+    . "- Neural Performance Coaching\n"
+    . "- Corporate Training\n"
+    . "- Workplace Productivity\n"
+    . "- Immersive Leadership Development\n"
+    . "- AI Growth and Adoption for High Performing Teams";
+$coachBot = [
+    'rep_name' => 'Salman',
+    'name' => 'Waqar Tayyub & Co.',
+    'company_name' => 'Waqar Tayyub & Co.',
+    'industry_key' => 'freelancer',
+    'bot_knowledge' => $coachKb,
+];
+$offer = mb_strtolower(knowledge_offer_list_reply($coachBot));
+$greet = knowledge_configured_greeting($coachBot);
+$rate = knowledge_extract_hourly_rate($coachBot);
+$protocol = human_agent_live_protocol();
+assert_test(
+    !bot_uses_shop_catalog($coachBot)
+    && !wa_webhook_wants_catalog('what do you offer', $coachBot)
+    && !catalog_message_is_browse_intent('What do you offer?')
+    && str_contains($offer, 'neural performance coaching')
+    && str_contains($offer, 'ai growth')
+    && !str_contains($offer, 'menu')
+    && str_contains(mb_strtolower($greet), 'salman')
+    && $rate === '$80/hour'
+    && str_contains($protocol, 'Never mix another business')
+    && !str_contains($protocol, 'If they asked for the menu, best items')
+    && str_contains(file_get_contents($root . '/includes/whatsapp-auto-reply-core.php') ?: '', 'bot_uses_shop_catalog($bot)')
+    && !str_contains(file_get_contents($root . '/includes/whatsapp-auto-reply-core.php') ?: '', 'say *menu* when you want the list'),
+    'TEST 49 freelancer/coaching uses training services, never a restaurant menu'
 );
 
 echo "\n{$passed} passed, {$failed} failed\n";

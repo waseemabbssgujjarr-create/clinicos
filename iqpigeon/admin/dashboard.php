@@ -6,6 +6,7 @@ require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/mailer.php';
 require_once __DIR__ . '/../includes/commerce-schema.php';
 require_once __DIR__ . '/../includes/iqp-ui.php';
+require_once __DIR__ . '/../includes/integration-settings.php';
 
 $user = require_admin();
 ensure_commerce_schema();
@@ -236,7 +237,7 @@ try {
 
 /* ---- System health (real signals, no fabricated uptime %) ---- */
 $dbOk   = true;
-$aiOk   = defined('DEEPSEEK_API_KEY') && DEEPSEEK_API_KEY !== '';
+$aiOk   = function_exists('integration_ai_configured') ? integration_ai_configured() : (defined('OPENAI_API_KEY') && OPENAI_API_KEY !== '');
 $smtpOk = function_exists('mail_transport_ready') ? mail_transport_ready() : false;
 $waOk   = $waConnected > 0;
 $webOk  = true; // reached here = web app is running

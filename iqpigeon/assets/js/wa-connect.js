@@ -260,7 +260,19 @@
     };
 
     if (isPending()) {
-        setPhase('saving');
-        startPoll({ forceSaving: true });
+        let hasSignup = false;
+        try {
+            hasSignup = !!(sessionStorage.getItem('wa_signup_pending_code')
+                || sessionStorage.getItem('wa_signup_session')
+                || sessionStorage.getItem('wa_signup_meta_finish'));
+        } catch (e) { /* ignore */ }
+        if (hasSignup) {
+            setPhase('saving');
+            startPoll({ forceSaving: true });
+        } else {
+            try {
+                sessionStorage.removeItem('wa_oauth_pending');
+            } catch (e) { /* ignore */ }
+        }
     }
 })();

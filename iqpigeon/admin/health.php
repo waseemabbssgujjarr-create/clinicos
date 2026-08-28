@@ -36,14 +36,7 @@ try {
 }
 
 try {
-    $checks[] = health_row('DeepSeek API key set', defined('DEEPSEEK_API_KEY') && DEEPSEEK_API_KEY !== '');
-} catch (Throwable $e) {
-    $checks[] = health_row('DeepSeek API key', false, $e->getMessage());
-}
-
-try {
-    $openaiOk = defined('OPENAI_API_KEY') && OPENAI_API_KEY !== '';
-    $checks[] = health_row('OpenAI API key set (fallback)', $openaiOk, $openaiOk ? 'Available as fallback' : 'Not set — DeepSeek required');
+    $checks[] = health_row('OpenAI API key set', integration_openai_chat_key() !== '');
 } catch (Throwable $e) {
     $checks[] = health_row('OpenAI API key', false, $e->getMessage());
 }
@@ -101,7 +94,7 @@ if ($run) {
     try {
         $ai = ai_chat([['role' => 'user', 'content' => 'Say hi in 3 words']], ['max_tokens' => 20]);
         $checks[] = health_row(
-            'DeepSeek API live test',
+            'OpenAI API live test',
             !empty($ai['success']),
             $ai['content'] ?? ($ai['error'] ?? 'Unknown error')
         );

@@ -337,5 +337,8 @@ function whatsapp_shop_followup_after_reply(
             $title = catalog_title_for_indexes($botId, $cardIndexes);
         }
         catalog_send_product_cards($botId, $userId, $phone, $cardIndexes, true, $title);
+        if (function_exists('cart_remember_shown_indexes')) {
+            cart_remember_shown_indexes($leadId, $cardIndexes);
+        }
     }
 }

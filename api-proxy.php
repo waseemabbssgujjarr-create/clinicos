@@ -21,9 +21,9 @@ function find_passenger_socket() {
         $webRoot . '/tmp/sockets/passenger.socket',
         $webRoot . '/tmp/sockets/passenger.sock',
         $webRoot . '/tmp/passenger.socket',
-        '/home/digitals/clinicos.workee.online/clinicos-api/tmp/sockets/passenger.socket',
-        '/home/digitals/clinicos.workee.online/clinicos-api/tmp/sockets/passenger.sock',
-        '/home/digitals/clinicos.workee.online/tmp/sockets/passenger.socket',
+        $home    . '/public_html/clinicos-api/tmp/sockets/passenger.socket',
+        $home    . '/public_html/clinicos-api/tmp/sockets/passenger.sock',
+        $home    . '/public_html/tmp/sockets/passenger.socket',
     ];
     foreach ($candidates as $p) {
         if ($p && file_exists($p)) return $p;
@@ -31,8 +31,8 @@ function find_passenger_socket() {
     foreach ([
         $home . '/nodevenv/*/tmp/**/passenger.so*',
         $home . '/nodevenv/*/*/tmp/**/passenger.so*',
-        '/home/digitals/nodevenv/clinicos.workee.online/*/tmp/**/passenger.so*',
-        '/home/digitals/nodevenv/clinicos.workee.online/clinicos-api/*/tmp/**/passenger.so*',
+        $home . '/nodevenv/public_html/*/tmp/**/passenger.so*',
+        $home . '/nodevenv/public_html/clinicos-api/*/tmp/**/passenger.so*',
     ] as $pattern) {
         foreach (glob($pattern) ?: [] as $p) {
             if (file_exists($p)) return $p;
@@ -167,13 +167,13 @@ if (preg_match('#^/api/leads/features#', $requestUri)) {
     if (php_features_fallback()) exit;
 }
 
-$host = $_SERVER['HTTP_HOST'] ?? 'clinicos.workee.online';
+$host = $_SERVER['HTTP_HOST'] ?? 'doctorsmyagency.com';
 http_response_code(502);
 header('Content-Type: application/json');
 echo json_encode([
-    'error'  => 'API server unreachable',
-    'detail' => 'Node.js not reachable on TCP 3002. In Terminal run: bash clinicos-api/force-start-api.sh',
-    'errors' => $errors,
-    'diagnose' => 'https://' . $host . '/db-check.php',
-    'code'   => 'PROXY_ERROR',
+    'error'    => 'API server unreachable',
+    'detail'   => 'Node.js not reachable on TCP 3002. In Hostinger Terminal run: bash clinicos-api/force-start-api.sh',
+    'errors'   => $errors,
+    'diagnose' => 'https://' . $host . '/api/health',
+    'code'     => 'PROXY_ERROR',
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);

@@ -1,6 +1,6 @@
 <?php
 /**
- * DeepSeek AI API wrapper (OpenAI-compatible) and system prompt builder.
+ * OpenAI Chat Completions API and system prompt builder.
  */
 
 require_once __DIR__ . '/../config.php';
@@ -117,10 +117,10 @@ PROMPT;
 }
 
 /**
- * Call DeepSeek Chat Completions API (OpenAI-compatible).
+ * Call OpenAI Chat Completions API.
  *
  * @param array<int, array{role: string, content: string}> $messages
- * @param array{temperature?: float, max_tokens?: int, frequency_penalty?: float, presence_penalty?: float, top_p?: float, stop?: array<int, string>} $options
+ * @param array{temperature?: float, max_tokens?: int, frequency_penalty?: float, presence_penalty?: float, top_p?: float, stop?: array<int, string>, model?: string, timeout?: int, max_attempts?: int} $options
  * @return array{success: bool, content?: string, error?: string}
  */
 function ai_chat(array $messages, array $options = []): array
@@ -132,7 +132,7 @@ function ai_chat(array $messages, array $options = []): array
         return ['success' => false, 'error' => 'AI auto-replies are disabled in Admin → Integrations.'];
     }
 
-    $maxAttempts = 3;
+    $maxAttempts = isset($options['max_attempts']) ? max(1, min(3, (int) $options['max_attempts'])) : 3;
     $delayMs = 400;
     $last = ['success' => false, 'error' => 'AI request failed'];
 
@@ -164,28 +164,23 @@ function ai_chat(array $messages, array $options = []): array
 }
 
 /**
- * Single DeepSeek chat completion attempt.
+ * Single OpenAI chat completion attempt.
  *
  * @param array<int, array{role: string, content: string}> $messages
- * @param array{temperature?: float, max_tokens?: int, frequency_penalty?: float, presence_penalty?: float, top_p?: float, stop?: array<int, string>} $options
+ * @param array{temperature?: float, max_tokens?: int, frequency_penalty?: float, presence_penalty?: float, top_p?: float, stop?: array<int, string>, model?: string, timeout?: int} $options
  * @return array{success: bool, content?: string, error?: string}
  */
 function ai_chat_request(array $messages, array $options = []): array
 {
-    $apiKey = integration_config('DEEPSEEK_API_KEY');
-    if ($apiKey === '' || integration_is_placeholder_secret($apiKey)) {
-        $apiKey = integration_config('OPENAI_API_KEY');
-    }
+    $apiKey = integration_openai_chat_key();
 
-    if ($apiKey === '' || integration_is_placeholder_secret($apiKey)) {
-        return ['success' => false, 'error' => 'DeepSeek API key not configured. Set it in Admin → Integrations.'];
+    if ($apiKey === '') {
+        return ['success' => false, 'error' => 'OpenAI API key not configured. Set it in Admin → Integrations → OpenAI.'];
     }
 
     $model = trim((string) ($options['model'] ?? ''));
     if ($model === '') {
-        $model = get_setting('ai_model', integration_config('DEEPSEEK_MODEL') ?: DEEPSEEK_MODEL)
-            ?: get_setting('openai_model', integration_config('DEEPSEEK_MODEL') ?: DEEPSEEK_MODEL)
-            ?: integration_config('DEEPSEEK_MODEL') ?: DEEPSEEK_MODEL;
+        $model = integration_openai_model();
     }
 
     $payload = [
@@ -205,14 +200,25 @@ function ai_chat_request(array $messages, array $options = []): array
 
     $payloadJson = json_encode($payload);
 
-    $verifySsl = defined('DEEPSEEK_SSL_VERIFY') ? (bool) DEEPSEEK_SSL_VERIFY : true;
-    $result = ai_http_post(DEEPSEEK_API_URL, [
+    $verifySsl = defined('OPENAI_SSL_VERIFY') ? (bool) OPENAI_SSL_VERIFY : true;
+    $apiUrl = function_exists('integration_openai_api_url')
+        ? integration_openai_api_url()
+        : (defined('OPENAI_API_URL') ? (string) OPENAI_API_URL : 'https://api.openai.com/v1/chat/completions');
+    if (!str_contains($apiUrl, 'chat/completions')) {
+        $apiUrl = rtrim($apiUrl, '/') . '/chat/completions';
+    }
+    $minTimeout = !empty($GLOBALS['wa_webhook_budget']) ? 5 : 8;
+    $timeoutSec = isset($options['timeout']) ? max($minTimeout, min(45, (int) $options['timeout'])) : 45;
+    if (!empty($GLOBALS['wa_webhook_budget'])) {
+        $timeoutSec = min($timeoutSec, 6);
+    }
+    $result = ai_http_post($apiUrl, [
         'Content-Type: application/json',
         'Authorization: Bearer ' . $apiKey,
-    ], $payloadJson, $verifySsl);
+    ], $payloadJson, $verifySsl, $timeoutSec);
 
     if (!$result['ok']) {
-        error_log('DeepSeek curl error: ' . $result['error']);
+        error_log('OpenAI curl error: ' . $result['error']);
         return ['success' => false, 'error' => 'AI service unavailable: ' . ($result['error'] ?: 'connection failed')];
     }
 
@@ -222,8 +228,8 @@ function ai_chat_request(array $messages, array $options = []): array
     $data = json_decode(is_string($response) ? $response : '', true);
 
     if ($httpCode !== 200 || empty($data['choices'][0]['message']['content'])) {
-        $err = $data['error']['message'] ?? 'Unknown DeepSeek API error';
-        error_log('DeepSeek API error (' . $httpCode . '): ' . $err);
+        $err = $data['error']['message'] ?? 'Unknown OpenAI API error';
+        error_log('OpenAI API error (' . $httpCode . '): ' . $err);
         return ['success' => false, 'error' => $err];
     }
 
@@ -231,23 +237,29 @@ function ai_chat_request(array $messages, array $options = []): array
 }
 
 /**
- * Outbound HTTP for DeepSeek — DNS resolve + stream fallback on broken curl hosts.
+ * Outbound HTTP for OpenAI — DNS resolve + stream fallback on broken curl hosts.
  *
  * @param list<string> $headers
  * @return array{ok: bool, body: string|false, http_code: int, error: string}
  */
-function ai_http_post(string $url, array $headers, string $body, bool $verifySsl): array
+function ai_http_post(string $url, array $headers, string $body, bool $verifySsl, int $timeoutSec = 45): array
 {
+    $timeoutSec = max(5, min(45, $timeoutSec));
     $opts = [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,
         CURLOPT_HTTPHEADER     => $headers,
         CURLOPT_POSTFIELDS     => $body,
-        CURLOPT_TIMEOUT        => 45,
-        CURLOPT_CONNECTTIMEOUT => 15,
+        CURLOPT_TIMEOUT        => $timeoutSec,
+        CURLOPT_CONNECTTIMEOUT => min(8, $timeoutSec),
         CURLOPT_SSL_VERIFYPEER => $verifySsl,
         CURLOPT_SSL_VERIFYHOST => $verifySsl ? 2 : 0,
     ];
+
+    if (defined('CURLOPT_LOW_SPEED_TIME')) {
+        $opts[CURLOPT_LOW_SPEED_TIME] = min(8, max(3, (int) floor($timeoutSec / 2)));
+        $opts[CURLOPT_LOW_SPEED_LIMIT] = 50;
+    }
 
     if (defined('CURL_IPRESOLVE_V4')) {
         $opts[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
@@ -319,7 +331,6 @@ function ai_http_post_stream(string $url, array $headers, string $body, bool $ve
 }
 
 /**
- * @deprecated Use ai_chat() — kept for backward compatibility.
  * @param array<int, array{role: string, content: string}> $messages
  * @param array{temperature?: float, max_tokens?: int} $options
  * @return array{success: bool, content?: string, error?: string}

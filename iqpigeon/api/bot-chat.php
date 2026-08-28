@@ -40,14 +40,18 @@ try {
     $bot = null;
     if ($botId > 0) {
         $bot = db_fetch(
-            'SELECT * FROM bots WHERE id = ? AND user_id = ?',
+            'SELECT b.*, u.company_name, u.address, u.industry AS owner_industry, u.bio
+             FROM bots b JOIN users u ON u.id = b.user_id
+             WHERE b.id = ? AND b.user_id = ?',
             'ii',
             [$botId, $userId]
         );
     }
     if (!$bot) {
         $bot = db_fetch(
-            'SELECT * FROM bots WHERE user_id = ? ORDER BY id ASC LIMIT 1',
+            'SELECT b.*, u.company_name, u.address, u.industry AS owner_industry, u.bio
+             FROM bots b JOIN users u ON u.id = b.user_id
+             WHERE b.user_id = ? ORDER BY b.id ASC LIMIT 1',
             'i',
             [$userId]
         );
@@ -70,8 +74,14 @@ try {
         $systemPrompt .= catalog_ai_prompt_block((int) $bot['id']);
     }
 
-    $systemPrompt .= "\n\nThis is the Training page test panel. Answer using ONLY the business knowledge above — "
-        . "never invent a different company type (e.g. do not say you are an AI/tech agency if the industry is Restaurant / Food).";
+    require_once __DIR__ . '/../includes/lead-lifecycle.php';
+    if (function_exists('lifecycle_conversion_prompt_block')) {
+        $systemPrompt .= lifecycle_conversion_prompt_block($bot);
+    }
+
+    $systemPrompt .= "\n\nThis is the Test & Publish panel. Use the same rules as a live customer chat. "
+        . "Answer using ONLY the business knowledge above — never invent a different company type. "
+        . "If they ask where the business is, use the business address, not the rep's home city.";
 
     $historyRaw = $_POST['history'] ?? '[]';
     $history = json_decode((string) $historyRaw, true);

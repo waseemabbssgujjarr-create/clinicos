@@ -11,12 +11,12 @@ function brandName() {
 function supportEmail() {
     return process.env.SMTP_FROM?.match(/<([^>]+)>/)?.[1]
         || process.env.SMTP_USER
-        || 'support@clinicos.workee.online';
+        || 'info@doctorsmyagency.com';
 }
 function emailLayout({ title, preheader, bodyHtml, ctaLabel, ctaUrl }) {
     const brand = brandName();
     const support = supportEmail();
-    const appUrl = process.env.APP_URL || 'https://clinicos.workee.online';
+    const appUrl = process.env.APP_URL || 'https://doctorsmyagency.com';
     return `
 <!DOCTYPE html>
 <html>

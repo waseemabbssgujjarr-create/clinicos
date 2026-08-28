@@ -157,6 +157,9 @@ exports.Prisma.ClinicScalarFieldEnum = {
   planStatus: 'planStatus',
   trialEndsAt: 'trialEndsAt',
   currentPeriodEnd: 'currentPeriodEnd',
+  emailVerified: 'emailVerified',
+  emailVerifyToken: 'emailVerifyToken',
+  emailVerifyExpires: 'emailVerifyExpires',
   isActive: 'isActive',
   onboardingDone: 'onboardingDone',
   createdAt: 'createdAt',
@@ -172,6 +175,9 @@ exports.Prisma.StaffMemberScalarFieldEnum = {
   passwordHash: 'passwordHash',
   role: 'role',
   isActive: 'isActive',
+  emailVerified: 'emailVerified',
+  emailVerifyToken: 'emailVerifyToken',
+  emailVerifyExpires: 'emailVerifyExpires',
   inviteToken: 'inviteToken',
   inviteExpiry: 'inviteExpiry',
   lastLogin: 'lastLogin',
@@ -376,6 +382,13 @@ exports.Prisma.PasswordResetScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.PlatformSettingScalarFieldEnum = {
+  key: 'key',
+  value: 'value',
+  updatedAt: 'updatedAt',
+  updatedBy: 'updatedBy'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -480,7 +493,8 @@ exports.Prisma.ModelName = {
   Lead: 'Lead',
   MissedCall: 'MissedCall',
   DailyBrief: 'DailyBrief',
-  PasswordReset: 'PasswordReset'
+  PasswordReset: 'PasswordReset',
+  PlatformSetting: 'PlatformSetting'
 };
 
 /**

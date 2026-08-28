@@ -1,3 +1,5 @@
+DirectoryIndex index.html index.php
+
 Options -MultiViews
 RewriteEngine On
 

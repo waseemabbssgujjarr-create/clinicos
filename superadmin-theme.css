@@ -1,13 +1,14 @@
 /**
  * Doctors My Agency — Super Admin design system
+ * BRAND: Blue (#2563EB) — replaces orange
  * Desktop: fixed sidebar + capped content
  * Mobile: top app bar + off-canvas drawer + stacked cards
  */
 :root {
-  --sa-orange: #F97316;
-  --sa-orange-dark: #ea580c;
-  --sa-orange-soft: rgba(249, 115, 22, 0.12);
-  --sa-orange-border: rgba(249, 115, 22, 0.28);
+  --sa-orange: #2563EB;
+  --sa-orange-dark: #1D4ED8;
+  --sa-orange-soft: rgba(37, 99, 235, 0.10);
+  --sa-orange-border: rgba(37, 99, 235, 0.25);
   --sa-sidebar-w: 240px;
   --sa-content-max: 1120px;
   --sa-topbar-h: 56px;
@@ -17,11 +18,11 @@
   --sa-space-4: 16px;
   --sa-space-5: 24px;
   --sa-space-6: 32px;
-  --sa-sidebar-bg: #1c1917;
-  --sa-sidebar-border: rgba(249, 115, 22, 0.14);
+  --sa-sidebar-bg: #1E293B;
+  --sa-sidebar-border: rgba(37, 99, 235, 0.18);
   --sa-sidebar-text: #ffffff;
   --sa-sidebar-muted: #d6d3d1;
-  --sa-main-bg: #e8eef5;
+  --sa-main-bg: #F4F6FA;
   --sa-card-bg: #ffffff;
   --sa-input-bg: #f8fafc;
   --sa-input-border: #cbd5e1;
@@ -34,34 +35,33 @@
   --sa-radius-sm: 12px;
 }
 
-/* ── Brand overrides (React Next export) ─────────────────────────────────── */
-
+/* Old hardcoded brown sidebar — replaced by blue */
 .bg-sidebar {
-  background-color: #1c1917 !important;
-  background: linear-gradient(180deg, #1c1917 0%, #0f0e0d 100%) !important;
+  background-color: #1E293B !important;
+  background: #1E293B !important;
 }
 
 aside.bg-sidebar,
 aside[class*="bg-sidebar"] {
-  color: #ffffff !important;
+  color: #94A3B8 !important;
 }
 
 .nav-item {
-  color: var(--sa-sidebar-muted) !important;
+  color: #94A3B8 !important;
 }
 
 .nav-item:hover {
-  background-color: var(--sa-orange-soft) !important;
-  color: #fff !important;
+  background-color: rgba(37, 99, 235, 0.12) !important;
+  color: #93C5FD !important;
 }
 
 .nav-item-active,
 a.nav-item.nav-item-active,
 aside a.nav-item-active {
-  background-color: rgba(249, 115, 22, 0.2) !important;
+  background-color: rgba(37, 99, 235, 0.22) !important;
   border-left-color: var(--sa-orange) !important;
-  border-left-width: 3px !important;
-  color: #fff !important;
+  border-left-width: 2px !important;
+  color: #93C5FD !important;
 }
 
 .bg-brand:not(.dma-live-badge):not(.dma-ai-status-live) {
@@ -110,11 +110,11 @@ main.flex-1 .font-extrabold {
 aside.bg-sidebar,
 aside[class*="w-[220px]"],
 aside[class*="w-\[220px\]"] {
-  background: linear-gradient(180deg, #1c1917 0%, #141210 100%) !important;
+  background: #1E293B !important;
   border-right: 1px solid var(--sa-sidebar-border) !important;
   width: var(--sa-sidebar-w) !important;
   max-width: var(--sa-sidebar-w) !important;
-  color: var(--sa-sidebar-text) !important;
+  color: var(--sa-sidebar-muted) !important;
 }
 
 aside.bg-sidebar a,
@@ -135,8 +135,8 @@ aside[class*="w-\[220px\]"] a {
 
 aside.bg-sidebar a:hover,
 aside[class*="w-[220px]"] a:hover {
-  background: var(--sa-orange-soft) !important;
-  color: #fdba74 !important;
+  background: rgba(37, 99, 235, 0.14) !important;
+  color: #93C5FD !important;
 }
 
 aside.bg-sidebar a svg,
@@ -153,9 +153,9 @@ aside a[class*="bg-green"],
 aside a[class*="text-emerald"],
 aside a[class*="text-green"],
 aside a[class*="text-teal"] {
-  background: var(--sa-orange-soft) !important;
-  color: var(--sa-orange) !important;
-  border-left: 3px solid var(--sa-orange) !important;
+  background: rgba(37, 99, 235, 0.20) !important;
+  color: #93C5FD !important;
+  border-left: 2px solid var(--sa-orange) !important;
 }
 
 /* Desktop: React content offset + cap width */
@@ -256,7 +256,7 @@ body.superadmin-app select:focus,
   outline: none !important;
   border-color: var(--sa-orange) !important;
   background: #fff !important;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.18), inset 0 1px 2px rgba(15, 23, 42, 0.03) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16), inset 0 1px 2px rgba(15, 23, 42, 0.03) !important;
 }
 
 body.min-h-screen.bg-app main input[readonly],
@@ -365,13 +365,13 @@ body.min-h-screen.bg-app main [class*="border-b-4"] {
 }
 
 tbody tr:hover {
-  background: rgba(249, 115, 22, 0.03) !important;
+  background: rgba(37, 99, 235, 0.03) !important;
 }
 
 [class*="bg-brand-light"],
 span[class*="rounded-full"][class*="bg-"] {
-  background: var(--sa-orange-soft) !important;
-  color: #9a3412 !important;
+  background: rgba(37, 99, 235, 0.10) !important;
+  color: #1D4ED8 !important;
 }
 
 button[class*="bg-brand"],
@@ -431,7 +431,7 @@ body.min-h-screen.bg-app main table tbody td:last-child button:hover:not(:disabl
 body.min-h-screen.bg-app main table tbody td:last-child button[class*="bg-brand"],
 body.min-h-screen.bg-app main table tbody td:last-child button[class*="bg-emerald"],
 body.min-h-screen.bg-app main table tbody td:last-child button[class*="bg-green"] {
-  background: linear-gradient(135deg, #f97316, #ea580c) !important;
+  background: linear-gradient(135deg, var(--sa-orange), var(--sa-orange-dark)) !important;
   color: #ffffff !important;
   border: none !important;
 }
@@ -503,7 +503,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
 
 .sa-sidebar {
   width: var(--sa-sidebar-w);
-  background: linear-gradient(180deg, #1c1917 0%, #141210 100%);
+  background: var(--adm-sidebar-bg, #1E293B);
   border-right: 1px solid var(--sa-sidebar-border);
   padding: 20px 14px;
   display: flex;
@@ -627,7 +627,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
 
 .sa-sidebar-footer button:hover,
 .sa-sidebar-footer a.sa-logout:hover {
-  background: rgba(249, 115, 22, 0.1);
+  background: rgba(37, 99, 235, 0.12);
 }
 
 .sa-main {
@@ -830,7 +830,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
   border: none;
   background: linear-gradient(135deg, var(--sa-orange), var(--sa-orange-dark));
   color: #fff;
-  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.25);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.30);
 }
 
 .sa-btn-secondary,
@@ -914,7 +914,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
   height: 44px;
   border: none;
   border-radius: var(--sa-radius-sm);
-  background: rgba(249, 115, 22, 0.15);
+  background: rgba(37, 99, 235, 0.15);
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -972,7 +972,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
     height: var(--sa-topbar-h);
     z-index: 90;
     padding: 0 14px;
-    background: #1c1917;
+    background: #1E293B;
     border-bottom: 1px solid var(--sa-sidebar-border);
     box-sizing: border-box;
   }
@@ -1099,7 +1099,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
   button[class*="bg-brand"]:not(.dma-live-badge):hover,
   a[class*="bg-brand"]:hover {
     filter: brightness(1.06);
-    box-shadow: 0 6px 22px rgba(249, 115, 22, 0.35) !important;
+    box-shadow: 0 6px 22px rgba(37, 99, 235, 0.35) !important;
     transform: translateY(-2px);
   }
 

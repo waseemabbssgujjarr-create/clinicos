@@ -55,8 +55,7 @@
     var href = el.getAttribute('href');
     if (!href) return;
     if (/^\/superadmin\/clinics\/[a-zA-Z0-9]+\/?$/.test(href) ||
-        /^\/dashboard\/patients\/[a-zA-Z0-9]+\/?$/.test(href) ||
-        /^\/dashboard\/whatsapp\/?$/.test(href)) {
+        /^\/dashboard(\/|$)/.test(href)) {
       e.preventDefault();
       e.stopPropagation();
       window.location.href = href;
@@ -89,6 +88,31 @@
     dsLink.href = '/dma-design-system.css?v=4';
     document.head.appendChild(dsLink);
   }
+
+  // ── CLINIC UI — light sidebar, blue brand, IQPigeon-inspired ────────────
+  if (!document.querySelector('link[href*="dma-clinic-ui.css"]')) {
+    var clinicUiLink = document.createElement('link');
+    clinicUiLink.rel = 'stylesheet';
+    clinicUiLink.href = '/dma-clinic-ui.css?v=2';
+    document.head.appendChild(clinicUiLink);
+  }
+
+  // ── ADMIN UI — dark-blue sidebar, blue brand for superadmin ─────────────
+  if (/^\/superadmin(\/|$)/.test(location.pathname)) {
+    if (!document.querySelector('link[href*="dma-admin-ui.css"]')) {
+      var adminUiLink = document.createElement('link');
+      adminUiLink.rel = 'stylesheet';
+      adminUiLink.href = '/dma-admin-ui.css?v=1';
+      document.head.appendChild(adminUiLink);
+    }
+  }
+  if (!document.querySelector('link[href*="dma-doctor-app.css"]')) {
+    var appCss = document.createElement('link');
+    appCss.rel = 'stylesheet';
+    appCss.href = '/dma-doctor-app.css?v=1';
+    document.head.appendChild(appCss);
+  }
+
   if (!document.querySelector('link[href*="Montserrat"]')) {
     var fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';

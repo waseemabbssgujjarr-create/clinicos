@@ -37,10 +37,12 @@ try {
     $out['checks'][] = ['label' => 'Schema helpers', 'ok' => false, 'detail' => $e->getMessage()];
 }
 
+require_once __DIR__ . '/../includes/integration-settings.php';
+
 $out['checks'][] = [
-    'label'  => 'DeepSeek API key',
-    'ok'     => defined('DEEPSEEK_API_KEY') && DEEPSEEK_API_KEY !== '',
-    'detail' => defined('DEEPSEEK_API_KEY') && DEEPSEEK_API_KEY !== '' ? 'Set' : 'Missing in config.php',
+    'label'  => 'OpenAI API key',
+    'ok'     => integration_openai_chat_key() !== '',
+    'detail' => integration_openai_chat_key() !== '' ? 'Set' : 'Missing in Admin → Integrations',
 ];
 
 if ($botId > 0) {
@@ -71,7 +73,7 @@ if ($runAi) {
     try {
         $ai = ai_chat([['role' => 'user', 'content' => 'Reply with exactly: OK']], ['max_tokens' => 10]);
         $out['checks'][] = [
-            'label'  => 'DeepSeek live test',
+            'label'  => 'OpenAI live test',
             'ok'     => !empty($ai['success']),
             'detail' => $ai['content'] ?? ($ai['error'] ?? 'Unknown'),
         ];

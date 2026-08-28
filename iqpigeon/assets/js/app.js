@@ -145,42 +145,65 @@ const App = {
     },
 
     /**
-     * Confirm dialog using custom modal (no alert/confirm).
+     * Confirm dialog — centered card, independent of Tailwind purge.
      * @param {string} message
      * @param {Function} onConfirm
+     * @param {{title?: string, confirmLabel?: string, danger?: boolean}} [opts]
      */
-    confirm(message, onConfirm) {
+    confirm(message, onConfirm, opts) {
+        const options = opts && typeof opts === 'object' ? opts : {};
+        const title = String(options.title || 'Please confirm');
+        const confirmLabel = String(options.confirmLabel || 'Confirm');
+        const danger = !!options.danger;
+        const esc = (value) => String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+
         const existing = document.getElementById('app-confirm-modal');
         if (existing) existing.remove();
 
         const modal = document.createElement('div');
         modal.id = 'app-confirm-modal';
-        modal.className = 'fixed inset-0 z-[200] flex items-end md:items-center justify-center p-edge-margin';
+        modal.className = 'iqp-confirm';
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('aria-labelledby', 'iqp-confirm-title');
         modal.innerHTML = `
-            <div class="absolute inset-0 bg-black/40" data-dismiss></div>
-            <div class="relative bg-surface-container-lowest rounded-2xl p-lg w-full max-w-sm shadow-xl safe-bottom">
-                <p class="text-body-lg text-on-surface mb-lg">${message}</p>
-                <div class="flex gap-sm">
-                    <button type="button" data-dismiss class="flex-1 h-12 rounded-xl border border-outline-variant text-body-md active:scale-95 transition-transform">Cancel</button>
-                    <button type="button" data-confirm class="flex-1 h-12 rounded-xl bg-primary text-on-primary font-title text-title-md active:scale-95 transition-transform">Confirm</button>
+            <div class="iqp-confirm__backdrop" data-dismiss></div>
+            <div class="iqp-confirm__card">
+                <h2 id="iqp-confirm-title" class="iqp-confirm__title">${esc(title)}</h2>
+                <p class="iqp-confirm__body">${esc(message)}</p>
+                <div class="iqp-confirm__actions">
+                    <button type="button" class="iqp-confirm__btn iqp-confirm__btn--cancel" data-dismiss>Cancel</button>
+                    <button type="button" class="iqp-confirm__btn ${danger ? 'iqp-confirm__btn--danger' : 'iqp-confirm__btn--ok'}" data-confirm>${esc(confirmLabel)}</button>
                 </div>
             </div>`;
 
         document.body.appendChild(modal);
         document.body.style.overflow = 'hidden';
 
-        modal.querySelectorAll('[data-dismiss]').forEach(el => {
-            el.addEventListener('click', () => {
-                modal.remove();
-                document.body.style.overflow = '';
-            });
-        });
-
-        modal.querySelector('[data-confirm]').addEventListener('click', () => {
+        const onKey = (event) => {
+            if (event.key === 'Escape') {
+                close();
+            }
+        };
+        const close = () => {
+            document.removeEventListener('keydown', onKey);
             modal.remove();
             document.body.style.overflow = '';
+        };
+
+        document.addEventListener('keydown', onKey);
+        modal.querySelectorAll('[data-dismiss]').forEach((el) => {
+            el.addEventListener('click', close);
+        });
+        modal.querySelector('[data-confirm]').addEventListener('click', () => {
+            close();
             onConfirm();
         });
+        modal.querySelector('[data-confirm]').focus();
     },
 
     /**
@@ -272,38 +295,465 @@ const App = {
                     return;
                 }
                 reject(new Error('Meta did not return an authorization code.'));
-            }, {
-                config_id: signupCfg.configId,
-                response_type: 'code',
-                override_default_response_type: true,
-                extras: {
-                    setup: {},
-                    featureType: 'whatsapp_business_app_onboarding',
-                    sessionInfoVersion: '3',
-                    version: 'v4',
-                },
-            });
+            }, App.waFbLoginOptions(signupCfg.configId));
         }));
+    },
+
+    waFbLoginOptions(configId) {
+        return {
+            config_id: configId,
+            auth_type: 'rerequest',
+            response_type: 'code',
+            override_default_response_type: true,
+            extras: {
+                setup: {},
+                featureType: 'whatsapp_business_app_onboarding',
+                sessionInfoVersion: '3',
+                version: 'v4',
+            },
+        };
     },
 
     /** @returns {boolean} */
     isWaEmbeddedSignupFinish(event) {
-        const e = String(event || '');
+        const e = String(event || '').toUpperCase();
         return e === 'FINISH'
             || e === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING'
             || e === 'FINISH_ONLY_WABA'
             || e === 'FINISH_OBO_MIGRATION'
-            || e === 'FINISH_GRANT_ONLY_API_ACCESS';
+            || e === 'FINISH_GRANT_ONLY_API_ACCESS'
+            || (e.includes('FINISH') && !e.includes('CANCEL'));
+    },
+
+    isWaEmbeddedSignupReady(event, payload) {
+        if (App.isWaEmbeddedSignupFinish(event)) {
+            return true;
+        }
+        const session = App.parseWaEmbeddedSignupSession(payload);
+        return !!(session.waba_id || session.phone_number_id);
+    },
+
+    /**
+     * Pull a catalog ID out of Meta Embedded Signup session fields.
+     * @param {unknown} value
+     * @returns {string}
+     */
+    firstWaCatalogId(value) {
+        if (value == null || value === '') {
+            return '';
+        }
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return String(value);
+        }
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+            if (!trimmed) {
+                return '';
+            }
+            if (trimmed.startsWith('[')) {
+                try {
+                    return App.firstWaCatalogId(JSON.parse(trimmed));
+                } catch (e) {
+                    return '';
+                }
+            }
+            if (trimmed.includes(',')) {
+                return trimmed.split(',')[0].trim();
+            }
+            return trimmed;
+        }
+        if (Array.isArray(value)) {
+            return App.firstWaCatalogId(value[0]);
+        }
+        if (typeof value === 'object') {
+            return App.firstWaCatalogId(value.catalog_id || value.id || value.catalog_ids || '');
+        }
+        return '';
     },
 
     /** @param {Record<string, unknown>|null|undefined} payload */
     parseWaEmbeddedSignupSession(payload) {
         const data = payload && typeof payload === 'object' ? payload : {};
+        const nested = data.data && typeof data.data === 'object' && !Array.isArray(data.data) ? data.data : {};
+        const inner = nested.data && typeof nested.data === 'object' && !Array.isArray(nested.data) ? nested.data : {};
+        const bags = [data, nested, inner];
+        let wabaId = '';
+        let phoneNumberId = '';
+        let displayPhone = '';
+        let catalogId = '';
+        let businessId = '';
+        bags.forEach((bag) => {
+            if (!bag || typeof bag !== 'object') {
+                return;
+            }
+            if (!wabaId) {
+                wabaId = String(bag.waba_id || (Array.isArray(bag.waba_ids) ? bag.waba_ids[0] : '') || '');
+            }
+            if (!phoneNumberId) {
+                phoneNumberId = String(bag.phone_number_id || '');
+            }
+            if (!displayPhone) {
+                displayPhone = String(bag.display_phone_number || bag.phone_number || '');
+            }
+            if (!catalogId) {
+                catalogId = App.firstWaCatalogId(
+                    bag.catalog_id || bag.catalog_ids || bag.selected_catalog_id || bag.whatsapp_catalog_id
+                );
+            }
+            if (!businessId) {
+                businessId = String(bag.business_id || bag.business_portfolio_id || '');
+            }
+        });
         return {
-            waba_id: String(data.waba_id || (Array.isArray(data.waba_ids) ? data.waba_ids[0] : '') || ''),
-            phone_number_id: String(data.phone_number_id || ''),
-            display_phone_number: String(data.display_phone_number || data.phone_number || ''),
+            waba_id: wabaId,
+            phone_number_id: phoneNumberId,
+            display_phone_number: displayPhone,
+            catalog_id: catalogId,
+            business_id: businessId,
         };
+    },
+
+    _waEsBridgeBound: false,
+    _waSignupInFlight: false,
+    _waExchanging: false,
+    _waConnectedSaved: false,
+    _waSavingCatalog: false,
+
+    clearWaSignupState() {
+        try {
+            sessionStorage.removeItem('wa_signup_pending_code');
+            sessionStorage.removeItem('wa_signup_session');
+            sessionStorage.removeItem('wa_signup_meta_finish');
+        } catch (e) { /* ignore */ }
+        App.clearWaOAuthPending();
+    },
+
+    readWaSignupSession() {
+        try {
+            const raw = sessionStorage.getItem('wa_signup_session');
+            return raw ? (JSON.parse(raw) || {}) : {};
+        } catch (e) {
+            return {};
+        }
+    },
+
+    persistWaSignupSession(sessionData, code) {
+        try {
+            if (code) {
+                sessionStorage.setItem('wa_signup_pending_code', code);
+            }
+            if (sessionData && (sessionData.waba_id || sessionData.phone_number_id || sessionData.catalog_id || sessionData.business_id)) {
+                sessionStorage.setItem('wa_signup_session', JSON.stringify(sessionData));
+            }
+        } catch (e) { /* ignore */ }
+    },
+
+    abortWaConnectWait(msg) {
+        App._waSignupInFlight = false;
+        App._waExchanging = false;
+        App._waSharedSaveInFlight = false;
+        App.clearWaSignupState();
+        App.resetWaConnectButtons();
+        if (msg) {
+            App.toast(msg, 'error');
+        }
+    },
+
+    _waSharedSaveInFlight: false,
+    _waAutoSharedTried: false,
+
+    waConnectStartUrl() {
+        const btn = document.getElementById('connect-wa-primary')
+            || document.querySelector('[data-wa-oauth-connect]');
+        const clientId = App.getWaConnectClientId();
+        return btn?.getAttribute('data-wa-oauth-url')
+            || (clientId > 0
+                ? `/client/whatsapp-oauth-start?client_id=${clientId}&return=${encodeURIComponent('/client/whatsapp-settings')}`
+                : '');
+    },
+
+    /**
+     * Meta’s green “account shared” toast is not Finish. Grab an OAuth code anyway
+     * (same path as WhatsApp OAuth debug → Complete via FB SDK).
+     * @returns {Promise<boolean|null>}
+     */
+    completeWaAfterMetaShared(clientId) {
+        if (App._waConnectedSaved) {
+            return Promise.resolve(true);
+        }
+        if (!clientId || App._waSharedSaveInFlight) {
+            return Promise.resolve(null);
+        }
+        App._waSharedSaveInFlight = true;
+        App.setWaConnectUiPhase('saving');
+        fetch('/api/whatsapp/oauth-debug-log.php', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ step: 'save_after_shared', client_id: clientId }),
+        }).catch(() => {});
+
+        return App.finishWaEmbeddedSignup(clientId, App.readWaSignupSession(), {
+            startUrl: App.waConnectStartUrl(),
+            preferPopup: true,
+            onSuccess: () => {
+                App._waConnectedSaved = true;
+                App._waSignupInFlight = false;
+                App._waSharedSaveInFlight = false;
+                App.redirectWaConnected();
+            },
+            onError: (msg) => {
+                App._waSharedSaveInFlight = false;
+                App.setWaConnectUiPhase('meta');
+                if (msg) {
+                    App.toast(msg, 'error');
+                }
+            },
+        }).catch(() => {
+            App._waSharedSaveInFlight = false;
+            App.setWaConnectUiPhase('meta');
+            return false;
+        });
+    },
+
+    waConnectReturnUrl() {
+        const btn = document.getElementById('connect-wa-primary')
+            || document.querySelector('[data-wa-oauth-connect]');
+        const dest = btn?.getAttribute('data-wa-return')
+            || '/client/whatsapp-settings';
+        return dest.indexOf('?') >= 0 ? dest + '&connected=1' : dest + '?connected=1';
+    },
+
+    /**
+     * @returns {Promise<boolean|null>} true saved, false failed, null already in flight
+     */
+    exchangeWaOAuthCode(clientId, code, sessionData) {
+        if (App._waConnectedSaved) {
+            App.saveEmbeddedCatalog(clientId, sessionData);
+            return Promise.resolve(true);
+        }
+        if (!clientId || !code) {
+            return Promise.resolve(false);
+        }
+        if (App._waExchanging) {
+            return Promise.resolve(null);
+        }
+        App._waExchanging = true;
+        App.setWaConnectUiPhase('saving');
+        const stored = App.readWaSignupSession();
+        const session = Object.assign({}, stored, sessionData && typeof sessionData === 'object' ? sessionData : {});
+        if (!session.catalog_id && stored.catalog_id) {
+            session.catalog_id = stored.catalog_id;
+        }
+        if (!session.business_id && stored.business_id) {
+            session.business_id = stored.business_id;
+        }
+        return fetch('/api/whatsapp/exchange-token.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+                code,
+                client_id: clientId,
+                waba_id: session.waba_id || '',
+                phone_number_id: session.phone_number_id || '',
+                display_phone_number: session.display_phone_number || '',
+                catalog_id: session.catalog_id || '',
+                business_id: session.business_id || '',
+            }),
+        })
+            .then((r) => r.json())
+            .then((data) => {
+                App._waExchanging = false;
+                if (data && data.success) {
+                    App._waConnectedSaved = true;
+                    App._waSignupInFlight = false;
+                    App.clearWaSignupState();
+                    return true;
+                }
+                throw new Error((data && data.error) || 'Connection failed');
+            })
+            .catch((err) => {
+                App._waExchanging = false;
+                return Promise.reject(err);
+            });
+    },
+
+    saveEmbeddedCatalog(clientId, sessionData) {
+        const stored = App.readWaSignupSession();
+        const session = Object.assign({}, stored, sessionData && typeof sessionData === 'object' ? sessionData : {});
+        const catalogId = session.catalog_id || '';
+        const businessId = session.business_id || '';
+        if (!clientId || (!catalogId && !businessId)) {
+            return Promise.resolve(false);
+        }
+        if (App._waSavingCatalog) {
+            return Promise.resolve(null);
+        }
+        App._waSavingCatalog = true;
+        return fetch('/api/whatsapp/save-catalog-id.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+                client_id: clientId,
+                catalog_id: catalogId,
+                business_id: businessId,
+            }),
+        })
+            .then((r) => r.json())
+            .then((data) => {
+                App._waSavingCatalog = false;
+                return !!(data && data.success);
+            })
+            .catch(() => {
+                App._waSavingCatalog = false;
+                return false;
+            });
+    },
+
+    redirectWaConnected() {
+        if (window.WaConnect && typeof window.WaConnect.redirectConnected === 'function') {
+            window.WaConnect.redirectConnected();
+            return;
+        }
+        App.toast('WhatsApp connected!', 'success');
+        window.location.replace(App.waConnectReturnUrl());
+    },
+
+    saveWaSignupFromFinish(clientId, sessionData, existingCode) {
+        const session = sessionData || App.readWaSignupSession();
+        App.persistWaSignupSession(session, existingCode || '');
+        App.markWaOAuthPending();
+        App.setWaConnectUiPhase('saving');
+        const afterCode = (code) => App.exchangeWaOAuthCode(clientId, code, session)
+            .then((ok) => {
+                if (ok) {
+                    App.redirectWaConnected();
+                    return true;
+                }
+                return false;
+            })
+            .catch((err) => {
+                App.clearWaSignupState();
+                App.resetWaConnectButtons();
+                App.toast((err && err.message) || 'Could not save WhatsApp. Click Connect again and Finish in Meta.', 'error');
+                return false;
+            });
+        if (existingCode) {
+            return afterCode(existingCode);
+        }
+        let stored = '';
+        try {
+            stored = sessionStorage.getItem('wa_signup_pending_code') || '';
+        } catch (e) { /* ignore */ }
+        if (stored) {
+            return afterCode(stored);
+        }
+        return App.requestWaOAuthCode()
+            .then((code) => {
+                App.persistWaSignupSession(session, code);
+                return afterCode(code);
+            })
+            .catch(() => {
+                App.resetWaConnectButtons();
+                App.toast('Click Finish in the Meta window, keep this tab open, then wait for Connected.', 'error');
+                return false;
+            });
+    },
+
+    initWaEmbeddedSignupBridge() {
+        if (App._waEsBridgeBound) {
+            return;
+        }
+        App._waEsBridgeBound = true;
+        const metaOrigins = [
+            'https://www.facebook.com',
+            'https://web.facebook.com',
+            'https://business.facebook.com',
+        ];
+        window.addEventListener('message', (event) => {
+            if (!metaOrigins.includes(event.origin)) {
+                return;
+            }
+            let data = event.data;
+            if (typeof data === 'string') {
+                try {
+                    data = JSON.parse(data);
+                } catch (e) {
+                    return;
+                }
+            }
+            if (!data || data.type !== 'WA_EMBEDDED_SIGNUP') {
+                return;
+            }
+            const clientId = App.getWaConnectClientId();
+            fetch('/api/whatsapp/oauth-debug-log.php', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    step: 'meta_es_event',
+                    client_id: clientId,
+                    event: data.event || '',
+                }),
+            }).catch(() => {});
+            if (App.isWaEmbeddedSignupReady(data.event, data.data)) {
+                try {
+                    sessionStorage.setItem('wa_signup_meta_finish', '1');
+                } catch (e) { /* ignore */ }
+                if (window.WaConnect && typeof window.WaConnect.onMetaFinish === 'function') {
+                    window.WaConnect.onMetaFinish();
+                }
+                const sessionData = App.parseWaEmbeddedSignupSession(data);
+                App.persistWaSignupSession(sessionData);
+                fetch('/api/whatsapp/oauth-debug-log.php', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        step: 'meta_finish_bridge',
+                        client_id: clientId,
+                        event: data.event,
+                        data: sessionData,
+                        data_keys: data.data && typeof data.data === 'object' ? Object.keys(data.data) : [],
+                    }),
+                }).catch(() => {});
+                if (clientId > 0 && (sessionData.catalog_id || sessionData.business_id)) {
+                    App.saveEmbeddedCatalog(clientId, sessionData);
+                }
+                if (clientId > 0 && !App._waConnectedSaved && !App._waSignupInFlight) {
+                    let code = '';
+                    try {
+                        code = sessionStorage.getItem('wa_signup_pending_code') || '';
+                    } catch (e) { /* ignore */ }
+                    App.saveWaSignupFromFinish(clientId, sessionData, code);
+                }
+            }
+            if (String(data.event || '').toUpperCase() === 'CANCEL' && !App._waExchanging && !App._waConnectedSaved) {
+                App._waSignupInFlight = false;
+                App.resetWaConnectButtons();
+            }
+        });
+        const stopBtn = document.getElementById('wa-stop-wait');
+        if (stopBtn && stopBtn.dataset.bound !== '1') {
+            stopBtn.dataset.bound = '1';
+            stopBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                App.abortWaConnectWait();
+            });
+        }
+        const saveBtn = document.getElementById('wa-save-connection');
+        if (saveBtn && saveBtn.dataset.bound !== '1') {
+            saveBtn.dataset.bound = '1';
+            saveBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const clientId = App.getWaConnectClientId();
+                if (clientId > 0) {
+                    App.completeWaAfterMetaShared(clientId);
+                }
+            });
+        }
     },
 
     /**
@@ -320,22 +770,38 @@ const App = {
         const statusEl = document.getElementById('wa-connect-status');
         const spin = '<span class="wa-connect-spin" aria-hidden="true"></span>';
 
+        const stopEl = document.getElementById('wa-stop-wait');
+        const saveEl = document.getElementById('wa-save-connection');
         if (phase === 'idle') {
-            if (btn && btn.dataset.waOauthOriginalHtml) {
+            if (btn) {
                 btn.disabled = false;
                 btn.removeAttribute('aria-busy');
                 btn.classList.remove('opacity-70', 'pointer-events-none', 'wa-connect-busy');
-                btn.innerHTML = btn.dataset.waOauthOriginalHtml;
+                if (btn.dataset.waOauthOriginalHtml) {
+                    btn.innerHTML = btn.dataset.waOauthOriginalHtml;
+                }
             }
             if (statusEl) {
                 statusEl.classList.add('hidden');
             }
+            if (stopEl) {
+                stopEl.classList.add('hidden');
+            }
+            if (saveEl) {
+                saveEl.classList.remove('hidden');
+            }
             return;
+        }
+        if (stopEl) {
+            stopEl.classList.remove('hidden');
+        }
+        if (saveEl && phase !== 'connecting') {
+            saveEl.classList.remove('hidden');
         }
 
         const labels = {
             connecting: ['Connecting…', 'Opening Meta signup…'],
-            meta: ['Waiting for Meta…', 'Complete signup in the Meta window — this page stays open.'],
+            meta: ['Waiting for Meta…', 'If Meta says the account was shared, click Save connection — that green toast is not Finish.'],
             saving: ['Saving connection…', 'Saving your WhatsApp connection…'],
         };
         const pair = labels[phase] || labels.meta;
@@ -590,7 +1056,10 @@ const App = {
                         data: data.data || {},
                     }),
                 }).catch(() => {});
-                const sessionData = App.parseWaEmbeddedSignupSession(data.data);
+                const sessionData = App.parseWaEmbeddedSignupSession(data);
+                if (clientId > 0) {
+                    App.saveEmbeddedCatalog(clientId, sessionData);
+                }
                 scheduleConnectionChecks();
                 const clientId = parseInt(String(opts.clientId || '0'), 10);
                 const sdkOk = !window.fbSdkFailed && typeof FB !== 'undefined' && window.metaWaSignup;
@@ -726,6 +1195,8 @@ const App = {
         const startUrl = opts.startUrl || '';
         const cfg = window.metaWaSignup || {};
 
+        const stored = App.readWaSignupSession();
+        const session = Object.assign({}, stored, sessionData && typeof sessionData === 'object' ? sessionData : {});
         const exchangeCode = (code) => fetch('/api/whatsapp/exchange-token.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -733,9 +1204,11 @@ const App = {
             body: JSON.stringify({
                 code,
                 client_id: clientId,
-                waba_id: sessionData.waba_id || '',
-                phone_number_id: sessionData.phone_number_id || '',
-                display_phone_number: sessionData.display_phone_number || '',
+                waba_id: session.waba_id || '',
+                phone_number_id: session.phone_number_id || '',
+                display_phone_number: session.display_phone_number || '',
+                catalog_id: session.catalog_id || '',
+                business_id: session.business_id || '',
             }),
         })
             .then((r) => r.json())
@@ -773,17 +1246,7 @@ const App = {
                         return;
                     }
                     reject(new Error('Meta did not return an authorization code.'));
-                }, {
-                    config_id: cfg.configId,
-                    response_type: 'code',
-                    override_default_response_type: true,
-                    extras: {
-                        setup: {},
-                        featureType: 'whatsapp_business_app_onboarding',
-                        sessionInfoVersion: '3',
-                        version: 'v4',
-                    },
-                });
+                }, App.waFbLoginOptions(cfg.configId));
             }))
                 .then(exchangeCode)
                 .catch((err) => {
@@ -809,11 +1272,12 @@ const App = {
         const startUrl = opts.startUrl || '';
         const skipEnsure = opts.sdkReady === true;
 
-        const metaOrigins = [
-            'https://www.facebook.com',
-            'https://web.facebook.com',
-            'https://business.facebook.com',
-        ];
+        if (App._waSignupInFlight && !App._waConnectedSaved) {
+            App.setWaConnectUiPhase('meta');
+            return;
+        }
+        App._waSignupInFlight = true;
+
         let sessionData = {};
         let finished = false;
         let pendingCode = null;
@@ -823,6 +1287,7 @@ const App = {
         let cancelTimer = null;
         let focusRetryTimer = null;
         let codeRequestInFlight = false;
+        let watchdogTimer = null;
 
         const showSavingStatus = () => {
             App.setWaConnectUiPhase('saving');
@@ -832,7 +1297,6 @@ const App = {
             if (finished) {
                 return;
             }
-            showSavingStatus();
             if (focusRetryTimer) {
                 clearTimeout(focusRetryTimer);
             }
@@ -840,19 +1304,23 @@ const App = {
                 if (finished) {
                     return;
                 }
-                if (pendingCode) {
-                    maybeExchange();
-                } else if (metaFinishReceived || sessionData.waba_id || sessionData.phone_number_id) {
-                    ensureOAuthCodeAndExchange();
-                } else {
-                    App.recoverWaSignupIfPending(clientId);
-                }
                 App.fetchWaConnectionStatus().then((connected) => {
                     if (connected) {
                         finished = true;
+                        App._waSignupInFlight = false;
                         cleanup();
-                        clearSignupState();
+                        App.clearWaSignupState();
                         onSuccess();
+                        return;
+                    }
+                    if (pendingCode) {
+                        showSavingStatus();
+                        maybeExchange();
+                    } else if (metaFinishReceived || sessionData.waba_id || sessionData.phone_number_id) {
+                        showSavingStatus();
+                        ensureOAuthCodeAndExchange();
+                    } else {
+                        App.completeWaAfterMetaShared(clientId);
                     }
                 });
             }, 350);
@@ -867,21 +1335,12 @@ const App = {
         };
 
         const persistSignupState = () => {
-            try {
-                if (pendingCode) {
-                    sessionStorage.setItem('wa_signup_pending_code', pendingCode);
-                }
-                if (sessionData.waba_id || sessionData.phone_number_id) {
-                    sessionStorage.setItem('wa_signup_session', JSON.stringify(sessionData));
-                }
-            } catch (e) { /* ignore */ }
+            App.persistWaSignupSession(sessionData, pendingCode);
+            App.markWaOAuthPending();
         };
 
         const clearSignupState = () => {
-            try {
-                sessionStorage.removeItem('wa_signup_pending_code');
-                sessionStorage.removeItem('wa_signup_session');
-            } catch (e) { /* ignore */ }
+            App.clearWaSignupState();
         };
 
         const cleanup = () => {
@@ -900,6 +1359,18 @@ const App = {
                 clearTimeout(focusRetryTimer);
                 focusRetryTimer = null;
             }
+            if (watchdogTimer) {
+                clearTimeout(watchdogTimer);
+                watchdogTimer = null;
+            }
+        };
+
+        const markSaved = () => {
+            finished = true;
+            App._waSignupInFlight = false;
+            cleanup();
+            clearSignupState();
+            onSuccess();
         };
 
         const ensureOAuthCodeAndExchange = () => {
@@ -936,12 +1407,7 @@ const App = {
                     }
                     App.finishWaEmbeddedSignup(clientId, sessionData, {
                         startUrl,
-                        onSuccess: () => {
-                            finished = true;
-                            cleanup();
-                            clearSignupState();
-                            onSuccess();
-                        },
+                        onSuccess: markSaved,
                         onError: () => {
                             App.recoverWaSignupIfPending(clientId);
                         },
@@ -953,46 +1419,43 @@ const App = {
             if (finished || !code) {
                 return;
             }
-            fetch('/api/whatsapp/exchange-token.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'same-origin',
-                body: JSON.stringify({
-                    code,
-                    client_id: clientId,
-                    waba_id: sessionData.waba_id || '',
-                    phone_number_id: sessionData.phone_number_id || '',
-                    display_phone_number: sessionData.display_phone_number || '',
-                }),
-            })
-                .then((r) => r.json())
-                .then((data) => {
-                    if (data.success) {
-                        finished = true;
-                        cleanup();
-                        clearSignupState();
-                        onSuccess();
-                    } else {
-                        onError(data.error || 'Connection failed');
+            showSavingStatus();
+            App.exchangeWaOAuthCode(clientId, code, sessionData)
+                .then((ok) => {
+                    if (ok) {
+                        markSaved();
                     }
                 })
-                .catch(() => onError('Network error while saving WhatsApp connection.'));
+                .catch((err) => {
+                    App._waSignupInFlight = false;
+                    App.resetWaConnectButtons();
+                    onError((err && err.message) || 'Connection failed');
+                });
         };
 
         const maybeExchange = () => {
             if (!pendingCode || finished) {
                 return;
             }
+            const stored = App.readWaSignupSession();
+            if (stored.catalog_id || stored.business_id) {
+                sessionData = Object.assign({}, sessionData, stored);
+            }
             const hasAssets = sessionData.waba_id || sessionData.phone_number_id;
             const waitedMs = Date.now() - codeReceivedAt;
-            const waitEnough = metaFinishReceived ? waitedMs >= 1500 : waitedMs >= 12000;
-            if (hasAssets || waitEnough) {
-                exchangeCode(pendingCode);
+            const waitEnough = waitedMs >= 400;
+            const waitedForCatalog = waitedMs >= 2000;
+            if (!hasAssets && !waitEnough) {
+                return;
             }
+            if (!sessionData.catalog_id && !metaFinishReceived && !waitedForCatalog) {
+                return;
+            }
+            exchangeCode(pendingCode);
         };
 
         const onMetaMessage = (event) => {
-            if (!metaOrigins.includes(event.origin)) {
+            if (!['https://www.facebook.com', 'https://web.facebook.com', 'https://business.facebook.com'].includes(event.origin)) {
                 return;
             }
             let data = event.data;
@@ -1006,13 +1469,16 @@ const App = {
             if (!data || data.type !== 'WA_EMBEDDED_SIGNUP') {
                 return;
             }
-            if (App.isWaEmbeddedSignupFinish(data.event)) {
+            if (App.isWaEmbeddedSignupReady(data.event, data.data)) {
                 metaFinishReceived = true;
+                try {
+                    sessionStorage.setItem('wa_signup_meta_finish', '1');
+                } catch (e) { /* ignore */ }
                 if (window.WaConnect && typeof window.WaConnect.onMetaFinish === 'function') {
                     window.WaConnect.onMetaFinish();
                 }
                 onMetaFinish();
-                sessionData = App.parseWaEmbeddedSignupSession(data.data);
+                sessionData = App.parseWaEmbeddedSignupSession(data);
                 fetch('/api/whatsapp/oauth-debug-log.php', {
                     method: 'POST',
                     credentials: 'same-origin',
@@ -1022,21 +1488,18 @@ const App = {
                         client_id: clientId,
                         event: data.event,
                         data: sessionData,
+                        data_keys: data.data && typeof data.data === 'object' ? Object.keys(data.data) : [],
                     }),
                 }).catch(() => {});
+                persistSignupState();
+                if (sessionData.catalog_id || sessionData.business_id) {
+                    App.saveEmbeddedCatalog(clientId, sessionData);
+                }
                 persistSignupState();
                 showSavingStatus();
                 maybeExchange();
                 if (!pendingCode) {
                     ensureOAuthCodeAndExchange();
-                }
-            }
-            if (data.event === 'CANCEL') {
-                if (!finished && !pendingCode) {
-                    finished = true;
-                    cleanup();
-                    clearSignupState();
-                    onError('WhatsApp signup cancelled.');
                 }
             }
         };
@@ -1053,13 +1516,17 @@ const App = {
             }
             App.fetchWaConnectionStatus().then((connected) => {
                 if (connected) {
-                    finished = true;
-                    cleanup();
-                    clearSignupState();
-                    onSuccess();
+                    markSaved();
                 }
             });
         }, 1500);
+
+        watchdogTimer = setTimeout(() => {
+            if (finished || App._waConnectedSaved || App._waSharedSaveInFlight) {
+                return;
+            }
+            App.completeWaAfterMetaShared(clientId);
+        }, 20000);
 
         const startLogin = () => {
             if (window.WaConnect && typeof window.WaConnect.onMetaOpen === 'function') {
@@ -1068,16 +1535,18 @@ const App = {
                 App.setWaConnectUiPhase('meta');
             }
             onSdkReady();
+            setTimeout(() => {
+                if (finished || App._waConnectedSaved) {
+                    return;
+                }
+                App.completeWaAfterMetaShared(clientId);
+            }, 7000);
             FB.login((response) => {
                 if (finished) {
                     return;
                 }
 
                 if (response.authResponse && response.authResponse.code) {
-                    if (cancelTimer) {
-                        clearTimeout(cancelTimer);
-                        cancelTimer = null;
-                    }
                     pendingCode = response.authResponse.code;
                     codeReceivedAt = Date.now();
                     persistSignupState();
@@ -1087,43 +1556,14 @@ const App = {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ step: 'fb_login_code', client_id: clientId }),
                     }).catch(() => {});
-                    setTimeout(maybeExchange, 800);
-                    setTimeout(maybeExchange, 3000);
-                    setTimeout(maybeExchange, 8000);
-                    setTimeout(maybeExchange, 15000);
-                    setTimeout(maybeExchange, 25000);
+                    setTimeout(maybeExchange, 400);
+                    setTimeout(maybeExchange, 2000);
+                    setTimeout(maybeExchange, 5000);
                     return;
                 }
 
                 // FB.login often fires once with unknown/connected before the popup finishes — do NOT abort.
-                if (response.status === 'not_authorized') {
-                    if (cancelTimer) {
-                        clearTimeout(cancelTimer);
-                    }
-                    cancelTimer = setTimeout(() => {
-                        if (finished || pendingCode || sessionData.waba_id) {
-                            return;
-                        }
-                        finished = true;
-                        cleanup();
-                        clearSignupState();
-                        onError('WhatsApp signup cancelled.');
-                    }, 2000);
-                    return;
-                }
-
-                // Popup still open or loading — keep listening for FINISH + code.
-            }, {
-                config_id: cfg.configId,
-                response_type: 'code',
-                override_default_response_type: true,
-                extras: {
-                    setup: {},
-                    featureType: 'whatsapp_business_app_onboarding',
-                    sessionInfoVersion: '3',
-                    version: 'v4',
-                },
-            });
+            }, App.waFbLoginOptions(cfg.configId));
         };
 
         if (skipEnsure && typeof FB !== 'undefined' && window.fbSdkReady) {
@@ -1134,6 +1574,7 @@ const App = {
         App.ensureFbSdkReady()
             .then(startLogin)
             .catch((err) => {
+                App._waSignupInFlight = false;
                 cleanup();
                 onError(err.message || 'Facebook SDK not loaded. Refresh the page and try again.');
             });
@@ -1148,6 +1589,10 @@ const App = {
 
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
+                if (App._waSignupInFlight && !App._waConnectedSaved) {
+                    App.setWaConnectUiPhase('meta');
+                    return;
+                }
                 const clientId = parseInt(btn.getAttribute('data-wa-client-id') || '0', 10);
                 let startUrl = btn.getAttribute('data-wa-oauth-url') || '';
                 const returnPath = btn.getAttribute('data-wa-return') || (window.location.pathname + window.location.search);
@@ -1222,6 +1667,7 @@ const App = {
                         App.setWaConnectUiPhase('saving');
                     },
                     onError: (msg) => {
+                        App._waSignupInFlight = false;
                         resetButton();
                         if (msg) {
                             App.toast(msg, 'error');
@@ -1233,10 +1679,12 @@ const App = {
                                 onSuccess();
                                 return;
                             }
+                            App.setWaConnectUiPhase('saving');
                             App.recoverWaSignupIfPending(clientId).then((recovered) => {
-                                if (!recovered) {
-                                    resetButton();
+                                if (recovered) {
+                                    return;
                                 }
+                                App.setWaConnectUiPhase('meta');
                             });
                         });
                     },
@@ -1264,6 +1712,7 @@ const App = {
                         onMetaFinish: oauthOpts.onMetaFinish,
                         onSuccess,
                         onError: (msg) => {
+                            App._waSignupInFlight = false;
                             resetButton();
                             if (msg) {
                                 App.toast(msg, 'error');
@@ -1387,45 +1836,36 @@ const App = {
             return Promise.resolve(false);
         }
 
-        const finishSave = (authCode) => fetch('/api/whatsapp/exchange-token.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'same-origin',
-            body: JSON.stringify({
-                code: authCode,
-                client_id: clientId,
-                waba_id: sessionData.waba_id || '',
-                phone_number_id: sessionData.phone_number_id || '',
-                display_phone_number: sessionData.display_phone_number || '',
-            }),
-        })
-            .then((r) => r.json())
-            .then((data) => {
-                if (data.success) {
-                    try {
-                        sessionStorage.removeItem('wa_signup_pending_code');
-                        sessionStorage.removeItem('wa_signup_session');
-                    } catch (e) { /* ignore */ }
-                    App.clearWaOAuthPending();
-                    window.location.replace('/client/dashboard?welcome=1&connected=1');
-                    return true;
-                }
-                return false;
-            })
-            .catch(() => false);
-
         if (code) {
-            return finishSave(code);
+            return App.exchangeWaOAuthCode(clientId, code, sessionData)
+                .then((ok) => {
+                    if (ok) {
+                        App.redirectWaConnected();
+                        return true;
+                    }
+                    return false;
+                })
+                .catch(() => {
+                    App.clearWaSignupState();
+                    App.resetWaConnectButtons();
+                    return false;
+                });
         }
 
-        const hasSession = sessionData.waba_id || sessionData.phone_number_id;
+        const hasSession = !!(sessionData.waba_id || sessionData.phone_number_id);
         if (hasSession) {
             return App.requestWaOAuthCode()
-                .then((freshCode) => finishSave(freshCode))
+                .then((freshCode) => App.exchangeWaOAuthCode(clientId, freshCode, sessionData).then((ok) => {
+                    if (ok) {
+                        App.redirectWaConnected();
+                        return true;
+                    }
+                    return false;
+                }))
                 .catch(() => App.fetchWaConnectionStatus().then((connected) => {
                     if (connected) {
-                        App.clearWaOAuthPending();
-                        window.location.replace('/client/dashboard?welcome=1&connected=1');
+                        App.clearWaSignupState();
+                        App.redirectWaConnected();
                         return true;
                     }
                     return false;
@@ -1434,8 +1874,8 @@ const App = {
 
         return App.fetchWaConnectionStatus().then((connected) => {
             if (connected) {
-                App.clearWaOAuthPending();
-                window.location.replace('/client/dashboard?welcome=1&connected=1');
+                App.clearWaSignupState();
+                App.redirectWaConnected();
                 return true;
             }
             return false;
@@ -1456,7 +1896,7 @@ const App = {
 
         const age = Date.now() - parseInt(pending, 10);
         if (Number.isNaN(age) || age > 30 * 60 * 1000) {
-            App.clearWaOAuthPending();
+            App.clearWaSignupState();
             App.resetWaConnectButtons();
             App.stopWaConnectionPoll();
             return;
@@ -1466,44 +1906,40 @@ const App = {
         let hasSignupState = false;
         try {
             hasSignupState = !!(sessionStorage.getItem('wa_signup_pending_code')
-                || sessionStorage.getItem('wa_signup_session'));
+                || sessionStorage.getItem('wa_signup_session')
+                || sessionStorage.getItem('wa_signup_meta_finish'));
         } catch (e) { /* ignore */ }
 
-        const statusEl = document.getElementById('wa-connect-status');
-        if (statusEl && (hasSignupState || age < 120000)) {
-            App.setWaConnectUiPhase('saving');
+        if (!hasSignupState) {
+            if (!App._waSignupInFlight) {
+                App.clearWaOAuthPending();
+            }
+            App.resetWaConnectButtons();
+            App.stopWaConnectionPoll();
+            return;
         }
+
+        App.setWaConnectUiPhase('saving');
 
         const redirectIfConnected = () => {
             App.fetchWaConnectionStatus().then((connected) => {
                 if (connected) {
-                    App.clearWaOAuthPending();
+                    App.clearWaSignupState();
                     App.stopWaConnectionPoll();
-                    const dest = '/client/dashboard?welcome=1&connected=1';
-                    window.location.replace(dest);
-                    return;
-                }
-                if (age > 20000 && !hasSignupState) {
-                    App.clearWaOAuthPending();
-                    App.resetWaConnectButtons();
-                }
-            }).catch(() => {
-                if (age > 20000 && !hasSignupState) {
-                    App.resetWaConnectButtons();
+                    App.redirectWaConnected();
                 }
             });
         };
 
         if (clientId > 0) {
             App.recoverWaSignupIfPending(clientId).then((recovered) => {
-                if (!recovered) {
-                    redirectIfConnected();
+                if (!recovered && !App._waSignupInFlight) {
+                    App.resetWaConnectButtons();
                 }
             });
         } else {
             redirectIfConnected();
         }
-        App.startWaConnectionPoll(redirectIfConnected);
     },
 };
 
@@ -1653,6 +2089,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(refreshRelativeTimes, 30000);
 
     App.bindWhatsAppOAuthConnectButtons();
+    App.initWaEmbeddedSignupBridge();
     App.checkWaOAuthPending();
     App.initWaConnectPreload();
 

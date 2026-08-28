@@ -30,12 +30,12 @@
     <main class="sa-main">
       <div class="sa-content-card">
         <h1>WhatsApp Connections</h1>
-        <p class="sa-subtitle">Every clinic that connected via Meta Embedded Signup — same system as IQ Pigeon, inside ClinicOS.</p>
+        <p class="sa-subtitle">Every clinic that connected WhatsApp via Manual Meta Connection or Embedded Signup — Doctors My Agency platform.</p>
 
         <div class="wa-meta-box">
-          <strong>Meta webhook (ClinicOS):</strong> <code id="wa-webhook-url">https://clinicos.workee.online/api/webhooks/meta</code><br>
-          Configure in Meta → WhatsApp → Webhook. Keys in <a href="/superadmin/integrations/">Integrations</a>.
-          Full guide: <code>WHATSAPP_COMPLETE_SETUP_GUIDE.md</code> on server repo.
+          <strong>Meta webhook URL:</strong> <code id="wa-webhook-url">https://doctorsmyagency.com/api/webhooks/meta</code><br>
+          Register this in Meta App → WhatsApp → Configuration → Webhook. Verify token and app credentials in <a href="/superadmin/integrations/">Integrations</a>.<br>
+          Test webhook: <code>https://doctorsmyagency.com/api/webhooks/meta?probe=1</code>
         </div>
 
         <div class="wa-admin-stats" id="wa-stats"></div>

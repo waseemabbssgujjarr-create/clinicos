@@ -202,7 +202,7 @@ $configChecks = [
     ['DB_USER', true, ''],
     ['DB_PASS', true, ''],
     ['APP_URL', true, 'Set APP_URL to your live domain (no trailing slash).'],
-    ['DEEPSEEK_API_KEY', true, 'Add DeepSeek key — bot cannot reply without it.'],
+    ['OPENAI_API_KEY', true, 'Add OpenAI key — bot cannot reply without it.'],
     ['WEBHOOK_VERIFY_TOKEN', true, 'Required for Meta WhatsApp webhook verify.'],
     ['ENCRYPTION_KEY', true, '32+ char key for WhatsApp token encryption.'],
     ['CRON_SECRET', false, 'Add CRON_SECRET to config.php — drip, abandoned cart, shipment sync, booking reminders need /api/cron.php?key=...'],
@@ -664,7 +664,7 @@ if ($runLive) {
     require_once $root . '/includes/openai.php';
     try {
         $ai = ai_chat([['role' => 'user', 'content' => 'Reply with exactly: OK']], ['max_tokens' => 10]);
-        sc_add($area, 'DeepSeek / AI API', sc_status(!empty($ai['success'])), $ai['content'] ?? ($ai['error'] ?? 'error'), 'Check DEEPSEEK_API_KEY and DEEPSEEK_SSL_VERIFY on cPanel.');
+        sc_add($area, 'OpenAI / AI API', sc_status(!empty($ai['success'])), $ai['content'] ?? ($ai['error'] ?? 'error'), 'Check OPENAI_API_KEY in Admin → Integrations or config.local.php.');
     } catch (Throwable $e) {
         sc_add($area, 'DeepSeek / AI API', 'fail', $e->getMessage(), 'Fix AI config.');
     }

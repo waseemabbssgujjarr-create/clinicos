@@ -36,7 +36,7 @@ _next) {
             code = 'SCHEMA_MISSING';
         }
         else {
-            message = 'Database is temporarily unavailable. Admin: confirm clinicos-api/.env DATABASE_URL uses digitals_clinicuser @127.0.0.1 (not cognitom/aderalabs), add ?connection_limit=1&connect_timeout=10, run node prisma-db-check.js, then bash force-start-api.sh — do not use cPanel Restart.';
+            message = 'Database is temporarily unavailable. Check DATABASE_URL in Hostinger environment variables — must point to the correct MySQL host and user. Add ?connection_limit=1&connect_timeout=10 if missing. Run: bash clinicos-api/force-start-api.sh to restart Node.';
         }
     }
     // Only log 5xx errors — 4xx are expected (bad input etc.)

@@ -31,7 +31,6 @@ function metaCreds() {
 
 /**
  * Map Meta Graph API error messages to doctor-friendly instructions.
- * Mirrors iqpigeon's whatsapp_oauth_friendly_error().
  */
 function friendlyOAuthError(error) {
     const lower = (error || "").toLowerCase();
@@ -148,7 +147,7 @@ async function saveClinicWhatsAppAccount(clinicId, data) {
     await ensureWhatsAppTable();
     const enc = (0, token_crypto_service_1.encryptToken)(data.accessToken);
 
-    // Verify encrypt → decrypt round-trip before saving (mirrors iqpigeon safety check)
+    // Verify encrypt → decrypt round-trip before saving
     const roundtrip = (0, token_crypto_service_1.decryptToken)(enc);
     if (roundtrip !== data.accessToken) {
         throw new Error(
@@ -222,8 +221,7 @@ async function graphPost(path, token, body = {}) {
 
 /**
  * Subscribe the WABA to this Meta app so inbound messages trigger the webhook.
- * This is the single most common reason WhatsApp connect "works" but messages never arrive.
- * iqpigeon always calls this after saving the account; clinicosmg was missing it entirely.
+ * This is the critical step — without this, inbound messages are never delivered.
  */
 async function subscribeWabaToApp(wabaId, accessToken) {
     if (!wabaId || !accessToken) {
@@ -277,8 +275,7 @@ async function getWabaSubscriptionStatus(wabaId, accessToken) {
 
 /**
  * Verify the App ID + Secret pair using the client_credentials grant before
- * attempting code exchange (avoids burning the one-time code on a bad config).
- * Mirrors iqpigeon's whatsapp_meta_verify_credentials_pair().
+ * attempting code exchange.
  */
 async function verifyMetaCredentials(appId, appSecret) {
     const url =
@@ -340,8 +337,7 @@ async function tryExchangeCode(code, redirectUri) {
  *
  * Key improvement vs previous version:
  *  - When wabaId + phoneNumberId are provided but displayPhoneNumber is missing,
- *    fetches it directly from the phoneNumberId endpoint (mirrors iqpigeon).
- *  - Tries /me?fields=whatsapp_business_management first before business hierarchy walk.
+ *    fetches it directly from the phoneNumberId endpoint.
  */
 async function resolveEmbeddedAssets(accessToken, wabaIdInput, phoneNumberIdInput, displayNumberInput) {
     const version = graphVersion();
@@ -350,7 +346,7 @@ async function resolveEmbeddedAssets(accessToken, wabaIdInput, phoneNumberIdInpu
     if (wabaIdInput && phoneNumberIdInput) {
         let displayPhoneNumber = displayNumberInput || null;
 
-        // Fetch display number if not provided (iqpigeon always does this)
+        // Fetch display number if not provided
         if (!displayPhoneNumber) {
             const phoneRes = await graphGet(
                 `https://graph.facebook.com/${version}/${encodeURIComponent(phoneNumberIdInput)}` +

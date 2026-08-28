@@ -85,7 +85,7 @@ exports.inviteStaff = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             isActive: false, // becomes active when they set their password
         },
     });
-    const appUrl = process.env.APP_URL || 'https://clinicos.aderalabs.com';
+    const appUrl = process.env.APP_URL || 'https://doctorsmyagency.com';
     const inviteLink = `${appUrl}/accept-invite/?token=${inviteToken}`;
     await (0, email_service_1.sendStaffInviteEmail)(email, name, clinic.name, inviteLink).catch(() => null);
     const verifyToken = crypto_1.default.randomBytes(32).toString('hex');

@@ -335,6 +335,174 @@ function industry_template_keys(): array
 }
 
 /**
+ * Map a posted dropdown value (template key or legacy label) to an industry_key.
+ */
+function industry_key_from_posted(string $posted): string
+{
+    $posted = trim($posted);
+    if ($posted === '') {
+        return '';
+    }
+    $slug = preg_replace('/[^a-z0-9_]/', '', mb_strtolower($posted)) ?? '';
+    $all = industry_templates_all();
+    if ($slug !== '' && isset($all[$slug])) {
+        return $slug;
+    }
+    foreach ($all as $key => $tpl) {
+        $label = trim((string) ($tpl['label'] ?? ''));
+        if ($label !== '' && strcasecmp($label, $posted) === 0) {
+            return $key;
+        }
+    }
+    $aliases = [
+        'restaurant / food & beverage' => 'restaurant',
+        'restaurant / food'            => 'restaurant',
+        'food & beverage'              => 'restaurant',
+        'retail / e-commerce'          => 'ecommerce',
+        'e-commerce / retail'          => 'ecommerce',
+        'healthcare / medical'         => 'health',
+        'clinic / wellness'            => 'health',
+        'education / training'         => 'education',
+        'education / coaching'         => 'education',
+        'coaching / training'          => 'education',
+        'coaching'                     => 'education',
+        'training'                     => 'education',
+        'real estate'                  => 'realestate',
+        'finance / banking'            => 'b2b',
+        'technology / software'        => 'saas',
+        'beauty / salon'               => 'local',
+        'other'                        => 'local',
+        'services / agency'            => 'services',
+        'saas / software'              => 'saas',
+        'local business'               => 'local',
+    ];
+    $norm = mb_strtolower($posted);
+    if (isset($aliases[$norm])) {
+        return $aliases[$norm];
+    }
+    foreach ($all as $key => $tpl) {
+        $label = mb_strtolower(trim((string) ($tpl['label'] ?? '')));
+        if ($label !== '' && (str_contains($label, $norm) || str_contains($norm, $label))) {
+            return $key;
+        }
+    }
+
+    return '';
+}
+
+/**
+ * Quick-reply chips for Train → Test Your Assistant (industry-specific, not always food).
+ *
+ * @return list<string>
+ */
+function industry_test_chips(string $industryKey): array
+{
+    $map = [
+        'restaurant'  => ['What are your opening hours?', 'Do you offer home delivery?', "What's your best selling item?"],
+        'education'   => ['Which programs do you offer?', 'When is the next intake?', 'How do I enrol?'],
+        'ecommerce'   => ['What do you sell?', 'Do you deliver to my city?', 'What are the prices?'],
+        'services'    => ['What services do you offer?', 'How do we get started?', 'What is the typical timeline?'],
+        'saas'        => ['What does the product do?', 'Is there a free trial?', 'How is pricing structured?'],
+        'local'       => ['Where are you located?', 'What are your hours?', 'Do I need an appointment?'],
+        'health'      => ['Which treatments do you offer?', 'How do I book an appointment?', 'Where is the clinic?'],
+        'realestate'  => ['What properties are available?', 'Which areas do you cover?', 'Can I book a visit?'],
+        'automotive'  => ['Which models do you have?', 'Do you offer servicing?', 'Can I book a test drive?'],
+        'travel'      => ['Which destinations do you cover?', 'Do you help with visas?', 'How do we book a package?'],
+        'b2b'         => ['What do you supply?', 'What is the MOQ?', 'Can you deliver to our warehouse?'],
+        'freelancer'  => ['What services do you offer?', 'How do you price projects?', 'When are you available?'],
+    ];
+    $key = preg_replace('/[^a-z0-9_]/', '', mb_strtolower($industryKey)) ?? '';
+
+    return $map[$key] ?? ['What do you offer?', 'Where are you located?', 'How do we get started?'];
+}
+
+/**
+ * Facts the live AI must not mix up: industry, venue address vs the rep's home city.
+ *
+ * @param array<string, mixed> $bot
+ */
+function industry_runtime_facts_block(array $bot): string
+{
+    require_once __DIR__ . '/bot-knowledge.php';
+
+    $profile = function_exists('bot_owner_profile_fields') ? bot_owner_profile_fields($bot) : [];
+    $key = preg_replace('/[^a-z0-9_]/', '', mb_strtolower(trim((string) ($bot['industry_key'] ?? '')))) ?? '';
+    $tpl = $key !== '' ? industry_template($key) : null;
+    $label = is_array($tpl) ? trim((string) ($tpl['label'] ?? '')) : trim((string) ($profile['industry'] ?? ''));
+    $address = trim((string) ($profile['address'] ?? ''));
+    $bizCity = function_exists('bot_extract_city') ? bot_extract_city($address) : '';
+    $persona = trim((string) ($bot['rep_persona'] ?? ''));
+    $homeCity = '';
+    if (preg_match('/\b(?:live[s]? in|based in|from)\s+([A-Za-z][A-Za-z]+(?:\s+[A-Za-z][A-Za-z]+)?)/u', $persona, $m)) {
+        $homeCity = trim($m[1]);
+    } elseif (preg_match('/\b(Lahore|Karachi|Islamabad|Rawalpindi|Multan|Faisalabad|Peshawar|Quetta|London|Dubai|Riyadh)\b/u', $persona, $m)) {
+        $homeCity = (string) $m[1];
+    }
+
+    $lines = ['───── BUSINESS FACTS (venue vs personal life — never mix these) ─────'];
+    if ($label !== '') {
+        $lines[] = 'Industry: ' . $label . '. Stay in this industry. Do not talk as a restaurant, clinic, or shop unless that is this industry.';
+    }
+    if ($address !== '') {
+        $lines[] = 'Business address (shop / venue / office): ' . $address;
+    }
+    if ($bizCity !== '') {
+        $lines[] = 'Business city: ' . $bizCity . '. If they ask where the business / restaurant / shop / clinic / office is, use THIS city and the address above.';
+    }
+    if ($homeCity !== '' && strcasecmp($homeCity, $bizCity) !== 0) {
+        $lines[] = 'You (the person) may live in ' . $homeCity . '. That is YOUR home city only — never say the business is in ' . $homeCity . '.';
+    }
+    $lines[] = 'If they ask where you live / are from personally, you may mention your home city and still give the business address if they mean the venue.';
+    if (count($lines) <= 2) {
+        return '';
+    }
+
+    return implode("\n", $lines);
+}
+
+/**
+ * When Business Info industry changes: fill empty knowledge, replace stock templates, keep custom text.
+ *
+ * @param array<string, mixed> $bot
+ * @return array{success: bool, business_model: string, bot_knowledge: string, business_mode: string, conversion_goal: string, industry_key: string}
+ */
+function industry_apply_key_change(array $bot, string $newKey, string $oldKey): array
+{
+    $tpl = industry_template($newKey);
+    if ($tpl === null) {
+        return [
+            'success'         => false,
+            'business_model'  => (string) ($bot['business_model'] ?? ''),
+            'bot_knowledge'   => (string) ($bot['bot_knowledge'] ?? ''),
+            'business_mode'   => (string) ($bot['business_mode'] ?? ''),
+            'conversion_goal' => (string) ($bot['conversion_goal'] ?? ''),
+            'industry_key'    => $oldKey,
+        ];
+    }
+
+    $knowledge = trim((string) ($bot['bot_knowledge'] ?? ''));
+    $force = $knowledge === '';
+    if (!$force && $oldKey !== '' && $oldKey !== $newKey) {
+        $oldTpl = industry_template($oldKey);
+        if (is_array($oldTpl)) {
+            $stock = trim('Industry: ' . $oldTpl['label'] . "\n\n" . $oldTpl['knowledge']);
+            if ($knowledge === $stock) {
+                $force = true;
+            }
+        }
+    }
+
+    $applied = industry_apply_to_bot($bot, $newKey, $force);
+    if (!$force && $knowledge !== '') {
+        $rewritten = preg_replace('/^Industry:\s*.+$/mu', 'Industry: ' . $tpl['label'], $knowledge, 1);
+        $applied['bot_knowledge'] = is_string($rewritten) && $rewritten !== '' ? $rewritten : $knowledge;
+    }
+    $applied['industry_key'] = $newKey;
+
+    return $applied;
+}
+
+/**
  * Apply template starter text to bot fields (does not overwrite non-empty unless $force).
  *
  * @return array{success: bool, business_model: string, bot_knowledge: string, business_mode: string, conversion_goal: string}

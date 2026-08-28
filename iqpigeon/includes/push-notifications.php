@@ -148,7 +148,7 @@ function push_send_fcm(string $deviceToken, string $title, string $body, ?string
         CURLOPT_TIMEOUT        => 15,
     ]);
 
-    if (defined('DEEPSEEK_SSL_VERIFY') && !DEEPSEEK_SSL_VERIFY) {
+    if (defined('OPENAI_SSL_VERIFY') && !OPENAI_SSL_VERIFY) {
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
     }

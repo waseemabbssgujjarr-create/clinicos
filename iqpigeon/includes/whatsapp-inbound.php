@@ -469,9 +469,17 @@ function whatsapp_deliver_inbound_reply(
 ): array {
     require_once __DIR__ . '/catalog.php';
     require_once __DIR__ . '/whatsapp.php';
-    require_once __DIR__ . '/whatsapp-shop-ux.php';
 
-    $replyText = shop_format_outgoing_message(trim($replyText));
+    $replyText = trim($replyText);
+    try {
+        require_once __DIR__ . '/whatsapp-shop-ux.php';
+        if (function_exists('shop_format_outgoing_message')) {
+            $replyText = shop_format_outgoing_message($replyText);
+        }
+    } catch (Throwable $e) {
+        error_log('shop_format_outgoing_message: ' . $e->getMessage());
+    }
+
     if ($replyText === '') {
         $replyText = human_shop_fallback_reply($bot, $incomingText, 'error');
     }
@@ -486,6 +494,17 @@ function whatsapp_deliver_inbound_reply(
         whatsapp_mark_many_inbound_replied($waMessageIds);
 
         return ['success' => true];
+    }
+
+    if (function_exists('whatsapp_reply_debug_log')) {
+        whatsapp_reply_debug_log('send_failed', [
+            'bot_id'      => (int) ($bot['id'] ?? 0),
+            'lead_id'     => $leadId,
+            'phone_id'    => $phoneId,
+            'sender'      => $senderPhone,
+            'primary_err' => (string) ($sent['message'] ?? 'unknown'),
+            'reply_len'   => strlen($replyText),
+        ]);
     }
 
     $fallback = human_shop_fallback_reply($bot, $incomingText, 'error');

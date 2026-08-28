@@ -39,6 +39,27 @@ function whatsapp_meta_app_secret(): string
     return defined('META_APP_SECRET') ? trim((string) META_APP_SECRET) : '';
 }
 
+function whatsapp_graph_api_version(): string
+{
+    if (!function_exists('integration_meta_graph_api_version')) {
+        require_once __DIR__ . '/integration-settings.php';
+    }
+
+    if (function_exists('integration_meta_graph_api_version')) {
+        return integration_meta_graph_api_version();
+    }
+
+    $raw = defined('META_GRAPH_API_VERSION') ? trim((string) META_GRAPH_API_VERSION) : 'v25.0';
+    if (preg_match('/^v\d+\.\d+$/', $raw)) {
+        return $raw;
+    }
+    if (preg_match('/^\d+\.\d+$/', $raw)) {
+        return 'v' . $raw;
+    }
+
+    return 'v25.0';
+}
+
 /**
  * Apply SSL verify options for Meta Graph curl calls (shared hosting).
  *
@@ -353,7 +374,7 @@ function verify_meta_signature(string $payload, ?string $signature): bool
  */
 function send_whatsapp_message(string $phoneId, string $token, string $to, string $text): array
 {
-    $version = defined('META_GRAPH_API_VERSION') ? META_GRAPH_API_VERSION : 'v21.0';
+    $version = whatsapp_graph_api_version();
     $url = 'https://graph.facebook.com/' . $version . '/' . $phoneId . '/messages';
 
     $payload = json_encode([
@@ -402,7 +423,7 @@ function whatsapp_mark_message_read(string $phoneId, string $token, string $mess
         return false;
     }
 
-    $version = defined('META_GRAPH_API_VERSION') ? META_GRAPH_API_VERSION : 'v21.0';
+    $version = whatsapp_graph_api_version();
     $url = 'https://graph.facebook.com/' . $version . '/' . $phoneId . '/messages';
 
     $payload = json_encode([
@@ -418,16 +439,24 @@ function whatsapp_mark_message_read(string $phoneId, string $token, string $mess
             'Authorization: Bearer ' . $token,
         ],
         CURLOPT_POSTFIELDS => $payload,
-        CURLOPT_TIMEOUT    => 8,
+        CURLOPT_TIMEOUT    => 3,
     ]);
 
-    if (!$result['ok']) {
-        error_log('WhatsApp mark read curl error: ' . $result['curl_error']);
-        return false;
+    $ok = $result['ok'] && $result['http_code'] < 400;
+    $bodyPreview = is_string($result['body']) ? mb_substr($result['body'], 0, 240) : '';
+    $log = [
+        'ok'        => $ok,
+        'http'      => (int) $result['http_code'],
+        'curl'      => (string) ($result['curl_error'] ?? ''),
+        'message_id'=> mb_substr($messageId, 0, 80),
+        'body'      => $bodyPreview,
+    ];
+    error_log('WhatsApp mark read ' . json_encode($log, JSON_UNESCAPED_UNICODE));
+    if (function_exists('whatsapp_webhook_log_event')) {
+        whatsapp_webhook_log_event('Mark read', $log);
     }
 
-    if ($result['http_code'] >= 400) {
-        error_log('WhatsApp mark read failed (' . $result['http_code'] . '): ' . (is_string($result['body']) ? $result['body'] : ''));
+    if (!$ok) {
         return false;
     }
 
@@ -444,7 +473,7 @@ function whatsapp_send_typing_indicator(string $phoneId, string $token, string $
         return false;
     }
 
-    $version = defined('META_GRAPH_API_VERSION') ? META_GRAPH_API_VERSION : 'v21.0';
+    $version = whatsapp_graph_api_version();
     $url = 'https://graph.facebook.com/' . $version . '/' . $phoneId . '/messages';
 
     $payload = json_encode([
@@ -625,7 +654,7 @@ function send_whatsapp_message_human(string $phoneId, string $token, string $to,
  */
 function whatsapp_graph_get(string $path, string $token): array
 {
-    $version = defined('META_GRAPH_API_VERSION') ? META_GRAPH_API_VERSION : 'v21.0';
+    $version = whatsapp_graph_api_version();
     $url = 'https://graph.facebook.com/' . $version . '/' . ltrim($path, '/');
 
     $result = whatsapp_curl_request($url, [
@@ -708,6 +737,7 @@ function whatsapp_inspect_token(string $token): array
     return [
         'is_valid'            => true,
         'has_whatsapp_scope'  => $hasWhatsApp,
+        'has_catalog_scope'   => in_array('catalog_management', $scopes, true),
         'scopes'              => $scopes,
         'app_id'              => (string) ($info['app_id'] ?? ''),
         'waba_ids'            => $wabaIds,
@@ -843,7 +873,7 @@ function meta_app_webhook_subscriptions(): array
     }
 
     $appToken = $appId . '|' . $appSecret;
-    $version = defined('META_GRAPH_API_VERSION') ? META_GRAPH_API_VERSION : 'v21.0';
+    $version = whatsapp_graph_api_version();
     $url = 'https://graph.facebook.com/' . $version . '/' . $appId . '/subscriptions?access_token=' . urlencode($appToken);
 
     $result = whatsapp_curl_request($url, [CURLOPT_TIMEOUT => 12]);
@@ -897,7 +927,7 @@ function meta_app_webhook_subscriptions(): array
  */
 function whatsapp_graph_post(string $path, string $token, array $body = []): array
 {
-    $version = defined('META_GRAPH_API_VERSION') ? META_GRAPH_API_VERSION : 'v21.0';
+    $version = whatsapp_graph_api_version();
     $url = 'https://graph.facebook.com/' . $version . '/' . ltrim($path, '/');
 
     $result = whatsapp_curl_request($url, [
@@ -1027,7 +1057,7 @@ function send_whatsapp_template(
     string $languageCode = 'en',
     array $bodyParameters = []
 ): array {
-    $version = defined('META_GRAPH_API_VERSION') ? META_GRAPH_API_VERSION : 'v21.0';
+    $version = whatsapp_graph_api_version();
     $url = 'https://graph.facebook.com/' . $version . '/' . $phoneId . '/messages';
 
     $components = [];
@@ -1092,7 +1122,7 @@ function send_whatsapp_template(
  */
 function whatsapp_send_payload(string $phoneId, string $token, array $body): array
 {
-    $version = defined('META_GRAPH_API_VERSION') ? META_GRAPH_API_VERSION : 'v21.0';
+    $version = whatsapp_graph_api_version();
     $url = 'https://graph.facebook.com/' . $version . '/' . $phoneId . '/messages';
     $body['messaging_product'] = 'whatsapp';
     $body['to'] = preg_replace('/\D/', '', (string) ($body['to'] ?? ''));
@@ -1298,6 +1328,33 @@ function send_whatsapp_catalog_product_list(
                 'catalog_id' => $catalogId,
                 'sections'   => $sections,
             ],
+        ],
+    ]);
+}
+
+/**
+ * Native WhatsApp "View catalog" — customer scrolls the full Meta Commerce catalog.
+ */
+function send_whatsapp_catalog_message(
+    string $phoneId,
+    string $token,
+    string $to,
+    string $bodyText = 'Tap to browse the full catalog',
+    string $thumbnailRetailerId = ''
+): array {
+    $action = ['name' => 'catalog_message'];
+    $thumb = trim($thumbnailRetailerId);
+    if ($thumb !== '') {
+        $action['parameters'] = ['thumbnail_product_retailer_id' => $thumb];
+    }
+
+    return whatsapp_send_payload($phoneId, $token, [
+        'to'   => $to,
+        'type' => 'interactive',
+        'interactive' => [
+            'type'   => 'catalog_message',
+            'body'   => ['text' => mb_substr(trim($bodyText) !== '' ? trim($bodyText) : 'Tap to browse the full catalog', 0, 1024)],
+            'action' => $action,
         ],
     ]);
 }

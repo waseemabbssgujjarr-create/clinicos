@@ -131,7 +131,7 @@ exports.getPlatformStatus = (0, asyncHandler_1.asyncHandler)(async (_req, res) =
     res.json({
         product: 'Doctors My Agency — AI Receptionist SaaS',
         version: 'V1',
-        liveUrl: process.env.APP_URL || process.env.FRONTEND_URL || 'https://clinicos.workee.online',
+        liveUrl: process.env.APP_URL || process.env.FRONTEND_URL || 'https://doctorsmyagency.com',
         productMode: 'crm',
         platformReady: aiLive,
         components: {

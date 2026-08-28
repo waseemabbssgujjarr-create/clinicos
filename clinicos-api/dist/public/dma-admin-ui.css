@@ -1,0 +1,412 @@
+/**
+ * Doctors My Agency — Admin UI v1.0
+ * ==================================
+ * IQPigeon admin-inspired design for superadmin.
+ * Blue brand (#2563EB) replaces orange.
+ * Light theme default, dark optional.
+ *
+ * Applied to ALL /superadmin/* pages.
+ */
+
+/* ═══════════════════════════════════════
+   TOKENS
+   ═══════════════════════════════════════ */
+:root {
+  --adm-blue:        #2563EB;
+  --adm-blue-dark:   #1D4ED8;
+  --adm-blue-light:  #EFF6FF;
+  --adm-blue-mid:    rgba(37,99,235,.12);
+  --adm-blue-border: rgba(37,99,235,.3);
+
+  --adm-bg:          #F4F6FA;
+  --adm-surface:     #FFFFFF;
+  --adm-surface-2:   #F8FAFC;
+  --adm-border:      #E2E8F0;
+  --adm-border-2:    #CBD5E1;
+
+  --adm-sidebar-bg:  #1E293B;
+  --adm-sidebar-w:   240px;
+
+  --adm-text:        #111827;
+  --adm-text-2:      #374151;
+  --adm-muted:       #6B7280;
+
+  --adm-green:  #16A34A;
+  --adm-red:    #DC2626;
+  --adm-amber:  #D97706;
+
+  --adm-shadow:    0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+  --adm-shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+  --adm-radius:    12px;
+  --adm-radius-sm: 8px;
+}
+
+html[data-theme="dark"] {
+  --adm-bg:       #0F172A;
+  --adm-surface:  #1E293B;
+  --adm-surface-2: #263148;
+  --adm-border:   #2D3748;
+  --adm-border-2: #3D4F69;
+  --adm-text:     #F1F5F9;
+  --adm-text-2:   #CBD5E1;
+  --adm-muted:    #94A3B8;
+  --adm-sidebar-bg: #0F172A;
+}
+
+/* ═══════════════════════════════════════
+   BASE
+   ═══════════════════════════════════════ */
+body.superadmin-app,
+body.min-h-screen.bg-app {
+  background: var(--adm-bg) !important;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  color: var(--adm-text) !important;
+}
+
+/* ═══════════════════════════════════════
+   SIDEBAR — dark blue
+   ═══════════════════════════════════════ */
+
+/* Override the orange-dark sidebar */
+.sa-sidebar,
+body.min-h-screen.bg-app aside.bg-sidebar,
+body.min-h-screen.bg-app aside[class*="w-[220px]"],
+body.min-h-screen.bg-app aside[class*="w-\[220px\]"] {
+  background: var(--adm-sidebar-bg) !important;
+  background-image: none !important;
+  border-right: 1px solid rgba(255,255,255,.08) !important;
+  width: var(--adm-sidebar-w) !important;
+  max-width: var(--adm-sidebar-w) !important;
+}
+
+/* Brand */
+.sa-brand,
+body.min-h-screen.bg-app aside > div:first-child {
+  padding: 16px 16px 14px !important;
+  border-bottom: 1px solid rgba(255,255,255,.08) !important;
+}
+
+.sa-brand-icon,
+body.min-h-screen.bg-app aside [class*="bg-brand"][class*="rounded"] {
+  background: linear-gradient(135deg, var(--adm-blue), var(--adm-blue-dark)) !important;
+}
+
+.sa-brand-text strong,
+body.min-h-screen.bg-app aside [class*="font-bold"][class*="text-white"] {
+  color: #F9FAFB !important;
+  -webkit-text-fill-color: #F9FAFB !important;
+  font-family: 'Montserrat', Inter, sans-serif !important;
+}
+
+.sa-brand-text span,
+body.min-h-screen.bg-app aside [class*="text-slate"],
+body.min-h-screen.bg-app aside [class*="text-gray"] {
+  color: #94A3B8 !important;
+  -webkit-text-fill-color: #94A3B8 !important;
+}
+
+/* Nav links */
+.sa-sidebar nav a,
+body.min-h-screen.bg-app aside.bg-sidebar a,
+body.min-h-screen.bg-app aside a.nav-item {
+  color: #94A3B8 !important;
+  -webkit-text-fill-color: #94A3B8 !important;
+  background: transparent !important;
+  border-left: 2px solid transparent !important;
+  transition: background .13s, color .13s !important;
+}
+
+.sa-sidebar nav a:hover,
+body.min-h-screen.bg-app aside.bg-sidebar a:hover {
+  background: rgba(37,99,235,.16) !important;
+  color: #93C5FD !important;
+  -webkit-text-fill-color: #93C5FD !important;
+}
+
+.sa-sidebar nav a.active,
+body.min-h-screen.bg-app aside a.nav-item-active,
+body.min-h-screen.bg-app aside a[class*="bg-"],
+body.min-h-screen.bg-app aside a[class*="text-brand"] {
+  background: rgba(37,99,235,.22) !important;
+  color: #93C5FD !important;
+  -webkit-text-fill-color: #93C5FD !important;
+  border-left-color: var(--adm-blue) !important;
+  font-weight: 700 !important;
+}
+
+/* Footer */
+.sa-sidebar-footer,
+body.min-h-screen.bg-app aside [class*="border-t"],
+body.min-h-screen.bg-app aside > div:last-child {
+  border-top: 1px solid rgba(255,255,255,.08) !important;
+  background: transparent !important;
+}
+
+.sa-sidebar-footer .sa-user,
+body.min-h-screen.bg-app aside > div:last-child span {
+  color: #64748B !important;
+  -webkit-text-fill-color: #64748B !important;
+}
+
+.sa-sidebar-footer button,
+.sa-sidebar-footer a.sa-logout,
+body.min-h-screen.bg-app aside a[class*="text-red"],
+body.min-h-screen.bg-app aside button[class*="text-red"] {
+  color: #FB7185 !important;
+  -webkit-text-fill-color: #FB7185 !important;
+}
+
+/* ═══════════════════════════════════════
+   MAIN CONTENT
+   ═══════════════════════════════════════ */
+.sa-main {
+  margin-left: var(--adm-sidebar-w) !important;
+  background: var(--adm-bg) !important;
+  min-height: 100vh !important;
+  padding: 2rem !important;
+  box-sizing: border-box !important;
+}
+
+.sa-content-card {
+  background: var(--adm-surface) !important;
+  border: 1px solid var(--adm-border) !important;
+  border-radius: var(--adm-radius) !important;
+  padding: 28px !important;
+  box-shadow: var(--adm-shadow) !important;
+}
+
+.sa-content-card h1 {
+  font-family: 'Montserrat', Inter, sans-serif !important;
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+  color: var(--adm-text) !important;
+  margin: 0 0 6px !important;
+  letter-spacing: -.02em !important;
+}
+
+.sa-content-card .sa-subtitle {
+  color: var(--adm-muted) !important;
+  font-size: .875rem !important;
+  margin: 0 0 20px !important;
+}
+
+/* ═══════════════════════════════════════
+   REACT NEXT.JS admin pages
+   ═══════════════════════════════════════ */
+body.min-h-screen.bg-app main h1,
+body.min-h-screen.bg-app main h2 {
+  font-family: 'Montserrat', Inter, sans-serif !important;
+  color: var(--adm-text) !important;
+  font-weight: 800 !important;
+}
+
+body.min-h-screen.bg-app main .bg-white,
+body.min-h-screen.bg-app main [class*="rounded-card"],
+body.min-h-screen.bg-app main [class*="shadow"],
+body.min-h-screen.bg-app main [class*="rounded-2xl"],
+body.min-h-screen.bg-app main [class*="rounded-xl"] {
+  background: var(--adm-surface) !important;
+  border: 1px solid var(--adm-border) !important;
+  border-radius: var(--adm-radius) !important;
+  box-shadow: var(--adm-shadow) !important;
+}
+
+/* Stat card border colors */
+body.min-h-screen.bg-app main [class*="grid-cols-4"] > [class*="rounded"]:nth-child(1) { border-top: 3px solid var(--adm-blue) !important; }
+body.min-h-screen.bg-app main [class*="grid-cols-4"] > [class*="rounded"]:nth-child(2) { border-top: 3px solid var(--adm-green) !important; }
+body.min-h-screen.bg-app main [class*="grid-cols-4"] > [class*="rounded"]:nth-child(3) { border-top: 3px solid var(--adm-amber) !important; }
+body.min-h-screen.bg-app main [class*="grid-cols-4"] > [class*="rounded"]:nth-child(4) { border-top: 3px solid var(--adm-red) !important; }
+
+/* Buttons — blue */
+body.min-h-screen.bg-app main button[class*="bg-brand"],
+body.min-h-screen.bg-app main a[class*="bg-brand"],
+.sa-btn-primary,
+body.superadmin-app .sa-btn-primary {
+  background: linear-gradient(135deg, var(--adm-blue), var(--adm-blue-dark)) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(37,99,235,.28) !important;
+  border-radius: var(--adm-radius-sm) !important;
+}
+
+body.min-h-screen.bg-app main button[class*="bg-brand"]:hover,
+.sa-btn-primary:hover {
+  opacity: .92 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(37,99,235,.35) !important;
+}
+
+/* Tables */
+body.min-h-screen.bg-app main table,
+.sa-data-table {
+  background: var(--adm-surface) !important;
+  border: 1px solid var(--adm-border) !important;
+  border-radius: var(--adm-radius) !important;
+}
+
+body.min-h-screen.bg-app main thead th,
+.sa-data-table th {
+  background: var(--adm-surface-2) !important;
+  color: var(--adm-muted) !important;
+}
+
+body.min-h-screen.bg-app main tbody td,
+.sa-data-table td {
+  background: var(--adm-surface) !important;
+  color: var(--adm-text-2) !important;
+  border-bottom: 1px solid var(--adm-border) !important;
+}
+
+body.min-h-screen.bg-app main tbody tr:hover td,
+.sa-data-table tbody tr:hover td {
+  background: var(--adm-blue-light) !important;
+}
+
+/* Inputs */
+body.min-h-screen.bg-app main input,
+body.min-h-screen.bg-app main textarea,
+body.min-h-screen.bg-app main select,
+body.superadmin-app input,
+body.superadmin-app textarea,
+body.superadmin-app select {
+  background: var(--adm-surface) !important;
+  border: 1.5px solid var(--adm-border-2) !important;
+  border-radius: var(--adm-radius-sm) !important;
+  color: var(--adm-text) !important;
+}
+
+body.min-h-screen.bg-app main input:focus,
+body.min-h-screen.bg-app main textarea:focus,
+body.min-h-screen.bg-app main select:focus,
+body.superadmin-app input:focus,
+body.superadmin-app textarea:focus,
+body.superadmin-app select:focus {
+  border-color: var(--adm-blue) !important;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.14) !important;
+  background: #fff !important;
+  outline: none !important;
+}
+
+/* Pill badges */
+.sa-pill,
+body.min-h-screen.bg-app main span[class*="rounded-full"][class*="text-xs"] {
+  font-size: .67rem !important;
+  font-weight: 700 !important;
+  padding: 3px 10px !important;
+}
+
+/* Good/bad status badges */
+.sa-badge-ok { background: #DCFCE7 !important; color: #166534 !important; border-color: #86EFAC !important; }
+.sa-badge-warn { background: #FEE2E2 !important; color: #991B1B !important; border-color: #FCA5A5 !important; }
+
+/* Alert/banners */
+.sa-alert { border-radius: var(--adm-radius-sm) !important; }
+.sa-alert-warn { background: #FFF7ED !important; border: 1px solid #FDBA74 !important; color: #92400E !important; }
+.sa-alert-ok   { background: #F0FDF4 !important; border: 1px solid #86EFAC !important; color: #166534 !important; }
+
+/* Section title accent line */
+.sa-content-card h1::after {
+  content: "" !important;
+  display: block !important;
+  width: 28px !important;
+  height: 3px !important;
+  background: var(--adm-blue) !important;
+  border-radius: 2px !important;
+  margin-top: 8px !important;
+}
+
+/* Integrations grid cards */
+.int-card {
+  background: var(--adm-surface) !important;
+  border: 1px solid var(--adm-border) !important;
+  border-radius: var(--adm-radius) !important;
+  box-shadow: var(--adm-shadow-sm) !important;
+}
+
+/* Secondary buttons */
+.sa-btn-secondary,
+.sa-btn-outline {
+  background: var(--adm-surface) !important;
+  color: var(--adm-blue) !important;
+  border: 1.5px solid var(--adm-blue-border) !important;
+  border-radius: var(--adm-radius-sm) !important;
+}
+
+.sa-btn-secondary:hover, .sa-btn-outline:hover {
+  background: var(--adm-blue-light) !important;
+  border-color: var(--adm-blue) !important;
+}
+
+/* Link color */
+.sa-link, a.sa-link {
+  color: var(--adm-blue) !important;
+}
+
+/* Webhook hints */
+.int-webhooks {
+  background: var(--adm-blue-light) !important;
+  border: 1px solid rgba(37,99,235,.2) !important;
+  border-radius: var(--adm-radius-sm) !important;
+  padding: 12px 16px !important;
+  font-size: .8125rem !important;
+  color: #1E40AF !important;
+  margin-bottom: 16px !important;
+}
+
+/* Dark mode for admin */
+html[data-theme="dark"] body.superadmin-app,
+html[data-theme="dark"] .sa-content-card {
+  background: var(--adm-surface) !important;
+  border-color: var(--adm-border) !important;
+  color: var(--adm-text) !important;
+}
+
+html[data-theme="dark"] body.superadmin-app,
+html[data-theme="dark"] body.min-h-screen.bg-app.superadmin {
+  background: var(--adm-bg) !important;
+}
+
+html[data-theme="dark"] .sa-main {
+  background: var(--adm-bg) !important;
+}
+
+html[data-theme="dark"] .sa-data-table th {
+  background: var(--adm-surface-2) !important;
+}
+
+html[data-theme="dark"] .sa-data-table td {
+  background: var(--adm-surface) !important;
+  border-bottom-color: var(--adm-border) !important;
+}
+
+html[data-theme="dark"] body.superadmin-app input,
+html[data-theme="dark"] body.superadmin-app textarea,
+html[data-theme="dark"] body.superadmin-app select {
+  background: var(--adm-surface-2) !important;
+  border-color: var(--adm-border-2) !important;
+  color: var(--adm-text) !important;
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+  .sa-main {
+    margin-left: 0 !important;
+    padding: 80px 1rem 2rem !important;
+  }
+
+  .sa-sidebar {
+    transform: translateX(-110%) !important;
+    transition: transform .22s ease !important;
+    z-index: 95 !important;
+  }
+
+  .sa-layout.sa-nav-open .sa-sidebar,
+  body.superadmin-app.sa-nav-open .sa-sidebar {
+    transform: translateX(0) !important;
+  }
+
+  .sa-content-card { padding: 16px !important; }
+  .sa-content-card h1 { font-size: 1.2rem !important; }
+}

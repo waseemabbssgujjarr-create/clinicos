@@ -123,13 +123,19 @@ if ($waBillingBlocked) {
     <?php else: ?>
     <p class="text-[12px] text-slate-500 mb-3 flex-1">Connect WhatsApp Business to automate conversations.</p>
     <?php if (!$manualMode): ?>
-    <button type="button" data-wa-oauth-connect="1" data-wa-client-id="<?= (int) $clientId ?>"
+    <button type="button" id="connect-wa-primary" data-wa-oauth-connect="1" data-wa-client-id="<?= (int) $clientId ?>"
       data-wa-oauth-url="<?= sanitize($oauthStartUrl ?? '') ?>"
       data-wa-return="/client/whatsapp-settings"
       class="w-full bg-[#1FA855] text-white rounded-lg px-4 py-2.5 text-[13px] font-semibold min-h-[44px]">Connect with WhatsApp</button>
     <div id="wa-connect-status" class="hidden mt-2 text-[11px] text-slate-500 text-center">Loading Meta signup…</div>
+    <button type="button" id="wa-save-connection" class="mt-2 w-full bg-[#15803d] text-white rounded-lg px-4 py-2.5 text-[13px] font-semibold min-h-[44px]">Save connection</button>
+    <button type="button" id="wa-stop-wait" class="hidden mt-1 w-full text-[11px] text-slate-500 underline underline-offset-2">Stop waiting</button>
     <p class="mt-2 text-[11px] text-slate-400 text-center">
-      Stuck after Meta “shared”? <a href="/client/whatsapp-oauth-debug" class="text-[#1FA855] underline">Open OAuth debug</a>
+      Meta’s green “account shared” bar is <strong>not</strong> Finish. Leave that Meta window, then click <strong>Save connection</strong> on this page.
+    </p>
+    <p class="mt-1 text-[11px] text-slate-400 text-center">
+      Stuck? <a href="/client/whatsapp-oauth-debug" class="text-[#1FA855] underline">OAuth debug</a>
+      · No reply? <a href="/client/whatsapp-reply-debug" class="text-[#1FA855] underline">Reply debug</a>
     </p>
     <?php else: ?>
     <a href="/client/bot-setup?id=<?= (int) $primaryBotId ?>&tab=channels"

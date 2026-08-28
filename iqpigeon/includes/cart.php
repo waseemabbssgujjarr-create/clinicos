@@ -51,6 +51,7 @@ function cart_get(int $leadId): array
         'discount_amount'        => max(0, (float) ($cart['discount_amount'] ?? 0)),
         'anything_else_offered'  => !empty($cart['anything_else_offered']),
         'anything_else_done'     => !empty($cart['anything_else_done']),
+        'shown_indexes'          => array_values(array_filter(array_map('intval', (array) ($cart['shown_indexes'] ?? [])))),
     ];
 }
 
@@ -80,6 +81,45 @@ function cart_clear(int $leadId): void
 function cart_is_empty(int $leadId): bool
 {
     return cart_get($leadId)['items'] === [];
+}
+
+/**
+ * Last menu card's catalog indexes (1-based global), so typing "2" adds that card's 2nd item.
+ *
+ * @param list<int> $indexes
+ */
+function cart_remember_shown_indexes(int $leadId, array $indexes): void
+{
+    if ($leadId <= 0) {
+        return;
+    }
+    $indexes = array_values(array_filter(array_map('intval', $indexes), static fn ($n) => $n > 0));
+    if ($indexes === []) {
+        return;
+    }
+    $cart = cart_get($leadId);
+    $cart['shown_indexes'] = $indexes;
+    cart_save($leadId, $cart);
+}
+
+function cart_resolve_shown_index(int $leadId, int $pick): int
+{
+    if ($pick < 1) {
+        return $pick;
+    }
+    $shown = cart_get($leadId)['shown_indexes'] ?? [];
+    if (!is_array($shown) || $shown === []) {
+        return $pick;
+    }
+    $shown = array_values(array_filter(array_map('intval', $shown), static fn ($n) => $n > 0));
+    if (in_array($pick, $shown, true)) {
+        return $pick;
+    }
+    if ($pick <= count($shown)) {
+        return (int) $shown[$pick - 1];
+    }
+
+    return $pick;
 }
 
 function cart_total(array $cart): float
@@ -1104,7 +1144,63 @@ function cart_handle_natural_intent(int $leadId, int $botId, string $message, ar
         return catalog_whatsapp_list_block($botId);
     }
 
+    $named = cart_add_named_products($leadId, $botId, $message);
+    if ($named !== null) {
+        return $named;
+    }
+
     return null;
+}
+
+/**
+ * Add catalog items mentioned by name (one or several, any menus) into the same cart.
+ */
+function cart_add_named_products(int $leadId, int $botId, string $message): ?string
+{
+    require_once __DIR__ . '/catalog.php';
+    if (!function_exists('whatsapp_shop_customer_wants_visual_card')) {
+        require_once __DIR__ . '/whatsapp-shop-ux.php';
+    }
+
+    if (function_exists('catalog_message_is_menu_request') && catalog_message_is_menu_request($botId, $message)) {
+        return null;
+    }
+    if (function_exists('catalog_customer_wants_other_menu') && catalog_customer_wants_other_menu($message)) {
+        return null;
+    }
+    if (function_exists('whatsapp_shop_customer_wants_visual_card') && whatsapp_shop_customer_wants_visual_card($message)) {
+        return null;
+    }
+    if (!catalog_message_could_be_product_query($message)) {
+        return null;
+    }
+
+    $parts = preg_split('/\s+(?:and|&|aur|plus|or)\s+|,\s+/iu', $message) ?: [$message];
+    $added = [];
+    $seen = [];
+
+    foreach ($parts as $part) {
+        $query = catalog_extract_product_query(trim((string) $part));
+        if (mb_strlen($query) < 2) {
+            continue;
+        }
+        $matches = catalog_search_products($botId, $query, 1);
+        if ($matches === [] || ($matches[0]['score'] ?? 0) < 55) {
+            continue;
+        }
+        $index = (int) ($matches[0]['index'] ?? 0);
+        if ($index < 1 || isset($seen[$index])) {
+            continue;
+        }
+        $seen[$index] = true;
+        $added[] = cart_add_product($leadId, $botId, $index, 1);
+    }
+
+    if ($added === []) {
+        return null;
+    }
+
+    return (string) $added[count($added) - 1];
 }
 
 /**
@@ -1140,11 +1236,152 @@ function cart_message_catalog_pick_index(string|int|float $message): ?int
     return null;
 }
 
+function cart_message_asks_cart_status(string $message): bool
+{
+    $lower = mb_strtolower(trim($message));
+
+    return (bool) preg_match(
+        '/\b(both|two|2 items|added in the|in (?:my|the) cart|items are added|what\'?s in my cart|show my cart)\b/iu',
+        $lower
+    );
+}
+
+function cart_message_is_order_process_question(string $message): bool
+{
+    $lower = mb_strtolower(trim($message));
+    if ($lower === '') {
+        return false;
+    }
+
+    return (bool) preg_match(
+        '/\b(how will|how do i|how does|what happens|what\'s next|whats next|'
+        . 'confirm(?:ation)?|send (?:it|this|to me|the order)|place (?:the )?order|checkout process|'
+        . 'get (?:it|this)|order (?:confirm|confirmation)|deliver(?:y)?)\b/iu',
+        $lower
+    );
+}
+
+/**
+ * Text lines from unanswered turns (menu taps) for this lead — newest burst first in order.
+ *
+ * @return list<string>
+ */
+function cart_lead_recent_pick_messages(int $leadId): array
+{
+    if ($leadId <= 0) {
+        return [];
+    }
+
+    $rows = db_fetch_all(
+        'SELECT ctm.raw_text
+         FROM conversation_turn_messages ctm
+         INNER JOIN conversation_turns ct ON ct.id = ctm.turn_id
+         WHERE ct.lead_id = ?
+         AND ctm.message_type = \'text\'
+         AND TRIM(COALESCE(ctm.raw_text, \'\')) <> \'\'
+         AND NOT EXISTS (
+            SELECT 1 FROM conversation_turn_events e
+            WHERE e.turn_id = ct.id AND e.event_type = \'RESPONSE_SENT\'
+         )
+         ORDER BY ctm.id ASC',
+        'i',
+        [$leadId]
+    ) ?: [];
+
+    $out = [];
+    foreach ($rows as $row) {
+        $t = trim((string) ($row['raw_text'] ?? ''));
+        if ($t !== '') {
+            $out[] = $t;
+        }
+    }
+
+    return $out;
+}
+
+/**
+ * @return list<string>
+ */
+function cart_split_shop_lines(string $text): array
+{
+    $text = str_replace(["\r\n", "\r"], "\n", trim($text));
+    if ($text === '') {
+        return [];
+    }
+
+    return array_values(array_filter(array_map('trim', explode("\n", $text)), static fn ($l) => $l !== ''));
+}
+
+/**
+ * Apply every catalog pick from recent unanswered customer messages (multi-menu taps).
+ *
+ * @param array<string, mixed> $lead
+ */
+function cart_sync_catalog_picks_from_lead(int $leadId, int $botId, array $lead = []): ?string
+{
+    if ($leadId <= 0 || $botId <= 0) {
+        return null;
+    }
+
+    require_once __DIR__ . '/catalog.php';
+    if (catalog_products_for_bot($botId) === []) {
+        return null;
+    }
+
+    $messages = cart_lead_recent_pick_messages($leadId);
+    if ($messages === []) {
+        return null;
+    }
+
+    $lastReply = null;
+    $seenPick = [];
+
+    foreach ($messages as $msg) {
+        foreach (cart_split_shop_lines($msg) as $line) {
+            $pick = cart_message_catalog_pick_index($line);
+            if ($pick === null && preg_match('/^add\s+#(\d{1,3})\b/iu', $line, $m)) {
+                $pick = (int) $m[1];
+            }
+            if ($pick === null || $pick < 1) {
+                continue;
+            }
+            $key = 'p' . $pick;
+            if (isset($seenPick[$key])) {
+                continue;
+            }
+            $seenPick[$key] = true;
+            $products = catalog_products_for_bot($botId);
+            if ($pick > count($products)) {
+                continue;
+            }
+            $lastReply = cart_add_product($leadId, $botId, cart_resolve_shown_index($leadId, $pick), 1);
+        }
+    }
+
+    return $lastReply;
+}
+
 function cart_handle_command(int $leadId, int $botId, string $message, array $lead = []): ?string
 {
     $natural = cart_handle_natural_intent($leadId, $botId, $message, $lead);
     if ($natural !== null) {
         return $natural;
+    }
+
+    $text = trim($message);
+    if ($text !== '' && cart_message_is_order_process_question($text) && !cart_is_empty($leadId)) {
+        cart_hydrate_from_recent_messages($leadId);
+        $progress = cart_progress_checkout($leadId, $botId, $lead, $text);
+        if ($progress !== null) {
+            return $progress;
+        }
+
+        return cart_format_summary($leadId) . "\n\n"
+            . 'We confirm *Cash on Delivery* — send your *full name*, *phone*, and *delivery address* in one message, or tap *Checkout* below.';
+    }
+
+    if ($text !== '' && cart_message_asks_cart_status($text) && !cart_is_empty($leadId)) {
+        return cart_format_summary($leadId);
     }
 
     require_once __DIR__ . '/conversation-intent.php';
@@ -1182,6 +1419,7 @@ function cart_handle_command(int $leadId, int $botId, string $message, array $le
 
     $catalogPick = cart_message_catalog_pick_index($text);
     if ($catalogPick !== null) {
+        $catalogPick = cart_resolve_shown_index($leadId, $catalogPick);
         $products = catalog_products_for_bot($botId);
         if ($catalogPick >= 1 && $catalogPick <= count($products)) {
             return cart_add_product($leadId, $botId, $catalogPick, 1);
@@ -1260,7 +1498,7 @@ function cart_handle_command(int $leadId, int $botId, string $message, array $le
 
     if (preg_match('/^add\s+#(\d+)(?:\s+[x×]\s*(\d+))?$/iu', $text, $m)
         || preg_match('/^order\s+#(\d+)(?:\s+[x×]\s*(\d+))?$/iu', $text, $m)) {
-        return cart_add_product($leadId, $botId, (int) $m[1], (int) ($m[2] ?? 1));
+        return cart_add_product($leadId, $botId, cart_resolve_shown_index($leadId, (int) $m[1]), (int) ($m[2] ?? 1));
     }
 
     if (preg_match('/^add\s+(\d+)$/iu', $text, $m) && !cart_is_empty($leadId)) {
@@ -1268,11 +1506,11 @@ function cart_handle_command(int $leadId, int $botId, string $message, array $le
     }
 
     if (preg_match('/^add\s+(\d+)(?:\s+[x×]\s*(\d+))?$/iu', $text, $m)) {
-        return cart_add_product($leadId, $botId, (int) $m[1], (int) ($m[2] ?? 1));
+        return cart_add_product($leadId, $botId, cart_resolve_shown_index($leadId, (int) $m[1]), (int) ($m[2] ?? 1));
     }
 
     if (preg_match('/^order\s+(\d+)(?:\s+[x×]\s*(\d+))?$/iu', $text, $m)) {
-        return cart_add_product($leadId, $botId, (int) $m[1], (int) ($m[2] ?? 1));
+        return cart_add_product($leadId, $botId, cart_resolve_shown_index($leadId, (int) $m[1]), (int) ($m[2] ?? 1));
     }
 
     if (preg_match('/^remove\s+#?(\d+)$/i', $lower, $m)) {

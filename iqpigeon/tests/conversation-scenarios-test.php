@@ -194,7 +194,7 @@ cst_assert(catalog_message_is_browse_intent('Hey What You Have Today ?'), 'brows
 cst_assert(whatsapp_shop_customer_wants_menu('Hello What You Have Tonight ?', 0), 'shop UX: fragmented tonight');
 cst_assert(catalog_message_is_browse_intent('Send me your best item menu'), 'browse: best item menu');
 cst_assert(catalog_message_is_browse_intent('Can you send menu pics?'), 'browse: menu pics');
-cst_assert(catalog_has_clear_shopping_intent('What you have?'), 'shopping intent: what you have');
+cst_assert(catalog_has_clear_shopping_intent('What you have tonight?'), 'shopping intent: what you have tonight');
 cst_assert(catalog_has_clear_shopping_intent('Send me your best item menu'), 'shopping intent: best item menu');
 cst_assert(conversation_wants_commercial_context('What you have?'), 'what you have is commercial, not a social lock');
 cst_assert(whatsapp_shop_customer_wants_visual_card('Can you send menu pics?'), 'menu pics is a visual card request');

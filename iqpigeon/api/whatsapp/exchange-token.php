@@ -43,6 +43,18 @@ $code = trim($input['code'] ?? '');
 
 $clientId = (int) ($input['client_id'] ?? 0);
 
+$catalogIdInput = $input['catalog_id'] ?? ($input['catalog_ids'] ?? '');
+if (is_array($catalogIdInput)) {
+    $catalogIdInput = $catalogIdInput[0] ?? '';
+}
+$catalogIdInput = trim((string) $catalogIdInput);
+
+$businessIdInput = $input['business_id'] ?? '';
+if (is_array($businessIdInput)) {
+    $businessIdInput = $businessIdInput[0] ?? '';
+}
+$businessIdInput = trim((string) $businessIdInput);
+
 
 
 if ($code === '' || !$clientId) {
@@ -77,7 +89,9 @@ try {
         trim((string) ($input['waba_id'] ?? '')),
         trim((string) ($input['phone_number_id'] ?? '')),
         trim((string) ($input['display_phone_number'] ?? '')),
-        'sdk'
+        'sdk',
+        $catalogIdInput,
+        $businessIdInput
     );
 
 
@@ -100,6 +114,8 @@ try {
         'client_id'    => $clientId,
         'waba_id'      => $result['waba_id'] ?? '',
         'phone_number' => $result['phone_number'] ?? '',
+        'catalog_id'   => $result['catalog_id'] ?? '',
+        'business_id'  => $result['business_id'] ?? '',
         'mode'         => 'sdk',
     ]);
 
@@ -110,6 +126,10 @@ try {
         'phone_number' => $result['phone_number'] ?? '',
 
         'waba_id'      => $result['waba_id'] ?? '',
+
+        'catalog_id'   => $result['catalog_id'] ?? '',
+
+        'business_id'  => $result['business_id'] ?? '',
 
     ]);
 

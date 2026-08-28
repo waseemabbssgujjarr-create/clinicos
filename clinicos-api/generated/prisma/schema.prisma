@@ -24,39 +24,42 @@ model SuperAdmin {
 // CLINIC (Each subscribing Doctor)
 // ─────────────────────────────────────────────
 model Clinic {
-  id               String     @id @default(cuid())
-  name             String
-  ownerName        String
-  phone            String     @unique
-  email            String     @unique
-  passwordHash     String
-  specialty        String?
-  address          String?
-  logoUrl          String?
-  bookingSlug      String     @unique
-  timezone         String     @default("Asia/Dubai")
-  workingHours     String?    @db.Text
-  treatments       String?    @db.Text
-  defaultFee       Decimal?   @db.Decimal(10, 2)
-  aiEnabled        Boolean    @default(true)
-  aiLanguage       String     @default("english")
-  aiPersonality    String     @default("professional")
-  autoConfirm      Boolean    @default(true)
-  reminderTiming   String     @default("both")
-  reviewTiming     String     @default("1h_after")
-  customIntroMsg   String?    @db.Text
-  googlePlaceId    String?
-  googleApiKey     String?
-  stripeCustomerId String?    @unique
-  stripeSubId      String?    @unique
-  plan             ClinicPlan @default(TRIAL)
-  planStatus       PlanStatus @default(ACTIVE)
-  trialEndsAt      DateTime?
-  currentPeriodEnd DateTime?
-  isActive         Boolean    @default(true)
-  onboardingDone   Boolean    @default(false)
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
+  id                 String     @id @default(cuid())
+  name               String
+  ownerName          String
+  phone              String     @unique
+  email              String     @unique
+  passwordHash       String
+  specialty          String?
+  address            String?
+  logoUrl            String?
+  bookingSlug        String     @unique
+  timezone           String     @default("Asia/Dubai")
+  workingHours       String?    @db.Text
+  treatments         String?    @db.Text
+  defaultFee         Decimal?   @db.Decimal(10, 2)
+  aiEnabled          Boolean    @default(true)
+  aiLanguage         String     @default("english")
+  aiPersonality      String     @default("professional")
+  autoConfirm        Boolean    @default(true)
+  reminderTiming     String     @default("both")
+  reviewTiming       String     @default("1h_after")
+  customIntroMsg     String?    @db.Text
+  googlePlaceId      String?
+  googleApiKey       String?
+  stripeCustomerId   String?    @unique
+  stripeSubId        String?    @unique
+  plan               ClinicPlan @default(TRIAL)
+  planStatus         PlanStatus @default(ACTIVE)
+  trialEndsAt        DateTime?
+  currentPeriodEnd   DateTime?
+  emailVerified      Boolean    @default(false)
+  emailVerifyToken   String?    @unique
+  emailVerifyExpires DateTime?
+  isActive           Boolean    @default(true)
+  onboardingDone     Boolean    @default(false)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
 
   staff         StaffMember[]
   patients      Patient[]
@@ -92,19 +95,22 @@ enum PlanStatus {
 // STAFF MEMBERS
 // ─────────────────────────────────────────────
 model StaffMember {
-  id           String    @id @default(cuid())
-  clinicId     String
-  name         String
-  email        String    @unique
-  phone        String?
-  passwordHash String
-  role         StaffRole @default(RECEPTIONIST)
-  isActive     Boolean   @default(true)
-  inviteToken  String?   @unique
-  inviteExpiry DateTime?
-  lastLogin    DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id                 String    @id @default(cuid())
+  clinicId           String
+  name               String
+  email              String    @unique
+  phone              String?
+  passwordHash       String
+  role               StaffRole @default(RECEPTIONIST)
+  isActive           Boolean   @default(true)
+  emailVerified      Boolean   @default(false)
+  emailVerifyToken   String?   @unique
+  emailVerifyExpires DateTime?
+  inviteToken        String?   @unique
+  inviteExpiry       DateTime?
+  lastLogin          DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   clinic Clinic @relation(fields: [clinicId], references: [id])
 
@@ -464,4 +470,15 @@ model PasswordReset {
 
   @@index([token])
   @@index([email])
+}
+
+// ─────────────────────────────────────────────
+// PLATFORM SETTINGS (Superadmin Integrations)
+// Stored via raw SQL as well — see platform_settings.sql
+// ─────────────────────────────────────────────
+model PlatformSetting {
+  key       String   @id
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+  updatedBy String?
 }

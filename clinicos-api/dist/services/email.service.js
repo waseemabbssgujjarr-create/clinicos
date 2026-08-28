@@ -146,7 +146,7 @@ async function verifyEmailTransport(opts) {
 
 function defaultFrom() {
     const brand = (0, email_templates_1.brandName)();
-    const user = process.env.SMTP_USER || 'support@clinicos.workee.online';
+    const user = process.env.SMTP_USER || 'info@doctorsmyagency.com';
     const raw = stripQuotes(process.env.SMTP_FROM || '');
     // Reject invalid From like "Name <clinicos.workee.online>" (no @ email)
     const hasAngleEmail = /<[^>]+@[^>]+>/.test(raw);
@@ -191,7 +191,7 @@ async function sendEmail(options) {
 
 async function sendTestEmail(to) {
     const brand = (0, email_templates_1.brandName)();
-    const appUrl = process.env.APP_URL || 'https://clinicos.workee.online';
+    const appUrl = process.env.APP_URL || 'https://doctorsmyagency.com';
     await sendEmail({
         to,
         subject: `SMTP test — ${brand}`,
@@ -213,7 +213,7 @@ async function sendTestEmail(to) {
 
 async function sendWelcomeEmail(to, doctorName, clinicName) {
     const brand = (0, email_templates_1.brandName)();
-    const appUrl = process.env.APP_URL || 'https://clinicos.workee.online';
+    const appUrl = process.env.APP_URL || 'https://doctorsmyagency.com';
     await sendEmail({
         to,
         subject: `Welcome to ${brand}, ${doctorName}!`,
@@ -295,7 +295,7 @@ async function sendPasswordResetEmail(to, resetLink) {
 
 async function sendPaymentFailedEmail(to, doctorName) {
     const brand = (0, email_templates_1.brandName)();
-    const appUrl = process.env.APP_URL || 'https://clinicos.workee.online';
+    const appUrl = process.env.APP_URL || 'https://doctorsmyagency.com';
     await sendEmail({
         to,
         subject: `Action required: ${brand} payment failed`,
@@ -309,7 +309,7 @@ async function sendPaymentFailedEmail(to, doctorName) {
 }
 
 async function sendDailySummaryEmail(to, doctorName, data) {
-    const appUrl = process.env.APP_URL || 'https://clinicos.workee.online';
+    const appUrl = process.env.APP_URL || 'https://doctorsmyagency.com';
     await sendEmail({
         to,
         subject: `Your daily clinic summary — ${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}`,
@@ -338,7 +338,7 @@ async function sendDailySummaryEmail(to, doctorName, data) {
 
 async function sendTrialExpiryEmail(to, doctorName, daysLeft) {
     const brand = (0, email_templates_1.brandName)();
-    const appUrl = process.env.APP_URL || 'https://clinicos.workee.online';
+    const appUrl = process.env.APP_URL || 'https://doctorsmyagency.com';
     await sendEmail({
         to,
         subject: `Your free trial ends in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`,

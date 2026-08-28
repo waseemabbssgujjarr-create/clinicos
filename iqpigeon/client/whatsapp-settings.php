@@ -32,7 +32,7 @@ $manualBot = db_fetch(
     'i',
     [$clientId]
 );
-$manualConnected = $manualBot !== null;
+$manualConnected = $manualMode && $manualBot !== null;
 $primaryBotId = $manualBot ? (int) $manualBot['id'] : (int) (db_fetch('SELECT id FROM bots WHERE user_id = ? ORDER BY id ASC LIMIT 1', 'i', [$clientId])['id'] ?? 0);
 
 $flashSuccess = trim($_GET['connected'] ?? '') === '1';

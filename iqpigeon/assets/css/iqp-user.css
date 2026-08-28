@@ -594,6 +594,88 @@ html.client-dark body { background: #0f172a !important; }
   border-radius: 8px;
 }
 
+.iqp-import-panel {
+  display: flex;
+  flex-direction: column;
+}
+.iqp-import-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 960px) {
+  .iqp-import-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+  }
+}
+.iqp-import-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  margin-top: 0;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  min-width: 0;
+}
+.iqp-import-block--whatsapp {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+.iqp-import-block__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+.iqp-import-block__note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #64748b;
+}
+.iqp-import-block__form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+.iqp-import-file {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  color: #334155;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+.iqp-import-block__form button,
+.iqp-import-actions button {
+  align-self: flex-start;
+  min-height: 38px;
+}
+.iqp-import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: auto;
+}
+.iqp-import-actions form {
+  margin: 0;
+}
+.iqp-import-status {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+}
+.iqp-import-status--err {
+  color: #b91c1c;
+}
+
 /* Shop search field — icon centering (Tailwind translate utilities not in build) */
 .iqp-search-wrap {
   position: relative;
@@ -1415,6 +1497,24 @@ html.client-dark .iqp-client-brand-logo.brand-logo--dark-bg {
   border: 1px solid #bbf7d0;
 }
 
+@keyframes wa-connect-spin { to { transform: rotate(360deg); } }
+.wa-connect-spin {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: wa-connect-spin 0.75s linear infinite;
+  vertical-align: -2px;
+}
+#connect-wa-primary.wa-connect-busy,
+[data-wa-oauth-connect].wa-connect-busy {
+  pointer-events: none;
+  opacity: 0.85;
+}
+
 /* WhatsApp settings — 3-column row (desktop), stacked (mobile) */
 .wa-page-grid {
   display: grid;
@@ -1745,6 +1845,9 @@ html.client-dark .iqp-client-brand-logo.brand-logo--dark-bg {
   .iqp-train-layout {
     grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
   }
+  .iqp-train-layout--publish {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .iqp-train-main,
 .iqp-train-rail {
@@ -1770,6 +1873,54 @@ html.client-dark .iqp-client-brand-logo.brand-logo--dark-bg {
 .iqp-train-save-btn {
   white-space: nowrap;
   flex-shrink: 0;
+}
+/* Business Info: logo thumbnail stays small so Website is not stretched */
+.iqp-biz-info-grid {
+  align-items: start;
+}
+.iqp-biz-logo-drop {
+  min-height: 0;
+}
+.iqp-biz-logo-preview {
+  width: 40px !important;
+  height: 40px !important;
+  max-width: 40px !important;
+  max-height: 40px !important;
+  object-fit: contain;
+  border-radius: 8px;
+  flex-shrink: 0;
+  display: block;
+  background: #f8fafc;
+}
+.iqp-chat-avatar {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px;
+  min-height: 28px;
+  max-width: 28px;
+  max-height: 28px;
+}
+.iqp-chat-avatar-lg {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px;
+  min-height: 32px;
+  max-width: 32px;
+  max-height: 32px;
+}
+@keyframes iqp-typing-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: .35; }
+  40% { transform: translateY(-4px); opacity: 1; }
+}
+.iqp-typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #94a3b8;
+  animation: iqp-typing-bounce 1s infinite ease-in-out;
+}
+.iqp-typing-bubble {
+  min-height: 36px;
 }
 @media (max-width: 419px) {
   .iqp-assistant-name-form .iqp-train-save-btn {
@@ -2928,6 +3079,22 @@ html.client-dark .iqp-website-fetch input[type="url"] {
   border-color: var(--iqp-dark-border) !important;
   color: var(--iqp-dark-text-soft) !important;
 }
+html.client-dark .iqp-import-block {
+  background: var(--iqp-dark-elevated, #1e293b);
+  border-color: var(--iqp-dark-border, #334155);
+}
+html.client-dark .iqp-import-block--whatsapp {
+  background: rgba(6, 78, 59, 0.35);
+  border-color: #065f46;
+}
+html.client-dark .iqp-import-block__title {
+  color: var(--iqp-dark-text, #f1f5f9);
+}
+html.client-dark .iqp-import-file {
+  background: var(--iqp-dark-bg, #0f172a);
+  border-color: var(--iqp-dark-border, #334155);
+  color: var(--iqp-dark-text-soft, #e2e8f0);
+}
 
 /* Guide action buttons */
 html.client-dark .iqp-guide-btn--secondary {
@@ -3119,4 +3286,100 @@ html.client-dark .bg-white.rounded-xl:hover {
   background: #fef2f2;
   color: #b91c1c;
   border: 1px solid #fecaca;
+}
+
+/* Confirm dialog — must not depend on purged Tailwind utilities */
+.iqp-confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+.iqp-confirm__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.38);
+}
+.iqp-confirm__card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 400px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px 22px 18px;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.16);
+}
+.iqp-confirm__title {
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #0f172a;
+}
+.iqp-confirm__body {
+  margin: 0 0 20px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #64748b;
+}
+.iqp-confirm__actions {
+  display: flex;
+  gap: 10px;
+}
+.iqp-confirm__btn {
+  flex: 1;
+  height: 44px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.iqp-confirm__btn--cancel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+}
+.iqp-confirm__btn--cancel:hover {
+  background: #f8fafc;
+}
+.iqp-confirm__btn--ok {
+  background: #1FA855;
+  border: 0;
+  color: #ffffff;
+}
+.iqp-confirm__btn--ok:hover {
+  background: #18934a;
+}
+.iqp-confirm__btn--danger {
+  background: #dc2626;
+  border: 0;
+  color: #ffffff;
+}
+.iqp-confirm__btn--danger:hover {
+  background: #b91c1c;
+}
+html.client-dark .iqp-confirm__backdrop {
+  background: rgba(2, 6, 23, 0.5);
+}
+html.client-dark .iqp-confirm__card {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+}
+html.client-dark .iqp-confirm__title {
+  color: #f8fafc;
+}
+html.client-dark .iqp-confirm__body {
+  color: #94a3b8;
+}
+html.client-dark .iqp-confirm__btn--cancel {
+  background: #0f172a;
+  border-color: #475569;
+  color: #e2e8f0;
 }

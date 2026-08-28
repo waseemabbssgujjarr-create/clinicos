@@ -29,7 +29,7 @@ async function setDoctorVerification(clinicId, email, ownerName) {
     const token = crypto_1.default.randomBytes(32).toString('hex');
     const expires = (0, date_fns_1.addHours)(new Date(), VERIFY_HOURS);
     await prisma_1.prisma.$executeRaw `UPDATE Clinic SET emailVerified = 0, emailVerifyToken = ${token}, emailVerifyExpires = ${expires} WHERE id = ${clinicId}`;
-    const verifyUrl = `${process.env.APP_URL || 'https://clinicos.workee.online'}/verify-email/?token=${token}&email=${encodeURIComponent(email)}`;
+    const verifyUrl = `${process.env.APP_URL || 'https://doctorsmyagency.com'}/verify-email/?token=${token}&email=${encodeURIComponent(email)}`;
     let emailSent = false;
     let emailError = null;
     try {
@@ -191,7 +191,7 @@ exports.login = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         throw (0, error_middleware_1.createError)('Please verify your email before signing in. Check your inbox or request a new verification link.', 403, 'EMAIL_NOT_VERIFIED');
     }
     if (!clinic.isActive) {
-        throw (0, error_middleware_1.createError)('This clinic account has been suspended. Please contact support@clinicos.workee.online', 403, 'ACCOUNT_SUSPENDED');
+        throw (0, error_middleware_1.createError)('This clinic account has been suspended. Please contact support@doctorsmyagency.com', 403, 'ACCOUNT_SUSPENDED');
     }
     const token = (0, jwt_1.signToken)({
         id: clinic.id,
@@ -461,7 +461,7 @@ exports.forgotPassword = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     await prisma_1.prisma.passwordReset.create({
         data: { email: recipientEmail, token, expiresAt },
     });
-    const appUrl = process.env.APP_URL || 'https://clinicos.workee.online';
+    const appUrl = process.env.APP_URL || 'https://doctorsmyagency.com';
     const resetLink = `${appUrl}/reset-password/?token=${token}&email=${encodeURIComponent(recipientEmail)}`;
     try {
         await (0, email_service_1.sendPasswordResetEmail)(recipientEmail, resetLink);

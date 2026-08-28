@@ -18,6 +18,11 @@ function media_api_key_openai_voice(): string
         return $key;
     }
 
+    $chat = integration_openai_chat_key();
+    if ($chat !== '') {
+        return $chat;
+    }
+
     return media_api_key_openai_legacy();
 }
 
@@ -26,6 +31,11 @@ function media_api_key_openai_image(): string
     $key = trim(integration_config('OPENAI_IMAGE_API_KEY'));
     if ($key !== '') {
         return $key;
+    }
+
+    $chat = integration_openai_chat_key();
+    if ($chat !== '') {
+        return $chat;
     }
 
     return media_api_key_openai_legacy();

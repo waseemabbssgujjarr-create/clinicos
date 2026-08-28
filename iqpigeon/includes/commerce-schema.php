@@ -244,6 +244,7 @@ function ensure_user_profile_schema(): void
         'pref_timezone'    => "VARCHAR(64) NOT NULL DEFAULT 'Asia/Karachi' AFTER pref_language",
         'pref_currency'    => "VARCHAR(8) NOT NULL DEFAULT 'PKR' AFTER pref_timezone",
         'pref_date_format' => "VARCHAR(32) NOT NULL DEFAULT 'DD MMM, YYYY' AFTER pref_currency",
+        'business_email'   => "VARCHAR(120) NULL DEFAULT NULL AFTER phone",
     ];
     foreach ($columns as $col => $def) {
         commerce_ensure_column($conn, 'users', $col, $def);

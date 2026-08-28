@@ -39,10 +39,12 @@ const twilio_webhook_1 = __importDefault(require("./webhooks/twilio.webhook"));
 const meta_webhook_1 = __importDefault(require("./webhooks/meta.webhook"));
 const internal_routes_1 = __importDefault(require("./routes/internal.routes"));
 const stripe_webhook_1 = __importDefault(require("./webhooks/stripe.webhook"));
+
 const app = (0, express_1.default)();
 exports.app = app;
 const httpServer = (0, http_1.createServer)(app);
 exports.httpServer = httpServer;
+
 // ── Socket.io ─────────────────────────────────────────────────────────────────
 const io = new socket_io_1.Server(httpServer, {
     cors: {
@@ -62,6 +64,7 @@ io.on('connection', (socket) => {
         logger_1.logger.debug(`Socket disconnected: ${socket.id}`);
     });
 });
+
 // ── Security ──────────────────────────────────────────────────────────────────
 app.set('trust proxy', 1);
 app.use((0, helmet_1.default)({ crossOriginEmbedderPolicy: false, contentSecurityPolicy: false }));
@@ -71,6 +74,7 @@ app.use((0, cors_1.default)({
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
 // ── Rate Limiting ─────────────────────────────────────────────────────────────
 app.use((0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000,
@@ -84,12 +88,15 @@ const authLimiter = (0, express_rate_limit_1.default)({
     max: 20,
     message: { error: 'Too many login attempts. Try again in 15 minutes.', code: 'AUTH_RATE_LIMIT' },
 });
+
 // ── Stripe webhook MUST receive raw body — register BEFORE express.json() ────
 app.use('/api/webhooks/stripe', express_1.default.raw({ type: 'application/json' }), stripe_webhook_1.default);
+
 // ── Body Parsing ──────────────────────────────────────────────────────────────
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
 app.use((0, cookie_parser_1.default)());
+
 // ── HSTS in production ────────────────────────────────────────────────────────
 if (process.env.NODE_ENV === 'production') {
     app.use((_req, res, next) => {
@@ -97,52 +104,45 @@ if (process.env.NODE_ENV === 'production') {
         next();
     });
 }
-// ── IQ Pigeon SalesBot proxy (same-origin — avoids CORS on widget config) ─────
-const IQPIGEON_CHAT = 'https://iqpigeon.com/api/chat-widget.php';
-const BRAND_WIDGET_COLOR = '#F97316';
-async function proxyIqPigeonChat(req, res) {
-    try {
-        const url = new URL(IQPIGEON_CHAT);
-        for (const [k, v] of Object.entries(req.query)) {
-            if (v != null && v !== '')
-                url.searchParams.set(k, String(v));
-        }
-        const opts = {
-            method: req.method,
-            headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-        };
-        if (req.method === 'POST')
-            opts.body = JSON.stringify(req.body ?? {});
-        const upstream = await fetch(url.toString(), opts);
-        const text = await upstream.text();
-        let payload = text;
-        try {
-            const data = JSON.parse(text);
-            if (data && data.success) {
-                data.widget_color = BRAND_WIDGET_COLOR;
-                data.widgetColor = BRAND_WIDGET_COLOR;
-                payload = JSON.stringify(data);
-            }
-        }
-        catch (_) { /* pass through raw */ }
-        res.status(upstream.status).type('application/json').send(payload);
-    }
-    catch (err) {
-        res.status(502).json({ success: false, error: 'Chat proxy unavailable' });
-    }
-}
-app.get('/api/chat-widget.php', proxyIqPigeonChat);
-app.post('/api/chat-widget.php', proxyIqPigeonChat);
-// ── Health check ──────────────────────────────────────────────────────────────
-app.get('/health', (_req, res) => {
+
+// ── Root health route ─────────────────────────────────────────────────────────
+// IMPORTANT: This route must exist and respond instantly with no DB call.
+// On Hostinger Node.js hosting the root route proves Node/Express is alive.
+// If this returns 404, the issue is in Hostinger deployment config, not the app.
+app.get('/', (_req, res) => {
     res.json({
-        status: 'ok',
-        app: 'Doctors My Agency AI',
+        service: 'Doctors My Agency',
+        status: 'running',
+        version: '2.0.0',
         timestamp: new Date().toISOString(),
-        env: process.env.NODE_ENV,
     });
 });
-// Lightweight Prisma probe (proves DB; /api/leads/features is static and does NOT)
+
+// ── API Health Checks ─────────────────────────────────────────────────────────
+// GET /health — MUST NOT require DB. Returns immediately. Use for Hostinger
+// deployment health checks and uptime monitoring.
+app.get('/health', (_req, res) => {
+    res.json({
+        ok: true,
+        service: 'doctors-my-agency-api',
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        env: process.env.NODE_ENV || 'development',
+    });
+});
+
+// GET /api/health — API-level health (also no DB required)
+app.get('/api/health', (_req, res) => {
+    res.json({
+        ok: true,
+        service: 'doctors-my-agency-api',
+        api: 'healthy',
+        embeddedSignupEnabled: (process.env.WHATSAPP_EMBEDDED_SIGNUP_ENABLED || 'false') === 'true',
+        timestamp: new Date().toISOString(),
+    });
+});
+
+// GET /api/health/db — DB probe. Clearly distinguishes API health from DB health.
 app.get('/api/health/db', async (_req, res) => {
     const url = process.env.DATABASE_URL || '';
     const userMatch = url.match(/^mysql:\/\/([^:/]+):/);
@@ -153,40 +153,31 @@ app.get('/api/health/db', async (_req, res) => {
         host: hostMatch ? hostMatch[1] : null,
         db: dbMatch ? dbMatch[2] : null,
     };
-    if (masked.user && /cognitom/i.test(masked.user)) {
-        res.status(503).json({
-            ok: false,
-            code: 'WRONG_SITE_DB',
-            error: 'DATABASE_URL points at old cognitom user — use digitals_clinicuser / digitals_clinicdb on workee',
-            ...masked,
-        });
-        return;
-    }
     try {
         const { prisma } = require('./lib/prisma');
-        await prisma.$queryRaw `SELECT 1 AS ok`;
+        await prisma.$queryRaw`SELECT 1 AS ok`;
         let clinicCount = null;
-        try {
-            clinicCount = await prisma.clinic.count();
-        }
-        catch (_) { /* table may be missing during migrate */ }
+        try { clinicCount = await prisma.clinic.count(); } catch (_) { /* table may not exist yet */ }
         res.json({
             ok: true,
-            select1: 'ok',
+            api: 'healthy',
+            database: 'healthy',
             clinic_count: clinicCount,
             ...masked,
-            note: 'Prisma reachable — unlike /api/leads/features which is static JSON',
         });
     }
     catch (err) {
         res.status(503).json({
             ok: false,
+            api: 'healthy',
+            database: 'unavailable',
             code: 'DB_UNAVAILABLE',
             error: err instanceof Error ? err.message : String(err),
             ...masked,
         });
     }
 });
+
 // ── API Routes ────────────────────────────────────────────────────────────────
 app.use('/api/auth', authLimiter, auth_routes_1.default);
 app.use('/api/appointments', appointments_routes_1.default);
@@ -207,18 +198,19 @@ app.use('/api/whatsapp', whatsapp_routes_1.default);
 app.use('/api/internal', internal_routes_1.default);
 app.use('/api/webhooks/twilio', twilio_webhook_1.default);
 app.use('/api/webhooks/meta', meta_webhook_1.default);
+
 // ── Static frontend (production only) ────────────────────────────────────────
-// On cPanel, Phusion Passenger routes ALL traffic through this Node.js process.
+// On Hostinger Node.js hosting ALL traffic routes through this Express process.
 // The compiled Next.js static export (out/) is copied to dist/public/ at deploy time.
-// API routes above take priority; everything else serves the React SPA.
+// API routes above take priority; everything else serves the SPA.
 if (process.env.NODE_ENV === 'production') {
     const frontendPath = path_1.default.join(__dirname, 'public');
     app.use(express_1.default.static(frontendPath));
-    // Unmatched /api/* must return JSON — never SPA index.html (fixes DELETE parse errors)
+    // Unmatched /api/* must return JSON — never SPA fallback
     app.use('/api', (_req, res) => {
         res.status(404).json({ error: 'Route not found', code: 'NOT_FOUND' });
     });
-    // SPA fallback — non-API GET routes only
+    // SPA fallback — non-API GET requests serve index.html
     app.get('*', (req, res) => {
         if (req.path.startsWith('/api/')) {
             res.status(404).json({ error: 'Route not found', code: 'NOT_FOUND' });
@@ -228,26 +220,29 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 else {
-    // ── 404 for local dev (frontend runs separately on port 3000) ──────────────
+    // Local dev: frontend runs separately on port 3000
     app.use((_req, res) => {
         res.status(404).json({ error: 'Route not found', code: 'NOT_FOUND' });
     });
 }
+
 // ── Global error handler (must be last) ──────────────────────────────────────
 app.use(error_middleware_1.errorMiddleware);
+
 // ── Start Server ──────────────────────────────────────────────────────────────
-// cPanel Phusion Passenger passes a Unix socket path via process.env.PORT
-// (looks like "/path/to/passenger.socket"). Fall back to numeric port for local dev.
+// Hostinger injects PORT as a Unix socket path (starts with '/').
+// Fall back to numeric port for local dev.
 const PORT_OR_SOCKET = process.env.PORT ?? 3001;
 const isSocket = typeof PORT_OR_SOCKET === 'string' && PORT_OR_SOCKET.startsWith('/');
 const listenTarget = isSocket ? PORT_OR_SOCKET : Number(PORT_OR_SOCKET);
 const listenHost = isSocket ? undefined : '127.0.0.1';
 httpServer.listen(listenTarget, listenHost, () => {
-    logger_1.logger.info(`🚀 Doctors My Agency AI listening on ${listenTarget} [${process.env.NODE_ENV ?? 'development'}]`);
+    logger_1.logger.info(`🚀 Doctors My Agency API listening on ${listenTarget} [${process.env.NODE_ENV ?? 'development'}]`);
     if (process.env.NODE_ENV !== 'test') {
         try {
             (0, scheduler_1.startScheduler)();
-        } catch (err) {
+        }
+        catch (err) {
             logger_1.logger.error('Scheduler failed to start (non-fatal)', { err });
         }
     }

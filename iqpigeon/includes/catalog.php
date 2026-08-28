@@ -208,10 +208,11 @@ function catalog_message_is_browse_intent(string $message): bool
     }
 
     return (bool) preg_match(
-        '/\b(any product|any item|what do you (have|sell|offer)|what you (have|sell|offer)|'
+        '/\b(any product|any item|'
         . 'what(?:\'?s| is)? (?:on )?(?:the )?(?:menu|tonight|today)|'
         . 'what(?:\'?s| is) available|(?:available|specials?) (?:today|tonight)|'
         . 'tonight(?:\'?s)? (?:menu|special)|today(?:\'?s)? (?:menu|special)|'
+        . 'what (?:do )?you have (?:today|tonight)|what you have (?:today|tonight)|'
         . 'show (me )?(your )?(catalog|products|menu)|'
         . 'can you show.*menu|send.*menu|see.*menu|menu please|'
         . 'best ?item|best ?seller|menu pics?|menu photos?|bbq|barbeque|barbecue|'

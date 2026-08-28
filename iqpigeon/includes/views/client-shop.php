@@ -11,6 +11,8 @@
 /** @var array $metaCatalogStatus */
 /** @var string $metaCatalogId */
 /** @var bool $catalogMutated */
+/** @var string $waDisplayPhone */
+/** @var bool $waCatalogConnected */
 
 $q          = trim((string)($_GET['q'] ?? ''));
 $catFilter  = trim((string)($_GET['category'] ?? ''));
@@ -68,6 +70,10 @@ $paged = array_slice($shown, ($page - 1) * $perPage, $perPage);
 
 $currency = function_exists('default_currency') ? default_currency() : 'PKR';
 $csrf = csrf_token();
+$waDisplayPhone = (string) ($waDisplayPhone ?? '');
+$waCatalogConnected = !empty($waCatalogConnected);
+$metaError = meta_catalog_status_is_problem((string) ($metaCatalogStatus['status'] ?? ''))
+    || ($error !== '' && (stripos($error, 'Meta') !== false || stripos($error, 'catalog') !== false || stripos($error, 'Unsupported post') !== false));
 
 // Edit product data
 $editId = (int)($_GET['edit'] ?? 0);
@@ -175,31 +181,69 @@ iqp_stat_cards([
   <?php endif; ?>
 </div>
 
-<!-- Import Panel (CSV, menu, Meta — hidden by default) -->
-<div id="iqpImport" class="hidden bg-white rounded-xl border border-slate-200 p-5 mb-5 space-y-4">
+<!-- Import Panel (CSV, menu, Meta) -->
+<div id="iqpImport" class="<?= $metaError ? '' : 'hidden' ?> iqp-import-panel bg-white rounded-xl border border-slate-200 p-5 mb-5">
   <div class="text-[15px] font-bold text-slate-800">Import / Sync</div>
-  <p class="text-[12px] text-slate-500 -mt-2">CSV, PDF menu, or WhatsApp catalog sync. Website fetch is above.</p>
-  <form method="POST" enctype="multipart/form-data" class="flex flex-wrap gap-2 items-end">
-    <input type="hidden" name="csrf_token" value="<?= sanitize($csrf) ?>"/>
-    <input type="hidden" name="action" value="import_csv"/>
-    <input type="hidden" name="bot_id" value="<?= (int)$botId ?>"/>
-    <div class="flex-1 min-w-[200px]"><div class="text-[12px] text-slate-500 mb-1">Upload CSV</div><input type="file" name="csv_file" accept=".csv,text/csv" required class="text-[12px]"/></div>
-    <button class="border border-slate-200 rounded-lg px-3 py-2 text-[12px] font-medium">Import CSV</button>
-  </form>
-  <form id="menu-file-import-form" class="flex flex-wrap gap-2 items-end" enctype="multipart/form-data">
-    <input type="hidden" name="csrf_token" value="<?= sanitize($csrf) ?>"/>
-    <input type="hidden" name="bot_id" value="<?= (int)$botId ?>"/>
-    <div class="flex-1 min-w-[200px]"><div class="text-[12px] text-slate-500 mb-1">PDF / image menu</div><input type="file" name="menu_file" accept=".pdf,application/pdf,image/png,image/jpeg,image/jpg,image/webp" required class="text-[12px]"/></div>
-    <button id="menu-file-import-btn" class="border border-slate-200 rounded-lg px-3 py-2 text-[12px] font-medium">Import menu</button>
-  </form>
-  <p id="menu-file-import-status" class="text-[12px] text-slate-400"></p>
-  <form method="POST" class="flex flex-wrap gap-2">
-    <input type="hidden" name="csrf_token" value="<?= sanitize($csrf) ?>"/>
-    <input type="hidden" name="action" value="sync_meta_catalog"/>
-    <input type="hidden" name="bot_id" value="<?= (int)$botId ?>"/>
-    <button class="border border-slate-200 rounded-lg px-3 py-2 text-[12px] font-medium">Sync WhatsApp catalog</button>
-    <span class="text-[11px] text-slate-400 self-center"><?= sanitize((string)($metaCatalogStatus['label']??'')) ?></span>
-  </form>
+  <p class="text-[12px] text-slate-500 mt-1 mb-4">CSV, PDF menu, or the catalog on your connected WhatsApp number. Website fetch is above.</p>
+
+  <div class="iqp-import-grid">
+  <div class="iqp-import-block">
+    <div class="iqp-import-block__title">Upload CSV</div>
+    <form method="POST" enctype="multipart/form-data" class="iqp-import-block__form">
+      <input type="hidden" name="csrf_token" value="<?= sanitize($csrf) ?>"/>
+      <input type="hidden" name="action" value="import_csv"/>
+      <input type="hidden" name="bot_id" value="<?= (int)$botId ?>"/>
+      <input type="file" name="csv_file" accept=".csv,text/csv" required class="iqp-import-file"/>
+      <button class="border border-slate-200 bg-white rounded-lg px-3 py-2 text-[12px] font-medium">Import CSV</button>
+    </form>
+  </div>
+
+  <div class="iqp-import-block">
+    <div class="iqp-import-block__title">PDF / image menu</div>
+    <form id="menu-file-import-form" class="iqp-import-block__form" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="<?= sanitize($csrf) ?>"/>
+      <input type="hidden" name="bot_id" value="<?= (int)$botId ?>"/>
+      <input type="file" name="menu_file" accept=".pdf,application/pdf,image/png,image/jpeg,image/jpg,image/webp" required class="iqp-import-file"/>
+      <button id="menu-file-import-btn" class="border border-slate-200 bg-white rounded-lg px-3 py-2 text-[12px] font-medium">Import menu</button>
+    </form>
+    <p id="menu-file-import-status" class="text-[12px] text-slate-400"></p>
+  </div>
+
+  <div class="iqp-import-block iqp-import-block--whatsapp">
+    <div class="iqp-import-block__title">WhatsApp catalog</div>
+    <?php if ($waCatalogConnected): ?>
+    <p class="iqp-import-block__note">
+      Uses <?= $waDisplayPhone !== '' ? '<strong>' . sanitize($waDisplayPhone) . '</strong>' : 'your connected WhatsApp number' ?>. Syncs this shop to that number’s Meta catalog.
+    </p>
+    <?php else: ?>
+    <p class="iqp-import-block__note">Connect WhatsApp in Settings first. The catalog on that number is linked automatically.</p>
+    <?php endif; ?>
+    <div class="iqp-import-actions">
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="<?= sanitize($csrf) ?>"/>
+        <input type="hidden" name="action" value="sync_meta_catalog"/>
+        <input type="hidden" name="bot_id" value="<?= (int)$botId ?>"/>
+        <button class="bg-[#1FA855] text-white rounded-lg px-3 py-2.5 text-[12px] font-semibold"<?= $waCatalogConnected ? '' : ' disabled' ?>>Sync now</button>
+      </form>
+      <form method="POST" onsubmit="return confirm('Clear the stored catalog ID and rediscover the catalog on this WhatsApp number? IQ Pigeon products stay.')">
+        <input type="hidden" name="csrf_token" value="<?= sanitize($csrf) ?>"/>
+        <input type="hidden" name="action" value="reset_meta_catalog"/>
+        <input type="hidden" name="bot_id" value="<?= (int)$botId ?>"/>
+        <input type="hidden" name="reject_catalog_id" value="<?= sanitize((string)($metaCatalogId ?? '')) ?>"/>
+        <button class="border border-amber-200 bg-amber-50 rounded-lg px-3 py-2.5 text-[12px] font-medium text-amber-800">Reset catalog</button>
+      </form>
+    </div>
+    <p class="iqp-import-status<?= meta_catalog_status_is_problem((string) ($metaCatalogStatus['status'] ?? '')) ? ' iqp-import-status--err' : '' ?>">
+      <?= sanitize((string)($metaCatalogStatus['label'] ?? '')) ?>
+      <?php if (!empty($metaCatalogId)): ?>
+        · ID <?= sanitize((string)$metaCatalogId) ?>
+      <?php endif; ?>
+    </p>
+    <?php if (!empty($metaCatalogStatus['detail']) && meta_catalog_status_is_problem((string) ($metaCatalogStatus['status'] ?? ''))): ?>
+    <p class="iqp-import-block__note"><?= sanitize((string)$metaCatalogStatus['detail']) ?></p>
+    <?php endif; ?>
+  </div>
+  </div>
 </div>
 
 <!-- Main Grid -->
