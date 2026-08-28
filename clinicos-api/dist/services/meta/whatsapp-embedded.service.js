@@ -27,47 +27,63 @@ const logger_1 = require("../../lib/logger");
 // ── Feature flag ──────────────────────────────────────────────────────────────
 
 /**
- * Returns true only when WHATSAPP_EMBEDDED_SIGNUP_ENABLED=true is explicitly set.
- * Default is false — safe to deploy without Meta App Review approval.
+ * Returns true when:
+ *  1. WHATSAPP_EMBEDDED_SIGNUP_ENABLED is explicitly "true" or "1", OR
+ *  2. All three required Meta credentials are configured (auto-enable)
+ *     — META_APP_ID + META_APP_SECRET + META_CONFIG_ID all present.
+ *
+ * Auto-enable means: once the admin saves credentials in Integrations,
+ * the Connect button appears automatically without needing a separate toggle.
+ * Setting WHATSAPP_EMBEDDED_SIGNUP_ENABLED=false explicitly overrides this.
  */
 function isEmbeddedSignupEnabled() {
-    const val = (process.env.WHATSAPP_EMBEDDED_SIGNUP_ENABLED || "false").trim().toLowerCase();
-    return val === "true" || val === "1";
+    const raw = (process.env.WHATSAPP_EMBEDDED_SIGNUP_ENABLED || "").trim().toLowerCase();
+
+    // Explicit disable always wins
+    if (raw === "false" || raw === "0") return false;
+
+    // Explicit enable
+    if (raw === "true" || raw === "1") return true;
+
+    // Auto-enable: all three Meta credentials are present
+    const appId    = (process.env.META_APP_ID    || "").trim();
+    const secret   = (process.env.META_APP_SECRET || "").trim();
+    const configId = (process.env.META_CONFIG_ID  || "").trim();
+    return !!(appId && secret && configId);
 }
 
 /**
  * Return the Embedded Signup configuration needed by the frontend FB SDK.
- * If the flag is disabled, returns { enabled: false } — frontend hides the button.
+ * If the flag is disabled OR credentials are incomplete, returns { enabled: false }.
  */
 function getEmbeddedSignupConfig() {
-    if (!isEmbeddedSignupEnabled()) {
+    const appId    = (process.env.META_APP_ID    || "").trim();
+    const secret   = (process.env.META_APP_SECRET || "").trim();
+    const configId = (process.env.META_CONFIG_ID  || "").trim();
+
+    // Explicit disable
+    const rawFlag = (process.env.WHATSAPP_EMBEDDED_SIGNUP_ENABLED || "").trim().toLowerCase();
+    if (rawFlag === "false" || rawFlag === "0") {
         return {
             enabled: false,
             code: "EMBEDDED_SIGNUP_DISABLED",
-            message:
-                "Meta Embedded Signup is currently disabled. " +
-                "Manual Meta Connection is available. " +
-                "Embedded Signup will be activated after Meta App Review approval.",
+            message: "Meta Embedded Signup is disabled. Set WHATSAPP_EMBEDDED_SIGNUP_ENABLED=true in Superadmin → Integrations to enable.",
         };
     }
 
-    const appId = process.env.META_APP_ID || "";
-    const configId = process.env.META_CONFIG_ID || "";
-
-    if (!appId) {
+    if (!appId || !secret) {
         return {
             enabled: false,
-            code: "META_APP_NOT_CONFIGURED",
-            message: "META_APP_ID is not configured. Set it in Superadmin → Integrations.",
+            code: "META_CREDENTIALS_MISSING",
+            message: "Meta App ID and App Secret are required. Set them in Superadmin → Integrations.",
         };
     }
+
     if (!configId) {
         return {
             enabled: false,
-            code: "META_CONFIG_NOT_CONFIGURED",
-            message:
-                "META_CONFIG_ID is not configured. " +
-                "Create an Embedded Signup configuration in Meta App → WhatsApp → Embedded Signup, then set it in Superadmin → Integrations.",
+            code: "META_CONFIG_ID_MISSING",
+            message: "Embedded Signup Config ID is required. Go to Meta App → WhatsApp → Embedded Signup, create a configuration, and paste the Config ID in Superadmin → Integrations.",
         };
     }
 

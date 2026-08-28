@@ -239,23 +239,36 @@
   // Only shows Embedded Signup button. No manual form. No token fields.
 
   function renderConnectPanel(config) {
-    // Feature flag disabled
+    // credentials missing or disabled — show actionable message
     if (!config || config.enabled !== true) {
+      var code = (config && config.code) || '';
+      var msg  = (config && config.message) || 'Contact your platform administrator to configure WhatsApp.';
+
+      var actionLink = '';
+      if (code === 'META_CREDENTIALS_MISSING' || code === 'META_CONFIG_ID_MISSING' || code === 'EMBEDDED_SIGNUP_DISABLED') {
+        actionLink =
+          '<a href="/superadmin/integrations/" ' +
+            'style="display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:.8125rem;' +
+                   'font-weight:700;color:#2563EB;text-decoration:none;padding:8px 14px;' +
+                   'border:1.5px solid rgba(37,99,235,.4);border-radius:8px;background:#EFF6FF">' +
+            '\u2699\uFE0F Superadmin \u2192 Integrations' +
+          '</a>';
+      }
+
       return '' +
-        '<div class="dma-wa-unavailable">' +
-          '<p style="color:#0f172a;font-weight:700;font-size:.95rem;margin:0 0 8px">Connect with your approved Meta app</p>' +
-          '<p style="color:#64748b;font-size:.85rem;margin:0 0 10px;line-height:1.55">' +
-            esc(config && config.message
-              ? config.message
-              : 'Embedded Signup is not enabled on the server yet. In Superadmin → Integrations, set Meta App ID, Embedded Signup Config ID, and turn Embedded Signup on.') +
-          '</p>' +
-          '<p style="color:#94a3b8;font-size:.78rem;margin:0">Doctors connect only through Meta Embedded Signup — no shop catalogs, no other business types.</p>' +
+        '<div style="text-align:center;padding:1.75rem 1rem">' +
+          '<div style="font-size:2.25rem;margin-bottom:10px">' +
+            (code === 'META_CREDENTIALS_MISSING' || code === 'META_CONFIG_ID_MISSING' ? '\u2699\uFE0F' : '\uD83D\uDCAC') +
+          '</div>' +
+          '<p style="font-size:.9375rem;font-weight:700;color:#111827;margin:0 0 8px">Connect with your approved Meta app</p>' +
+          '<p style="font-size:.8125rem;color:#6B7280;margin:0 auto;line-height:1.6;max-width:340px">' + esc(msg) + '</p>' +
+          actionLink +
         '</div>';
     }
 
-    // Feature flag enabled — show Embedded Signup button
+    // All credentials present — show the Connect button
     return '' +
-      '<p style="color:#475569;font-size:.9rem;margin:0 0 16px;line-height:1.6">' +
+      '<p style="color:#374151;font-size:.9rem;margin:0 0 16px;line-height:1.6">' +
         'Connect your clinic\'s WhatsApp Business account securely through Meta.' +
       '</p>' +
       '<p id="dma-wa-error" class="dma-wa-error" style="display:none"></p>' +
