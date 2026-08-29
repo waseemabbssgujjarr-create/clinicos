@@ -237,8 +237,20 @@
         var anchor =
           document.querySelector('main [class*="space-y"]') ||
           document.querySelector('main > div');
-        if (anchor) anchor.appendChild(wrap);
+        if (anchor) anchor.insertBefore(wrap, anchor.firstChild);
         else document.querySelector('main').appendChild(wrap);
+
+        /* Hide duplicate React "Upgrade your plan" section at bottom */
+        document.querySelectorAll('main h2, main .card h2, main h3').forEach(function (h) {
+          if (h.closest('#dma-billing-plans')) return;
+          var t = (h.textContent || '').trim().toLowerCase();
+          if (/upgrade your plan|upgrade plan/.test(t)) {
+            var block = h.closest('.card') || h.closest('[class*="space-y"]') || h.parentElement;
+            if (block && !block.querySelector('#dma-billing-plans')) {
+              block.classList.add('dma-billing-react-upgrade-hidden');
+            }
+          }
+        });
 
         document.querySelectorAll('main button').forEach(function (btn) {
           if (/manage billing/i.test(btn.textContent || '')) {

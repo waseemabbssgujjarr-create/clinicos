@@ -1,13 +1,13 @@
 /**
- * Dashboard — orange brand #F97316
+ * Dashboard — blue brand #2563EB
  * Injected via dashboard-bootstrap.js on Next.js static export pages.
  */
 :root {
-  --dma-accent: #F97316;
-  --dma-accent-hover: #ea580c;
-  --dma-accent-soft: rgba(249, 115, 22, 0.12);
-  --dma-accent-readable: #c2410c;
-  --dma-sidebar: #1c1917;
+  --dma-accent: #2563EB;
+  --dma-accent-hover: #1D4ED8;
+  --dma-accent-soft: rgba(37, 99, 235, 0.12);
+  --dma-accent-readable: #1D4ED8;
+  --dma-sidebar: #1E293B;
   --dma-sidebar-text: #d4d4d8;
   --dma-surface: #ffffff;
   --dma-text: #0f172a;
@@ -43,7 +43,7 @@ div[class*="w-56"][class*="bg-"],
 div[class*="w-72"][class*="bg-"] {
   background-color: var(--dma-sidebar) !important;
   color: var(--dma-sidebar-text) !important;
-  border-color: rgba(249, 115, 22, 0.1) !important;
+  border-color: rgba(37, 99, 235, 0.1) !important;
 }
 
 aside a,
@@ -58,7 +58,7 @@ aside a:hover,
 nav[class*="sidebar"] a:hover,
 [class*="Sidebar"] a:hover {
   background-color: var(--dma-accent-soft) !important;
-  color: #fb923c !important;
+  color: #3B82F6 !important;
 }
 
 /* Active nav item — teal/emerald → orange */
@@ -81,9 +81,9 @@ aside a[class*="bg-stone"],
 aside a[class*="bg-zinc"],
 aside a[class*="bg-neutral"] {
   background-color: var(--dma-accent-soft) !important;
-  color: #fb923c !important;
+  color: #3B82F6 !important;
   border-left: 3px solid var(--dma-accent) !important;
-  box-shadow: inset 0 0 0 1px rgba(249, 115, 22, 0.1) !important;
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.1) !important;
 }
 
 main,
@@ -102,7 +102,7 @@ a[class*="bg-green"]:not(.dma-live-badge):not(.dma-ai-status-live),
 a[class*="bg-teal"]:not(.dma-live-badge):not(.dma-ai-status-live),
 .bg-brand:not(.dma-live-badge):not(.dma-ai-status-live),
 [class*="bg-brand"]:not([class*="bg-brand-dark"]):not([class*="bg-brand-light"]):not(.dma-live-badge):not(.dma-ai-status-live) {
-  background: linear-gradient(135deg, #F97316, #ea580c) !important;
+  background: linear-gradient(135deg, #2563EB, #1D4ED8) !important;
   border-color: transparent !important;
   color: #fff !important;
 }
@@ -111,10 +111,10 @@ a[class*="bg-teal"]:not(.dma-live-badge):not(.dma-ai-status-live),
 .bg-brand-light,
 [class*="bg-brand-light"] {
   background: var(--dma-accent-soft) !important;
-  background-color: rgba(249, 115, 22, 0.12) !important;
+  background-color: rgba(37, 99, 235, 0.12) !important;
   background-image: none !important;
   color: var(--dma-text) !important;
-  border-color: rgba(249, 115, 22, 0.2) !important;
+  border-color: rgba(37, 99, 235, 0.2) !important;
 }
 
 /* Tinted surfaces — dark readable text (not orange-on-orange) */
@@ -142,7 +142,7 @@ a[class*="bg-teal"]:not(.dma-live-badge):not(.dma-ai-status-live),
 .border-brand[class*="bg-brand-light"],
 .border-brand.bg-brand-light,
 [class*="bg-brand-light"].border-brand {
-  background-color: rgba(249, 115, 22, 0.12) !important;
+  background-color: rgba(37, 99, 235, 0.12) !important;
   background-image: none !important;
 }
 
@@ -162,7 +162,7 @@ a[class*="bg-teal"]:not(.dma-live-badge):not(.dma-ai-status-live),
 .hover\:bg-brand-dark:hover,
 button[class*="bg-emerald"]:hover,
 button[class*="bg-green"]:hover {
-  background: linear-gradient(135deg, #ea580c, #c2410c) !important;
+  background: linear-gradient(135deg, #1D4ED8, #1E40AF) !important;
 }
 
 .text-brand,
@@ -196,7 +196,7 @@ button[class*="bg-green"]:hover {
 [class*="ring-emerald"],
 [class*="ring-green"],
 [class*="ring-teal"] {
-  --tw-ring-color: rgba(249, 115, 22, 0.35) !important;
+  --tw-ring-color: rgba(37, 99, 235, 0.35) !important;
 }
 
 /* Stat cards, badges, progress */
@@ -206,8 +206,8 @@ button[class*="bg-green"]:hover {
 [class*="to-teal"],
 [class*="from-green"],
 [class*="to-green"] {
-  --tw-gradient-from: #F97316 var(--tw-gradient-from-position) !important;
-  --tw-gradient-to: #ea580c var(--tw-gradient-to-position) !important;
+  --tw-gradient-from: #2563EB var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: #1D4ED8 var(--tw-gradient-to-position) !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 
@@ -220,17 +220,17 @@ button[class*="bg-green"]:hover {
   button[class*="bg-emerald"]:hover,
   button[class*="bg-green"]:hover,
   .bg-brand:hover {
-    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.3);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
     filter: brightness(1.05);
   }
-  tr:hover { background-color: rgba(249, 115, 22, 0.04) !important; }
+  tr:hover { background-color: rgba(37, 99, 235, 0.04) !important; }
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.18) !important;
-  border-color: #F97316 !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
+  border-color: #2563EB !important;
 }
 
 main p, main span, main td, main li { font-size: var(--dma-font-sm); color: #334155; }
@@ -458,11 +458,11 @@ aside a.nav-item-active,
 aside .nav-item-active,
 nav a.nav-item-active,
 a.nav-item.nav-item-active {
-  background: rgba(249, 115, 22, 0.18) !important;
-  background-color: rgba(249, 115, 22, 0.18) !important;
+  background: rgba(37, 99, 235, 0.18) !important;
+  background-color: rgba(37, 99, 235, 0.18) !important;
   color: #fff !important;
   border-left: 3px solid var(--dma-accent) !important;
-  box-shadow: inset 0 0 0 1px rgba(249, 115, 22, 0.12) !important;
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.12) !important;
 }
 
 aside a.nav-item-active svg,
@@ -526,6 +526,6 @@ aside a[class*="bg-brand"][class*="rounded"],
 aside div[class*="bg-brand"][class*="rounded-lg"],
 aside [class*="w-9"][class*="bg-brand"],
 aside [class*="h-9"][class*="bg-brand"] {
-  background: linear-gradient(135deg, #F97316, #ea580c) !important;
+  background: linear-gradient(135deg, #2563EB, #1D4ED8) !important;
   color: #fff !important;
 }

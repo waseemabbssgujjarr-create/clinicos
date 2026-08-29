@@ -32,13 +32,13 @@ h1, h2, h3, h4, h5, h6,
   min-height: 340px;
 }
 .portal-card:hover {
-  border-color: rgba(249,115,22,0.45);
+  border-color: rgba(37, 99, 235, 0.45);
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(249,115,22,0.15);
+  box-shadow: 0 12px 40px rgba(37, 99, 235, 0.15);
 }
 .portal-card.featured {
-  border-color: rgba(249,115,22,0.5);
-  box-shadow: 0 8px 48px rgba(249,115,22,0.2);
+  border-color: rgba(37, 99, 235, 0.5);
+  box-shadow: 0 8px 48px rgba(37, 99, 235, 0.2);
 }
 .portal-card .icon {
   width: 64px; height: 64px; border-radius: 18px;
@@ -87,7 +87,7 @@ h1, h2, h3, h4, h5, h6,
   box-shadow: 0 4px 24px rgba(0,0,0,0.2);
   transition: box-shadow 0.2s, border-color 0.2s;
 }
-.form-card:hover { box-shadow: 0 8px 32px rgba(249,115,22,0.12); border-color: rgba(249,115,22,0.3); }
+.form-card:hover { box-shadow: 0 8px 32px rgba(37, 99, 235, 0.12); border-color: rgba(37, 99, 235, 0.3); }
 .form-card h1 { font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
 .form-card .subtitle { color: var(--muted); font-size: 0.8125rem; margin-bottom: 20px; line-height: 1.5; }
 .form-card.wide { max-width: 480px; }
@@ -109,7 +109,7 @@ h1, h2, h3, h4, h5, h6,
   display: flex; align-items: stretch; border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.12); background: var(--bg-elevated); overflow: hidden;
 }
-.slug-prefix-wrap:focus-within { border-color: var(--accent, #F97316); box-shadow: 0 0 0 3px rgba(249,115,22,0.2); }
+.slug-prefix-wrap:focus-within { border-color: var(--accent, #2563EB); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); }
 .slug-prefix {
   padding: 12px 10px; font-size: 0.72rem; color: var(--muted); white-space: nowrap;
   border-right: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center;
@@ -137,7 +137,7 @@ h1, h2, h3, h4, h5, h6,
   padding: 16px 14px; border-radius: 12px; text-align: center;
   border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); position: relative;
 }
-.plan-card.featured { border-color: rgba(249,115,22,0.5); background: rgba(249,115,22,0.12); }
+.plan-card.featured { border-color: rgba(37, 99, 235, 0.5); background: rgba(37, 99, 235, 0.12); }
 .plan-card h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 6px; }
 .plan-price { font-size: 1.35rem; font-weight: 800; margin-bottom: 6px; }
 .plan-price span { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
@@ -162,8 +162,8 @@ h1, h2, h3, h4, h5, h6,
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .field input:focus, .field select:focus {
-  outline: none; border-color: var(--accent, #F97316);
-  box-shadow: 0 0 0 3px rgba(249,115,22,0.2);
+  outline: none; border-color: var(--accent, #2563EB);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
 
 .password-wrap { position: relative; display: block; }
@@ -172,23 +172,23 @@ h1, h2, h3, h4, h5, h6,
   position: absolute; right: 8px; top: 50%;
   transform: translateY(-50%);
   -webkit-transform: translateY(-50%);
-  width: 34px; height: 34px; border: 1px solid rgba(249,115,22,0.35); border-radius: 8px;
-  background: rgba(249,115,22,0.12); color: #e2e8f0; cursor: pointer;
+  width: 34px; height: 34px; border: 1px solid rgba(37, 99, 235, 0.35); border-radius: 8px;
+  background: rgba(37, 99, 235, 0.12); color: #e2e8f0; cursor: pointer;
   display: grid; place-items: center; padding: 0; margin: 0; line-height: 0;
   transition: color 0.15s, background 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 .password-toggle:hover,
 .password-toggle:focus,
 .password-toggle:active {
-  color: #fff; background: rgba(249,115,22,0.35);
+  color: #fff; background: rgba(37, 99, 235, 0.35);
   border-color: rgba(251,146,60,0.6);
   transform: translateY(-50%) !important;
   -webkit-transform: translateY(-50%) !important;
 }
 .password-toggle:focus-visible {
   outline: none; color: #fff;
-  box-shadow: 0 0 0 3px rgba(249,115,22,0.35);
-  border-color: #fb923c;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.35);
+  border-color: #3B82F6;
 }
 .password-toggle svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .password-toggle .icon-hide { display: none; }
@@ -201,7 +201,7 @@ h1, h2, h3, h4, h5, h6,
 }
 .field-row label { margin-bottom: 0; }
 .forgot-link {
-  font-size: 0.78rem; color: #fb923c; text-decoration: none; font-weight: 600;
+  font-size: 0.78rem; color: #3B82F6; text-decoration: none; font-weight: 600;
 }
 .forgot-link:hover { text-decoration: underline; color: #fdba74; }
 
@@ -233,7 +233,7 @@ h1, h2, h3, h4, h5, h6,
   background: var(--bg-card); border: 1px solid rgba(255,255,255,0.08);
   border-radius: var(--radius); text-align: left;
 }
-.clinic-item:hover { border-color: rgba(249,115,22,0.35); }
+.clinic-item:hover { border-color: rgba(37, 99, 235, 0.35); }
 .clinic-avatar {
   width: 48px; height: 48px; border-radius: 12px;
   background: var(--gradient-btn); display: grid; place-items: center;
@@ -326,7 +326,7 @@ h1, h2, h3, h4, h5, h6,
   font-size: 0.82rem;
   color: var(--muted);
 }
-.plan-note a { color: #fb923c; font-weight: 600; text-decoration: none; }
+.plan-note a { color: #3B82F6; font-weight: 600; text-decoration: none; }
 .plan-note a:hover { text-decoration: underline; }
 
 @media (max-width: 768px) {
@@ -398,7 +398,7 @@ html[data-theme="light"] .field select {
   background: #fff;
 }
 html[data-theme="light"] .portal-card:hover {
-  border-color: rgba(249,115,22,0.35);
+  border-color: rgba(37, 99, 235, 0.35);
   box-shadow: var(--shadow-md);
 }
 html[data-theme="light"] .form-card:hover {
@@ -408,5 +408,5 @@ html[data-theme="light"] .form-card:hover {
 .portal-card:hover,
 .form-card:hover {
   box-shadow: var(--shadow-md);
-  border-color: rgba(249,115,22,0.35);
+  border-color: rgba(37, 99, 235, 0.35);
 }

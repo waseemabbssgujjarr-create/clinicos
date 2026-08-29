@@ -41,13 +41,13 @@
   transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 .clinic-card:hover {
-  border-color: rgba(249,115,22,0.4);
+  border-color: rgba(37, 99, 235, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(249,115,22,0.12);
+  box-shadow: 0 12px 32px rgba(37, 99, 235, 0.12);
 }
 .clinic-card-media {
   height: 120px;
-  background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(234,88,12,0.08));
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(234,88,12,0.08));
   display: flex; align-items: center; justify-content: center;
   position: relative;
 }
@@ -56,11 +56,11 @@
 }
 .clinic-card-avatar {
   width: 64px; height: 64px; border-radius: 16px;
-  background: linear-gradient(135deg, #F97316, #ea580c);
+  background: linear-gradient(135deg, #2563EB, #1D4ED8);
   display: grid; place-items: center;
   font-family: Montserrat, Inter, sans-serif;
   font-weight: 800; font-size: 1.5rem; color: #fff;
-  box-shadow: 0 4px 16px rgba(249,115,22,0.35);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
 }
 .clinic-card-body { padding: 18px 18px 16px; flex: 1; display: flex; flex-direction: column; }
 .clinic-card-body h3 {
@@ -76,7 +76,7 @@
   font-size: 0.68rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;
   text-transform: uppercase; letter-spacing: 0.02em;
 }
-.clinic-badge--specialty { background: rgba(249,115,22,0.15); color: #fb923c; }
+.clinic-badge--specialty { background: rgba(37, 99, 235, 0.15); color: #3B82F6; }
 .clinic-badge--city { background: rgba(59,130,246,0.12); color: #93c5fd; }
 .clinic-badge--avail { background: rgba(34,197,94,0.12); color: #86efac; }
 .clinic-badge--wait { background: rgba(148,163,184,0.15); color: var(--muted); }
@@ -84,7 +84,7 @@
   display: flex; gap: 8px; margin-top: auto;
 }
 .clinic-card-actions .btn { flex: 1; padding: 10px 12px; font-size: 0.78rem; text-align: center; }
-.clinic-card-actions .btn-outline { border-color: rgba(249,115,22,0.35); }
+.clinic-card-actions .btn-outline { border-color: rgba(37, 99, 235, 0.35); }
 
 /* Clinic detail page */
 .clinic-detail-wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
@@ -95,7 +95,7 @@
 }
 .clinic-detail-logo {
   width: 80px; height: 80px; border-radius: 16px;
-  background: linear-gradient(135deg, #F97316, #ea580c);
+  background: linear-gradient(135deg, #2563EB, #1D4ED8);
   display: grid; place-items: center;
   font-family: Montserrat, Inter, sans-serif;
   font-weight: 800; font-size: 2rem; color: #fff; flex-shrink: 0;
@@ -126,7 +126,7 @@
 .doctor-row:last-child { border-bottom: none; padding-bottom: 0; }
 .doctor-avatar {
   width: 44px; height: 44px; border-radius: 12px;
-  background: rgba(249,115,22,0.2); color: #fb923c;
+  background: rgba(37, 99, 235, 0.2); color: #3B82F6;
   display: grid; place-items: center; font-weight: 800; font-size: 0.95rem; flex-shrink: 0;
 }
 .doctor-info { flex: 1; min-width: 0; }
@@ -146,7 +146,7 @@ html[data-theme="light"] .clinic-card {
   border-color: rgba(15,23,42,0.08);
   box-shadow: 0 2px 8px rgba(15,23,42,0.04);
 }
-html[data-theme="light"] .clinic-badge--specialty { color: #c2410c; }
+html[data-theme="light"] .clinic-badge--specialty { color: #1E40AF; }
 html[data-theme="light"] .clinic-badge--city { color: #2563eb; }
 html[data-theme="light"] .clinic-badge--avail { color: #15803d; }
 

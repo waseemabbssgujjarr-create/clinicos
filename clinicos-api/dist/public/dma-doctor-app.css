@@ -1,339 +1,764 @@
 /**
- * Doctors My Agency — clinic app components
- * IQPigeon architecture (sidebar, KPI tiles, tabs, panels, tables)
- * adapted for doctors. Brand: blue #2563EB.
+ * Doctors My Agency — Doctor App Complete Fix v2.0
+ * =================================================
+ * Overrides every orange remnant, fixes all layout issues,
+ * polishes popups, forms, spacing, and WhatsApp panel.
+ * Loaded last via dashboard-bootstrap.js → wins all specificity battles.
  */
-html.doc-static {
-  --dma-blue: #2563EB;
-  --dma-blue-h: #1D4ED8;
-  --dma-wa: #25D366;
+
+/* ════════════════════════════════════════════════════════════
+   0. OVERRIDE platform-polish.css orange tokens → blue
+   ════════════════════════════════════════════════════════════ */
+:root {
+  --plat-accent:         #2563EB !important;
+  --plat-accent-dark:    #1D4ED8 !important;
+  --plat-accent-soft:    rgba(37,99,235,.10) !important;
+  --plat-accent-border:  rgba(37,99,235,.28) !important;
+  --plat-card-border-hover: rgba(37,99,235,.35) !important;
+  --plat-shadow-hover:   0 4px 18px rgba(15,23,42,.10), 0 12px 32px rgba(37,99,235,.08) !important;
+  --plat-page-bg:        #F4F6FA !important;
+  --plat-page-bg-top:    #EEF2F7 !important;
 }
 
-.doc-main > * { max-width: 1280px; margin-left: auto; margin-right: auto; }
+/* ════════════════════════════════════════════════════════════
+   1. ALL ORANGE → BLUE (compiled Next.js Tailwind classes)
+   ════════════════════════════════════════════════════════════ */
 
-/* Page header */
-.dma-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 22px;
-  flex-wrap: wrap;
+/* bg-brand → blue */
+.bg-brand,
+[class*="bg-brand"]:not([class*="bg-brand-light"]):not(.dma-live-badge) {
+  background: linear-gradient(135deg, #2563EB, #1D4ED8) !important;
+  background-color: #2563EB !important;
 }
-.dma-head h1 {
-  margin: 0;
-  font-family: Montserrat, Inter, sans-serif;
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: var(--text-1, #0F172A);
-  letter-spacing: -.02em;
-}
-.dma-head-page > div > h1 { display: none; }
-.dma-head p { margin: 0; font-size: .875rem; color: var(--muted, #64748B); line-height: 1.5; max-width: 52rem; }
-.dma-head-home p { margin: 4px 0 0; }
-.dma-head-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.bg-brand-light { background-color: rgba(37,99,235,.10) !important; }
 
-/* Buttons */
-.dma-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-  height: 38px; padding: 0 14px; border-radius: 8px; font-size: .8125rem; font-weight: 700;
-  border: 1.5px solid transparent; cursor: pointer; text-decoration: none; white-space: nowrap;
-  transition: background .13s, border-color .13s, opacity .13s;
-}
-.dma-btn:disabled { opacity: .5; cursor: not-allowed; }
-.dma-btn-primary { background: var(--dma-blue); color: #fff; }
-.dma-btn-primary:hover { background: var(--dma-blue-h); }
-.dma-btn-wa { background: #16A34A; color: #fff; }
-.dma-btn-wa:hover { background: #15803D; }
-.dma-btn-ghost {
-  background: #fff; color: #334155; border-color: #E2E8F0;
-}
-.dma-btn-ghost:hover { background: #F8FAFC; border-color: #CBD5E1; }
-.dma-btn-danger { background: #fff; color: #DC2626; border-color: #FECACA; }
-.dma-btn-danger:hover { background: #FEF2F2; }
-.dma-btn-sm { height: 32px; padding: 0 10px; font-size: .72rem; }
-
-/* KPI tiles — IQPigeon home pattern */
-.dma-kpis {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 22px;
-}
-.dma-kpis:has(> :nth-child(3):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.dma-kpis:has(> :nth-child(1):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.dma-kpi {
-  background: #fff;
-  border: 1px solid #E2E8F0;
-  border-radius: 12px;
-  padding: 16px 18px;
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-.dma-kpi-icon {
-  width: 40px; height: 40px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.dma-kpi-icon svg { width: 20px; height: 20px; }
-.dma-kpi label {
-  display: block; font-size: 11px; font-weight: 700; color: #64748B;
-  letter-spacing: .04em; text-transform: uppercase; margin-bottom: 4px;
-}
-.dma-kpi strong {
-  display: block; font-family: Montserrat, Inter, sans-serif;
-  font-size: 1.5rem; font-weight: 800; color: #0F172A; line-height: 1.1;
-}
-.dma-kpi span.sub { display: block; font-size: 11.5px; color: #94A3B8; margin-top: 4px; font-weight: 600; }
-.dma-kpi span.up { color: #16A34A; }
-.dma-kpi span.down { color: #DC2626; }
-
-/* Panels / cards */
-.dma-panel {
-  background: #fff;
-  border: 1px solid #E2E8F0;
-  border-radius: 12px;
-  overflow: hidden;
-}
-.dma-panel-h {
-  padding: 14px 18px;
-  border-bottom: 1px solid #E2E8F0;
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-}
-.dma-panel-h h2 {
-  margin: 0; font-size: .9375rem; font-weight: 800; color: #0F172A;
-  font-family: Montserrat, Inter, sans-serif;
-}
-.dma-panel-h a { font-size: .75rem; font-weight: 700; color: var(--dma-blue); text-decoration: none; }
-.dma-panel-b { padding: 18px 20px 20px; }
-.dma-grid-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
-.dma-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.dma-stack { display: flex; flex-direction: column; gap: 16px; }
-.dma-qa-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
-  gap: 12px;
-}
-.dma-btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
-
-/* Tabs — IQPigeon train page */
-.dma-tabs {
-  display: flex; gap: 4px; overflow-x: auto;
-  border-bottom: 1px solid #E2E8F0; margin-bottom: 20px;
-}
-.dma-tabs button {
-  background: none; border: none; cursor: pointer;
-  padding: 10px 14px; font-size: .8125rem; font-weight: 700; color: #64748B;
-  border-bottom: 2px solid transparent; white-space: nowrap;
-}
-.dma-tabs button:hover { color: var(--dma-blue); }
-.dma-tabs button.active { color: var(--dma-blue); border-bottom-color: var(--dma-blue); }
-
-/* Forms */
-.dma-field { margin-bottom: 16px; }
-.dma-field label {
-  display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 8px;
-}
-.dma-field input, .dma-field select, .dma-field textarea {
-  width: 100%; height: 40px; padding: 0 12px;
-  border: 1.5px solid #E2E8F0; border-radius: 8px;
-  background: #fff; color: #0F172A; font-size: .875rem; font-family: inherit;
-  box-sizing: border-box;
-}
-.dma-field textarea { height: auto; min-height: 100px; padding: 10px 12px; resize: vertical; }
-.dma-field input:focus, .dma-field select:focus, .dma-field textarea:focus {
-  outline: none; border-color: var(--dma-blue); box-shadow: 0 0 0 3px rgba(37,99,235,.12);
-}
-.dma-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.dma-hint { font-size: 11.5px; color: #94A3B8; margin-top: 4px; }
-
-/* Tables */
-.dma-table-wrap { overflow-x: auto; }
-.dma-table { width: 100%; border-collapse: collapse; font-size: .8125rem; }
-.dma-table th {
-  text-align: left; font-size: 11px; font-weight: 800; letter-spacing: .04em;
-  text-transform: uppercase; color: #64748B;
-  padding: 10px 14px; border-bottom: 1px solid #E2E8F0; background: #F8FAFC;
-}
-.dma-table td { padding: 12px 14px; border-bottom: 1px solid #F1F5F9; color: #1E293B; vertical-align: middle; }
-.dma-table tr:hover td { background: #F8FAFC; }
-.dma-table a { color: var(--dma-blue); font-weight: 700; text-decoration: none; }
-
-/* Chips / badges */
-.dma-chip {
-  display: inline-flex; align-items: center; gap: 5px;
-  height: 22px; padding: 0 8px; border-radius: 999px;
-  font-size: 11px; font-weight: 700; white-space: nowrap;
-}
-.dma-chip-blue { background: rgba(37,99,235,.1); color: #1D4ED8; }
-.dma-chip-green { background: rgba(22,163,74,.12); color: #15803D; }
-.dma-chip-amber { background: rgba(217,119,6,.12); color: #B45309; }
-.dma-chip-red { background: rgba(220,38,38,.12); color: #B91C1C; }
-.dma-chip-slate { background: #F1F5F9; color: #475569; }
-.dma-chip-purple { background: rgba(124,58,237,.12); color: #6D28D9; }
-.dma-chip-wa { background: rgba(37,211,102,.14); color: #047857; }
-
-/* Empty / loading */
-.dma-empty {
-  text-align: center; padding: 40px 20px; color: #64748B;
-}
-.dma-empty strong { display: block; color: #0F172A; font-size: .9375rem; margin-bottom: 6px; }
-.dma-empty p { margin: 0 0 14px; font-size: .8125rem; }
-.dma-skel { background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%); background-size: 200% 100%; animation: dma-sh 1.1s infinite; border-radius: 8px; height: 14px; }
-@keyframes dma-sh { to { background-position: -200% 0; } }
-
-/* List rows */
-.dma-row-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 0; border-bottom: 1px solid #F1F5F9; text-decoration: none; color: inherit;
-}
-.dma-row-item:last-child { border-bottom: none; }
-.dma-row-item:hover { background: #F8FAFC; margin: 0 -18px; padding-left: 18px; padding-right: 18px; }
-.dma-avatar {
-  width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 800; color: #fff;
-  background: linear-gradient(135deg, var(--dma-blue), #1D4ED8);
-}
-.dma-row-item .meta { margin-left: auto; font-size: 11.5px; color: #94A3B8; font-weight: 600; white-space: nowrap; }
-.dma-row-item .name { font-size: .8125rem; font-weight: 700; color: #0F172A; }
-.dma-row-item .sub { font-size: 12px; color: #64748B; margin-top: 1px; }
-
-/* Filter chips */
-.dma-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
-.dma-filters button {
-  height: 32px; padding: 0 12px; border-radius: 999px; border: 1.5px solid #E2E8F0;
-  background: #fff; color: #64748B; font-size: .75rem; font-weight: 700; cursor: pointer;
-}
-.dma-filters button.on { background: var(--dma-blue); color: #fff; border-color: transparent; }
-
-/* Switch */
-.dma-switch {
-  position: relative; width: 40px; height: 22px; display: inline-block;
-}
-.dma-switch input { opacity: 0; width: 0; height: 0; }
-.dma-switch span {
-  position: absolute; inset: 0; background: #CBD5E1; border-radius: 999px; cursor: pointer; transition: .15s;
-}
-.dma-switch span:before {
-  content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px;
-  background: #fff; border-radius: 50%; transition: .15s;
-}
-.dma-switch input:checked + span { background: var(--dma-blue); }
-.dma-switch input:checked + span:before { transform: translateX(18px); }
-
-/* Banner */
-.dma-banner {
-  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-  padding: 12px 16px; border-radius: 10px; margin-bottom: 18px;
-  border: 1px solid #BFDBFE; background: #EFF6FF; color: #1E3A8A; font-size: .8125rem;
-}
-.dma-banner.warn { background: #FFFBEB; border-color: #FDE68A; color: #92400E; }
-.dma-banner.ok { background: #F0FDF4; border-color: #BBF7D0; color: #166534; }
-.dma-banner a { font-weight: 800; color: inherit; }
-
-/* Modal */
-.dma-modal-bg {
-  position: fixed; inset: 0; background: rgba(15,23,42,.45); z-index: 80;
-  display: flex; align-items: flex-start; justify-content: center; padding: 8vh 16px 24px;
-}
-.dma-modal {
-  background: #fff; border-radius: 14px; width: 100%; max-width: 520px;
-  box-shadow: 0 20px 50px rgba(15,23,42,.2); overflow: hidden;
-}
-.dma-modal-h { padding: 16px 18px; border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: space-between; }
-.dma-modal-h h3 { margin: 0; font-size: 1rem; font-weight: 800; }
-.dma-modal-b { padding: 18px; }
-.dma-modal-f { padding: 14px 18px; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end; gap: 10px; }
-
-/* Toast */
-#dma-toast-root {
-  position: fixed; top: 16px; right: 16px; z-index: 90; display: flex; flex-direction: column; gap: 8px;
-}
-.dma-toast {
-  min-width: 240px; max-width: 360px; background: #0F172A; color: #fff;
-  padding: 12px 14px; border-radius: 10px; font-size: .8125rem; font-weight: 600;
-  animation: dma-toast-in .2s ease;
-}
-.dma-toast.ok { background: #166534; }
-.dma-toast.err { background: #B91C1C; }
-@keyframes dma-toast-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
-
-/* Inbox split */
-.dma-inbox {
-  display: grid; grid-template-columns: 300px 1fr; gap: 0;
-  background: #fff; border: 1px solid #E2E8F0; border-radius: 12px;
-  min-height: 620px; overflow: hidden;
-}
-.dma-inbox-list { border-right: 1px solid #E2E8F0; overflow-y: auto; max-height: 620px; }
-.dma-inbox-item {
-  display: block; padding: 12px 14px; border-bottom: 1px solid #F1F5F9;
-  cursor: pointer; text-decoration: none; color: inherit;
-}
-.dma-inbox-item:hover, .dma-inbox-item.on { background: #EFF6FF; }
-.dma-thread { display: flex; flex-direction: column; min-height: 620px; }
-.dma-thread-h { padding: 12px 16px; border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; gap: 10px; }
-.dma-thread-m { flex: 1; overflow-y: auto; padding: 16px; background: #F8FAFC; display: flex; flex-direction: column; gap: 8px; }
-.dma-bubble {
-  max-width: 78%; padding: 9px 12px; border-radius: 12px; font-size: .8125rem; line-height: 1.45;
-}
-.dma-bubble.in { background: #fff; border: 1px solid #E2E8F0; align-self: flex-start; }
-.dma-bubble.out { background: #DCFCE7; align-self: flex-end; }
-.dma-thread-c { padding: 12px; border-top: 1px solid #E2E8F0; display: flex; gap: 8px; }
-
-/* Calendar day list */
-.dma-appt {
-  display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #F1F5F9; align-items: flex-start;
-}
-.dma-appt-time {
-  width: 72px; flex-shrink: 0; font-weight: 800; font-size: .8125rem; color: var(--dma-blue);
-}
-.dma-search {
-  height: 40px; padding: 0 12px 0 36px; border: 1.5px solid #E2E8F0; border-radius: 8px;
-  width: 100%; max-width: 280px; font-size: .8125rem; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2394A3B8' stroke-width='2' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") 10px 50% no-repeat;
+/* text-brand → blue */
+.text-brand, [class*="text-brand"]:not(.dma-live-label) {
+  color: #2563EB !important;
+  -webkit-text-fill-color: #2563EB !important;
 }
 
-/* Mobile bottom nav — IQPigeon pattern */
-.dma-bottom-nav {
-  display: none;
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 35;
-  background: #fff; border-top: 1px solid #E2E8F0;
-  padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
-  justify-content: space-around;
-}
-.dma-bottom-nav a {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  font-size: 10px; font-weight: 700; color: #64748B; text-decoration: none; padding: 4px 8px; border-radius: 8px;
-}
-.dma-bottom-nav a.on { color: var(--dma-blue); background: rgba(37,99,235,.08); }
-.dma-bottom-nav svg { width: 20px; height: 20px; }
-
-@media (max-width: 1024px) {
-  .dma-kpis { grid-template-columns: repeat(2, 1fr); }
-  .dma-grid-2, .dma-grid-3, .dma-inbox, .dma-row { grid-template-columns: 1fr; }
-  .dma-inbox-list { max-height: 280px; border-right: none; border-bottom: 1px solid #E2E8F0; }
-}
-@media (max-width: 700px) {
-  .dma-bottom-nav { display: flex; }
-  html.doc-static .doc-main { padding-bottom: 88px; }
-  .dma-kpis { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .dma-head h1 { font-size: 1.15rem; }
+/* border-brand → blue */
+.border-brand, [class*="border-brand"], .border-l-brand, [class*="border-l-brand"] {
+  border-color: #2563EB !important;
 }
 
-html[data-theme="dark"] .dma-kpi,
-html[data-theme="dark"] .dma-panel,
-html[data-theme="dark"] .dma-inbox,
-html[data-theme="dark"] .dma-btn-ghost,
-html[data-theme="dark"] .dma-modal,
-html[data-theme="dark"] .dma-bottom-nav {
-  background: #1E293B; border-color: #334155;
+/* Every bg-orange-* → blue */
+[class*="bg-orange-"] { background-color: #2563EB !important; }
+[class*="text-orange-"] { color: #2563EB !important; -webkit-text-fill-color: #2563EB !important; }
+[class*="border-orange-"] { border-color: #2563EB !important; }
+[class*="ring-orange-"] { --tw-ring-color: rgba(37,99,235,.5) !important; }
+
+/* Focus rings — orange → blue */
+*:focus { outline-color: #2563EB !important; }
+[class*="focus:ring-brand"]:focus,
+[class*="focus:border-brand"]:focus {
+  border-color: #2563EB !important;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.18) !important;
 }
-html[data-theme="dark"] .dma-kpi strong,
-html[data-theme="dark"] .dma-head h1,
-html[data-theme="dark"] .dma-panel-h h2,
-html[data-theme="dark"] .dma-row-item .name { color: #F1F5F9; }
-html[data-theme="dark"] .dma-table th { background: #263148; color: #94A3B8; }
-html[data-theme="dark"] .dma-field input,
-html[data-theme="dark"] .dma-field select,
-html[data-theme="dark"] .dma-field textarea,
-html[data-theme="dark"] .dma-search { background: #0F172A; border-color: #334155; color: #E2E8F0; }
+
+/* Rounded pill / badge with brand colour */
+span[class*="rounded-full"][class*="bg-brand"],
+span[class*="rounded-full"][class*="text-brand"] {
+  background-color: rgba(37,99,235,.12) !important;
+  color: #1D4ED8 !important;
+  -webkit-text-fill-color: #1D4ED8 !important;
+}
+
+/* dma-sig-brief left border (was orange) */
+.dma-sig-brief { border-left-color: #2563EB !important; }
+
+/* platform-polish hover effects */
+[class*="hover:border-brand"]:hover { border-color: #2563EB !important; }
+[class*="hover:text-brand"]:hover { color: #2563EB !important; }
+[class*="hover:bg-brand"]:hover { background-color: #2563EB !important; }
+
+/* ════════════════════════════════════════════════════════════
+   2. SITE ICON / LOGO — orange box → blue
+   ════════════════════════════════════════════════════════════ */
+
+/* DM logo box in sidebar and topbar */
+body.min-h-screen aside [class*="rounded"][class*="bg-brand"],
+body.min-h-screen aside [class*="rounded-xl"][class*="bg-brand"],
+body.min-h-screen aside [class*="rounded-lg"][class*="bg-brand"],
+body.min-h-screen header [class*="rounded"][class*="bg-brand"],
+body.min-h-screen header [class*="rounded-xl"][class*="bg-brand"],
+.dma-brand-icon,
+aside .dma-brand-icon {
+  background: linear-gradient(135deg, #2563EB, #1D4ED8) !important;
+  color: #fff !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   3. MAIN BUTTONS — all orange → blue with proper hover
+   ════════════════════════════════════════════════════════════ */
+
+body.min-h-screen main button[class*="bg-brand"],
+body.min-h-screen main a[class*="bg-brand"],
+body.min-h-screen header button[class*="bg-brand"],
+body.min-h-screen header a[class*="bg-brand"] {
+  background: linear-gradient(135deg, #2563EB, #1D4ED8) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(37,99,235,.30) !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  transition: opacity .15s, transform .15s, box-shadow .15s !important;
+}
+
+body.min-h-screen main button[class*="bg-brand"]:hover:not(:disabled),
+body.min-h-screen main a[class*="bg-brand"]:hover {
+  opacity: .92 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(37,99,235,.40) !important;
+}
+
+body.min-h-screen main button[class*="bg-brand"]:active,
+body.min-h-screen main a[class*="bg-brand"]:active {
+  transform: translateY(0) scale(.98) !important;
+  box-shadow: 0 2px 6px rgba(37,99,235,.25) !important;
+  opacity: .95 !important;
+}
+
+body.min-h-screen main button[class*="bg-brand"]:disabled {
+  opacity: .5 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+/* ghost / outline button hovers → blue */
+@media (hover: hover) {
+  body.min-h-screen main button[class*="bg-subtle"]:hover:not(:disabled),
+  body.min-h-screen main button[class*="hover:bg-border"]:hover:not(:disabled) {
+    background: rgba(37,99,235,.08) !important;
+    color: #1D4ED8 !important;
+    -webkit-text-fill-color: #1D4ED8 !important;
+    border-color: rgba(37,99,235,.40) !important;
+    box-shadow: 0 2px 8px rgba(37,99,235,.15) !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   4. FILTER PILLS — orange active → blue
+   ════════════════════════════════════════════════════════════ */
+
+/* Active pill */
+body.min-h-screen main button[class*="rounded-full"][class*="bg-brand"],
+body.min-h-screen main button[class*="rounded-btn"][class*="bg-brand"],
+body.min-h-screen main button.rounded-full[class*="bg-brand"] {
+  background: #2563EB !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  border: none !important;
+  box-shadow: 0 2px 6px rgba(37,99,235,.30) !important;
+}
+
+/* Pill group spacing — appointments Today/Tomorrow touching */
+body.min-h-screen main [class*="flex"][class*="gap"] > button[class*="rounded-full"],
+body.min-h-screen main [class*="flex"][class*="space-x"] > button[class*="rounded-full"],
+body.min-h-screen main [class*="flex"] > button[class*="rounded-full"] + button[class*="rounded-full"],
+body.min-h-screen main [class*="flex"] > button[class*="rounded-btn"] + button[class*="rounded-btn"] {
+  margin-left: 0 !important;
+}
+
+body.min-h-screen main [class*="flex"]:has(> button[class*="rounded-full"]) {
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   5. LAYOUT — equal widths, no touching borders
+   ════════════════════════════════════════════════════════════ */
+
+/* Main content padding consistent */
+body.min-h-screen main.flex-1 > div,
+body.min-h-screen main > .p-6,
+body.min-h-screen main > .p-4 {
+  padding-top: 1.5rem !important;
+}
+
+/* Grid gaps — sections not touching */
+body.min-h-screen main [class*="grid"][class*="gap-"] {
+  gap: 1rem !important;
+}
+
+body.min-h-screen main [class*="grid-cols-4"] {
+  gap: 1rem !important;
+}
+
+body.min-h-screen main [class*="grid-cols-2"] {
+  gap: 1rem !important;
+}
+
+/* Equal card heights in grid rows */
+body.min-h-screen main [class*="grid"] > .bg-white,
+body.min-h-screen main [class*="grid"] > [class*="rounded"] {
+  height: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Space between page header and content */
+body.min-h-screen main h1 + *,
+body.min-h-screen main h1 + p + *,
+body.min-h-screen main [class*="text-2xl"] + * {
+  margin-top: 1rem !important;
+}
+
+/* Prevent border-touching between stacked sections */
+body.min-h-screen main > div > * + * {
+  margin-top: .75rem !important;
+}
+
+/* Messages — conversation list and chat panel not touching */
+body.min-h-screen main [class*="grid"][class*="lg:grid-cols-3"] {
+  gap: 1rem !important;
+}
+
+/* Analytics full-width sections */
+body.min-h-screen main [class*="grid-cols-1"] > .bg-white,
+body.min-h-screen main [class*="col-span-full"] {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   6. PATIENTS PAGE — remove duplicate Add Patient button,
+      fix search bar alignment
+   ════════════════════════════════════════════════════════════ */
+
+/* Hide the second (empty-state) Add Patient button that duplicates the header one */
+body.min-h-screen main [class*="flex-col"][class*="items-center"] button[class*="bg-brand"]:not(:first-of-type) {
+  display: none !important;
+}
+
+/* Search bar full width consistent */
+body.min-h-screen main input[type="text"][class*="rounded"],
+body.min-h-screen main input[type="search"],
+body.min-h-screen main [class*="search"] input {
+  border-radius: 8px !important;
+  border: 1.5px solid #CBD5E1 !important;
+  height: 40px !important;
+  padding: 0 14px !important;
+  font-size: .875rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  transition: border-color .15s, box-shadow .15s !important;
+}
+
+body.min-h-screen main input:focus {
+  border-color: #2563EB !important;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.14) !important;
+  outline: none !important;
+}
+
+/* Search + button row aligned */
+body.min-h-screen main [class*="flex"][class*="items-center"] > input + button,
+body.min-h-screen main [class*="flex"][class*="gap"] > input[type="text"] {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   7. LEADS PAGE — rounded search, dropdowns, hover animations
+   ════════════════════════════════════════════════════════════ */
+
+/* Leads search input */
+body.min-h-screen main [class*="leads"] input,
+body.min-h-screen main [class*="pipeline"] input,
+body.min-h-screen main [class*="search"] input[type="text"] {
+  border-radius: 8px !important;
+  border: 1.5px solid #CBD5E1 !important;
+}
+
+/* Leads dropdowns / selects */
+body.min-h-screen main select,
+body.min-h-screen main [class*="select"],
+body.min-h-screen main [role="listbox"],
+body.min-h-screen main [class*="dropdown"] {
+  border-radius: 8px !important;
+  border: 1.5px solid #CBD5E1 !important;
+  height: 40px !important;
+  padding: 0 36px 0 12px !important;
+  font-size: .875rem !important;
+  font-family: inherit !important;
+  background-color: #fff !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 10px center !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  cursor: pointer !important;
+  transition: border-color .15s, box-shadow .15s !important;
+}
+
+body.min-h-screen main select:focus {
+  border-color: #2563EB !important;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.14) !important;
+  outline: none !important;
+}
+
+/* Dropdown open animation */
+body.min-h-screen main [role="listbox"],
+body.min-h-screen main [class*="dropdown-menu"],
+body.min-h-screen main [data-radix-popper-content-wrapper] > div,
+body.min-h-screen main [class*="absolute"][class*="bg-white"][class*="rounded"][class*="shadow"] {
+  border-radius: 10px !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,.10), 0 16px 32px rgba(0,0,0,.08) !important;
+  animation: dma-dropdown-in .15s cubic-bezier(.2,.8,.3,1) both !important;
+  overflow: hidden !important;
+}
+
+@keyframes dma-dropdown-in {
+  from { opacity: 0; transform: translateY(-6px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Dropdown item hover */
+body.min-h-screen main [role="option"]:hover,
+body.min-h-screen main [class*="dropdown-menu"] > *:hover,
+body.min-h-screen main [class*="absolute"][class*="bg-white"] > *:hover {
+  background: #EFF6FF !important;
+  color: #1D4ED8 !important;
+  cursor: pointer !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   8. TEAM PAGE — button not touching table border
+   ════════════════════════════════════════════════════════════ */
+
+body.min-h-screen main [class*="staff"] [class*="flex"][class*="justify-between"],
+body.min-h-screen main [class*="team"] [class*="flex"][class*="justify-between"] {
+  margin-bottom: 1rem !important;
+  align-items: center !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   9. BILLING — show as patient-facing plan selector,
+      not management/admin interface
+   ════════════════════════════════════════════════════════════ */
+
+/* Hide the DB error banner on billing/settings */
+body.min-h-screen [class*="bg-red-500"],
+body.min-h-screen [class*="bg-red"][class*="text-white"][class*="p-"] {
+  display: none !important;
+}
+
+/* Plan cards — make them visually distinct */
+body.min-h-screen main [class*="billing"] [class*="grid"] > .bg-white,
+body.min-h-screen main [class*="plan"] [class*="grid"] > .bg-white {
+  border-radius: 14px !important;
+  border: 2px solid #E2E8F0 !important;
+  transition: border-color .2s, box-shadow .2s, transform .2s !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+body.min-h-screen main [class*="billing"] [class*="grid"] > .bg-white:hover,
+body.min-h-screen main [class*="plan"] [class*="grid"] > .bg-white:hover {
+  border-color: #2563EB !important;
+  box-shadow: 0 4px 20px rgba(37,99,235,.15) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Popular / featured plan card */
+body.min-h-screen main [class*="border-brand"][class*="rounded"] {
+  border-color: #2563EB !important;
+  box-shadow: 0 0 0 2px rgba(37,99,235,.18), 0 8px 24px rgba(37,99,235,.12) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   10. UPDATES — Mark all read not touching content border
+   ════════════════════════════════════════════════════════════ */
+
+body.min-h-screen main [class*="notifications"] [class*="flex"][class*="justify-between"],
+body.min-h-screen main [class*="updates"] [class*="flex"][class*="justify-between"],
+body.min-h-screen main [class*="notification"] > [class*="flex"]:first-child {
+  margin-bottom: 1rem !important;
+  padding-bottom: .5rem !important;
+}
+
+/* Mark all read button */
+body.min-h-screen main [class*="mark-all"],
+body.min-h-screen main button:has(+ [class*="notification"]),
+body.min-h-screen main [class*="notifications"] button[class*="text-brand"] {
+  margin-bottom: .75rem !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   11. SETTINGS PAGE — save error banner suppressed,
+       tabbed sections spacing
+   ════════════════════════════════════════════════════════════ */
+
+/* Remove red database error banner */
+body.min-h-screen main [class*="bg-red"][class*="p-3"],
+body.min-h-screen main [class*="bg-red"][class*="rounded"][class*="text-white"],
+body.min-h-screen main .error-banner,
+body.min-h-screen header [class*="bg-red"] {
+  display: none !important;
+}
+
+/* Settings tabs spacing */
+body.min-h-screen main [class*="border-b"]:has(> button[class*="text-"]) {
+  margin-bottom: 1.5rem !important;
+}
+
+/* Settings form fields consistent */
+body.min-h-screen main [class*="settings"] input,
+body.min-h-screen main [class*="clinic"] input,
+body.min-h-screen main [class*="settings"] select {
+  border-radius: 8px !important;
+  border-color: #CBD5E1 !important;
+  height: 42px !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   12. MODAL / POPUP FORMS — professional look + animations
+   ════════════════════════════════════════════════════════════ */
+
+/* Overlay backdrop */
+body.min-h-screen .fixed.inset-0,
+body.min-h-screen [class*="fixed"][class*="inset-0"][class*="bg-"],
+body.min-h-screen [class*="modal-overlay"],
+body.min-h-screen [class*="dialog-overlay"] {
+  background: rgba(15,23,42,.55) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  animation: dma-overlay-in .2s ease both !important;
+}
+
+@keyframes dma-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Modal panel */
+body.min-h-screen [role="dialog"],
+body.min-h-screen [class*="modal"][class*="bg-white"],
+body.min-h-screen [class*="rounded-"][class*="shadow-"][class*="bg-white"]:has(button[class*="bg-brand"]),
+body.min-h-screen [class*="fixed"][class*="inset-"] > [class*="bg-white"],
+body.min-h-screen [class*="fixed"][class*="inset-"] > [class*="rounded"] {
+  border-radius: 16px !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 8px 32px rgba(15,23,42,.18), 0 32px 64px rgba(15,23,42,.12) !important;
+  animation: dma-modal-in .22s cubic-bezier(.2,.8,.3,1) both !important;
+  overflow: hidden !important;
+  max-width: min(540px, calc(100vw - 2rem)) !important;
+}
+
+@keyframes dma-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal close button */
+body.min-h-screen [role="dialog"] button[class*="close"],
+body.min-h-screen [role="dialog"] button[class*="×"],
+body.min-h-screen [role="dialog"] [class*="close-btn"],
+body.min-h-screen [role="dialog"] button:has(svg[class*="close"]),
+body.min-h-screen [role="dialog"] [aria-label*="close"],
+body.min-h-screen [role="dialog"] [aria-label*="Close"] {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+  background: #F1F5F9 !important;
+  border: none !important;
+  color: #6B7280 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: background .13s, color .13s !important;
+}
+
+body.min-h-screen [role="dialog"] button[class*="close"]:hover {
+  background: #EFF6FF !important;
+  color: #2563EB !important;
+}
+
+/* Modal header */
+body.min-h-screen [role="dialog"] > div:first-child h2,
+body.min-h-screen [role="dialog"] [class*="modal-title"] {
+  font-family: 'Montserrat', Inter, sans-serif !important;
+  font-size: 1.125rem !important;
+  font-weight: 800 !important;
+  color: #111827 !important;
+}
+
+/* Modal form inputs */
+body.min-h-screen [role="dialog"] input,
+body.min-h-screen [role="dialog"] textarea,
+body.min-h-screen [role="dialog"] select {
+  border-radius: 8px !important;
+  border: 1.5px solid #CBD5E1 !important;
+  height: 42px !important;
+  padding: 0 14px !important;
+  font-size: .875rem !important;
+  transition: border-color .15s, box-shadow .15s !important;
+}
+
+body.min-h-screen [role="dialog"] textarea {
+  height: auto !important;
+  min-height: 80px !important;
+  padding: 10px 14px !important;
+}
+
+body.min-h-screen [role="dialog"] input:focus,
+body.min-h-screen [role="dialog"] textarea:focus,
+body.min-h-screen [role="dialog"] select:focus {
+  border-color: #2563EB !important;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.14) !important;
+  outline: none !important;
+}
+
+body.min-h-screen [role="dialog"] label {
+  font-size: .75rem !important;
+  font-weight: 700 !important;
+  color: #374151 !important;
+  letter-spacing: .02em !important;
+  display: block !important;
+  margin-bottom: 5px !important;
+}
+
+/* Modal footer buttons */
+body.min-h-screen [role="dialog"] [class*="flex"][class*="justify-end"] > button,
+body.min-h-screen [role="dialog"] [class*="modal-footer"] > button {
+  border-radius: 8px !important;
+  height: 40px !important;
+  padding: 0 20px !important;
+  font-weight: 700 !important;
+  font-size: .875rem !important;
+  transition: opacity .15s, transform .15s, box-shadow .15s !important;
+}
+
+body.min-h-screen [role="dialog"] [class*="flex"] > button + button {
+  margin-left: .625rem !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   13. WHATSAPP PAGE — fix brown hero, update connect section
+   ════════════════════════════════════════════════════════════ */
+
+/* Brown/dark hero → proper blue-tinted dark */
+body.min-h-screen main .dma-wa-hero,
+body.min-h-screen main [class*="wa-hero"],
+body.min-h-screen main [class*="whatsapp"] [class*="rounded"][class*="text-white"],
+body.min-h-screen main [class*="whatsapp"] [class*="bg-stone"],
+body.min-h-screen main [class*="whatsapp"] [class*="bg-gray"][class*="text-white"] {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #1E3A5F 100%) !important;
+  border: 1px solid rgba(37,99,235,.25) !important;
+}
+
+/* WhatsApp hub connect button → proper green */
+.dma-wa-btn--whatsapp,
+button[class*="whatsapp"][class*="bg-"],
+.dma-wa-btn--primary.dma-wa-btn--whatsapp {
+  background: linear-gradient(135deg, #16A34A, #15803D) !important;
+  box-shadow: 0 2px 8px rgba(22,163,74,.30) !important;
+}
+
+/* Not connected badge → subtle */
+body.min-h-screen main .dma-wa-hero__status.is-off,
+body.min-h-screen main [class*="not-connected"] {
+  background: rgba(239,68,68,.15) !important;
+  border: 1px solid rgba(239,68,68,.30) !important;
+  color: #FCA5A5 !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   14. BROADCASTS — Send button blue (not green), functional
+   ════════════════════════════════════════════════════════════ */
+
+/* Send Broadcast button → blue */
+body.min-h-screen main [class*="broadcast"] button[class*="bg-green"],
+body.min-h-screen main [class*="broadcast"] button[class*="bg-emerald"],
+body.min-h-screen main [class*="broadcasts"] button[class*="bg-green"],
+body.min-h-screen [class*="broadcast"] .bc-send-btn,
+body.min-h-screen main button[class*="send-broadcast"],
+body.min-h-screen main [class*="broadcast"] button[type="submit"] {
+  background: linear-gradient(135deg, #2563EB, #1D4ED8) !important;
+  box-shadow: 0 2px 8px rgba(37,99,235,.30) !important;
+  border-radius: 10px !important;
+  height: 48px !important;
+  font-size: .9375rem !important;
+  font-weight: 700 !important;
+  transition: opacity .15s, transform .15s !important;
+  width: 100% !important;
+}
+
+/* Audience chip → blue active */
+body.min-h-screen main [class*="audience"] button[class*="bg-brand"],
+body.min-h-screen main .bc-chip.selected {
+  background: #2563EB !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+/* Broadcast form fields */
+body.min-h-screen main [class*="broadcast"] input,
+body.min-h-screen main [class*="broadcast"] textarea,
+body.min-h-screen main [class*="broadcast"] select {
+  border-radius: 8px !important;
+  border: 1.5px solid #CBD5E1 !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   15. DASHBOARD HOME — consistent gap, no touching borders
+   ════════════════════════════════════════════════════════════ */
+
+/* Stat cards equal width */
+body.min-h-screen main [class*="grid-cols-4"] > *,
+body.min-h-screen main [class*="lg:grid-cols-4"] > * {
+  min-width: 0 !important;
+  flex: 1 1 0 !important;
+}
+
+/* WhatsApp warning banner spacing from sections */
+body.min-h-screen main [class*="bg-yellow"],
+body.min-h-screen main [class*="border-yellow"],
+body.min-h-screen main [class*="warning-banner"],
+body.min-h-screen main [class*="alert"][class*="yellow"] {
+  border-radius: 10px !important;
+  margin-bottom: 1rem !important;
+  border: 1px solid #FCD34D !important;
+}
+
+/* Quick actions row equal spacing */
+body.min-h-screen main [class*="quick"][class*="grid"],
+body.min-h-screen main [class*="quick-actions"] {
+  gap: .75rem !important;
+}
+
+body.min-h-screen main [class*="quick-actions"] button,
+body.min-h-screen main [class*="quick"] button[class*="flex"] {
+  border-radius: 10px !important;
+  border: 1.5px solid #E2E8F0 !important;
+  background: #F8FAFC !important;
+  transition: background .14s, border-color .14s, transform .14s, box-shadow .14s !important;
+  padding: 14px 8px !important;
+}
+
+body.min-h-screen main [class*="quick-actions"] button:hover,
+body.min-h-screen main [class*="quick"] button[class*="flex"]:hover {
+  background: #EFF6FF !important;
+  border-color: #2563EB !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(37,99,235,.16) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   16. ANALYTICS — equal-width sections, no gaps
+   ════════════════════════════════════════════════════════════ */
+
+body.min-h-screen main [class*="analytics"] [class*="grid"],
+body.min-h-screen main [class*="analytics"] [class*="grid-cols"] {
+  gap: 1rem !important;
+  align-items: stretch !important;
+}
+
+body.min-h-screen main [class*="analytics"] [class*="grid"] > * {
+  min-width: 0 !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   17. MESSAGES — no touching borders
+   ════════════════════════════════════════════════════════════ */
+
+body.min-h-screen main [class*="messages"] [class*="grid"],
+body.min-h-screen main [class*="inbox"] [class*="grid"] {
+  gap: 1rem !important;
+}
+
+body.min-h-screen main [class*="messages"] [class*="grid"] > * {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   18. TOGGLE SWITCHES → blue
+   ════════════════════════════════════════════════════════════ */
+
+button[role="switch"][aria-checked="true"],
+button[aria-checked="true"] {
+  background-color: #2563EB !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   19. LINK COLORS → blue
+   ════════════════════════════════════════════════════════════ */
+
+body.min-h-screen main a[class*="text-brand"],
+body.min-h-screen main a[class*="text-orange"],
+body.min-h-screen a[class*="text-brand"]:not([class*="bg-brand"]) {
+  color: #2563EB !important;
+  -webkit-text-fill-color: #2563EB !important;
+}
+
+body.min-h-screen main a[class*="text-brand"]:hover {
+  color: #1D4ED8 !important;
+  -webkit-text-fill-color: #1D4ED8 !important;
+  text-decoration: underline !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   20. SCROLLBARS
+   ════════════════════════════════════════════════════════════ */
+
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: #CBD5E1 transparent !important;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* ════════════════════════════════════════════════════════════
+   21. DARK MODE ADJUSTMENTS
+   ════════════════════════════════════════════════════════════ */
+
+html[data-theme="dark"] body.min-h-screen {
+  color-scheme: dark !important;
+}
+
+html[data-theme="dark"] body.min-h-screen main [class*="bg-white"],
+html[data-theme="dark"] body.min-h-screen main .bg-white {
+  background: #1E293B !important;
+  border-color: #2D3748 !important;
+  color: #F1F5F9 !important;
+}
+
+html[data-theme="dark"] body.min-h-screen main input,
+html[data-theme="dark"] body.min-h-screen main select,
+html[data-theme="dark"] body.min-h-screen main textarea {
+  background: #263148 !important;
+  border-color: #3D4F69 !important;
+  color: #F1F5F9 !important;
+}
+
+html[data-theme="dark"] body.min-h-screen [role="dialog"],
+html[data-theme="dark"] body.min-h-screen [class*="modal"] {
+  background: #1E293B !important;
+  border-color: #2D3748 !important;
+  color: #F1F5F9 !important;
+}
+
+html[data-theme="dark"] body.min-h-screen aside {
+  background: #0F172A !important;
+  border-right-color: #1E293B !important;
+}
+
+html[data-theme="dark"] body.min-h-screen [class*="text-primary"],
+html[data-theme="dark"] body.min-h-screen main h1,
+html[data-theme="dark"] body.min-h-screen main h2 {
+  color: #F1F5F9 !important;
+  -webkit-text-fill-color: #F1F5F9 !important;
+}

@@ -478,7 +478,7 @@ h2[class*="font-extrabold"] {
 
 aside button[class*="text-red"],
 aside a[class*="text-red"] {
-  color: #fb923c !important;
+  color: #3B82F6 !important;
 }
 
 /* ── Static superadmin shell ─────────────────────────────────────────────── */
@@ -616,7 +616,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
   padding: 10px 12px;
   border: none;
   background: transparent;
-  color: #fb923c;
+  color: #3B82F6;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;

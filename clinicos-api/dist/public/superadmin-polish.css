@@ -39,7 +39,7 @@ body.min-h-screen main [class*="grid-cols-4"] > div:hover,
 body.min-h-screen main [class*="lg:grid-cols-4"] > div:hover,
 .sa-kpi-grid .sa-kpi-card:hover {
   transform: translateY(-2px) !important;
-  border-color: rgba(249, 115, 22, 0.3) !important;
+  border-color: rgba(37, 99, 235, 0.3) !important;
   box-shadow: 0 4px 18px rgba(15, 23, 42, 0.1) !important;
 }
 
@@ -105,7 +105,7 @@ body.min-h-screen main table tbody tr:last-child td,
 
 body.min-h-screen main table tbody tr:hover,
 .sa-data-table tbody tr:hover {
-  background: rgba(249, 115, 22, 0.04) !important;
+  background: rgba(37, 99, 235, 0.04) !important;
 }
 
 /* ── Static superadmin pages ───────────────────────────────────────────────── */
@@ -120,7 +120,7 @@ body.min-h-screen main table tbody tr:hover,
   height: 3px !important;
   margin-top: 0.5rem !important;
   border-radius: 2px !important;
-  background: linear-gradient(90deg, #f97316, #ea580c) !important;
+  background: linear-gradient(90deg, #2563EB, #1D4ED8) !important;
 }
 
 .sa-kpi-grid {
@@ -206,7 +206,7 @@ body.min-h-screen main table tbody tr:hover,
   padding: 0.5rem 1rem !important;
   border-radius: 10px !important;
   border: none !important;
-  background: linear-gradient(135deg, #f97316, #ea580c) !important;
+  background: linear-gradient(135deg, #2563EB, #1D4ED8) !important;
   color: #fff !important;
   font-weight: 700 !important;
   font-size: 0.8125rem !important;
@@ -222,8 +222,8 @@ body.min-h-screen main table tbody tr:hover,
   width: 32px !important;
   height: 32px !important;
   border-radius: 999px !important;
-  background: rgba(249, 115, 22, 0.12) !important;
-  color: #c2410c !important;
+  background: rgba(37, 99, 235, 0.12) !important;
+  color: #1E40AF !important;
   font-size: 0.72rem !important;
   font-weight: 800 !important;
   display: inline-flex !important;
@@ -234,7 +234,7 @@ body.min-h-screen main table tbody tr:hover,
 }
 
 .sa-link {
-  color: #ea580c !important;
+  color: #1D4ED8 !important;
   font-weight: 700 !important;
   text-decoration: none !important;
   font-size: 0.8125rem !important;
@@ -242,7 +242,7 @@ body.min-h-screen main table tbody tr:hover,
 
 .sa-link:hover {
   text-decoration: underline !important;
-  color: #c2410c !important;
+  color: #1E40AF !important;
 }
 
 /* Clinic detail sections */
@@ -308,16 +308,16 @@ body.min-h-screen main table tbody tr:hover,
 }
 
 .sa-plan-panel {
-  background: linear-gradient(180deg, #fff7ed 0%, #fff 100%) !important;
-  border: 1px solid rgba(249, 115, 22, 0.25) !important;
+  background: linear-gradient(180deg, #EFF6FF 0%, #fff 100%) !important;
+  border: 1px solid rgba(37, 99, 235, 0.25) !important;
   border-radius: 14px !important;
   padding: 1rem 1.125rem !important;
   margin-top: 1rem !important;
 }
 
 .sa-plan-panel h3 {
-  color: #c2410c !important;
-  border-bottom-color: rgba(249, 115, 22, 0.15) !important;
+  color: #1E40AF !important;
+  border-bottom-color: rgba(37, 99, 235, 0.15) !important;
 }
 
 .sa-skeleton {

@@ -1,17 +1,17 @@
 /**
- * Doctors My Agency — Orange brand theme (#F97316)
+ * Doctors My Agency — Blue brand theme (#2563EB)
  * Load AFTER landing.css
  */
 
 :root,
 html[data-theme="dark"],
 html:not([data-theme="light"]) {
-  --accent: #F97316;
-  --accent-dark: #ea580c;
-  --accent-light: #fb923c;
-  --gold: #F97316;
-  --gold-light: #fb923c;
-  --gold-dark: #ea580c;
+  --accent: #2563EB;
+  --accent-dark: #1D4ED8;
+  --accent-light: #3B82F6;
+  --gold: #2563EB;
+  --gold-light: #3B82F6;
+  --gold-dark: #1D4ED8;
   --bg: #0c0c0e;
   --bg-alt: #121214;
   --bg-card: #18181b;
@@ -19,15 +19,15 @@ html:not([data-theme="light"]) {
   --text: #ffffff;
   --muted: #e4e4e7;
   --text-secondary: #d4d4d8;
-  --purple: #F97316;
-  --gradient: linear-gradient(135deg, #fb923c 0%, #F97316 50%, #ea580c 100%);
-  --gradient-btn: linear-gradient(135deg, #F97316, #ea580c);
-  --shadow-glow: 0 12px 40px rgba(249, 115, 22, 0.28);
+  --purple: #2563EB;
+  --gradient: linear-gradient(135deg, #3B82F6 0%, #2563EB 50%, #1D4ED8 100%);
+  --gradient-btn: linear-gradient(135deg, #2563EB, #1D4ED8);
+  --shadow-glow: 0 12px 40px rgba(37, 99, 235, 0.28);
   --nav-bg: rgba(12, 12, 14, 0.92);
   --nav-border: rgba(255, 255, 255, 0.08);
   --border-subtle: rgba(255, 255, 255, 0.1);
-  --accent-soft: rgba(249, 115, 22, 0.12);
-  --accent-text: #fb923c;
+  --accent-soft: rgba(37, 99, 235, 0.12);
+  --accent-text: #3B82F6;
   --wa-out: #005c4b;
   --wa-bg: #0b141a;
 }
@@ -40,12 +40,12 @@ html[data-theme="light"] {
   --text: #0f172a;
   --muted: #475569;
   --text-secondary: #64748b;
-  --accent-text: #ea580c;
-  --accent-soft: rgba(249, 115, 22, 0.1);
+  --accent-text: #1D4ED8;
+  --accent-soft: rgba(37, 99, 235, 0.1);
   --nav-bg: rgba(255, 255, 255, 0.96);
   --nav-border: rgba(15, 23, 42, 0.08);
   --border-subtle: rgba(15, 23, 42, 0.1);
-  --shadow-glow: 0 8px 32px rgba(249, 115, 22, 0.18);
+  --shadow-glow: 0 8px 32px rgba(37, 99, 235, 0.18);
   --wa-out: #d9fdd3;
   --wa-bg: #e5ddd5;
 }
@@ -138,9 +138,9 @@ html[data-theme="light"] .channel {
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 16px rgba(15, 23, 42, 0.04) !important;
 }
 
-/* Orange accent */
-.glow-purple { background: #F97316 !important; opacity: 0.18; }
-.glow-blue { background: #fb923c !important; opacity: 0.12; }
+/* Blue accent glow orbs */
+.glow-purple { background: #2563EB !important; opacity: 0.18; }
+.glow-blue { background: #3B82F6 !important; opacity: 0.12; }
 .glow-teal { display: none; }
 
 .btn {
@@ -150,11 +150,11 @@ html[data-theme="light"] .channel {
 }
 .btn-primary {
   background: var(--gradient-btn) !important;
-  box-shadow: 0 8px 28px rgba(249, 115, 22, 0.35) !important;
+  box-shadow: 0 8px 28px rgba(37, 99, 235, 0.35) !important;
   color: #fff !important;
 }
 .btn-primary:hover {
-  box-shadow: 0 12px 36px rgba(249, 115, 22, 0.45) !important;
+  box-shadow: 0 12px 36px rgba(37, 99, 235, 0.45) !important;
   filter: brightness(1.05);
 }
 .btn-outline {
@@ -169,7 +169,7 @@ html[data-theme="light"] .channel {
 .badge {
   background: var(--accent-soft) !important;
   color: var(--accent) !important;
-  border-color: rgba(249, 115, 22, 0.25) !important;
+  border-color: rgba(37, 99, 235, 0.25) !important;
   font-size: 0.8125rem !important;
   padding: 6px 14px !important;
 }
@@ -196,17 +196,17 @@ html[data-theme="light"] .channel {
 }
 .cta-banner h2 { font-size: clamp(1.5rem, 2.5vw, 2rem) !important; color: #fff !important; }
 .cta-banner p { color: rgba(255,255,255,0.92) !important; font-size: 1.0625rem !important; }
-.cta-banner .btn { background: #fff !important; color: #ea580c !important; font-weight: 700 !important; }
+.cta-banner .btn { background: #fff !important; color: #1D4ED8 !important; font-weight: 700 !important; }
 
 .faq-question { font-size: 1rem !important; color: var(--text) !important; }
 .faq-question:hover { color: var(--accent) !important; background: var(--accent-soft) !important; }
 .faq-icon { background: var(--accent-soft) !important; color: var(--accent) !important; }
-.faq-item.is-open { border-color: rgba(249, 115, 22, 0.4) !important; }
+.faq-item.is-open { border-color: rgba(37, 99, 235, 0.4) !important; }
 .faq-answer p { font-size: 0.9375rem !important; color: var(--muted) !important; }
 
 .feature-card:hover, .channel:hover, .testimonial-card:hover,
 .price-card:hover, .portal-card:hover {
-  border-color: rgba(249, 115, 22, 0.45) !important;
+  border-color: rgba(37, 99, 235, 0.45) !important;
   transform: translateY(-4px);
 }
 .price-card.popular {
@@ -215,8 +215,8 @@ html[data-theme="light"] .channel {
 }
 
 .feature-card.signature {
-  border-color: rgba(249, 115, 22, 0.35) !important;
-  background: linear-gradient(135deg, rgba(249,115,22,0.06), rgba(249,115,22,0.02)) !important;
+  border-color: rgba(37, 99, 235, 0.35) !important;
+  background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02)) !important;
 }
 
 .theme-toggle:hover { border-color: var(--accent) !important; }
@@ -285,7 +285,7 @@ html:not([data-theme="light"]) .portal-page .logo {
   background: var(--accent-soft) !important;
 }
 
-.feature-icon { background: rgba(249, 115, 22, 0.12) !important; }
+.feature-icon { background: rgba(37, 99, 235, 0.12) !important; }
 
 footer.site-footer, footer {
   background: #050506 !important;
@@ -393,7 +393,7 @@ section { padding: 80px 0 !important; }
     inset 0 1px 0 rgba(255,255,255,0.06),
     0 0 0 1px rgba(0,0,0,0.5),
     0 28px 56px rgba(0,0,0,0.55),
-    0 0 90px rgba(249, 115, 22, 0.14);
+    0 0 90px rgba(37, 99, 235, 0.14);
   position: relative;
 }
 .wa-phone-notch {
@@ -472,7 +472,7 @@ section { padding: 80px 0 !important; }
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #F97316, #ea580c);
+  background: linear-gradient(135deg, #2563EB, #1D4ED8);
   display: grid;
   place-items: center;
   font-size: 1.125rem;
@@ -767,13 +767,13 @@ section { padding: 80px 0 !important; }
   cursor: default;
   box-shadow:
     0 2px 8px rgba(37, 211, 102, 0.35),
-    0 0 0 2px rgba(249, 115, 22, 0.25);
+    0 0 0 2px rgba(37, 99, 235, 0.25);
   line-height: 0;
   animation: waMicPulse 3s ease-in-out infinite;
 }
 @keyframes waMicPulse {
-  0%, 100% { box-shadow: 0 2px 8px rgba(37, 211, 102, 0.35), 0 0 0 2px rgba(249, 115, 22, 0.25); }
-  50% { box-shadow: 0 2px 12px rgba(37, 211, 102, 0.5), 0 0 0 3px rgba(249, 115, 22, 0.35); }
+  0%, 100% { box-shadow: 0 2px 8px rgba(37, 211, 102, 0.35), 0 0 0 2px rgba(37, 99, 235, 0.25); }
+  50% { box-shadow: 0 2px 12px rgba(37, 211, 102, 0.5), 0 0 0 3px rgba(37, 99, 235, 0.35); }
 }
 
 .channel strong { font-size: 1rem !important; color: var(--text) !important; }
@@ -924,7 +924,7 @@ html:not([data-theme="light"]) section:nth-of-type(even) {
 }
 .value-card:hover {
   transform: translateY(-3px);
-  border-color: rgba(249, 115, 22, 0.35);
+  border-color: rgba(37, 99, 235, 0.35);
 }
 .value-icon { font-size: 1.5rem; margin-bottom: 12px; }
 .value-card h3 {
@@ -1039,7 +1039,7 @@ html[data-theme="light"] .portal-page .form-card {
 }
 .field input:focus, .field select:focus {
   border-color: var(--accent) !important;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
 }
 a { color: var(--accent); }
 a:hover { color: var(--accent-light); }

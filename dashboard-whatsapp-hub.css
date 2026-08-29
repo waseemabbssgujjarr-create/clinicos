@@ -16,7 +16,7 @@
   padding: 28px 32px;
   margin-bottom: 20px;
   box-shadow: 0 8px 32px rgba(15, 23, 42, 0.14);
-  border: 1px solid rgba(249, 115, 22, 0.22);
+  border: 1px solid rgba(37, 99, 235, 0.22);
   position: relative;
   overflow: hidden;
 }
@@ -28,7 +28,7 @@
   right: -10%;
   width: 280px;
   height: 280px;
-  background: radial-gradient(circle, rgba(249, 115, 22, 0.35) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.35) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -88,7 +88,7 @@
 }
 
 .dma-wa-hero__status.is-off {
-  background: rgba(249, 115, 22, 0.15);
+  background: rgba(37, 99, 235, 0.15);
   border: 1px solid rgba(251, 146, 60, 0.45);
   color: #fed7aa;
 }
@@ -97,7 +97,7 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #fb923c;
+  background: #3B82F6;
   flex-shrink: 0;
 }
 
@@ -134,7 +134,7 @@
   border-radius: 14px;
   padding: 16px 14px;
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
-  border-top: 3px solid #F97316;
+  border-top: 3px solid #2563EB;
   min-height: 88px;
   display: flex;
   flex-direction: column;
@@ -220,7 +220,7 @@
 }
 
 .dma-wa-muted a {
-  color: #ea580c;
+  color: #1D4ED8;
   font-weight: 700;
   text-decoration: none;
 }
@@ -260,13 +260,13 @@
 }
 
 .dma-wa-quick__item:hover {
-  border-color: #f97316 !important;
-  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.12) !important;
+  border-color: #2563EB !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.12) !important;
 }
 
 .dma-wa-quick__item--adv {
-  border-color: rgba(249, 115, 22, 0.35) !important;
-  background: linear-gradient(135deg, #fff7ed, #fff) !important;
+  border-color: rgba(37, 99, 235, 0.35) !important;
+  background: linear-gradient(135deg, #EFF6FF, #fff) !important;
 }
 
 @media (max-width: 520px) {
@@ -319,8 +319,8 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(249, 115, 22, 0.12);
-  color: #ea580c;
+  background: rgba(37, 99, 235, 0.12);
+  color: #1D4ED8;
   font-weight: 800;
   font-size: 0.75rem;
   display: flex;
@@ -347,7 +347,7 @@
 .dma-wa-caps li:last-child { border-bottom: none; }
 
 .dma-wa-check {
-  color: #F97316;
+  color: #2563EB;
   font-weight: 800;
   flex-shrink: 0;
 }
@@ -427,20 +427,20 @@
   text-transform: uppercase;
 }
 
-.dma-wa-pill--ai { background: #ffedd5; color: #9a3412; }
+.dma-wa-pill--ai { background: #ffedd5; color: #1E3A8A; }
 .dma-wa-pill--warn { background: #fef3c7; color: #92400e; }
 
 .dma-wa-settings-teaser {
-  background: linear-gradient(90deg, #fff7ed, #fff);
-  border: 1px solid rgba(249, 115, 22, 0.35);
+  background: linear-gradient(90deg, #EFF6FF, #fff);
+  border: 1px solid rgba(37, 99, 235, 0.35);
   border-radius: 14px;
   padding: 14px 18px;
   margin-bottom: 20px;
   font-size: 0.9rem;
-  color: #9a3412;
+  color: #1E3A8A;
 }
 
 .dma-wa-settings-teaser a {
-  color: #ea580c;
+  color: #1D4ED8;
   font-weight: 700;
 }

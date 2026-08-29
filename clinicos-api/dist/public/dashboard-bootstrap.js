@@ -65,19 +65,19 @@
   if (!document.querySelector('link[href*="platform-polish.css"]')) {
     var polishLink = document.createElement('link');
     polishLink.rel = 'stylesheet';
-    polishLink.href = '/platform-polish.css?v=4';
+    polishLink.href = '/platform-polish.css?v=5';
     document.head.appendChild(polishLink);
   }
   if (!document.querySelector('link[href*="platform-hovers.css"]')) {
     var hoverLink = document.createElement('link');
     hoverLink.rel = 'stylesheet';
-    hoverLink.href = '/platform-hovers.css?v=1';
+    hoverLink.href = '/platform-hovers.css?v=2';
     document.head.appendChild(hoverLink);
   }
   if (!document.querySelector('link[href*="dma-dashboard.css"]')) {
     var dashLink = document.createElement('link');
     dashLink.rel = 'stylesheet';
-    dashLink.href = '/dma-dashboard.css?v=10';
+    dashLink.href = '/dma-dashboard.css?v=11';
     document.head.appendChild(dashLink);
   }
 
@@ -85,7 +85,7 @@
   if (!document.querySelector('link[href*="dma-design-system.css"]')) {
     var dsLink = document.createElement('link');
     dsLink.rel = 'stylesheet';
-    dsLink.href = '/dma-design-system.css?v=4';
+    dsLink.href = '/dma-design-system.css?v=5';
     document.head.appendChild(dsLink);
   }
 
@@ -94,7 +94,7 @@
   if (!isDocStatic && !document.querySelector('link[href*="dma-clinic-ui.css"]')) {
     var clinicUiLink = document.createElement('link');
     clinicUiLink.rel = 'stylesheet';
-    clinicUiLink.href = '/dma-clinic-ui.css?v=2';
+    clinicUiLink.href = '/dma-clinic-ui.css?v=3';
     document.head.appendChild(clinicUiLink);
   }
 
@@ -103,14 +103,14 @@
     if (!document.querySelector('link[href*="dma-admin-ui.css"]')) {
       var adminUiLink = document.createElement('link');
       adminUiLink.rel = 'stylesheet';
-      adminUiLink.href = '/dma-admin-ui.css?v=1';
+      adminUiLink.href = '/dma-admin-ui.css?v=2';
       document.head.appendChild(adminUiLink);
     }
   }
   if (!isDocStatic && !document.querySelector('link[href*="dma-doctor-app.css"]')) {
     var appCss = document.createElement('link');
     appCss.rel = 'stylesheet';
-    appCss.href = '/dma-doctor-app.css?v=1';
+    appCss.href = '/dma-doctor-app.css?v=2';
     document.head.appendChild(appCss);
   }
 
@@ -174,36 +174,36 @@
     if (!document.querySelector('link[href*="dashboard-professional.css"]')) {
       var proCss = document.createElement('link');
       proCss.rel = 'stylesheet';
-      proCss.href = '/dashboard-professional.css?v=1';
+      proCss.href = '/dashboard-professional.css?v=2';
       document.head.appendChild(proCss);
     }
     if (!document.querySelector('link[href*="dashboard-unified.css"]')) {
       var unifiedCss = document.createElement('link');
       unifiedCss.rel = 'stylesheet';
-      unifiedCss.href = '/dashboard-unified.css?v=3';
+      unifiedCss.href = '/dashboard-unified.css?v=4';
       document.head.appendChild(unifiedCss);
     }
     if (!document.querySelector('link[href*="dashboard-layout.css"]')) {
       var layoutCss = document.createElement('link');
       layoutCss.rel = 'stylesheet';
-      layoutCss.href = '/dashboard-layout.css?v=7';
+      layoutCss.href = '/dashboard-layout.css?v=8';
       document.head.appendChild(layoutCss);
     }
     if (!document.querySelector('link[href*="dashboard-fixes.css"]')) {
       var fixesCss = document.createElement('link');
       fixesCss.rel = 'stylesheet';
-      fixesCss.href = '/dashboard-fixes.css?v=3';
+      fixesCss.href = '/dashboard-fixes.css?v=4';
       document.head.appendChild(fixesCss);
     }
     if (!document.querySelector('script[src*="dashboard-layout.js"]')) {
       var layoutJs = document.createElement('script');
-      layoutJs.src = '/dashboard-layout.js?v=6';
+      layoutJs.src = '/dashboard-layout.js?v=7';
       layoutJs.defer = true;
       (document.head || document.documentElement).appendChild(layoutJs);
     }
     if (!document.querySelector('script[src*="dashboard-fixes.js"]')) {
       var fixesJs = document.createElement('script');
-      fixesJs.src = '/dashboard-fixes.js?v=3';
+      fixesJs.src = '/dashboard-fixes.js?v=4';
       fixesJs.defer = true;
       (document.head || document.documentElement).appendChild(fixesJs);
     }
@@ -213,7 +213,7 @@
     if (!document.querySelector('link[href*="dashboard-reviews.css"]')) {
       var revCss = document.createElement('link');
       revCss.rel = 'stylesheet';
-      revCss.href = '/dashboard-reviews.css?v=2';
+      revCss.href = '/dashboard-reviews.css?v=3';
       document.head.appendChild(revCss);
     }
     if (!document.querySelector('script[src*="dashboard-reviews.js"]')) {
@@ -249,12 +249,12 @@
     if (!isDocStatic && !document.querySelector('link[href="/dashboard-signature.css"]')) {
       var sigCss = document.createElement('link');
       sigCss.rel = 'stylesheet';
-      sigCss.href = '/dashboard-signature.css?v=3';
+      sigCss.href = '/dashboard-signature.css?v=4';
       document.head.appendChild(sigCss);
     }
     if (!isDocStatic && !document.querySelector('script[src="/dashboard-signature.js"]')) {
       var sigJs = document.createElement('script');
-      sigJs.src = '/dashboard-signature.js?v=4';
+      sigJs.src = '/dashboard-signature.js?v=5';
       sigJs.defer = true;
       (document.head || document.documentElement).appendChild(sigJs);
     }
@@ -275,7 +275,7 @@
     if (!document.querySelector('link[href*="superadmin-theme.css"]')) {
       var saCss = document.createElement('link');
       saCss.rel = 'stylesheet';
-      saCss.href = '/superadmin-theme.css?v=8';
+      saCss.href = '/superadmin-theme.css?v=9';
       document.head.appendChild(saCss);
     }
     if (!document.querySelector('link[href*="superadmin-polish.css"]')) {
@@ -288,14 +288,14 @@
       var saCrit = document.createElement('style');
       saCrit.id = 'dma-sa-critical-style';
       saCrit.textContent =
-        '.bg-sidebar{background:#1c1917!important;background-image:linear-gradient(180deg,#1c1917,#0a0a0a)!important}' +
-        '.nav-item{color:#e5e5e5!important}.nav-item:hover{background:rgba(249,115,22,.12)!important;color:#fff!important}' +
-        '.nav-item-active{background:rgba(249,115,22,.22)!important;border-left-color:#F97316!important;color:#fff!important}' +
-        '.bg-brand:not(.dma-live-badge):not(.dma-ai-status-live){background:#F97316!important}' +
-        '.text-brand:not(.dma-live-label){color:#F97316!important}' +
-        '.border-brand,.border-l-brand{border-color:#F97316!important}' +
-        'main.flex-1,main.flex-1 .text-primary,main.flex-1 h1,main.flex-1 h2{color:#0a0a0a!important}' +
-        'aside .text-white{color:#fff!important}aside .text-slate-400{color:#e5e5e5!important}';
+        '.bg-sidebar{background:#1E293B!important;background-image:linear-gradient(180deg,#1E293B,#0F172A)!important}' +
+        '.nav-item{color:#CBD5E1!important}.nav-item:hover{background:rgba(37,99,235,.12)!important;color:#fff!important}' +
+        '.nav-item-active{background:rgba(37,99,235,.22)!important;border-left-color:#2563EB!important;color:#fff!important}' +
+        '.bg-brand:not(.dma-live-badge):not(.dma-ai-status-live){background:#2563EB!important}' +
+        '.text-brand:not(.dma-live-label){color:#2563EB!important}' +
+        '.border-brand,.border-l-brand{border-color:#2563EB!important}' +
+        'main.flex-1,main.flex-1 .text-primary,main.flex-1 h1,main.flex-1 h2{color:#0f172a!important}' +
+        'aside .text-white{color:#fff!important}aside .text-slate-400{color:#CBD5E1!important}';
       document.head.appendChild(saCrit);
     }
 
@@ -621,4 +621,39 @@
 
   if (document.body) run();
   else document.addEventListener('DOMContentLoaded', run);
+})();
+
+// ═══════════════════════════════════════════════════════════
+// LOGIN / REGISTER / STAFF-LOGIN PAGE — override orange DM logo box
+// The Next.js compiled CSS uses bg-brand which may be orange on these
+// pages since dma-clinic-ui.css may not load. Inject inline override.
+// ═══════════════════════════════════════════════════════════
+(function () {
+  var loginPaths = /^\/(doctor-login|register|login|staff-login|admin-login|forgot-password|reset-password)(\/|$)/;
+  if (!loginPaths.test(location.pathname)) return;
+
+  if (!document.getElementById('dma-login-blue')) {
+    var s = document.createElement('style');
+    s.id = 'dma-login-blue';
+    s.textContent =
+      /* DM logo icon box */
+      '[class*="bg-brand"],[class*="rounded"][class*="bg-brand"]{background:linear-gradient(135deg,#2563EB,#1D4ED8)!important;color:#fff!important}' +
+      '[class*="text-brand"]{color:#2563EB!important;-webkit-text-fill-color:#2563EB!important}' +
+      '[class*="border-brand"]{border-color:#2563EB!important}' +
+      /* Primary button */
+      'button[class*="bg-brand"],a[class*="bg-brand"]{background:linear-gradient(135deg,#2563EB,#1D4ED8)!important;box-shadow:0 4px 14px rgba(37,99,235,.35)!important;border-radius:10px!important;font-weight:700!important}' +
+      /* Input focus */
+      'input:focus,select:focus{border-color:#2563EB!important;box-shadow:0 0 0 3px rgba(37,99,235,.14)!important;outline:none!important}' +
+      /* Focus ring */
+      '*:focus{outline-color:#2563EB!important}' +
+      /* Orange anywhere */
+      '[class*="bg-orange-"]{background-color:#2563EB!important}' +
+      '[class*="text-orange-"]{color:#2563EB!important;-webkit-text-fill-color:#2563EB!important}' +
+      '[class*="border-orange-"]{border-color:#2563EB!important}' +
+      /* Page bg light */
+      'body,html{background:#f4f6fb!important}' +
+      /* Card panel */
+      '.min-h-screen{background:linear-gradient(135deg,#EFF6FF 0%,#F0F4FF 50%,#EFF6FF 100%)!important}';
+    document.head.appendChild(s);
+  }
 })();

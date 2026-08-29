@@ -53,7 +53,7 @@ body.min-h-screen main.flex-1 > #dma-signature-root {
 }
 
 .dma-sig-brief {
-  border-left: 4px solid #F97316;
+  border-left: 4px solid #2563EB;
 }
 
 .dma-sig-card-head {
@@ -77,8 +77,8 @@ body.min-h-screen main.flex-1 > #dma-signature-root {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  background: rgba(249, 115, 22, 0.12);
-  color: #ea580c;
+  background: rgba(37, 99, 235, 0.12);
+  color: #1D4ED8;
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
   white-space: nowrap;
@@ -146,7 +146,7 @@ body.min-h-screen main.flex-1 > #dma-signature-root {
 }
 
 .dma-sig-mini-stats strong {
-  color: #F97316;
+  color: #2563EB;
 }
 
 .dma-sig-actions {
@@ -301,7 +301,7 @@ body.min-h-screen main.flex-1 > #dma-signature-root {
   display: block;
   font-size: 1.125rem;
   font-weight: 800;
-  color: #F97316;
+  color: #2563EB;
   font-family: Montserrat, Inter, sans-serif;
 }
 
@@ -340,12 +340,12 @@ body.min-h-screen main.flex-1 > #dma-signature-root {
   display: inline-block;
   font-size: 0.8125rem;
   font-weight: 700;
-  color: #F97316 !important;
+  color: #2563EB !important;
   text-decoration: none;
 }
 
 .dma-sig-cta:hover {
-  color: #ea580c !important;
+  color: #1D4ED8 !important;
   text-decoration: underline;
 }
 

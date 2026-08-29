@@ -112,13 +112,17 @@
     });
 
     root.querySelectorAll('main [class*="border-b"]').forEach(function (bar) {
-      if (bar.querySelectorAll('button').length < 3) return;
-      if (/working hours|booking url|general|ai settings|clinic details/i.test(bar.textContent || '')) {
+      if (bar.querySelectorAll('button').length < 2) return;
+      var t = (bar.textContent || '').toLowerCase();
+      if (/working hours|booking url|general|clinic info|clinic details|ai settings|profile|notifications|billing|integrations/.test(t)) {
         bar.classList.add('dma-settings-tabs');
         bar.querySelectorAll('button').forEach(function (btn) {
           var cls = btn.className || '';
-          if (/text-brand|border-brand|bg-brand/.test(cls)) {
+          var aria = btn.getAttribute('aria-selected');
+          if (/text-brand|border-brand|bg-brand/.test(cls) || aria === 'true') {
             btn.classList.add('dma-tab-active');
+          } else {
+            btn.classList.remove('dma-tab-active');
           }
         });
       }
@@ -145,6 +149,17 @@
     });
   }
 
+  function fixPersonalityRow(root) {
+    root.querySelectorAll('main [class*="grid-cols-3"]').forEach(function (row) {
+      var btns = row.querySelectorAll(':scope > button');
+      if (btns.length < 2) return;
+      var t = (row.textContent || '').toLowerCase();
+      if (/professional|friendly|formal/.test(t)) {
+        row.classList.add('dma-personality-row');
+      }
+    });
+  }
+
   function runAll() {
     fixPageHeaders(document);
     fixFilterRows(document);
@@ -153,6 +168,7 @@
     enhanceEmptyStates(document);
     fixMessagesLayout(document);
     fixQuickActions(document);
+    fixPersonalityRow(document);
   }
 
   function schedule() {
@@ -161,6 +177,26 @@
     setTimeout(runAll, 2000);
   }
 
-  if (document.body) schedule();
-  else document.addEventListener('DOMContentLoaded', schedule);
+  function watchDom() {
+    if (!document.body || typeof MutationObserver === 'undefined') return;
+    var pending = null;
+    var obs = new MutationObserver(function () {
+      if (pending) return;
+      pending = setTimeout(function () {
+        pending = null;
+        runAll();
+      }, 120);
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+  }
+
+  if (document.body) {
+    schedule();
+    watchDom();
+  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      schedule();
+      watchDom();
+    });
+  }
 })();
