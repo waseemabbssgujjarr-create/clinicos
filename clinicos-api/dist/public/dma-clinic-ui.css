@@ -894,9 +894,11 @@ html[data-theme="dark"] body.min-h-screen.bg-app main [class*="text-red"]   { co
 /* ════════════════════════════════════════════════════════════
    SCROLLBARS
    ════════════════════════════════════════════════════════════ */
-* {
-  scrollbar-width: thin !important;
-  scrollbar-color: var(--dma-border-2) transparent !important;
+/* Scrollbar — scoped, not global */
+body.min-h-screen.bg-app main,
+body.min-h-screen.bg-app aside {
+  scrollbar-width: thin;
+  scrollbar-color: var(--dma-border-2) transparent;
 }
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }

@@ -24,71 +24,73 @@
 }
 
 html { font-size: 16px; }
-body { font-size: var(--dma-font-base) !important; -webkit-font-smoothing: antialiased; color: #0f172a; }
+/* Scoped to Next.js pages only — doc-static has its own font handling */
+body.min-h-screen { font-size: var(--dma-font-base) !important; -webkit-font-smoothing: antialiased; color: #0f172a; }
 
-h1 { font-size: 1.5rem !important; font-weight: 700 !important; }
-h2 { font-size: 1.25rem !important; font-weight: 700 !important; }
-h3 { font-size: 1.0625rem !important; font-weight: 600 !important; }
-h1, h2, h3, h4, h5, h6 {
+body.min-h-screen main h1 { font-size: 1.5rem !important; font-weight: 700 !important; }
+body.min-h-screen main h2 { font-size: 1.25rem !important; font-weight: 700 !important; }
+body.min-h-screen main h3 { font-size: 1.0625rem !important; font-weight: 600 !important; }
+body.min-h-screen main h1,
+body.min-h-screen main h2,
+body.min-h-screen main h3,
+body.min-h-screen main h4,
+body.min-h-screen main h5,
+body.min-h-screen main h6 {
   font-family: Montserrat, Inter, system-ui, sans-serif !important;
   color: #0f172a !important;
 }
 
-/* Sidebar — override ClinicOS teal/green */
-aside,
-nav[class*="sidebar"],
-[class*="Sidebar"],
-div[class*="w-64"][class*="bg-"],
-div[class*="w-56"][class*="bg-"],
-div[class*="w-72"][class*="bg-"] {
+/* Sidebar — scoped to Next.js pages only (doc-static uses .doc-sidebar) */
+body.min-h-screen aside,
+body.min-h-screen nav[class*="sidebar"],
+body.min-h-screen [class*="Sidebar"],
+body.min-h-screen div[class*="w-64"][class*="bg-"],
+body.min-h-screen div[class*="w-56"][class*="bg-"],
+body.min-h-screen div[class*="w-72"][class*="bg-"] {
   background-color: var(--dma-sidebar) !important;
   color: var(--dma-sidebar-text) !important;
   border-color: rgba(37, 99, 235, 0.1) !important;
 }
 
-aside a,
-nav[class*="sidebar"] a,
-[class*="Sidebar"] a {
+body.min-h-screen aside a,
+body.min-h-screen nav[class*="sidebar"] a,
+body.min-h-screen [class*="Sidebar"] a {
   font-size: var(--dma-font-sm) !important;
   color: #a1a1aa !important;
   transition: background 0.15s, color 0.15s !important;
 }
 
-aside a:hover,
-nav[class*="sidebar"] a:hover,
-[class*="Sidebar"] a:hover {
+body.min-h-screen aside a:hover,
+body.min-h-screen nav[class*="sidebar"] a:hover,
+body.min-h-screen [class*="Sidebar"] a:hover {
   background-color: var(--dma-accent-soft) !important;
   color: #3B82F6 !important;
 }
 
-/* Active nav item — teal/emerald → orange */
-aside a[class*="bg-emerald"],
-aside a[class*="bg-green"],
-aside a[class*="bg-teal"],
-nav a[class*="bg-emerald"],
-nav a[class*="bg-green"],
-nav a[class*="bg-teal"],
-a[class*="bg-emerald"],
-a[class*="bg-green-5"],
-a[class*="bg-green-6"],
-a[class*="bg-teal-"],
-[class*="sidebar"] a[class*="bg-emerald"],
-[class*="sidebar"] a[class*="text-emerald"],
-[class*="sidebar"] a[class*="text-green"],
-[class*="sidebar"] a[class*="text-teal"],
-aside a[class*="bg-sidebar"],
-aside a[class*="bg-stone"],
-aside a[class*="bg-zinc"],
-aside a[class*="bg-neutral"] {
+/* Active nav item */
+body.min-h-screen aside a[class*="bg-emerald"],
+body.min-h-screen aside a[class*="bg-green"],
+body.min-h-screen aside a[class*="bg-teal"],
+body.min-h-screen nav a[class*="bg-emerald"],
+body.min-h-screen nav a[class*="bg-green"],
+body.min-h-screen nav a[class*="bg-teal"],
+body.min-h-screen [class*="sidebar"] a[class*="bg-emerald"],
+body.min-h-screen [class*="sidebar"] a[class*="text-emerald"],
+body.min-h-screen [class*="sidebar"] a[class*="text-green"],
+body.min-h-screen [class*="sidebar"] a[class*="text-teal"],
+body.min-h-screen aside a[class*="bg-sidebar"],
+body.min-h-screen aside a[class*="bg-stone"],
+body.min-h-screen aside a[class*="bg-zinc"],
+body.min-h-screen aside a[class*="bg-neutral"] {
   background-color: var(--dma-accent-soft) !important;
   color: #3B82F6 !important;
   border-left: 3px solid var(--dma-accent) !important;
   box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.1) !important;
 }
 
-main,
-div[class*="flex-1"][class*="bg-gray"],
-div[class*="flex-1"][class*="bg-slate"],
+body.min-h-screen main.flex-1,
+body.min-h-screen div[class*="flex-1"][class*="bg-gray"],
+body.min-h-screen div[class*="flex-1"][class*="bg-slate"],
 .bg-app {
   background: linear-gradient(180deg, #eef2f7 0%, #e8eef5 100%) !important;
 }
@@ -212,33 +214,36 @@ button[class*="bg-green"]:hover {
 }
 
 @media (hover: hover) {
-  button:not(:disabled):hover,
-  a[class*="rounded"]:hover,
-  [role="button"]:hover {
+  body.min-h-screen main button:not(:disabled):hover,
+  body.min-h-screen main a[class*="rounded"]:hover,
+  body.min-h-screen main [role="button"]:hover {
     transform: translateY(-1px);
   }
-  button[class*="bg-emerald"]:hover,
-  button[class*="bg-green"]:hover,
-  .bg-brand:hover {
+  body.min-h-screen main button[class*="bg-emerald"]:hover,
+  body.min-h-screen main button[class*="bg-green"]:hover,
+  body.min-h-screen main .bg-brand:hover {
     box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
     filter: brightness(1.05);
   }
-  tr:hover { background-color: rgba(37, 99, 235, 0.04) !important; }
+  body.min-h-screen main tr:hover { background-color: rgba(37, 99, 235, 0.04) !important; }
 }
 
-input:focus,
-select:focus,
-textarea:focus {
+body.min-h-screen main input:focus,
+body.min-h-screen main select:focus,
+body.min-h-screen main textarea:focus {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
   border-color: #2563EB !important;
 }
 
-main p, main span, main td, main li { font-size: var(--dma-font-sm); color: #334155; }
+body.min-h-screen main p,
+body.min-h-screen main span,
+body.min-h-screen main td,
+body.min-h-screen main li { font-size: var(--dma-font-sm); color: #334155; }
 
 /* Sidebar logo area accent dot */
-aside [class*="rounded-full"][class*="bg-emerald"],
-aside [class*="rounded-full"][class*="bg-green"],
-aside [class*="rounded-full"][class*="bg-teal"] {
+body.min-h-screen aside [class*="rounded-full"][class*="bg-emerald"],
+body.min-h-screen aside [class*="rounded-full"][class*="bg-green"],
+body.min-h-screen aside [class*="rounded-full"][class*="bg-teal"] {
   background-color: var(--dma-accent) !important;
 }
 

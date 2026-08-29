@@ -712,8 +712,8 @@ body.min-h-screen main a[class*="text-brand"]:hover {
    ════════════════════════════════════════════════════════════ */
 
 * {
-  scrollbar-width: thin !important;
-  scrollbar-color: #CBD5E1 transparent !important;
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 transparent;
 }
 
 ::-webkit-scrollbar { width: 5px; height: 5px; }

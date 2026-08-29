@@ -110,8 +110,17 @@
   if (!isDocStatic && !document.querySelector('link[href*="dma-doctor-app.css"]')) {
     var appCss = document.createElement('link');
     appCss.rel = 'stylesheet';
-    appCss.href = '/dma-doctor-app.css?v=2';
+    appCss.href = '/dma-doctor-app.css?v=3';
     document.head.appendChild(appCss);
+  }
+
+  // dma-doctor-pages.css — styles all .dma-* classes rendered by dma-doctor-pages.js
+  // Load on ALL pages (both doc-static and Next.js) — it only targets .dma-* selectors
+  if (!document.querySelector('link[href*="dma-doctor-pages.css"]')) {
+    var pagesCss = document.createElement('link');
+    pagesCss.rel = 'stylesheet';
+    pagesCss.href = '/dma-doctor-pages.css?v=1';
+    document.head.appendChild(pagesCss);
   }
 
   if (!document.querySelector('link[href*="Montserrat"]')) {

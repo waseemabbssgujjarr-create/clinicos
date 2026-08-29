@@ -117,22 +117,25 @@ html[data-theme="dark"] {
 *,*::before,*::after { box-sizing: border-box; }
 html { font-size: 16px; scroll-behavior: smooth; }
 
-body {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-  font-size: var(--f-base) !important;
-  color: var(--text-1) !important;
-  background: var(--bg) !important;
-  -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
-  line-height: 1.56 !important;
-  overflow-x: hidden !important;
-  min-height: 100vh !important;
+/* Scoped to Next.js pages that DO have body.min-h-screen */
+body.min-h-screen,
+body.bg-app {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: var(--f-base);
+  color: var(--text-1);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.56;
+  overflow-x: hidden;
+  min-height: 100vh;
 }
 
-img,video { max-width: 100%; height: auto; }
-* { max-width: 100%; }
+/* Safe image/media constraint — no wildcard, no SVG blowup */
+img, video { max-width: 100%; height: auto; }
+/* REMOVED: * { max-width: 100%; } — this caused SVG illustrations to fill viewport */
 
-/* Clinic static shell owns its layout — the global max-width breaks flex nav. */
+/* Clinic static shell — token overrides */
 html.doc-static {
   --sidebar-bg:    #FFFFFF;
   --sidebar-text:  #64748B;
@@ -140,18 +143,16 @@ html.doc-static {
   --sidebar-act:   #2563EB;
   --sidebar-w:     240px;
 }
-html.doc-static,
-html.doc-static * { max-width: none; }
-html.doc-static img,
-html.doc-static video { max-width: 100%; height: auto; }
+/* No wildcard max-width override needed — doc-static has its own layout */
 
 /* ═══════════════════════════════════════════════════════════
-   2. SIDEBAR
+   2. SIDEBAR — scoped to Next.js (body.min-h-screen) only.
+      Doc-static pages use .doc-sidebar in dashboard-doctor-shell.css.
    ═══════════════════════════════════════════════════════════ */
-aside,
-div[class*="w-64"][class*="bg-"],
-div[class*="w-56"][class*="bg-"],
-nav[class*="sidebar"] {
+body.min-h-screen aside,
+body.min-h-screen div[class*="w-64"][class*="bg-"],
+body.min-h-screen div[class*="w-56"][class*="bg-"],
+body.min-h-screen nav[class*="sidebar"] {
   background: var(--sidebar-bg) !important;
   width: var(--sidebar-w) !important;
   min-width: var(--sidebar-w) !important;
@@ -162,17 +163,17 @@ nav[class*="sidebar"] {
 }
 
 /* Brand */
-aside > div:first-child,
-aside [class*="brand"],
-aside [class*="logo-wrap"] {
+body.min-h-screen aside > div:first-child,
+body.min-h-screen aside [class*="brand"],
+body.min-h-screen aside [class*="logo-wrap"] {
   padding: 20px 18px 16px !important;
   border-bottom: 1px solid rgba(255,255,255,.06) !important;
   flex-shrink: 0 !important;
 }
 
-aside [class*="font-bold"][class*="text-white"],
-aside strong,
-aside .dma-brand-name {
+body.min-h-screen aside [class*="font-bold"][class*="text-white"],
+body.min-h-screen aside strong,
+body.min-h-screen aside .dma-brand-name {
   color: #F0F6FF !important;
   font-family: 'Montserrat', Inter, sans-serif !important;
   font-weight: 800 !important;
@@ -180,19 +181,19 @@ aside .dma-brand-name {
   letter-spacing: -.01em !important;
 }
 
-aside small,
-aside span[class*="text-xs"],
-aside [class*="text-muted"],
-aside [class*="text-slate"],
-aside [class*="text-gray"] {
+body.min-h-screen aside small,
+body.min-h-screen aside span[class*="text-xs"],
+body.min-h-screen aside [class*="text-muted"],
+body.min-h-screen aside [class*="text-slate"],
+body.min-h-screen aside [class*="text-gray"] {
   color: var(--sidebar-text) !important;
   font-size: .72rem !important;
 }
 
 /* Nav section label */
-aside nav [class*="uppercase"],
-aside nav [class*="section-label"],
-aside .dma-nav-section {
+body.min-h-screen aside nav [class*="uppercase"],
+body.min-h-screen aside nav [class*="section-label"],
+body.min-h-screen aside .dma-nav-section {
   font-size: .62rem !important;
   font-weight: 800 !important;
   letter-spacing: .09em !important;
@@ -203,9 +204,9 @@ aside .dma-nav-section {
 }
 
 /* Nav links */
-aside a,
-aside nav a,
-aside [class*="nav-item"] {
+body.min-h-screen aside a,
+body.min-h-screen aside nav a,
+body.min-h-screen aside [class*="nav-item"] {
   display: flex !important;
   align-items: center !important;
   gap: 10px !important;
@@ -222,26 +223,26 @@ aside [class*="nav-item"] {
   overflow: hidden !important;
 }
 
-aside a:hover,
-aside nav a:hover {
+body.min-h-screen aside a:hover,
+body.min-h-screen aside nav a:hover {
   background: var(--sidebar-hover) !important;
   color: #93C5FD !important;
 }
 
 /* Active */
-aside a[class*="bg-"],
-aside a[class*="active"],
-aside a[aria-current="page"],
-aside a[class*="text-brand"],
-aside a[class*="text-white"][class*="bg-"] {
+body.min-h-screen aside a[class*="bg-"],
+body.min-h-screen aside a[class*="active"],
+body.min-h-screen aside a[aria-current="page"],
+body.min-h-screen aside a[class*="text-brand"],
+body.min-h-screen aside a[class*="text-white"][class*="bg-"] {
   background: var(--sidebar-act) !important;
   color: #93C5FD !important;
   border-left-color: var(--c-blue) !important;
   font-weight: 700 !important;
 }
 
-aside a svg,
-aside nav a svg {
+body.min-h-screen aside a svg,
+body.min-h-screen aside nav a svg {
   width: 16px !important;
   height: 16px !important;
   flex-shrink: 0 !important;
@@ -249,24 +250,24 @@ aside nav a svg {
 }
 
 /* Sidebar footer */
-aside > div:last-child,
-aside [class*="border-t"] {
+body.min-h-screen aside > div:last-child,
+body.min-h-screen aside [class*="border-t"] {
   border-top: 1px solid rgba(255,255,255,.06) !important;
   padding: 14px 16px !important;
   flex-shrink: 0 !important;
 }
 
-aside > div:last-child [class*="font-"],
-aside [class*="border-t"] strong {
+body.min-h-screen aside > div:last-child [class*="font-"],
+body.min-h-screen aside [class*="border-t"] strong {
   color: #E2EAF4 !important;
   font-size: .85rem !important;
 }
 
 /* Avatar */
-aside [class*="rounded-full"][class*="bg-brand"],
-aside [class*="rounded-full"][class*="bg-blue"],
-aside [class*="rounded-full"][class*="bg-orange"],
-aside .dma-avatar {
+body.min-h-screen aside [class*="rounded-full"][class*="bg-brand"],
+body.min-h-screen aside [class*="rounded-full"][class*="bg-blue"],
+body.min-h-screen aside [class*="rounded-full"][class*="bg-orange"],
+body.min-h-screen aside .dma-avatar {
   background: linear-gradient(135deg, var(--c-blue), var(--c-blue-h)) !important;
   color: #fff !important;
   font-weight: 800 !important;
@@ -275,8 +276,8 @@ aside .dma-avatar {
 }
 
 /* WhatsApp green dot */
-aside a [class*="wa-dot"],
-aside a [class*="text-green"] {
+body.min-h-screen aside a [class*="wa-dot"],
+body.min-h-screen aside a [class*="text-green"] {
   color: #4ADE80 !important;
   font-size: .65rem !important;
   font-weight: 900 !important;
@@ -925,7 +926,11 @@ body.min-h-screen [class*="overlay"] {
 /* ═══════════════════════════════════════════════════════════
    18. SCROLLBARS
    ═══════════════════════════════════════════════════════════ */
-* { scrollbar-width: thin !important; scrollbar-color: var(--border-2) transparent !important; }
+/* Scoped scrollbar — only doc-static and Next.js main areas, not every element */
+.doc-main, .doc-sidebar, body.min-h-screen main, body.min-h-screen aside {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-2) transparent;
+}
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 4px; }
@@ -1043,11 +1048,11 @@ html[data-theme="dark"] [class*="text-yellow"] { color: #FDE047 !important; }
 }
 
 @media (max-width: 768px) {
-  /* Hide sidebar entirely */
-  aside,
-  div[class*="w-64"][class*="bg-"],
-  div[class*="w-56"][class*="bg-"],
-  nav[class*="sidebar"] {
+  /* Hide Next.js sidebar on mobile (doc-static sidebar handled by dashboard-doctor-shell.css) */
+  body.min-h-screen aside,
+  body.min-h-screen div[class*="w-64"][class*="bg-"],
+  body.min-h-screen div[class*="w-56"][class*="bg-"],
+  body.min-h-screen nav[class*="sidebar"] {
     display: none !important;
   }
 
