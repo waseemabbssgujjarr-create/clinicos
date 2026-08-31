@@ -7,4 +7,4 @@ Allow: /
 Allow: /book/
 Allow: /pricing
 
-Sitemap: https://clinicos.workee.online/sitemap.xml
+Sitemap: https://doctorsmyagency.com/sitemap.xml
