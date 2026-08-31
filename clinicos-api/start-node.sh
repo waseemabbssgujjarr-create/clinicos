@@ -35,9 +35,12 @@ if [ -f "$ENV_FILE" ]; then
     case "$line" in *=*) ;; *) continue ;; esac
     key="${line%%=*}"
     val="${line#*=}"
-    key="$(printf '%s' "$key" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+    # Pure-bash trim — sed would break on values containing '/' (URLs, DSNs, secrets)
+    key="${key#"${key%%[! ]*}"}"   # ltrim
+    key="${key%"${key##*[! ]}"}"   # rtrim
     case "$key" in ''|*[!A-Za-z0-9_]*) continue ;; esac
-    val="$(printf '%s' "$val" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+    val="${val#"${val%%[! ]*}"}"   # ltrim
+    val="${val%"${val##*[! ]}"}"   # rtrim
     if [ "${#val}" -ge 2 ]; then
       first="${val%"${val#?}"}"
       last="${val#"${val%?}"}"
