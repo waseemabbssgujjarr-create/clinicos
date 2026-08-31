@@ -153,7 +153,18 @@ export PORT=3002
 export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=192}"
 export SKIP_SMTP_VERIFY="${SKIP_SMTP_VERIFY:-1}"
 if [ -n "${DATABASE_URL:-}" ]; then
-  export DATABASE_URL="$(printf '%s' "$DATABASE_URL" | sed -E 's|@(localhost|\[::1\])(:[0-9]+)|@127.0.0.1\2|I')"
+  # Replace @localhost or @[::1] with @127.0.0.1 using pure bash — no sed.
+  # sed -E with the 'I' (case-insensitive) flag is a GNU extension not available
+  # on all cPanel hosts and causes: unknown option to 's'
+  _dbu="${DATABASE_URL}"
+  case "$_dbu" in
+    *@localhost:*)   _dbu="${_dbu%%@localhost:*}@127.0.0.1:${_dbu##*@localhost:}" ;;
+    *@localhost/*)   _dbu="${_dbu%%@localhost/*}@127.0.0.1/${_dbu##*@localhost/}" ;;
+    *@localhost)     _dbu="${_dbu%%@localhost}@127.0.0.1" ;;
+    *'@[::1]:'*)     _dbu="${_dbu%%@\[::1\]:*}@127.0.0.1:${_dbu##*@\[::1\]:}" ;;
+  esac
+  export DATABASE_URL="$_dbu"
+  unset _dbu
 fi
 nohup "$NODE_BIN" "$API_DIR/dist/bootstrap.js" >> "$LOG" 2>&1 &
 PID=$!
