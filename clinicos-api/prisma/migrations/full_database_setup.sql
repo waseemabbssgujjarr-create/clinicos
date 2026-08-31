@@ -362,8 +362,39 @@ CREATE TABLE `PasswordReset` (
   INDEX `PasswordReset_email_idx` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ClinicWhatsAppConnection (per-clinic WhatsApp connection — Embedded Signup or Manual)
+CREATE TABLE IF NOT EXISTS `ClinicWhatsAppConnection` (
+  `id`                  VARCHAR(191)  NOT NULL,
+  `clinicId`            VARCHAR(191)  NOT NULL,
+  `connectionMethod`    VARCHAR(191)  NOT NULL DEFAULT 'MANUAL',
+  `businessPortfolioId` VARCHAR(191)  NULL,
+  `wabaId`              VARCHAR(191)  NOT NULL,
+  `phoneNumberId`       VARCHAR(191)  NOT NULL,
+  `phoneNumber`         VARCHAR(191)  NULL,
+  `displayName`         VARCHAR(191)  NULL,
+  `accessTokenEnc`      LONGTEXT      NOT NULL,
+  `connectionStatus`    VARCHAR(191)  NOT NULL DEFAULT 'active',
+  `webhookStatus`       VARCHAR(191)  NOT NULL DEFAULT 'unknown',
+  `tokenMetadata`       LONGTEXT      NULL,
+  `lastVerifiedAt`      DATETIME(3)   NULL,
+  `lastError`           LONGTEXT      NULL,
+  `connectedAt`         DATETIME(3)   NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updatedAt`           DATETIME(3)   NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ClinicWhatsAppConnection_clinicId_key` (`clinicId`),
+  UNIQUE KEY `ClinicWhatsAppConnection_phoneNumberId_key` (`phoneNumberId`),
+  KEY `ClinicWhatsAppConnection_phoneNumberId_idx` (`phoneNumberId`),
+  KEY `ClinicWhatsAppConnection_clinicId_idx` (`clinicId`),
+  CONSTRAINT `ClinicWhatsAppConnection_clinicId_fkey`
+    FOREIGN KEY (`clinicId`) REFERENCES `Clinic` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Seed: Subscription Plans
 INSERT INTO `Plan` (`id`, `name`, `stripePriceId`, `priceMonthly`, `maxStaff`, `maxPatients`, `aiMessagesLimit`, `features`, `isActive`, `createdAt`) VALUES
+('plan_starter', 'Starter', 'price_starter_v1', 29.00, 1, 500, 1000, '["dashboard","whatsapp_ai","reminders","booking"]', true, NOW(3)),
+('plan_pro', 'Pro', 'price_pro_v1', 59.00, 3, 2000, 5000, '["dashboard","whatsapp_ai","analytics","lead_score","missed_call_recovery"]', true, NOW(3)),
+('plan_enterprise', 'Enterprise', 'price_enterprise_v1', 99.00, 10, -1, -1, '["dashboard","whatsapp_ai","analytics","priority_support","multi_location"]', true, NOW(3));
 ('plan_starter', 'Starter', 'price_starter_v1', 29.00, 1, 500, 1000, '["dashboard","whatsapp_ai","reminders","booking"]', true, NOW(3)),
 ('plan_pro', 'Pro', 'price_pro_v1', 59.00, 3, 2000, 5000, '["dashboard","whatsapp_ai","analytics","lead_score","missed_call_recovery"]', true, NOW(3)),
 ('plan_enterprise', 'Enterprise', 'price_enterprise_v1', 99.00, 10, -1, -1, '["dashboard","whatsapp_ai","analytics","priority_support","multi_location"]', true, NOW(3));

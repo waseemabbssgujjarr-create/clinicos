@@ -1,13 +1,13 @@
 #!/bin/bash
 # force-start-api.sh — bypass stuck cPanel Node lock; start API on port 3002
 # Usage (cPanel Terminal):
-#   bash /home/digitals/clinicos.workee.online/clinicos-api/force-start-api.sh
+#   bash /home/digitals/doctorsmyagency.com/clinicos-api/force-start-api.sh
 #
 # LVE/OOM note: kills ALL digitals node processes to free memory before start.
 # Prefer 127.0.0.1 in DATABASE_URL (see FIX-NODE-KILLED.txt).
 
 set -e
-API_DIR="/home/digitals/clinicos.workee.online/clinicos-api"
+API_DIR="/home/digitals/doctorsmyagency.com/clinicos-api"
 PORT=3002
 LOG="$API_DIR/logs/force-start.log"
 
@@ -15,10 +15,10 @@ mkdir -p "$API_DIR/logs"
 echo "======== $(date -Iseconds) force-start ========" >> "$LOG"
 
 echo "1) Clearing CloudLinux locks..."
-rm -f /home/digitals/nodevenv/clinicos.workee.online/.lock 2>/dev/null || true
-rm -f /home/digitals/nodevenv/clinicos.workee.online/20/.lock 2>/dev/null || true
-rm -f /home/digitals/nodevenv/clinicos.workee.online/clinicos-api/.lock 2>/dev/null || true
-rm -f /home/digitals/nodevenv/clinicos.workee.online/clinicos-api/20/.lock 2>/dev/null || true
+rm -f /home/digitals/nodevenv/doctorsmyagency.com/.lock 2>/dev/null || true
+rm -f /home/digitals/nodevenv/doctorsmyagency.com/20/.lock 2>/dev/null || true
+rm -f /home/digitals/nodevenv/doctorsmyagency.com/clinicos-api/.lock 2>/dev/null || true
+rm -f /home/digitals/nodevenv/doctorsmyagency.com/clinicos-api/20/.lock 2>/dev/null || true
 find /home/digitals/nodevenv -name '.lock' -path '*clinicos*' -print -delete 2>/dev/null || true
 
 echo "2) Killing ALL digitals Node to free LVE (OOM)..."
@@ -36,9 +36,9 @@ pgrep -afu digitals node 2>/dev/null | tee -a "$LOG" || echo "(none)" | tee -a "
 echo "3) Activating Node venv..."
 ACTIVATE=""
 for cand in \
-  "/home/digitals/nodevenv/clinicos.workee.online/clinicos-api/20/bin/activate" \
-  "/home/digitals/nodevenv/clinicos.workee.online/20/bin/activate" \
-  "/home/digitals/nodevenv/clinicos.workee.online/clinicos-api/24/bin/activate"
+  "/home/digitals/nodevenv/doctorsmyagency.com/clinicos-api/20/bin/activate" \
+  "/home/digitals/nodevenv/doctorsmyagency.com/20/bin/activate" \
+  "/home/digitals/nodevenv/doctorsmyagency.com/clinicos-api/24/bin/activate"
 do
   if [ -f "$cand" ]; then ACTIVATE="$cand"; break; fi
 done

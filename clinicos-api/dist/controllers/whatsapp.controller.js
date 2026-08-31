@@ -208,10 +208,24 @@ async function disconnectWhatsApp(req, res) {
 async function getWhatsAppHub(req, res) {
     try {
         const clinicId = req.clinicId;
-        const status = await whatsapp_provider_1.getStatus(clinicId);
+
+        // getStatus gracefully returns { connected: false } if ClinicWhatsAppConnection
+        // table doesn't exist yet or encryption key is missing — never throws to caller.
+        let status = { connected: false, provider: "none" };
+        try {
+            status = await whatsapp_provider_1.getStatus(clinicId);
+        } catch (statusErr) {
+            logger_1.logger.warn("getWhatsAppHub: getStatus failed (non-fatal)", { clinicId, err: statusErr?.message });
+        }
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
+
+        // All DB queries are individually guarded — missing tables return 0 instead of 500.
+        async function safeCount(query) {
+            try { return await query; }
+            catch (_) { return 0; }
+        }
 
         const [
             inboundToday,
@@ -220,27 +234,30 @@ async function getWhatsAppHub(req, res) {
             appointmentsBooked,
             leadsHot,
         ] = await Promise.all([
-            prisma_1.prisma.message.count({
+            safeCount(prisma_1.prisma.message.count({
                 where: { clinicId, channel: "WHATSAPP", direction: "INBOUND", createdAt: { gte: today } },
-            }),
-            prisma_1.prisma.message.count({
+            })),
+            safeCount(prisma_1.prisma.message.count({
                 where: { clinicId, channel: "WHATSAPP", isHandledByAI: true, createdAt: { gte: today } },
-            }),
-            prisma_1.prisma.message.count({
+            })),
+            safeCount(prisma_1.prisma.message.count({
                 where: { clinicId, channel: "WHATSAPP", needsReview: true, isRead: false },
-            }),
-            prisma_1.prisma.appointment.count({
+            })),
+            safeCount(prisma_1.prisma.appointment.count({
                 where: { clinicId, channel: "WHATSAPP", bookedByAI: true, createdAt: { gte: today } },
-            }),
-            prisma_1.prisma.lead.count({
+            })),
+            safeCount(prisma_1.prisma.lead.count({
                 where: { clinicId, leadScore: "HOT", status: { notIn: ["BOOKED", "LOST"] } },
-            }),
+            })),
         ]);
 
-        const clinic = await prisma_1.prisma.clinic.findUnique({
-            where: { id: clinicId },
-            select: { aiEnabled: true, name: true, specialty: true },
-        });
+        let clinic = null;
+        try {
+            clinic = await prisma_1.prisma.clinic.findUnique({
+                where: { id: clinicId },
+                select: { aiEnabled: true, name: true, specialty: true },
+            });
+        } catch (_) {}
 
         const embeddedConfig = whatsapp_embedded_1.getEmbeddedSignupConfig();
 

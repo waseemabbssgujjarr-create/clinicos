@@ -1,16 +1,16 @@
 #!/bin/bash
 # start-node.sh — full API on port 3002 (cPanel Cron / manual start)
 # Cron every 5 min:
-#   /bin/bash /home/digitals/clinicos.workee.online/clinicos-api/start-node.sh
+#   /bin/bash /home/digitals/doctorsmyagency.com/clinicos-api/start-node.sh
 
-API_DIR="/home/digitals/clinicos.workee.online/clinicos-api"
+API_DIR="/home/digitals/doctorsmyagency.com/clinicos-api"
 # cPanel may create venv under clinicos-api OR under the domain folder
 ACTIVATE=""
 for cand in \
-  "/home/digitals/nodevenv/clinicos.workee.online/clinicos-api/20/bin/activate" \
-  "/home/digitals/nodevenv/clinicos.workee.online/20/bin/activate" \
-  "/home/digitals/nodevenv/clinicos.workee.online/clinicos-api/24/bin/activate" \
-  "/home/digitals/nodevenv/clinicos.workee.online/24/bin/activate"
+  "/home/digitals/nodevenv/doctorsmyagency.com/clinicos-api/20/bin/activate" \
+  "/home/digitals/nodevenv/doctorsmyagency.com/20/bin/activate" \
+  "/home/digitals/nodevenv/doctorsmyagency.com/clinicos-api/24/bin/activate" \
+  "/home/digitals/nodevenv/doctorsmyagency.com/24/bin/activate"
 do
   if [ -f "$cand" ]; then
     ACTIVATE="$cand"
@@ -83,7 +83,7 @@ if [ "$FORCE_RESTART" -eq 0 ] && command -v curl >/dev/null 2>&1; then
 fi
 
 # Kill only this app's bootstrap + :3002 — never pkill all node (nproc / other apps)
-pkill -9 -u digitals -f "clinicos.workee.online/clinicos-api.*bootstrap" 2>/dev/null || true
+pkill -9 -u digitals -f "doctorsmyagency.com/clinicos-api.*bootstrap" 2>/dev/null || true
 pkill -9 -u digitals -f "clinicos-api/dist/bootstrap" 2>/dev/null || true
 fuser -k 3002/tcp 2>/dev/null || true
 sleep 2
@@ -118,9 +118,9 @@ fi
 
 if [ -z "$NODE_BIN" ] || [ ! -x "$NODE_BIN" ]; then
   for nb in \
-    /home/digitals/nodevenv/clinicos.workee.online/20/bin/node \
-    /home/digitals/nodevenv/clinicos.workee.online/clinicos-api/20/bin/node \
-    /home/digitals/nodevenv/clinicos.workee.online/24/bin/node
+    /home/digitals/nodevenv/doctorsmyagency.com/20/bin/node \
+    /home/digitals/nodevenv/doctorsmyagency.com/clinicos-api/20/bin/node \
+    /home/digitals/nodevenv/doctorsmyagency.com/24/bin/node
   do
     if [ -x "$nb" ]; then NODE_BIN="$nb"; break; fi
   done

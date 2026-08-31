@@ -56,6 +56,8 @@ router.delete("/disconnect", whatsapp_controller_1.disconnectWhatsApp);
 router.get("/status",        whatsapp_controller_1.getConnectionStatus);
 // Old route: GET /api/whatsapp/signup-config
 router.get("/signup-config", whatsapp_controller_1.getSignupConfig);
+// Extra alias: GET /api/whatsapp/config — matches dma-doctor-app.js waStatus fallback paths
+router.get("/config",        whatsapp_controller_1.getSignupConfig);
 
 // ── Hub + activity ────────────────────────────────────────────────────────────
 router.get("/hub",         whatsapp_controller_1.getWhatsAppHub);

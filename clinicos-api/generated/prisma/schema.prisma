@@ -72,6 +72,7 @@ model Clinic {
   leads         Lead[]
   missedCalls   MissedCall[]
   dailyBriefs   DailyBrief[]
+  whatsAppConnection ClinicWhatsAppConnection?
 
   @@index([bookingSlug])
   @@index([email])
@@ -481,4 +482,32 @@ model PlatformSetting {
   value     String   @db.Text
   updatedAt DateTime @updatedAt
   updatedBy String?
+}
+
+// ─────────────────────────────────────────────
+// WHATSAPP CONNECTION (per clinic)
+// connectionMethod: 'MANUAL' | 'EMBEDDED_SIGNUP'
+// ─────────────────────────────────────────────
+model ClinicWhatsAppConnection {
+  id                  String    @id @default(cuid())
+  clinicId            String    @unique
+  connectionMethod    String    @default("MANUAL")
+  businessPortfolioId String?
+  wabaId              String
+  phoneNumberId       String    @unique
+  phoneNumber         String?
+  displayName         String?
+  accessTokenEnc      String    @db.Text
+  connectionStatus    String    @default("active")
+  webhookStatus       String    @default("unknown")
+  tokenMetadata       String?   @db.Text
+  lastVerifiedAt      DateTime?
+  lastError           String?   @db.Text
+  connectedAt         DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  clinic              Clinic    @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  @@index([phoneNumberId])
+  @@index([clinicId])
 }

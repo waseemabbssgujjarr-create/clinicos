@@ -38,17 +38,26 @@ async function getConnectionByClinicId(clinicId) {
         return hydrateConnection(row);   // throws on wrong-key / corrupt — propagate
     } catch (err) {
         // ENCRYPTION_KEY_MISSING: key not configured — treat as no connection
-        // (app is running but WhatsApp is unavailable until key is set)
         if (err && err.code === "ENCRYPTION_KEY_MISSING") {
             logger_1.logger.warn(`getConnectionByClinicId: encryption key not configured for clinic ${clinicId}`);
+            return null;
+        }
+        // P2021 / table not found: ClinicWhatsAppConnection table not migrated yet.
+        // Treat as no connection — avoids 500 on fresh deploys before migration runs.
+        const msg = err instanceof Error ? err.message : String(err);
+        if (
+            (err && (err.code === "P2021" || err.code === "P2025")) ||
+            msg.includes("Table") || msg.includes("doesn't exist") ||
+            msg.includes("Unknown table") || msg.includes("ClinicWhatsAppConnection")
+        ) {
+            logger_1.logger.warn(`getConnectionByClinicId: ClinicWhatsAppConnection table not ready — returning null`, { clinicId });
             return null;
         }
         // All other errors (WRONG_KEY, AUTH_FAILURE, INVALID_FORMAT) — must propagate
         logger_1.logger.error("getConnectionByClinicId: decryption failed", {
             clinicId,
             code: err && err.code,
-            // NOTE: err.message may not contain token data but we sanitise anyway
-            error: err instanceof Error ? err.message : String(err),
+            error: msg,
         });
         throw err;
     }
@@ -71,10 +80,20 @@ async function getConnectionByPhoneNumberId(phoneNumberId) {
             logger_1.logger.warn(`getConnectionByPhoneNumberId: encryption key not configured for ${phoneNumberId}`);
             return null;
         }
+        // P2021: table not migrated yet — return null so webhook skips gracefully
+        const msg = err instanceof Error ? err.message : String(err);
+        if (
+            (err && (err.code === "P2021" || err.code === "P2025")) ||
+            msg.includes("Table") || msg.includes("doesn't exist") ||
+            msg.includes("Unknown table") || msg.includes("ClinicWhatsAppConnection")
+        ) {
+            logger_1.logger.warn(`getConnectionByPhoneNumberId: ClinicWhatsAppConnection table not ready`, { phoneNumberId });
+            return null;
+        }
         logger_1.logger.error("getConnectionByPhoneNumberId: decryption failed", {
             phoneNumberId,
             code: err && err.code,
-            error: err instanceof Error ? err.message : String(err),
+            error: msg,
         });
         throw err;
     }

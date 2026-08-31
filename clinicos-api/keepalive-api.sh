@@ -2,7 +2,7 @@
 # keepalive-api.sh — cron every 1–2 min; restart ClinicOS API if port 3002 is dead
 #
 # cPanel Cron (digitals):
-#   bash /home/digitals/clinicos.workee.online/clinicos-api/keepalive-api.sh
+#   bash /home/digitals/doctorsmyagency.com/clinicos-api/keepalive-api.sh
 #
 # Design:
 # - Exits quickly when healthy (curl health check only).
@@ -10,7 +10,7 @@
 # - Restarts via force-start-api.sh which clears digitals Node (LVE OOM recovery),
 #   sets NODE_OPTIONS=192, prefers 127.0.0.1 DB host, then starts bootstrap.
 
-API_DIR="/home/digitals/clinicos.workee.online/clinicos-api"
+API_DIR="/home/digitals/doctorsmyagency.com/clinicos-api"
 PORT=3002
 HEALTH_URL="http://127.0.0.1:${PORT}/api/leads/features"
 LOG="$API_DIR/logs/keepalive.log"
