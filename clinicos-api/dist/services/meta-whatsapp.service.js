@@ -171,7 +171,7 @@ async function saveClinicWhatsAppAccount(clinicId, data) {
             data.wabaId, data.phoneNumberId, data.displayPhoneNumber || null, enc, clinicId
         );
     } else {
-        const id = crypto_1.default.randomBytes(12).toString("hex").slice(0, 24);
+        const id = crypto_1.randomBytes(12).toString("hex").slice(0, 24);
         await prisma_1.prisma.$executeRawUnsafe(
             `INSERT INTO ClinicWhatsAppAccount
              (id, clinicId, wabaId, phoneNumberId, displayPhoneNumber, accessTokenEnc, connectionStatus, connectedAt, updatedAt)
