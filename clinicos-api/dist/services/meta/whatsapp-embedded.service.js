@@ -208,6 +208,14 @@ async function tryExchangeCode(code) {
     const base = `https://graph.facebook.com/${meta_client_1.graphVersion()}/oauth/access_token`;
     const redirectUri = `${process.env.APP_URL || "https://doctorsmyagency.com"}/dashboard/settings/`;
 
+    // Abort if Meta doesn't respond within 25 seconds (proxy timeout is 45s)
+    function makeSignal() {
+        if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
+            return AbortSignal.timeout(25000);
+        }
+        return undefined;
+    }
+
     // Try SDK mode first (no redirect_uri), then with redirect_uri fallback
     const attempts = [
         { client_id: appId, client_secret: appSecret, code },
@@ -218,7 +226,7 @@ async function tryExchangeCode(code) {
     for (const params of attempts) {
         try {
             const qs = new URLSearchParams(params).toString();
-            const res = await fetch(`${base}?${qs}`);
+            const res = await fetch(`${base}?${qs}`, { signal: makeSignal() });
             const data = await res.json().catch(() => ({}));
             if (res.ok && data.access_token) {
                 return { success: true, accessToken: data.access_token };
