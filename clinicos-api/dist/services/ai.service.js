@@ -67,13 +67,29 @@ async function getAvailableSlots(clinicId, workingHours) {
 }
 /**
  * Build the AI system prompt with all clinic context injected.
+ * customRules: array of { question, answer, category, priority, matchType }
  */
-function buildSystemPrompt(ctx, availableSlots) {
+function buildSystemPrompt(ctx, availableSlots, customRules) {
     const personalityDesc = {
         professional: 'polite and professional',
         friendly: 'warm, friendly, and approachable',
         formal: 'formal and precise',
     }[ctx.aiPersonality] ?? 'polite and professional';
+
+    // Build custom rules section — injected between clinic info and patient history
+    let customRulesSection = '';
+    if (Array.isArray(customRules) && customRules.length > 0) {
+        const lines = customRules.map((r, i) => {
+            const matchNote = r.matchType === 'exact'
+                ? '(exact match only)'
+                : r.matchType === 'starts_with'
+                ? '(when message starts with this)'
+                : '(when message contains similar intent)';
+            return `  Rule ${i + 1} ${matchNote}:\n    Patient asks: "${r.question}"\n    You must reply: "${r.answer}"`;
+        });
+        customRulesSection = `\nCUSTOM CLINIC REPLIES (memorise and follow exactly — highest priority):\n${lines.join('\n')}\n`;
+    }
+
     return `You are the AI receptionist and CRM assistant for ${ctx.clinicName}, a ${ctx.specialty || 'medical'} clinic. You work 24/7 like a human front-desk agent — tracking every patient interaction, appointment, and enquiry for the doctor and staff dashboard. Be ${personalityDesc}.
 
 YOUR ROLE (human receptionist + CRM agent):
@@ -94,7 +110,7 @@ ${availableSlots}
 
 TREATMENTS OFFERED:
 ${ctx.treatments || 'General consultations available'}
-
+${customRulesSection}
 PATIENT HISTORY:
 ${ctx.patientHistory}
 
@@ -113,6 +129,7 @@ YOUR RULES:
 12. In conversationSummary, note what the doctor/staff should do next (e.g. "Patient wants Botox consult Thu 3pm — confirm slot")
 13. HEALTHCARE SAFETY: Never diagnose or prescribe in chat. For chest pain, severe bleeding, breathing difficulty, or emergencies — tell patient to call emergency services immediately and set action to "escalate"
 14. Sound like a real human receptionist — use the patient's name when known, warm confirmations, never mention "AI" or "bot"
+15. CUSTOM REPLIES: If a patient's message matches a CUSTOM CLINIC REPLY above, use that exact answer — do not improvise a different answer.
 
 RESPOND ONLY WITH THIS EXACT JSON (no other text, no markdown):
 {
@@ -138,8 +155,15 @@ RESPOND ONLY WITH THIS EXACT JSON (no other text, no markdown):
 async function processInboundMessage(ctx, userMessage) {
     const startTime = Date.now();
     try {
+        // Load clinic's custom training rules (non-fatal if table missing)
+        let customRules = [];
+        try {
+            const tr = require("../controllers/ai.training-rules.controller");
+            customRules = await tr.getTrainingRulesForAI(ctx.clinicId);
+        } catch (_) { /* AI training rules not yet available */ }
+
         const availableSlots = await getAvailableSlots(ctx.clinicId, ctx.workingHours);
-        const systemPrompt = buildSystemPrompt(ctx, availableSlots);
+        const systemPrompt = buildSystemPrompt(ctx, availableSlots, customRules);
         const messages = [
             { role: 'system', content: systemPrompt },
         ];

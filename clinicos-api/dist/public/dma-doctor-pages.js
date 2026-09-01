@@ -462,7 +462,7 @@
       '<div class="dma-head-actions"><a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">WhatsApp</a><a class="dma-btn dma-btn-primary" href="/dashboard/ai/?tab=test">Test chat</a></div></div>' +
       '<div class="dma-tabs" id="ai-tabs"></div><div id="ai-body">' + A().spinner() + '</div>';
 
-    var tabs = [['personality', 'Personality'], ['knowledge', 'Clinic knowledge'], ['test', 'Test & publish'], ['logs', 'Activity']];
+    var tabs = [['personality', 'Personality'], ['knowledge', 'Clinic knowledge'], ['custom', 'Custom replies'], ['test', 'Test & publish'], ['logs', 'Activity']];
     function drawTabs() {
       el('ai-tabs').innerHTML = tabs.map(function (t) {
         return '<button data-t="' + t[0] + '" class="' + (tab === t[0] ? 'active' : '') + '">' + t[1] + '</button>';
@@ -563,6 +563,120 @@
             add('ai', d.reply || d.message || d.response || (r.ok ? 'No reply returned.' : (d.error || 'AI test failed')));
           });
         };
+      } else if (tab === 'custom') {
+        /* ── CUSTOM REPLIES TAB ──────────────────────────────────────────── */
+        var CAT_LABELS = { general:'General', pricing:'Pricing', hours:'Hours', treatments:'Treatments', booking:'Booking', policies:'Policies' };
+        var CAT_COLORS = { general:'#6B7280', pricing:'#2563EB', hours:'#D97706', treatments:'#7C3AED', booking:'#16A34A', policies:'#EF4444' };
+        var MATCH_LABELS = { contains:'Contains similar intent', exact:'Exact match only', starts_with:'Message starts with' };
+
+        function renderRuleList(rules, migrationRequired) {
+          var warn = migrationRequired
+            ? '<div class="dma-banner warn" style="margin-bottom:14px">⚠️ Run the migration first: <code>add_ai_training_rules.sql</code></div>'
+            : '';
+
+          var rows = rules.length
+            ? rules.map(function (r) {
+                var cc = CAT_COLORS[r.category] || '#6B7280';
+                return '<div class="dma-row-item" style="flex-direction:column;align-items:flex-start;gap:6px;padding:14px 0">' +
+                  '<div style="display:flex;align-items:center;gap:8px;width:100%;flex-wrap:wrap">' +
+                    '<span class="dma-chip" style="background:' + cc + '22;color:' + cc + ';border:1px solid ' + cc + '44">' + esc(CAT_LABELS[r.category] || r.category) + '</span>' +
+                    '<span style="font-weight:800;flex:1;font-size:.875rem;min-width:0">' + esc(r.question) + '</span>' +
+                    '<div style="display:flex;gap:6px;flex-shrink:0">' +
+                      '<button class="dma-btn dma-btn-ghost dma-btn-sm rule-toggle" data-id="' + esc(r.id) + '" style="' + (r.isActive ? 'background:#DCFCE7;color:#16A34A;border-color:#86EFAC' : 'color:#9CA3AF') + '">' + (r.isActive ? '● On' : '○ Off') + '</button>' +
+                      '<button class="dma-btn dma-btn-ghost dma-btn-sm rule-edit" data-id="' + esc(r.id) + '">Edit</button>' +
+                      '<button class="dma-btn dma-btn-danger dma-btn-sm rule-del" data-id="' + esc(r.id) + '">✕</button>' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="dma-hint" style="padding-left:2px;line-height:1.55;white-space:pre-wrap">' + esc(r.answer) + '</div>' +
+                  '<div class="dma-hint" style="padding-left:2px;color:#9CA3AF">' + esc(MATCH_LABELS[r.matchType] || r.matchType) + (r.priority > 0 ? ' · Priority ' + r.priority : '') + '</div>' +
+                '</div>';
+              }).join('')
+            : A().empty('No custom replies yet', 'Add Q&A pairs the AI must memorise. The AI uses your exact answer instead of generating one.', null, null);
+
+          el('ai-body').innerHTML = warn +
+            '<div class="dma-banner" style="margin-bottom:14px;font-size:.8125rem">' +
+              '💡 Custom replies are injected into the AI\'s memory. When a patient asks a matching question, the AI replies with your exact answer — highest priority wins.' +
+            '</div>' +
+            '<section class="dma-panel"><div class="dma-panel-h"><h2>Custom replies <span class="dma-chip dma-chip-blue" style="margin-left:6px">' + rules.length + '</span></h2>' +
+              '<button class="dma-btn dma-btn-primary dma-btn-sm" id="rl-new-btn">+ Add reply</button>' +
+            '</div><div class="dma-panel-b" id="rl-list">' + rows + '</div></section>';
+
+          /* bind list actions */
+          var listEl = el('rl-list');
+          if (listEl) {
+            listEl.addEventListener('click', function (ev) {
+              var btn = ev.target.closest('button'); if (!btn) return;
+              var id = btn.getAttribute('data-id');
+              if (btn.classList.contains('rule-del')) {
+                if (!confirm('Delete this reply?')) return;
+                btn.disabled = true;
+                A().del('/api/ai/training-rules/' + id).then(function (r) {
+                  if (r.ok) { A().toast('Reply deleted', 'ok'); renderRuleList(rules.filter(function (x) { return x.id !== id; }), migrationRequired); }
+                  else A().toast((r.d && r.d.error) || 'Delete failed', 'err');
+                });
+              } else if (btn.classList.contains('rule-toggle')) {
+                btn.disabled = true;
+                A().patch('/api/ai/training-rules/' + id + '/toggle', {}).then(function (r) {
+                  if (r.ok) { renderRuleList(rules.map(function (x) { return x.id === id ? r.d.rule : x; }), migrationRequired); }
+                  else { btn.disabled = false; A().toast((r.d && r.d.error) || 'Toggle failed', 'err'); }
+                });
+              } else if (btn.classList.contains('rule-edit')) {
+                var rule = rules.find(function (x) { return x.id === id; });
+                if (rule) openRuleModal(rule, rules, migrationRequired);
+              }
+            });
+          }
+          var addBtn = el('rl-new-btn');
+          if (addBtn) addBtn.onclick = function () { openRuleModal(null, rules, migrationRequired); };
+        }
+
+        function openRuleModal(rule, rules, migrationRequired) {
+          var isEdit = !!rule;
+          var cats = ['general','pricing','hours','treatments','booking','policies'];
+          var matchtypes = ['contains','exact','starts_with'];
+          A().modal(isEdit ? 'Edit custom reply' : 'Add custom reply',
+            '<div class="dma-hint" style="margin-bottom:12px;line-height:1.55">The AI will use your answer exactly when a patient asks a similar question.</div>' +
+            '<div class="dma-field"><label>Patient question <span style="color:#EF4444">*</span></label>' +
+              '<input id="rl-q" placeholder="e.g. What are your consultation fees?" value="' + esc(rule ? rule.question : '') + '"></div>' +
+            '<div class="dma-field"><label>Your answer <span style="color:#EF4444">*</span></label>' +
+              '<textarea id="rl-a" rows="4" placeholder="e.g. Our consultation is PKR 2,000. Book via WhatsApp or call us.">' + esc(rule ? rule.answer : '') + '</textarea></div>' +
+            '<div class="dma-row">' +
+              '<div class="dma-field"><label>Category</label><select id="rl-cat">' + cats.map(function(c){ return '<option value="'+c+'"'+(rule&&rule.category===c?' selected':'')+'>'+CAT_LABELS[c]+'</option>'; }).join('') + '</select></div>' +
+              '<div class="dma-field"><label>Match type</label><select id="rl-match">' + matchtypes.map(function(m){ return '<option value="'+m+'"'+(rule&&rule.matchType===m?' selected':'')+'>'+MATCH_LABELS[m]+'</option>'; }).join('') + '</select></div>' +
+            '</div>' +
+            '<div class="dma-row">' +
+              '<div class="dma-field"><label>Priority <span class="dma-hint">(0–100, higher = first)</span></label><input id="rl-pri" type="number" min="0" max="100" value="' + (rule ? rule.priority : 0) + '"></div>' +
+              '<div class="dma-field"><label>Status</label><select id="rl-act"><option value="1"'+(!rule||rule.isActive?' selected':'')+'>Active</option><option value="0"'+(rule&&!rule.isActive?' selected':'')+'>Inactive</option></select></div>' +
+            '</div>',
+            '<button class="dma-btn dma-btn-ghost" data-close>Cancel</button>' +
+            '<button class="dma-btn dma-btn-primary" id="rl-save">' + (isEdit ? 'Save changes' : 'Add reply') + '</button>'
+          );
+          var saveBtn = el('rl-save');
+          if (saveBtn) saveBtn.onclick = function () {
+            var q = el('rl-q').value.trim();
+            var a = el('rl-a').value.trim();
+            if (!q) { A().toast('Question is required', 'err'); return; }
+            if (!a) { A().toast('Answer is required', 'err'); return; }
+            saveBtn.disabled = true;
+            var body = { question: q, answer: a, category: el('rl-cat').value, matchType: el('rl-match').value, priority: Number(el('rl-pri').value||0), isActive: el('rl-act').value==='1' };
+            var call = isEdit ? A().patch('/api/ai/training-rules/'+rule.id, body) : A().post('/api/ai/training-rules', body);
+            call.then(function (r) {
+              saveBtn.disabled = false;
+              if (!r.ok) { A().toast((r.d&&r.d.error)||'Save failed', 'err'); return; }
+              A().closeModal();
+              A().toast(isEdit ? 'Reply updated' : 'Reply added', 'ok');
+              A().get('/api/ai/training-rules').then(function (d) { renderRuleList(d.rules||[], d.migrationRequired); });
+            });
+          };
+        }
+
+        el('ai-body').innerHTML = A().spinner();
+        A().get('/api/ai/training-rules').then(function (d) {
+          renderRuleList(d.rules || [], d.migrationRequired);
+        }).catch(function () {
+          el('ai-body').innerHTML = A().empty('Could not load custom replies', 'Check your connection and try again.');
+        });
+
       } else {
         A().get('/api/ai/logs?limit=40').then(function (logs) {
           var rows = Array.isArray(logs) ? logs : (logs.data || []);
