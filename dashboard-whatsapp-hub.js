@@ -127,15 +127,55 @@
     // ── Register postMessage listener ──────────────────────────────────────────
     // Registered only at the moment the user clicks Connect — never at page load.
     // Deregistered after success, failure, or cancellation via the cleanup flag.
+    //
+    // IMPORTANT: Three issues handled here:
+    //   1. Meta can send event.data as a JSON *string* in some browsers — must parse it.
+    //   2. Origin must be validated against known Meta domains.
+    //   3. waba_id lives inside msg.data (not at msg level) — unwrap correctly.
+    var metaOrigins = [
+      'https://www.facebook.com',
+      'https://web.facebook.com',
+      'https://business.facebook.com',
+    ];
     var listenerRef = null;
     if (!window.__waSessionInfoListenerAdded) {
       window.__waSessionInfoListenerAdded = true;
       listenerRef = function (ev) {
-        if (!ev.data || typeof ev.data !== 'object') return;
-        var d = ev.data;
-        if (d.type === 'WA_EMBEDDED_SIGNUP') { window.__waSessionInfo = d.data || d; }
-        else if (d.event === 'FINISH')        { window.__waSessionInfo = d.data || d; }
-        else if (d.waba_id || d.wabaId)       { window.__waSessionInfo = d; }
+        // ── 1. Origin check ───────────────────────────────────────────────────
+        if (metaOrigins.indexOf(ev.origin) === -1) return;
+
+        // ── 2. Parse: Meta may send data as JSON string or as object ─────────
+        var msg = ev.data;
+        if (typeof msg === 'string') {
+          try { msg = JSON.parse(msg); } catch (_) { return; }
+        }
+        if (!msg || typeof msg !== 'object') return;
+
+        // ── 3. Only handle WA_EMBEDDED_SIGNUP messages ────────────────────────
+        if (msg.type !== 'WA_EMBEDDED_SIGNUP') return;
+
+        // ── 4. Extract session info — waba_id lives inside msg.data ──────────
+        //   Outer:  { type: "WA_EMBEDDED_SIGNUP", event: "FINISH", data: { waba_id, phone_number_id } }
+        //   So msg.data is the payload; msg itself is just the envelope.
+        var payload = (msg.data && typeof msg.data === 'object') ? msg.data : msg;
+
+        // Handle waba_ids array as well as waba_id string
+        var wabaId = payload.waba_id
+          || (Array.isArray(payload.waba_ids) ? payload.waba_ids[0] : '')
+          || '';
+        var phoneNumberId      = payload.phone_number_id      || '';
+        var displayPhoneNumber = payload.display_phone_number || payload.phone_number || '';
+
+        // Store only if we have at least a FINISH event OR actual asset IDs
+        var eventName = String(msg.event || '').toUpperCase();
+        var isFinish  = eventName.indexOf('FINISH') !== -1 && eventName.indexOf('CANCEL') === -1;
+        if (isFinish || wabaId || phoneNumberId) {
+          window.__waSessionInfo = {
+            waba_id:              wabaId,
+            phone_number_id:      phoneNumberId,
+            display_phone_number: displayPhoneNumber,
+          };
+        }
       };
       window.addEventListener('message', listenerRef);
     }
