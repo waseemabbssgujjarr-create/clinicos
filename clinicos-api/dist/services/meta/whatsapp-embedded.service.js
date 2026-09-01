@@ -144,7 +144,23 @@ async function exchangeEmbeddedSignupCode(clinicId, code, sessionInfo = {}) {
     const phoneNumberInput = sessionInfo.phone_number_id || sessionInfo.phoneNumberId || "";
     const displayInput     = sessionInfo.display_phone_number || sessionInfo.displayPhoneNumber || "";
 
+    logger_1.logger.info("Embedded Signup: resolving assets", {
+        clinicId,
+        wabaIdPresent:       !!wabaIdInput,
+        phoneNumberIdPresent: !!phoneNumberInput,
+        displayPresent:       !!displayInput,
+    });
+
     const assets = await resolveEmbeddedAssets(accessToken, wabaIdInput, phoneNumberInput, displayInput);
+
+    logger_1.logger.info("Embedded Signup: resolveEmbeddedAssets result", {
+        clinicId,
+        assetsFound:    !!assets,
+        wabaId:         assets?.wabaId         || "(none)",
+        phoneNumberId:  assets?.phoneNumberId  || "(none)",
+        displayPhone:   assets?.displayPhoneNumber || "(none)",
+    });
+
     if (!assets || !assets.phoneNumberId) {
         return {
             success: false,
@@ -237,9 +253,14 @@ async function resolveEmbeddedAssets(accessToken, wabaIdInput, phoneNumberIdInpu
     // Fallback: walk Graph API hierarchy
     logger_1.logger.warn("Embedded Signup: session info missing — walking Graph API for WABA/phone");
     const me = await meta_client_1.graphGet(`https://graph.facebook.com/${version}/me?fields=id`, accessToken);
-    if (!me.success) return null;
+    if (!me.success) {
+        logger_1.logger.error("Embedded Signup: /me failed", { httpStatus: me.httpStatus, error: me.error });
+        return null;
+    }
+    logger_1.logger.info("Embedded Signup: /me OK", { userId: me.data?.id });
 
     const biz = await meta_client_1.graphGet(`https://graph.facebook.com/${version}/${me.data.id}/businesses`, accessToken);
+    logger_1.logger.info("Embedded Signup: businesses", { count: (biz.data?.data || []).length });
     for (const b of biz.data?.data || []) {
         for (const endpoint of ["owned_whatsapp_business_accounts", "client_whatsapp_business_accounts"]) {
             const wabaRes = await meta_client_1.graphGet(

@@ -104,7 +104,7 @@
     var waited = 0;
     var iv = setInterval(function () {
       waited += 100;
-      if (window.__waSessionInfo || waited >= 2000) {
+      if (window.__waSessionInfo || waited >= 8000) {
         clearInterval(iv);
         cb(window.__waSessionInfo || null);
       }
@@ -149,7 +149,11 @@
     }
 
     // ── Launch ─────────────────────────────────────────────────────────────────
-    window.__waSessionInfo = null;
+    // Only clear __waSessionInfo if it isn't already set from an earlier postMessage
+    // on this page. Meta can fire WA_EMBEDDED_SIGNUP before FB.login returns.
+    if (!window.__waSessionInfo) {
+      window.__waSessionInfo = null;
+    }
     if (btnEl) { btnEl.disabled = true; btnEl.dataset.origText = btnEl.textContent; btnEl.textContent = 'Connecting…'; }
     if (errEl) errEl.style.display = 'none';
 

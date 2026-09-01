@@ -3,7 +3,7 @@
  * Reset Platform Admin password only (does not wipe clinics).
  *
  * Upload to site root, open once:
- *   https://clinicos.workee.online/reset-admin-password.php?key=DMA-SETUP-2026
+ *   https://doctorsmyagency.com/reset-admin-password.php?key=DMA-SETUP-2026
  * Then DELETE this file from the server.
  */
 header('Content-Type: application/json; charset=utf-8');
@@ -107,7 +107,7 @@ respond([
     'action' => $action,
     'message' => 'Platform admin password reset. DELETE reset-admin-password.php from the server now.',
     'login' => [
-        'url' => 'https://clinicos.workee.online/admin-login/',
+        'url' => 'https://doctorsmyagency.com/admin-login/',
         'email' => ADMIN_EMAIL,
         'password' => ADMIN_PASS,
     ],
