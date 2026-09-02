@@ -144,6 +144,14 @@ exports.deleteClinic = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     res.json({ message: `"${clinic.name}" permanently deleted` });
 });
 // PATCH /api/superadmin/clinics/:id/plan
+exports.overridePlan = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const { plan, planStatus } = req.body;
+    await prisma_1.prisma.clinic.update({
+        where: { id: req.params.id },
+        data: { plan: plan, planStatus: planStatus },
+    });
+    res.json({ message: 'Plan updated' });
+});
 // GET /api/superadmin/revenue
 exports.getRevenue = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const monthlyData = [];
