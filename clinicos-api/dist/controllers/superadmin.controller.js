@@ -144,14 +144,6 @@ exports.deleteClinic = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     res.json({ message: `"${clinic.name}" permanently deleted` });
 });
 // PATCH /api/superadmin/clinics/:id/plan
-exports.overridePlan = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const { plan, planStatus } = req.body;
-    await prisma_1.prisma.clinic.update({
-        where: { id: req.params.id },
-        data: { plan: plan, planStatus: planStatus },
-    });
-    res.json({ message: 'Plan updated' });
-});
 // GET /api/superadmin/revenue
 exports.getRevenue = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const monthlyData = [];
@@ -265,14 +257,26 @@ exports.testIntegrationsEmail = (0, asyncHandler_1.asyncHandler)(async (req, res
     }
 });
 exports.listWhatsAppClinics = (0, asyncHandler_1.asyncHandler)(async (_req, res) => {
-    const meta = require('../services/meta-whatsapp.service');
-    await meta.ensureWhatsAppTable();
+    // Query ClinicWhatsAppConnection (the current active table used by whatsapp-connection.service.js)
+    // and fall back to ClinicWhatsAppAccount (legacy table from meta-whatsapp.service.js) for any
+    // clinics that connected before the migration.
     const rows = await prisma_1.prisma.$queryRawUnsafe(`
-    SELECT c.id, c.name, c.email, c.ownerName, c.plan, c.planStatus, c.isActive,
-           w.displayPhoneNumber, w.wabaId, w.phoneNumberId, w.connectionStatus, w.connectedAt
+    SELECT
+      c.id, c.name, c.email, c.ownerName, c.plan, c.planStatus, c.isActive,
+      COALESCE(n.phoneNumber,     a.displayPhoneNumber) AS displayPhoneNumber,
+      COALESCE(n.wabaId,          a.wabaId)             AS wabaId,
+      COALESCE(n.phoneNumberId,   a.phoneNumberId)      AS phoneNumberId,
+      COALESCE(n.connectionStatus,a.connectionStatus)   AS connectionStatus,
+      COALESCE(n.connectedAt,     a.connectedAt)        AS connectedAt,
+      COALESCE(n.webhookStatus,   'unknown')            AS webhookStatus,
+      COALESCE(n.connectionMethod,'MANUAL')             AS connectionMethod
     FROM Clinic c
-    LEFT JOIN ClinicWhatsAppAccount w ON w.clinicId = c.id AND w.connectionStatus = 'active'
-    ORDER BY w.connectedAt DESC, c.createdAt DESC
+    LEFT JOIN ClinicWhatsAppConnection n
+      ON n.clinicId = c.id AND LOWER(n.connectionStatus) = 'active'
+    LEFT JOIN ClinicWhatsAppAccount a
+      ON a.clinicId = c.id AND LOWER(a.connectionStatus) = 'active'
+      AND n.clinicId IS NULL
+    ORDER BY COALESCE(n.connectedAt, a.connectedAt) DESC, c.createdAt DESC
     LIMIT 500
   `);
     const list = Array.isArray(rows) ? rows : [];
@@ -280,7 +284,13 @@ exports.listWhatsAppClinics = (0, asyncHandler_1.asyncHandler)(async (_req, res)
         const msgCount = await prisma_1.prisma.message.count({
             where: { clinicId: row.id, channel: 'WHATSAPP' },
         }).catch(() => 0);
-        return { ...row, whatsappMessages: msgCount, connected: !!row.phoneNumberId };
+        const connected = !!(row.phoneNumberId || row.displayPhoneNumber);
+        return {
+            ...row,
+            whatsappMessages: msgCount,
+            connected,
+            phoneNumber: row.displayPhoneNumber || null,
+        };
     }));
     res.json({
         total: enriched.length,
@@ -289,8 +299,15 @@ exports.listWhatsAppClinics = (0, asyncHandler_1.asyncHandler)(async (_req, res)
     });
 });
 exports.revokeWhatsAppClinic = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const meta = require('../services/meta-whatsapp.service');
-    await meta.disconnectClinicWhatsApp(req.params.id);
-    res.json({ success: true });
+    const clinicId = req.params.id;
+    // Disconnect from both the new ClinicWhatsAppConnection table and the legacy ClinicWhatsAppAccount table
+    const { disconnectClinic } = require('../services/meta/whatsapp-connection.service');
+    await disconnectClinic(clinicId).catch(() => null);
+    // Also mark disconnected in legacy table if it exists
+    await prisma_1.prisma.$executeRawUnsafe(
+        "UPDATE `ClinicWhatsAppAccount` SET `connectionStatus` = 'disconnected', `updatedAt` = NOW() WHERE `clinicId` = ?",
+        clinicId
+    ).catch(() => null);
+    res.json({ success: true, clinicId });
 });
 //# sourceMappingURL=superadmin.controller.js.map

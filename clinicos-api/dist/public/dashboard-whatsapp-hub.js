@@ -570,6 +570,10 @@
   }
 
   // ── Boot ──────────────────────────────────────────────────────────────────────
+  // _bootConnected tracks whether we have already rendered a "connected" state
+  // so scheduled retries (800ms / 2200ms) never overwrite it with a stale
+  // "not connected" result if an earlier API call was slower than a later one.
+  var _bootConnected = false;
 
   function boot() {
     injectSidebarLink();
@@ -582,10 +586,22 @@
       apiGet('/api/whatsapp/connections/config'),
       apiGet('/api/whatsapp/message-log'),
     ]).then(function (parts) {
-      renderHub(parts[0], parts[1], parts[2]);
+      var hubData = parts[0] || {};
+      // Once we see connected = true, latch it — do NOT let a later stale
+      // "connected: false" response from a retry overwrite the connected UI.
+      if (hubData.connected) _bootConnected = true;
+      if (!hubData.connected && _bootConnected) {
+        // A retry returned disconnected after we already rendered connected.
+        // Ignore this stale result — keep the connected UI.
+        return;
+      }
+      renderHub(hubData, parts[1], parts[2]);
     }).catch(function () {
-      var h = document.getElementById(ROOT_ID);
-      if (h) h.innerHTML = '<p class="dma-wa-muted">Could not load WhatsApp data. Check your connection and refresh.</p>';
+      // Only show error if we have never successfully rendered connected state
+      if (!_bootConnected) {
+        var h = document.getElementById(ROOT_ID);
+        if (h) h.innerHTML = '<p class="dma-wa-muted">Could not load WhatsApp data. Check your connection and refresh.</p>';
+      }
     });
   }
 
