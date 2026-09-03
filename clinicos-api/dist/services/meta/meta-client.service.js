@@ -50,19 +50,32 @@ function graphBaseUrl() {
 }
 
 /**
+ * Build a full URL from a path (absolute or relative) + optional query params.
+ */
+function buildUrl(path, params = {}) {
+    const base = path.startsWith("http") ? path : `${graphBaseUrl()}/${path.replace(/^\//, "")}`;
+    const entries = Object.entries(params).filter(([, v]) => v != null && v !== "");
+    if (!entries.length) return base;
+    const qs = entries.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`).join("&");
+    return base.includes("?") ? `${base}&${qs}` : `${base}?${qs}`;
+}
+
+/**
  * GET a Meta Graph API resource.
  * Returns { success, data } or { success: false, error, httpStatus }.
  */
 async function graphGet(path, accessToken, params = {}) {
     const url = buildUrl(path, params);
     try {
-        const res = await fetch(url, {
+        const signal = metaSignal();
+        const fetchOpts = {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 Accept: "application/json",
             },
-            signal: metaSignal(),
-        });
+        };
+        if (signal) fetchOpts.signal = signal;
+        const res = await fetch(url, fetchOpts);
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
             const err = data?.error?.message || data?.error?.type || res.statusText;
@@ -74,7 +87,11 @@ async function graphGet(path, accessToken, params = {}) {
         const msg = e instanceof Error ? e.message : String(e);
         const isTimeout = e?.name === "TimeoutError" || msg.includes("timed out") || msg.includes("AbortError");
         logger_1.logger.error(`Meta GET ${path} ${isTimeout ? "timed out" : "network error"}: ${msg}`);
-        return { success: false, error: isTimeout ? `Meta API timed out after ${META_FETCH_TIMEOUT_MS/1000}s` : `Network error: ${msg}`, httpStatus: 0 };
+        return {
+            success: false,
+            error: isTimeout ? `Meta API timed out after ${META_FETCH_TIMEOUT_MS / 1000}s` : `Network error: ${msg}`,
+            httpStatus: 0,
+        };
     }
 }
 
@@ -84,7 +101,8 @@ async function graphGet(path, accessToken, params = {}) {
 async function graphPost(path, accessToken, body = {}) {
     const url = buildUrl(path);
     try {
-        const res = await fetch(url, {
+        const signal = metaSignal();
+        const fetchOpts = {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -92,8 +110,9 @@ async function graphPost(path, accessToken, body = {}) {
                 Accept: "application/json",
             },
             body: JSON.stringify(body),
-            signal: metaSignal(),
-        });
+        };
+        if (signal) fetchOpts.signal = signal;
+        const res = await fetch(url, fetchOpts);
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
             const err = data?.error?.message || data?.error?.type || res.statusText;
@@ -105,7 +124,11 @@ async function graphPost(path, accessToken, body = {}) {
         const msg = e instanceof Error ? e.message : String(e);
         const isTimeout = e?.name === "TimeoutError" || msg.includes("timed out") || msg.includes("AbortError");
         logger_1.logger.error(`Meta POST ${path} ${isTimeout ? "timed out" : "network error"}: ${msg}`);
-        return { success: false, error: isTimeout ? `Meta API timed out after ${META_FETCH_TIMEOUT_MS/1000}s` : `Network error: ${msg}`, httpStatus: 0 };
+        return {
+            success: false,
+            error: isTimeout ? `Meta API timed out after ${META_FETCH_TIMEOUT_MS / 1000}s` : `Network error: ${msg}`,
+            httpStatus: 0,
+        };
     }
 }
 
@@ -115,14 +138,16 @@ async function graphPost(path, accessToken, body = {}) {
 async function graphDelete(path, accessToken) {
     const url = buildUrl(path);
     try {
-        const res = await fetch(url, {
+        const signal = metaSignal();
+        const fetchOpts = {
             method: "DELETE",
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 Accept: "application/json",
             },
-            signal: metaSignal(),
-        });
+        };
+        if (signal) fetchOpts.signal = signal;
+        const res = await fetch(url, fetchOpts);
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
             const err = data?.error?.message || res.statusText;
@@ -174,12 +199,16 @@ async function verifyAppCredentials() {
             error: "META_APP_ID and META_APP_SECRET are not configured. Set them in Superadmin → Integrations.",
         };
     }
-    const url = `https://graph.facebook.com/${graphVersion()}/oauth/access_token` +
+    const url =
+        `https://graph.facebook.com/${graphVersion()}/oauth/access_token` +
         `?client_id=${encodeURIComponent(appId)}` +
         `&client_secret=${encodeURIComponent(appSecret)}` +
         `&grant_type=client_credentials`;
     try {
-        const res = await fetch(url, { signal: metaSignal() });
+        const signal = metaSignal();
+        const fetchOpts = {};
+        if (signal) fetchOpts.signal = signal;
+        const res = await fetch(url, fetchOpts);
         const data = await res.json().catch(() => ({}));
         if (res.ok && data.access_token) {
             return { success: true };
@@ -191,178 +220,11 @@ async function verifyAppCredentials() {
         const msg = e instanceof Error ? e.message : String(e);
         const isTimeout = e?.name === "TimeoutError" || msg.includes("timed out");
         logger_1.logger.error(`verifyAppCredentials ${isTimeout ? "timed out" : "network error"}: ${msg}`);
-        return { success: false, error: isTimeout ? `Meta credential check timed out after ${META_FETCH_TIMEOUT_MS/1000}s — check connectivity to graph.facebook.com` : `Network error: ${msg}` };
-    }
-}
-
-// ── Private helpers ────────────────────────────────────────────────────────────
-
-function buildUrl(path, params = {}) {
-    const base = path.startsWith("http") ? path : `${graphBaseUrl()}/${path.replace(/^\//, "")}`;
-    const entries = Object.entries(params).filter(([, v]) => v != null && v !== "");
-    if (!entries.length) return base;
-    const qs = entries.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`).join("&");
-    return base.includes("?") ? `${base}&${qs}` : `${base}?${qs}`;
-}
-
-function graphVersion() {
-    return process.env.META_GRAPH_API_VERSION || "v21.0";
-}
-
-function metaAppCreds() {
-    return {
-        appId: process.env.META_APP_ID || "",
-        appSecret: process.env.META_APP_SECRET || "",
-    };
-}
-
-function graphBaseUrl() {
-    return `https://graph.facebook.com/${graphVersion()}`;
-}
-
-/**
- * GET a Meta Graph API resource.
- * Returns { success, data } or { success: false, error, httpStatus }.
- */
-async function graphGet(path, accessToken, params = {}) {
-    const url = buildUrl(path, params);
-    try {
-        const res = await fetch(url, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                Accept: "application/json",
-            },
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-            const err = data?.error?.message || data?.error?.type || res.statusText;
-            logger_1.logger.debug(`Meta GET ${path} → ${res.status}: ${err}`);
-            return { success: false, error: err, httpStatus: res.status, data };
-        }
-        return { success: true, data };
-    } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        logger_1.logger.error(`Meta GET ${path} network error: ${msg}`);
-        return { success: false, error: `Network error: ${msg}`, httpStatus: 0 };
-    }
-}
-
-/**
- * POST to a Meta Graph API endpoint.
- */
-async function graphPost(path, accessToken, body = {}) {
-    const url = buildUrl(path);
-    try {
-        const res = await fetch(url, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-            body: JSON.stringify(body),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-            const err = data?.error?.message || data?.error?.type || res.statusText;
-            logger_1.logger.debug(`Meta POST ${path} → ${res.status}: ${err}`);
-            return { success: false, error: err, httpStatus: res.status, data };
-        }
-        return { success: true, data };
-    } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        logger_1.logger.error(`Meta POST ${path} network error: ${msg}`);
-        return { success: false, error: `Network error: ${msg}`, httpStatus: 0 };
-    }
-}
-
-/**
- * DELETE a Meta Graph API resource.
- */
-async function graphDelete(path, accessToken) {
-    const url = buildUrl(path);
-    try {
-        const res = await fetch(url, {
-            method: "DELETE",
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                Accept: "application/json",
-            },
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-            const err = data?.error?.message || res.statusText;
-            return { success: false, error: err, httpStatus: res.status, data };
-        }
-        return { success: true, data };
-    } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        return { success: false, error: `Network error: ${msg}`, httpStatus: 0 };
-    }
-}
-
-/**
- * Inspect a token via Meta's debug_token endpoint.
- * Returns token metadata: app_id, type, application, expires_at, scopes, etc.
- */
-async function inspectToken(accessToken) {
-    const { appId, appSecret } = metaAppCreds();
-    if (!appId || !appSecret) {
-        return { success: false, error: "META_APP_ID and META_APP_SECRET must be configured." };
-    }
-    const appToken = `${appId}|${appSecret}`;
-    const res = await graphGet(
-        `https://graph.facebook.com/${graphVersion()}/debug_token`,
-        appToken,
-        { input_token: accessToken }
-    );
-    if (!res.success) return res;
-    const d = res.data?.data || res.data || {};
-    if (!d.is_valid) {
         return {
             success: false,
-            error: d.error?.message || "Access token is not valid",
-            data: d,
+            error: isTimeout
+                ? `Meta credential check timed out after ${META_FETCH_TIMEOUT_MS / 1000}s — check connectivity to graph.facebook.com`
+                : `Network error: ${msg}`,
         };
     }
-    return { success: true, data: d };
-}
-
-/**
- * Verify our own Meta App ID + App Secret pair using client_credentials grant.
- * This must pass before we attempt any per-clinic token exchange.
- */
-async function verifyAppCredentials() {
-    const { appId, appSecret } = metaAppCreds();
-    if (!appId || !appSecret) {
-        return {
-            success: false,
-            error: "META_APP_ID and META_APP_SECRET are not configured. Set them in Superadmin → Integrations.",
-        };
-    }
-    const url = `https://graph.facebook.com/${graphVersion()}/oauth/access_token` +
-        `?client_id=${encodeURIComponent(appId)}` +
-        `&client_secret=${encodeURIComponent(appSecret)}` +
-        `&grant_type=client_credentials`;
-    try {
-        const res = await fetch(url);
-        const data = await res.json().catch(() => ({}));
-        if (res.ok && data.access_token) {
-            return { success: true };
-        }
-        const err = data?.error?.message || "Invalid App ID / App Secret pair";
-        return { success: false, error: err };
-    } catch (e) {
-        return { success: false, error: `Network error: ${e instanceof Error ? e.message : String(e)}` };
-    }
-}
-
-// ── Private helpers ────────────────────────────────────────────────────────────
-
-function buildUrl(path, params = {}) {
-    const base = path.startsWith("http") ? path : `${graphBaseUrl()}/${path.replace(/^\//, "")}`;
-    const entries = Object.entries(params).filter(([, v]) => v != null && v !== "");
-    if (!entries.length) return base;
-    const qs = entries.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`).join("&");
-    return base.includes("?") ? `${base}&${qs}` : `${base}?${qs}`;
 }

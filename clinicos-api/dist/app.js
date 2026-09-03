@@ -92,6 +92,26 @@ const authLimiter = (0, express_rate_limit_1.default)({
 // ── Stripe webhook MUST receive raw body — register BEFORE express.json() ────
 app.use('/api/webhooks/stripe', express_1.default.raw({ type: 'application/json' }), stripe_webhook_1.default);
 
+// ── Meta webhook MUST also receive raw body for HMAC-SHA256 verification ─────
+// Meta computes X-Hub-Signature-256 over the raw request bytes.
+// If we let express.json() parse the body first, req.rawBody is never set and
+// verifyWebhookSignature() falls back to JSON.stringify(req.body) which does
+// not byte-for-byte match the original payload — HMAC always fails and every
+// real inbound message is silently rejected.
+app.use('/api/webhooks/meta', express_1.default.raw({ type: 'application/json' }), (req, _res, next) => {
+    // Store raw bytes on req.rawBody so verifyWebhookSignature() can use them.
+    // Also parse the JSON so the rest of the handler can read req.body normally.
+    if (Buffer.isBuffer(req.body)) {
+        req.rawBody = req.body;
+        try {
+            req.body = JSON.parse(req.body.toString('utf8'));
+        } catch (_) {
+            req.body = {};
+        }
+    }
+    next();
+}, meta_webhook_1.default);
+
 // ── Body Parsing ──────────────────────────────────────────────────────────────
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
@@ -197,7 +217,7 @@ app.use('/api/leads', leads_routes_1.default);
 app.use('/api/whatsapp', whatsapp_routes_1.default);
 app.use('/api/internal', internal_routes_1.default);
 app.use('/api/webhooks/twilio', twilio_webhook_1.default);
-app.use('/api/webhooks/meta', meta_webhook_1.default);
+// /api/webhooks/meta is registered above with raw body capture for HMAC verification
 
 // ── Static frontend (production only) ────────────────────────────────────────
 // On Hostinger Node.js hosting ALL traffic routes through this Express process.

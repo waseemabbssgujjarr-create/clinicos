@@ -62,13 +62,13 @@ function verifyWebhookSignature(req) {
         ? req.rawBody
         : Buffer.from(JSON.stringify(req.body || {}), "utf8");
 
-    const expected = "sha256=" + crypto_1.default
+    const expected = "sha256=" + crypto_1
         .createHmac("sha256", appSecret)
         .update(rawBody)
         .digest("hex");
 
     try {
-        return crypto_1.default.timingSafeEqual(
+        return crypto_1.timingSafeEqual(
             Buffer.from(expected, "utf8"),
             Buffer.from(sigHeader, "utf8")
         );
@@ -187,15 +187,37 @@ router.post("/", async (req, res) => {
     // ACK immediately — Meta retries if response takes > 20s
     res.status(200).send("EVENT_RECEIVED");
 
+    // ── Diagnostic: log every inbound POST before any rejection ──────────────
+    const sigHeader = String(req.headers["x-hub-signature-256"] || "");
+    const rawBodyLen = Buffer.isBuffer(req.rawBody) ? req.rawBody.length
+                     : (req.body ? JSON.stringify(req.body).length : 0);
+    logger_1.logger.info("META_WEBHOOK_POST_RECEIVED", {
+        method: req.method,
+        path: req.path,
+        hasSignatureHeader: !!sigHeader,
+        signaturePrefix: sigHeader ? sigHeader.slice(0, 14) + "…" : "(none)",
+        rawBodyLength: rawBodyLen,
+        bodyType: typeof req.body,
+    });
+
     // Reject payloads with invalid signatures
     if (!verifyWebhookSignature(req)) {
-        logger_1.logger.warn("Meta webhook: invalid HMAC signature — payload rejected");
+        logger_1.logger.warn("META_WEBHOOK_HMAC_FAILED", {
+            hasSecret: !!(process.env.META_APP_SECRET),
+            hasSignatureHeader: !!sigHeader,
+            rawBodyLength: rawBodyLen,
+        });
         return;
     }
 
+    logger_1.logger.info("META_WEBHOOK_HMAC_VALID");
+
     try {
         const body = req.body || {};
-        if (body.object !== "whatsapp_business_account") return;
+        if (body.object !== "whatsapp_business_account") {
+            logger_1.logger.info("META_WEBHOOK_NOT_WHATSAPP", { object: body.object });
+            return;
+        }
 
         for (const entry of body.entry || []) {
             for (const change of entry.changes || []) {
@@ -204,6 +226,12 @@ router.post("/", async (req, res) => {
                 const value        = change.value || {};
                 const phoneNumberId = String(value.metadata?.phone_number_id || "");
                 if (!phoneNumberId) continue;
+
+                logger_1.logger.info("META_WEBHOOK_MESSAGE_RECEIVED", {
+                    phoneNumberId,
+                    wabaId: entry.id || "(unknown)",
+                    messageCount: (value.messages || []).length,
+                });
 
                 let conn;
                 try {
@@ -219,9 +247,14 @@ router.post("/", async (req, res) => {
                     continue;
                 }
                 if (!conn) {
-                    logger_1.logger.warn(`Meta webhook: no clinic for phone_number_id ${phoneNumberId}`);
+                    logger_1.logger.warn(`META_WEBHOOK_NO_CLINIC_FOR_PHONE_NUMBER_ID`, { phoneNumberId });
                     continue;
                 }
+
+                logger_1.logger.info("META_WEBHOOK_CLINIC_RESOLVED", {
+                    phoneNumberId,
+                    clinicId: conn.clinicId,
+                });
 
                 const clinic = await prisma_1.prisma.clinic.findUnique({
                     where: { id: conn.clinicId },
@@ -246,7 +279,21 @@ router.post("/", async (req, res) => {
                     const fromPhone = normalizePhone(msg.from);
                     const toPhone   = normalizePhone(displayNumber) || normalizePhone(clinic.phone);
 
+                    logger_1.logger.info("META_WEBHOOK_PROCESSING_MESSAGE", {
+                        messageId: msg.id,
+                        messageType: msg.type,
+                        fromPhone: fromPhone ? fromPhone.slice(0, 6) + "…" : "(none)",
+                        clinicId: clinic.id,
+                        aiEnabled: clinic.aiEnabled,
+                        planStatus: clinic.planStatus,
+                    });
+
                     const sendReply = async (to, text, _channel) => {
+                        logger_1.logger.info("META_WEBHOOK_SENDING_REPLY", {
+                            clinicId: clinic.id,
+                            toPrefix: to ? String(to).slice(0, 6) + "…" : "(none)",
+                            bodyLength: text ? text.length : 0,
+                        });
                         await whatsapp_provider_1.sendText(clinic.id, to, text);
                     };
 
@@ -259,11 +306,16 @@ router.post("/", async (req, res) => {
                         externalMessageId: msg.id,
                         sendReply,
                     });
+
+                    logger_1.logger.info("META_WEBHOOK_MESSAGE_PROCESSED", {
+                        messageId: msg.id,
+                        clinicId: clinic.id,
+                    });
                 }
             }
         }
     } catch (err) {
-        logger_1.logger.error("Meta webhook processing error", { err });
+        logger_1.logger.error("Meta webhook processing error", { err: err instanceof Error ? err.message : String(err) });
     }
 });
 
