@@ -26,6 +26,11 @@ async function processInboundPatientMessage(ctx) {
     }
     if (patient.optedOut)
         return;
+    // NOTE: metaMessageId is NOT in the Prisma-generated client — the column was
+    // added to the schema after the client was compiled. We create the row with
+    // the typed client (no metaMessageId), then backfill it immediately via raw
+    // SQL. If the column doesn't exist yet on the live DB the UPDATE is a no-op
+    // (caught and ignored) — processing continues normally either way.
     const inboundMsg = await prisma_1.prisma.message.create({
         data: {
             clinicId: clinic.id,
@@ -36,9 +41,18 @@ async function processInboundPatientMessage(ctx) {
             toNumber: toPhone,
             body,
             twilioSid: channel === "SMS" ? externalMessageId : null,
-            metaMessageId: channel === "WHATSAPP" ? externalMessageId : null,
         },
     });
+    // Backfill metaMessageId for WhatsApp idempotency deduplication
+    if (channel === "WHATSAPP" && externalMessageId) {
+        try {
+            await prisma_1.prisma.$executeRawUnsafe(
+                "UPDATE `Message` SET `metaMessageId` = ? WHERE `id` = ?",
+                externalMessageId,
+                inboundMsg.id
+            );
+        } catch (_) { /* column not yet migrated — non-fatal, idempotency just won't work until migration runs */ }
+    }
     const missedCall = await prisma_1.prisma.missedCall.findFirst({
         where: { clinicId: clinic.id, callerPhone: fromPhone, recoverySent: true, replied: false },
         orderBy: { calledAt: "desc" },

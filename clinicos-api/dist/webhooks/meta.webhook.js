@@ -128,17 +128,25 @@ function extractMessageBody(msg) {
 }
 
 // ── Idempotency check — deduplicate Meta retry deliveries ─────────────────────
+// NOTE: metaMessageId is NOT in the Prisma-generated client (schema added the
+// column after the client was compiled). Use $queryRawUnsafe so this works
+// regardless of whether the column has been migrated onto the live DB yet.
+// If the column is missing MySQL returns an error → catch returns false
+// (allow processing — better to duplicate than lose a message).
 
 async function isMessageAlreadyProcessed(metaMessageId) {
     if (!metaMessageId) return false;
     try {
-        const existing = await prisma_1.prisma.message.findFirst({
-            where: { metaMessageId },
-            select: { id: true },
-        });
-        return !!existing;
-    } catch (_) {
-        return false; // on DB error, allow processing (better to duplicate than lose)
+        const rows = await prisma_1.prisma.$queryRawUnsafe(
+            "SELECT id FROM `Message` WHERE `metaMessageId` = ? LIMIT 1",
+            metaMessageId
+        );
+        return Array.isArray(rows) && rows.length > 0;
+    } catch (err) {
+        // Column may not exist yet — allow processing
+        const msg = err instanceof Error ? err.message : String(err);
+        logger_1.logger.debug("isMessageAlreadyProcessed: raw query failed (column may be missing), allowing", { err: msg });
+        return false;
     }
 }
 
@@ -315,7 +323,12 @@ router.post("/", async (req, res) => {
             }
         }
     } catch (err) {
-        logger_1.logger.error("Meta webhook processing error", { err: err instanceof Error ? err.message : String(err) });
+        // Log the full error — never swallow silently so we can diagnose
+        logger_1.logger.error("META_WEBHOOK_PROCESSING_ERROR", {
+            message: err instanceof Error ? err.message : String(err),
+            stack: err instanceof Error ? err.stack : undefined,
+            name: err instanceof Error ? err.name : undefined,
+        });
     }
 });
 
