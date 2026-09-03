@@ -115,9 +115,10 @@ async function graphPost(path, accessToken, body = {}) {
         const res = await fetch(url, fetchOpts);
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-            const err = data?.error?.message || data?.error?.type || res.statusText;
+            const metaErr = data?.error || {};
+            const err = metaErr.message || metaErr.type || res.statusText;
             logger_1.logger.debug(`Meta POST ${path} → ${res.status}: ${err}`);
-            return { success: false, error: err, httpStatus: res.status, data };
+            return { success: false, error: err, httpStatus: res.status, data, metaError: metaErr };
         }
         return { success: true, data };
     } catch (e) {

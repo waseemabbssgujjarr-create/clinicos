@@ -59,7 +59,27 @@ async function sendText(clinicId, to, body) {
     );
 
     if (!result.success) {
-        logger_1.logger.error("sendText failed", { clinicId, to: toDigits, err: result.error });
+        // Log the complete Meta error response for diagnosis.
+        // #131000 = token lacks permission / phoneNumberId+token mismatch / token expired.
+        // #100    = invalid parameter (bad phoneNumberId format).
+        // #368    = account/number temporarily banned.
+        const metaErr = result.metaError || {};
+        const maskedTo = toDigits.length > 6
+            ? toDigits.slice(0, 4) + '…' + toDigits.slice(-3)
+            : '(short)';
+        logger_1.logger.error("WHATSAPP_SEND_FAILED", {
+            clinicId,
+            phoneNumberId: conn.phoneNumberId,
+            recipientMasked: maskedTo,
+            httpStatus:   result.httpStatus,
+            metaCode:     metaErr.code      ?? null,
+            metaMessage:  metaErr.message   ?? result.error ?? null,
+            metaType:     metaErr.type      ?? null,
+            metaSubcode:  metaErr.error_subcode ?? null,
+            fbtrace_id:   metaErr.fbtrace_id ?? null,
+            // Full raw error for completeness — never includes the access token
+            rawMetaError: metaErr,
+        });
         return null;
     }
 

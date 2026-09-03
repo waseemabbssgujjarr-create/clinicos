@@ -180,8 +180,14 @@ async function processInboundMessage(ctx, userMessage) {
             });
         }
         messages.push({ role: 'user', content: userMessage });
+        const modelName = (0, ai_client_1.getAIModel)();
+        logger_1.logger.info('AI_REQUEST_START', {
+            clinicId: ctx.clinicId,
+            model: modelName,
+            messageCount: messages.length,
+        });
         const completion = await (0, ai_client_1.getAIClient)().chat.completions.create({
-            model: (0, ai_client_1.getAIModel)(),
+            model: modelName,
             messages,
             temperature: 0.3,
             response_format: { type: 'json_object' },
@@ -189,7 +195,14 @@ async function processInboundMessage(ctx, userMessage) {
         const raw = completion.choices[0]?.message?.content ?? '{}';
         const parsed = JSON.parse(raw);
         const durationMs = Date.now() - startTime;
-        logger_1.logger.info(`AI processed message in ${durationMs}ms, action: ${parsed.action}`);
+        logger_1.logger.info('AI_REPLY_FROM_AI', {
+            clinicId: ctx.clinicId,
+            model: modelName,
+            durationMs,
+            action: parsed.action ?? 'none',
+            intent: parsed.intent ?? null,
+            replyLength: parsed.reply ? parsed.reply.length : 0,
+        });
         return {
             reply: parsed.reply ?? "I'm here to help! Could you please repeat your message?",
             action: parsed.action ?? 'none',
@@ -203,7 +216,20 @@ async function processInboundMessage(ctx, userMessage) {
         };
     }
     catch (err) {
-        logger_1.logger.error('AI processing failed', { err });
+        const durationMs = Date.now() - startTime;
+        // Expose the full error — the OpenAI SDK surfaces DeepSeek API errors under err.error
+        // e.g. { status: 400, error: { type: 'invalid_request_error', message: '...' } }
+        logger_1.logger.error('AI_REPLY_FALLBACK', {
+            clinicId: ctx.clinicId,
+            durationMs,
+            errMessage:  err instanceof Error ? err.message : String(err),
+            errStatus:   err?.status ?? null,
+            errType:     err?.error?.type ?? null,
+            errParam:    err?.error?.param ?? null,
+            errCode:     err?.error?.code ?? null,
+            // Full error for completeness — never includes API key
+            errDetail:   err?.error ?? null,
+        });
         // Graceful fallback — do NOT leave patient without a response
         return {
             reply: `Thank you for contacting ${ctx.clinicName}. Our team will get back to you shortly.`,

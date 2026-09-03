@@ -177,6 +177,19 @@ async function deferredBootWork() {
 
     log('AI_ENGINE=' + (process.env.AI_PROVIDER ? 'configured (' + process.env.AI_PROVIDER + ')' : 'default(deepseek)'));
     log('AI_READY=' + (process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY ? 'yes' : 'no'));
+    // Log the effective model name so PlatformSetting overrides are visible at boot.
+    // Never log the API key — only the model name and provider.
+    try {
+      const aiClient = require('./lib/ai-client');
+      const effectiveSettings = aiClient.getAISettings();
+      log('AI_MODEL_EFFECTIVE=' + effectiveSettings.model + ' (provider=' + effectiveSettings.provider + ')');
+      const rawEnvModel = process.env.AI_MODEL || process.env.DEEPSEEK_MODEL || '(not set)';
+      if (rawEnvModel !== effectiveSettings.model) {
+        log('AI_MODEL_WARN: env/DB value "' + rawEnvModel + '" was sanitised to "' + effectiveSettings.model + '"');
+      }
+    } catch (_e) {
+      log('AI_MODEL_EFFECTIVE: could not resolve (ai-client not yet loaded)');
+    }
     log('SMTP configured=' + Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS));
     log('APP_URL=' + (process.env.APP_URL || 'unset'));
     log('APP_NAME=' + (process.env.APP_NAME || 'Doctors My Agency'));
