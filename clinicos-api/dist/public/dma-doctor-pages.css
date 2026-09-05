@@ -214,13 +214,13 @@
 .dma-kpi {
   background: var(--doc-surface, #fff);
   border: 1px solid var(--doc-border, #E2E8F0);
-  border-radius: 14px;
-  padding: 1.125rem 1.25rem;
+  border-radius: var(--ds-r-card, 8px);
+  padding: 16px;
   display: flex;
   align-items: center;
-  gap: 0.875rem;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 4px 12px rgba(15, 23, 42, 0.06);
-  transition: box-shadow 0.18s, transform 0.18s;
+  gap: 12px;
+  box-shadow: var(--ds-shadow-xs);
+  transition: box-shadow var(--ds-ease);
 }
 .dma-kpi:hover {
   box-shadow: 0 4px 18px rgba(15, 23, 42, 0.09), 0 12px 28px rgba(37, 99, 235, 0.07);
@@ -282,7 +282,7 @@
 .dma-panel {
   background: var(--doc-surface, #fff);
   border: 1px solid var(--doc-border, #E2E8F0);
-  border-radius: 14px;
+  border-radius: var(--ds-r-card, 8px);
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 4px 14px rgba(15, 23, 42, 0.06);
   overflow: hidden;
   transition: box-shadow 0.18s;
@@ -542,7 +542,7 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
   padding: 0.75rem 1rem;
   background: var(--doc-surface, #fff);
   border: 1px solid var(--doc-border, #E2E8F0);
-  border-radius: 12px;
+  border-radius: var(--ds-r-card, 8px);
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
@@ -628,7 +628,7 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
 .dma-table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border-radius: 12px;
+  border-radius: var(--ds-r-card, 8px);
   border: 1px solid var(--doc-border, #E2E8F0);
   background: var(--doc-surface, #fff);
 }
@@ -655,7 +655,7 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
   border-bottom: 1px solid var(--doc-border, #E2E8F0);
   text-align: left;
 }
-.dma-table thead th:first-child { border-radius: 12px 0 0 0; }
+.dma-table thead th:first-child { border-radius: var(--ds-r-card, 8px) 0 0 0; }
 .dma-table thead th:last-child  { border-radius: 0 12px 0 0; }
 
 .dma-table tbody td {
@@ -844,7 +844,7 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
 .dma-inbox-list {
   background: var(--doc-surface, #fff);
   border: 1px solid var(--doc-border, #E2E8F0);
-  border-radius: 12px;
+  border-radius: var(--ds-r-card, 8px);
   overflow-y: auto;
   max-height: 600px;
 }
@@ -880,7 +880,7 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
 .dma-thread {
   background: var(--doc-surface, #fff);
   border: 1px solid var(--doc-border, #E2E8F0);
-  border-radius: 12px;
+  border-radius: var(--ds-r-card, 8px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -933,7 +933,7 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
 .dma-bubble {
   max-width: 75%;
   padding: 9px 13px;
-  border-radius: 14px;
+  border-radius: var(--ds-r-card, 8px);
   font-size: 0.8125rem;
   line-height: 1.5;
   word-break: break-word;

@@ -25,6 +25,13 @@ function getClient() {
 async function sendWhatsApp(to, body, clinicId) {
     if (clinicId) {
         try {
+            const provider = require("./meta/whatsapp-provider.service");
+            const msgId = await provider.sendText(clinicId, to, body);
+            if (msgId)
+                return msgId;
+        }
+        catch (_) { /* fall through */ }
+        try {
             const meta = require("./meta-whatsapp.service");
             const msgId = await meta.sendWhatsAppForClinic(clinicId, to, body);
             if (msgId)

@@ -20,11 +20,13 @@ exports.sendText = sendText;
 exports.sendTemplate = sendTemplate;
 exports.sendMedia = sendMedia;
 exports.markAsRead = markAsRead;
+exports.applyStatusUpdate = applyStatusUpdate;
 exports.getStatus = getStatus;
 
 const meta_client_1 = require("./meta-client.service");
 const whatsapp_connection_1 = require("./whatsapp-connection.service");
 const logger_1 = require("../../lib/logger");
+const prisma_1 = require("../../lib/prisma");
 
 // ── Provider: Meta WhatsApp Cloud API ─────────────────────────────────────────
 
@@ -162,24 +164,56 @@ async function sendMedia(clinicId, to, mediaType, mediaUrl, caption = "") {
 }
 
 /**
- * Mark an inbound message as read (shows double blue tick to patient).
- * Best-effort — failure is non-fatal.
+ * Mark an inbound message as read (double blue tick).
+ * When typing=true, also shows the WhatsApp typing indicator (not a fake message).
  */
-async function markAsRead(clinicId, messageId) {
+async function markAsRead(clinicId, messageId, typing) {
     const conn = await getActiveConnection(clinicId);
     if (!conn || !messageId) return;
 
     try {
+        const payload = {
+            messaging_product: "whatsapp",
+            status: "read",
+            message_id: messageId,
+        };
+        if (typing) {
+            payload.typing_indicator = { type: "text" };
+        }
         await meta_client_1.graphPost(
             `${conn.phoneNumberId}/messages`,
             conn.accessToken,
-            {
-                messaging_product: "whatsapp",
-                status: "read",
-                message_id: messageId,
-            }
+            payload
         );
     } catch (_) { /* non-fatal */ }
+}
+
+/**
+ * Persist Meta delivery/read/failed status onto Message.deliveryStatus.
+ */
+async function applyStatusUpdate(metaMessageId, status, errorInfo) {
+    if (!metaMessageId || !status) return;
+    const mapped = String(status).toLowerCase();
+    const allowed = ["sent", "delivered", "read", "failed"];
+    if (!allowed.includes(mapped)) return;
+    try {
+        await prisma_1.prisma.$executeRawUnsafe(
+            "UPDATE `Message` SET `deliveryStatus` = ? WHERE `metaMessageId` = ?",
+            mapped,
+            metaMessageId
+        );
+    } catch (err) {
+        logger_1.logger.debug("applyStatusUpdate skipped", {
+            err: err instanceof Error ? err.message : String(err),
+            status: mapped,
+        });
+    }
+    if (mapped === "failed") {
+        logger_1.logger.warn("WHATSAPP_STATUS_FAILED", {
+            metaMessageId,
+            error: errorInfo || null,
+        });
+    }
 }
 
 /**

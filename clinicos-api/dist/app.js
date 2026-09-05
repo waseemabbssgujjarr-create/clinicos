@@ -13,6 +13,7 @@ const helmet_1 = __importDefault(require("helmet"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const path_1 = __importDefault(require("path"));
+const jwt_1 = require("./lib/jwt");
 const logger_1 = require("./lib/logger");
 const error_middleware_1 = require("./middleware/error.middleware");
 const notification_service_1 = require("./services/notification.service");
@@ -55,10 +56,43 @@ const io = new socket_io_1.Server(httpServer, {
 });
 exports.io = io;
 (0, notification_service_1.setSocketServer)(io);
+function cookieValue(header, name) {
+    if (!header) return null;
+    const parts = String(header).split(";");
+    for (const p of parts) {
+        const i = p.indexOf("=");
+        if (i === -1) continue;
+        const k = p.slice(0, i).trim();
+        if (k === name) return decodeURIComponent(p.slice(i + 1).trim());
+    }
+    return null;
+}
+
+io.use((socket, next) => {
+    try {
+        const headerAuth = socket.handshake.auth && socket.handshake.auth.token;
+        const token = headerAuth
+            || cookieValue(socket.handshake.headers.cookie, "token")
+            || cookieValue(socket.handshake.headers.cookie, "adminToken");
+        if (token) {
+            socket.data.user = (0, jwt_1.verifyToken)(token);
+        }
+    }
+    catch (_) { /* anonymous socket — cannot join clinic rooms */ }
+    next();
+});
 io.on('connection', (socket) => {
     socket.on('join:clinic', (clinicId) => {
-        socket.join(clinicId);
-        logger_1.logger.debug(`Socket joined clinic room: ${clinicId}`);
+        const user = socket.data.user || {};
+        if (user.role === "SUPERADMIN") {
+            socket.join(String(clinicId));
+            return;
+        }
+        if (user.clinicId && String(user.clinicId) === String(clinicId)) {
+            socket.join(String(clinicId));
+            return;
+        }
+        logger_1.logger.warn("Socket join denied", { socketId: socket.id, clinicId });
     });
     socket.on('disconnect', () => {
         logger_1.logger.debug(`Socket disconnected: ${socket.id}`);
@@ -183,7 +217,6 @@ app.get('/api/health/db', async (_req, res) => {
             api: 'healthy',
             database: 'healthy',
             clinic_count: clinicCount,
-            ...masked,
         });
     }
     catch (err) {
@@ -192,8 +225,6 @@ app.get('/api/health/db', async (_req, res) => {
             api: 'healthy',
             database: 'unavailable',
             code: 'DB_UNAVAILABLE',
-            error: err instanceof Error ? err.message : String(err),
-            ...masked,
         });
     }
 });
@@ -261,6 +292,12 @@ httpServer.listen(listenTarget, listenHost, () => {
     if (process.env.NODE_ENV !== 'test') {
         try {
             (0, scheduler_1.startScheduler)();
+            const schemaEnsure = require("./services/schema-ensure.service");
+            schemaEnsure.ensureRuntimeSchema().catch((err) => {
+                logger_1.logger.warn("Schema ensure failed (non-fatal)", {
+                    err: err instanceof Error ? err.message : String(err),
+                });
+            });
         }
         catch (err) {
             logger_1.logger.error('Scheduler failed to start (non-fatal)', { err });

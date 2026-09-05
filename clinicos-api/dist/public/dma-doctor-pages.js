@@ -376,7 +376,7 @@
       '<div class="dma-head dma-head-page"><div><h1>Messages</h1><p>WhatsApp inbox — reply, escalate, or jump to the patient chart.</p></div>' +
       '<div class="dma-head-actions"><a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">Connection</a><a class="dma-btn dma-btn-primary" href="/dashboard/broadcasts/">Broadcast</a></div></div>' +
       '<div id="msg-wa"></div>' +
-      '<div class="dma-inbox"><div class="dma-inbox-list" id="msg-list">' + A().spinner() + '</div><div class="dma-thread" id="msg-thread"></div></div>';
+      '<div class="dma-inbox" id="msg-inbox"><div class="dma-inbox-list" id="msg-list">' + A().spinner() + '</div><div class="dma-thread" id="msg-thread"></div></div>';
 
     A().waStatus().then(function (wa) {
       var on = !!(wa.connected || wa.status === 'connected' || wa.status === 'CONNECTED');
@@ -409,7 +409,14 @@
             '<div class="dma-hint">' + A().ago(t.last.createdAt) + '</div></div>';
         }).join('');
         el('msg-list').querySelectorAll('.dma-inbox-item').forEach(function (n) {
-          n.onclick = function () { selected = n.getAttribute('data-id'); A().setQs({ patient: selected }, true); renderList(); openThread(); };
+          n.onclick = function () {
+            selected = n.getAttribute('data-id');
+            A().setQs({ patient: selected }, true);
+            var box = el('msg-inbox');
+            if (box) box.classList.add('thread-open');
+            renderList();
+            openThread();
+          };
         });
       }
       function openThread() {
@@ -417,6 +424,7 @@
         var p = t.patient || {};
         el('msg-thread').innerHTML =
           '<div class="dma-thread-h">' +
+            '<button type="button" class="dma-btn dma-btn-ghost dma-btn-sm" id="msg-back" style="display:none">Back</button>' +
             '<div class="dma-avatar">' + A().initials(p.fullName) + '</div>' +
             '<div style="flex:1"><div class="name" style="font-weight:800">' + esc(p.fullName || 'Patient') + '</div><div class="dma-hint">' + esc(p.phone || '') + '</div></div>' +
             '<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/patients/detail/?id=' + esc(selected) + '">Chart</a>' +
@@ -424,12 +432,26 @@
           '</div>' +
           '<div class="dma-thread-m" id="msg-bubbles">' + A().spinner() + '</div>' +
           '<form class="dma-thread-c" id="msg-form"><input id="msg-input" placeholder="Reply on WhatsApp…" style="flex:1;height:40px;border:1.5px solid #E2E8F0;border-radius:8px;padding:0 12px"><button class="dma-btn dma-btn-primary" type="submit">Send</button></form>';
+        var back = el('msg-back');
+        if (back) {
+          if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches) back.style.display = '';
+          back.onclick = function () {
+            var box = el('msg-inbox');
+            if (box) box.classList.remove('thread-open');
+          };
+        }
         A().get('/api/messages/threads/' + selected).then(function (thread) {
           var items = Array.isArray(thread) ? thread : (thread.messages || thread.data || []);
           el('msg-bubbles').innerHTML = items.length
             ? items.map(function (m) {
+                var st = m.deliveryStatus || '';
+                var who = m.senderType === 'AI' || m.isHandledByAI ? 'AI' : (m.direction === 'OUTBOUND' ? 'You' : '');
+                var ticks = st === 'read' ? 'Read' : st === 'delivered' ? 'Delivered' : st === 'failed' ? 'Failed' : st === 'sending' ? 'Sending' : st === 'sent' ? 'Sent' : '';
                 return '<div class="dma-bubble ' + (m.direction === 'OUTBOUND' ? 'out' : 'in') + '">' + esc(m.body || '') +
-                  '<div class="dma-hint">' + A().ago(m.createdAt) + (m.isHandledByAI ? ' · AI' : '') + '</div></div>';
+                  '<div class="cos-meta">' + A().ago(m.createdAt) +
+                  (who ? ' · <span class="cos-ai">' + who + '</span>' : '') +
+                  (m.direction === 'OUTBOUND' && ticks ? ' · <span class="cos-status-' + esc(st) + '">' + ticks + '</span>' : '') +
+                  '</div></div>';
               }).join('')
             : '<p class="dma-hint">No messages in this thread yet.</p>';
           el('msg-bubbles').scrollTop = el('msg-bubbles').scrollHeight;
@@ -456,244 +478,12 @@
   /* ── AI / TRAIN ───────────────────────────────────────────────────────── */
   function ai() {
     var root = page();
-    var tab = A().qs('tab', 'personality');
-    root.innerHTML =
-      '<div class="dma-head dma-head-page"><div><h1>Train AI receptionist</h1><p>Same training architecture as a dedicated assistant — for this clinic only. No shop or catalog.</p></div>' +
-      '<div class="dma-head-actions"><a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">WhatsApp</a><a class="dma-btn dma-btn-primary" href="/dashboard/ai/?tab=test">Test chat</a></div></div>' +
-      '<div class="dma-tabs" id="ai-tabs"></div><div id="ai-body">' + A().spinner() + '</div>';
-
-    var tabs = [['personality', 'Personality'], ['knowledge', 'Clinic knowledge'], ['custom', 'Custom replies'], ['test', 'Test & publish'], ['logs', 'Activity']];
-    function drawTabs() {
-      el('ai-tabs').innerHTML = tabs.map(function (t) {
-        return '<button data-t="' + t[0] + '" class="' + (tab === t[0] ? 'active' : '') + '">' + t[1] + '</button>';
-      }).join('');
+    if (global.DmaAiTraining) {
+      global.DmaAiTraining.mount(root);
+      return;
     }
-    drawTabs();
-    el('ai-tabs').onclick = function (e) {
-      var b = e.target.closest('button'); if (!b) return;
-      tab = b.getAttribute('data-t');
-      A().setQs({ tab: tab }, true);
-      drawTabs();
-      renderTab();
-    };
-
-    function renderTab() {
-      if (tab === 'personality') {
-        Promise.all([A().get('/api/ai/config'), A().get('/api/ai/stats')]).then(function (parts) {
-          var c = parts[0] || {};
-          var s = parts[1] || {};
-          el('ai-body').innerHTML =
-            '<div class="dma-kpis">' +
-              kpi('Calls handled', s.callsHandled, '#EDE9FE', '#7C3AED') +
-              kpi('Booked by AI', s.appointmentsBooked, '#DCFCE7', '#16A34A') +
-              kpi('Avg response', (s.avgResponseTimeMs || 0) + ' ms', '#DBEAFE', '#2563EB') +
-            '</div>' +
-            '<section class="dma-panel"><div class="dma-panel-h"><h2>Receptionist behaviour</h2>' +
-              '<label class="dma-switch"><input type="checkbox" id="ai-on"' + (c.aiEnabled ? ' checked' : '') + '><span></span></label></div>' +
-            '<div class="dma-panel-b">' +
-              '<div class="dma-row"><div class="dma-field"><label>Language</label><select id="ai-lang"><option value="english">English</option><option value="urdu">Urdu</option><option value="arabic">Arabic</option><option value="hindi">Hindi</option></select></div>' +
-              '<div class="dma-field"><label>Personality</label><select id="ai-per"><option value="professional">Professional</option><option value="friendly">Friendly</option><option value="formal">Formal</option></select></div></div>' +
-              '<div class="dma-field"><label>Intro message</label><textarea id="ai-intro" rows="4" placeholder="Hello, thanks for contacting our clinic…"></textarea></div>' +
-              '<div class="dma-row"><div class="dma-field"><label>Auto-confirm bookings</label><select id="ai-auto"><option value="true">Yes</option><option value="false">No — doctor confirms</option></select></div>' +
-              '<div class="dma-field"><label>Reminder timing</label><select id="ai-rem"><option value="24h">24 hours before</option><option value="2h">2 hours before</option><option value="both">Both</option></select></div></div>' +
-              '<div class="dma-btn-row"><button class="dma-btn dma-btn-primary" id="ai-save">Save training</button></div>' +
-              '<p class="dma-hint" style="margin-top:10px">Treatments and working hours live in <a href="/dashboard/settings/?tab=treatments">Settings</a> — the receptionist reads them automatically.</p>' +
-            '</div></section>';
-          el('ai-lang').value = c.aiLanguage || 'english';
-          el('ai-per').value = c.aiPersonality || 'professional';
-          el('ai-intro').value = c.customIntroMsg || '';
-          el('ai-auto').value = String(c.autoConfirm !== false);
-          el('ai-rem').value = c.reminderTiming || 'both';
-          el('ai-on').onchange = saveAi;
-          el('ai-save').onclick = saveAi;
-          function saveAi() {
-            A().patch('/api/ai/config', {
-              aiEnabled: el('ai-on').checked,
-              aiLanguage: el('ai-lang').value,
-              aiPersonality: el('ai-per').value,
-              customIntroMsg: el('ai-intro').value,
-              autoConfirm: el('ai-auto').value === 'true',
-              reminderTiming: el('ai-rem').value || 'both',
-            }).then(function (r) {
-              if (r.ok) A().toast('AI training saved', 'ok');
-              else A().toast((r.d && r.d.error) || 'Save failed', 'err');
-            });
-          }
-        });
-      } else if (tab === 'knowledge') {
-        A().get('/api/settings').then(function (s) {
-          var txs = A().parseJson(s.treatments, []) || [];
-          if (!Array.isArray(txs)) txs = [];
-          el('ai-body').innerHTML =
-            '<div class="dma-banner">The receptionist answers from clinic profile, hours, and treatments — not a generic shop catalog.</div>' +
-            '<div class="dma-grid-2">' +
-              '<section class="dma-panel"><div class="dma-panel-h"><h2>Treatments the AI can book</h2><a href="/dashboard/settings/?tab=treatments">Edit</a></div><div class="dma-panel-b">' +
-                (txs.map(function (t) {
-                  var name = typeof t === 'string' ? t : (t.name || '');
-                  var fee = typeof t === 'object' ? t.fee || t.price : '';
-                  return '<div class="dma-row-item"><div class="name">' + esc(name) + '</div><div class="meta">' + (fee ? A().money(fee) : '') + '</div></div>';
-                }).join('') || A().empty('No treatments', 'Add them so WhatsApp booking knows what you offer.', '/dashboard/settings/?tab=treatments', 'Add treatments')) +
-              '</div></section>' +
-              '<section class="dma-panel"><div class="dma-panel-h"><h2>Hours & profile</h2><a href="/dashboard/settings/?tab=hours">Edit hours</a></div><div class="dma-panel-b">' +
-                '<p><strong>' + esc(s.name || 'Clinic') + '</strong></p><p class="dma-hint">' + esc(s.phone || '') + '<br>' + esc(s.address || '') + '</p>' +
-                '<a class="dma-btn dma-btn-ghost" href="/dashboard/settings/">Open settings</a>' +
-              '</div></section></div>';
-        });
-      } else if (tab === 'test') {
-        el('ai-body').innerHTML =
-          '<section class="dma-panel"><div class="dma-panel-h"><h2>Test the receptionist</h2></div><div class="dma-panel-b">' +
-            '<div id="ai-chat" class="dma-thread-m" style="min-height:280px;border:1px solid #E2E8F0;border-radius:10px;margin-bottom:10px"></div>' +
-            '<form id="ai-form" style="display:flex;gap:8px"><input id="ai-q" placeholder="e.g. I need a cleaning tomorrow at 4" style="flex:1;height:40px;border:1.5px solid #E2E8F0;border-radius:8px;padding:0 12px"><button class="dma-btn dma-btn-primary">Send</button></form>' +
-            '<p class="dma-hint" style="margin-top:10px">This does not send WhatsApp. Publish by keeping AI enabled and <a href="/dashboard/whatsapp/">WhatsApp connected</a>.</p>' +
-          '</div></section>';
-        var log = el('ai-chat');
-        function add(who, text) {
-          log.innerHTML += '<div class="dma-bubble ' + (who === 'you' ? 'out' : 'in') + '">' + esc(text) + '</div>';
-          log.scrollTop = log.scrollHeight;
-        }
-        add('ai', 'Hello — I am the clinic receptionist. Ask me about hours, treatments, or booking.');
-        el('ai-form').onsubmit = function (e) {
-          e.preventDefault();
-          var q = el('ai-q').value.trim();
-          if (!q) return;
-          el('ai-q').value = '';
-          add('you', q);
-          A().post('/api/ai/test-chat', { message: q }).then(function (r) {
-            var d = r.d || {};
-            add('ai', d.reply || d.message || d.response || (r.ok ? 'No reply returned.' : (d.error || 'AI test failed')));
-          });
-        };
-      } else if (tab === 'custom') {
-        /* ── CUSTOM REPLIES TAB ──────────────────────────────────────────── */
-        var CAT_LABELS = { general:'General', pricing:'Pricing', hours:'Hours', treatments:'Treatments', booking:'Booking', policies:'Policies' };
-        var CAT_COLORS = { general:'#6B7280', pricing:'#2563EB', hours:'#D97706', treatments:'#7C3AED', booking:'#16A34A', policies:'#EF4444' };
-        var MATCH_LABELS = { contains:'Contains similar intent', exact:'Exact match only', starts_with:'Message starts with' };
-
-        function renderRuleList(rules, migrationRequired) {
-          var warn = migrationRequired
-            ? '<div class="dma-banner warn" style="margin-bottom:14px">⚠️ Run the migration first: <code>add_ai_training_rules.sql</code></div>'
-            : '';
-
-          var rows = rules.length
-            ? rules.map(function (r) {
-                var cc = CAT_COLORS[r.category] || '#6B7280';
-                return '<div class="dma-row-item" style="flex-direction:column;align-items:flex-start;gap:6px;padding:14px 0">' +
-                  '<div style="display:flex;align-items:center;gap:8px;width:100%;flex-wrap:wrap">' +
-                    '<span class="dma-chip" style="background:' + cc + '22;color:' + cc + ';border:1px solid ' + cc + '44">' + esc(CAT_LABELS[r.category] || r.category) + '</span>' +
-                    '<span style="font-weight:800;flex:1;font-size:.875rem;min-width:0">' + esc(r.question) + '</span>' +
-                    '<div style="display:flex;gap:6px;flex-shrink:0">' +
-                      '<button class="dma-btn dma-btn-ghost dma-btn-sm rule-toggle" data-id="' + esc(r.id) + '" style="' + (r.isActive ? 'background:#DCFCE7;color:#16A34A;border-color:#86EFAC' : 'color:#9CA3AF') + '">' + (r.isActive ? '● On' : '○ Off') + '</button>' +
-                      '<button class="dma-btn dma-btn-ghost dma-btn-sm rule-edit" data-id="' + esc(r.id) + '">Edit</button>' +
-                      '<button class="dma-btn dma-btn-danger dma-btn-sm rule-del" data-id="' + esc(r.id) + '">✕</button>' +
-                    '</div>' +
-                  '</div>' +
-                  '<div class="dma-hint" style="padding-left:2px;line-height:1.55;white-space:pre-wrap">' + esc(r.answer) + '</div>' +
-                  '<div class="dma-hint" style="padding-left:2px;color:#9CA3AF">' + esc(MATCH_LABELS[r.matchType] || r.matchType) + (r.priority > 0 ? ' · Priority ' + r.priority : '') + '</div>' +
-                '</div>';
-              }).join('')
-            : A().empty('No custom replies yet', 'Add Q&A pairs the AI must memorise. The AI uses your exact answer instead of generating one.', null, null);
-
-          el('ai-body').innerHTML = warn +
-            '<div class="dma-banner" style="margin-bottom:14px;font-size:.8125rem">' +
-              '💡 Custom replies are injected into the AI\'s memory. When a patient asks a matching question, the AI replies with your exact answer — highest priority wins.' +
-            '</div>' +
-            '<section class="dma-panel"><div class="dma-panel-h"><h2>Custom replies <span class="dma-chip dma-chip-blue" style="margin-left:6px">' + rules.length + '</span></h2>' +
-              '<button class="dma-btn dma-btn-primary dma-btn-sm" id="rl-new-btn">+ Add reply</button>' +
-            '</div><div class="dma-panel-b" id="rl-list">' + rows + '</div></section>';
-
-          /* bind list actions */
-          var listEl = el('rl-list');
-          if (listEl) {
-            listEl.addEventListener('click', function (ev) {
-              var btn = ev.target.closest('button'); if (!btn) return;
-              var id = btn.getAttribute('data-id');
-              if (btn.classList.contains('rule-del')) {
-                if (!confirm('Delete this reply?')) return;
-                btn.disabled = true;
-                A().del('/api/ai/training-rules/' + id).then(function (r) {
-                  if (r.ok) { A().toast('Reply deleted', 'ok'); renderRuleList(rules.filter(function (x) { return x.id !== id; }), migrationRequired); }
-                  else A().toast((r.d && r.d.error) || 'Delete failed', 'err');
-                });
-              } else if (btn.classList.contains('rule-toggle')) {
-                btn.disabled = true;
-                A().patch('/api/ai/training-rules/' + id + '/toggle', {}).then(function (r) {
-                  if (r.ok) { renderRuleList(rules.map(function (x) { return x.id === id ? r.d.rule : x; }), migrationRequired); }
-                  else { btn.disabled = false; A().toast((r.d && r.d.error) || 'Toggle failed', 'err'); }
-                });
-              } else if (btn.classList.contains('rule-edit')) {
-                var rule = rules.find(function (x) { return x.id === id; });
-                if (rule) openRuleModal(rule, rules, migrationRequired);
-              }
-            });
-          }
-          var addBtn = el('rl-new-btn');
-          if (addBtn) addBtn.onclick = function () { openRuleModal(null, rules, migrationRequired); };
-        }
-
-        function openRuleModal(rule, rules, migrationRequired) {
-          var isEdit = !!rule;
-          var cats = ['general','pricing','hours','treatments','booking','policies'];
-          var matchtypes = ['contains','exact','starts_with'];
-          A().modal(isEdit ? 'Edit custom reply' : 'Add custom reply',
-            '<div class="dma-hint" style="margin-bottom:12px;line-height:1.55">The AI will use your answer exactly when a patient asks a similar question.</div>' +
-            '<div class="dma-field"><label>Patient question <span style="color:#EF4444">*</span></label>' +
-              '<input id="rl-q" placeholder="e.g. What are your consultation fees?" value="' + esc(rule ? rule.question : '') + '"></div>' +
-            '<div class="dma-field"><label>Your answer <span style="color:#EF4444">*</span></label>' +
-              '<textarea id="rl-a" rows="4" placeholder="e.g. Our consultation is PKR 2,000. Book via WhatsApp or call us.">' + esc(rule ? rule.answer : '') + '</textarea></div>' +
-            '<div class="dma-row">' +
-              '<div class="dma-field"><label>Category</label><select id="rl-cat">' + cats.map(function(c){ return '<option value="'+c+'"'+(rule&&rule.category===c?' selected':'')+'>'+CAT_LABELS[c]+'</option>'; }).join('') + '</select></div>' +
-              '<div class="dma-field"><label>Match type</label><select id="rl-match">' + matchtypes.map(function(m){ return '<option value="'+m+'"'+(rule&&rule.matchType===m?' selected':'')+'>'+MATCH_LABELS[m]+'</option>'; }).join('') + '</select></div>' +
-            '</div>' +
-            '<div class="dma-row">' +
-              '<div class="dma-field"><label>Priority <span class="dma-hint">(0–100, higher = first)</span></label><input id="rl-pri" type="number" min="0" max="100" value="' + (rule ? rule.priority : 0) + '"></div>' +
-              '<div class="dma-field"><label>Status</label><select id="rl-act"><option value="1"'+(!rule||rule.isActive?' selected':'')+'>Active</option><option value="0"'+(rule&&!rule.isActive?' selected':'')+'>Inactive</option></select></div>' +
-            '</div>',
-            '<button class="dma-btn dma-btn-ghost" data-close>Cancel</button>' +
-            '<button class="dma-btn dma-btn-primary" id="rl-save">' + (isEdit ? 'Save changes' : 'Add reply') + '</button>'
-          );
-          var saveBtn = el('rl-save');
-          if (saveBtn) saveBtn.onclick = function () {
-            var q = el('rl-q').value.trim();
-            var a = el('rl-a').value.trim();
-            if (!q) { A().toast('Question is required', 'err'); return; }
-            if (!a) { A().toast('Answer is required', 'err'); return; }
-            saveBtn.disabled = true;
-            var body = { question: q, answer: a, category: el('rl-cat').value, matchType: el('rl-match').value, priority: Number(el('rl-pri').value||0), isActive: el('rl-act').value==='1' };
-            var call = isEdit ? A().patch('/api/ai/training-rules/'+rule.id, body) : A().post('/api/ai/training-rules', body);
-            call.then(function (r) {
-              saveBtn.disabled = false;
-              if (!r.ok) { A().toast((r.d&&r.d.error)||'Save failed', 'err'); return; }
-              A().closeModal();
-              A().toast(isEdit ? 'Reply updated' : 'Reply added', 'ok');
-              A().get('/api/ai/training-rules').then(function (d) { renderRuleList(d.rules||[], d.migrationRequired); });
-            });
-          };
-        }
-
-        el('ai-body').innerHTML = A().spinner();
-        A().get('/api/ai/training-rules').then(function (d) {
-          renderRuleList(d.rules || [], d.migrationRequired);
-        }).catch(function () {
-          el('ai-body').innerHTML = A().empty('Could not load custom replies', 'Check your connection and try again.');
-        });
-
-      } else {
-        A().get('/api/ai/logs?limit=40').then(function (logs) {
-          var rows = Array.isArray(logs) ? logs : (logs.data || []);
-          el('ai-body').innerHTML = '<section class="dma-panel"><div class="dma-table-wrap"><table class="dma-table"><thead><tr><th>When</th><th>Action</th><th>Detail</th></tr></thead><tbody>' +
-            (rows.map(function (l) {
-              return '<tr><td>' + A().ago(l.createdAt) + '</td><td>' + A().chip(l.action || 'event') + '</td><td>' + esc((l.summary || l.input || l.output || '').toString().slice(0, 140)) + '</td></tr>';
-            }).join('') || '<tr><td colspan="3">' + A().empty('No AI activity yet', 'Connect WhatsApp and send a test message.') + '</td></tr>') +
-            '</tbody></table></div></section>';
-        });
-      }
-    }
-    function kpi(label, val, bg, c) {
-      return '<div class="dma-kpi"><div class="dma-kpi-icon" style="background:' + bg + ';color:' + c + '"></div><div><label>' + label + '</label><strong>' + esc(val != null ? val : '—') + '</strong></div></div>';
-    }
-    renderTab();
+    root.innerHTML = '<p class="dma-hint">Training module failed to load. Refresh the page.</p>';
   }
-
   /* ── ANALYTICS ────────────────────────────────────────────────────────── */
   function analytics() {
     var root = page();

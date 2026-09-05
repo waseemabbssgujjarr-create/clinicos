@@ -2,6 +2,12 @@
  * Doctor dashboard shell — IQPigeon-style grouped sidebar for clinic pages.
  */
 (function (global) {
+  if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
+    var ds = document.createElement('link');
+    ds.rel = 'stylesheet';
+    ds.href = '/dma-design-system.css?v=8';
+    document.head.appendChild(ds);
+  }
   var GROUPS = [
     {
       label: 'Practice',

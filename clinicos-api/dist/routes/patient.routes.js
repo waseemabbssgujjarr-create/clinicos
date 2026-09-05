@@ -4,6 +4,7 @@ const express_1 = require("express");
 const prisma_1 = require("../lib/prisma");
 const asyncHandler_1 = require("../lib/asyncHandler");
 const error_middleware_1 = require("../middleware/error.middleware");
+const crypto = require("crypto");
 const jwt_1 = require("../lib/jwt");
 const twilio_service_1 = require("../services/twilio.service");
 const router = (0, express_1.Router)();
@@ -27,11 +28,10 @@ router.post('/request-otp', (0, asyncHandler_1.asyncHandler)(async (req, res) =>
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-    const token = Buffer.from(JSON.stringify({ phone, otp, exp: expiry.getTime() })).toString('base64');
-    // Send OTP via SMS
-    await (0, twilio_service_1.sendSMS)(phone, `Your MediCore AI verification code is: ${otp}. Valid for 10 minutes.`).catch(() => null);
-    // We return a session token so client can match it on verify
-    res.json({ message: 'OTP sent', sessionToken: token });
+    const otpHash = crypto.createHash("sha256").update(otp + String(phone)).digest("hex");
+    const token = Buffer.from(JSON.stringify({ phone, otpHash, exp: expiry.getTime() })).toString("base64");
+    await (0, twilio_service_1.sendSMS)(phone, `Your clinic verification code is: ${otp}. Valid for 10 minutes.`).catch(() => null);
+    res.json({ message: "If this number is registered, an OTP has been sent.", sessionToken: token });
 }));
 // POST /api/patient/verify-otp
 router.post('/verify-otp', (0, asyncHandler_1.asyncHandler)(async (req, res) => {
@@ -45,7 +45,12 @@ router.post('/verify-otp', (0, asyncHandler_1.asyncHandler)(async (req, res) => 
     }
     if (Date.now() > decoded.exp)
         throw (0, error_middleware_1.createError)('OTP expired', 400, 'OTP_EXPIRED');
-    if (decoded.otp !== otp)
+    const submitted = String(otp || "");
+    const hashed = crypto.createHash("sha256").update(submitted + decoded.phone).digest("hex");
+    const otpOk = decoded.otpHash
+        ? hashed === decoded.otpHash
+        : decoded.otp && decoded.otp === submitted;
+    if (!otpOk)
         throw (0, error_middleware_1.createError)('Invalid OTP', 400, 'INVALID_OTP');
     // Find patient — if clinicSlug is provided, filter to that clinic
     const whereClause = clinicSlug
@@ -63,7 +68,7 @@ router.post('/verify-otp', (0, asyncHandler_1.asyncHandler)(async (req, res) => 
     const token = (0, jwt_1.signToken)({
         id: patient.id,
         clinicId: patient.clinicId,
-        role: 'STAFF', // reuse role mechanism, identify by id lookup
+        role: 'PATIENT',
         email: patient.email ?? '',
     });
     res.json({

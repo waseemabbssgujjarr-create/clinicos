@@ -69,8 +69,8 @@ exports.listClinics = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         prisma_1.prisma.clinic.findMany({
             where,
             select: {
-                id: true, name: true, ownerName: true, email: true, specialty: true,
-                plan: true, planStatus: true, isActive: true, createdAt: true,
+                id: true, name: true, ownerName: true, email: true, phone: true, specialty: true,
+                plan: true, planStatus: true, isActive: true, createdAt: true, aiEnabled: true,
                 _count: { select: { patients: true, appointments: true } },
             },
             orderBy: { createdAt: 'desc' },
@@ -78,7 +78,27 @@ exports.listClinics = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             take: limitNum,
         }),
     ]);
-    res.json({ data: clinics, total, page: pageNum, limit: limitNum });
+    const ids = clinics.map((c) => c.id);
+    let waByClinic = {};
+    if (ids.length) {
+        try {
+            const placeholders = ids.map(() => "?").join(",");
+            const rows = await prisma_1.prisma.$queryRawUnsafe(
+                `SELECT clinicId, connectionStatus, phoneNumber, displayName FROM ClinicWhatsAppConnection WHERE clinicId IN (${placeholders})`,
+                ...ids
+            );
+            (Array.isArray(rows) ? rows : []).forEach((r) => { waByClinic[r.clinicId] = r; });
+        } catch (_) { /* optional table */ }
+    }
+    res.json({
+        data: clinics.map((c) => ({
+            ...c,
+            whatsapp: waByClinic[c.id] || null,
+        })),
+        total,
+        page: pageNum,
+        limit: limitNum,
+    });
 });
 // GET /api/superadmin/clinics/:id
 exports.getClinicDetail = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
@@ -86,15 +106,42 @@ exports.getClinicDetail = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         where: { id: req.params.id },
         select: {
             id: true, name: true, ownerName: true, email: true, phone: true,
-            specialty: true, address: true, plan: true, planStatus: true,
-            isActive: true, createdAt: true, trialEndsAt: true, currentPeriodEnd: true,
-            aiEnabled: true, bookingSlug: true,
-            _count: { select: { patients: true, appointments: true, staff: true } },
+            specialty: true, address: true, timezone: true, logoUrl: true,
+            plan: true, planStatus: true, isActive: true, createdAt: true, updatedAt: true,
+            trialEndsAt: true, currentPeriodEnd: true, onboardingDone: true,
+            aiEnabled: true, aiLanguage: true, aiPersonality: true, bookingSlug: true,
+            autoConfirm: true, customIntroMsg: true,
+            _count: { select: { patients: true, appointments: true, staff: true, messages: true } },
         },
     });
     if (!clinic)
         throw (0, error_middleware_1.createError)('Clinic not found', 404, 'NOT_FOUND');
-    res.json(clinic);
+    let wa = null;
+    try {
+        const rows = await prisma_1.prisma.$queryRawUnsafe(
+            "SELECT `phoneNumber`, `displayName`, `wabaId`, `phoneNumberId`, `connectionStatus`, `webhookStatus`, `connectionMethod`, `connectedAt`, `lastVerifiedAt`, `lastError` FROM `ClinicWhatsAppConnection` WHERE `clinicId` = ? LIMIT 1",
+            clinic.id
+        );
+        wa = Array.isArray(rows) && rows[0] ? rows[0] : null;
+        if (wa && wa.lastError) wa.lastError = String(wa.lastError).slice(0, 240);
+    } catch (_) { /* optional */ }
+    const lastMessage = await prisma_1.prisma.message.findFirst({
+        where: { clinicId: clinic.id },
+        orderBy: { createdAt: 'desc' },
+        select: { createdAt: true, direction: true, channel: true },
+    }).catch(() => null);
+    const lastError = await prisma_1.prisma.aILog.findFirst({
+        where: { clinicId: clinic.id, success: false },
+        orderBy: { createdAt: 'desc' },
+        select: { createdAt: true, action: true, error: true },
+    }).catch(() => null);
+    res.json({
+        ...clinic,
+        whatsapp: wa,
+        lastActivityAt: lastMessage && lastMessage.createdAt,
+        lastMessage,
+        lastError,
+    });
 });
 // PATCH /api/superadmin/clinics/:id/status
 exports.updateClinicStatus = (0, asyncHandler_1.asyncHandler)(async (req, res) => {

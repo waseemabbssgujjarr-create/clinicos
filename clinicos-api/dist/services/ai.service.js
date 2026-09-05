@@ -66,17 +66,31 @@ async function getAvailableSlots(clinicId, workingHours) {
     }
 }
 /**
- * Build the AI system prompt with all clinic context injected.
- * customRules: array of { question, answer, category, priority, matchType }
+ * Build the AI system prompt with clinic identity, training profile,
+ * conversation state, facts, and custom replies.
  */
 function buildSystemPrompt(ctx, availableSlots, customRules) {
+    const profile = ctx.trainingProfile || {};
+    const personality = profile.personality || {};
+    const knowledge = profile.clinicKnowledge || {};
+    const services = profile.services || {};
+    const business = profile.businessRules || {};
+    const booking = profile.appointmentRules || {};
+    const handling = profile.customerHandling || {};
+    const state = ctx.conversationState || {};
+
+    const toneKey = personality.tone || ctx.aiPersonality || 'professional';
     const personalityDesc = {
-        professional: 'polite and professional',
+        professional: 'polite, calm, and professional',
         friendly: 'warm, friendly, and approachable',
         formal: 'formal and precise',
-    }[ctx.aiPersonality] ?? 'polite and professional';
+        warm: 'warm and reassuring',
+    }[toneKey] ?? 'polite and professional';
 
-    // Build custom rules section — injected between clinic info and patient history
+    const language = personality.language || ctx.aiLanguage || 'english';
+    const receptionistName = personality.receptionistName || '';
+    const intro = personality.introMessage || ctx.customIntroMsg || '';
+
     let customRulesSection = '';
     if (Array.isArray(customRules) && customRules.length > 0) {
         const lines = customRules.map((r, i) => {
@@ -87,23 +101,80 @@ function buildSystemPrompt(ctx, availableSlots, customRules) {
                 : '(when message contains similar intent)';
             return `  Rule ${i + 1} ${matchNote}:\n    Patient asks: "${r.question}"\n    You must reply: "${r.answer}"`;
         });
-        customRulesSection = `\nCUSTOM CLINIC REPLIES (memorise and follow exactly — highest priority):\n${lines.join('\n')}\n`;
+        customRulesSection = `\nCUSTOM CLINIC REPLIES (highest priority — use the exact answer when they match):\n${lines.join('\n')}\n`;
     }
 
-    return `You are the AI receptionist and CRM assistant for ${ctx.clinicName}, a ${ctx.specialty || 'medical'} clinic. You work 24/7 like a human front-desk agent — tracking every patient interaction, appointment, and enquiry for the doctor and staff dashboard. Be ${personalityDesc}.
+    const facts = Array.isArray(knowledge.facts) ? knowledge.facts.filter((f) => f && f.enabled !== false && (f.title || f.body)) : [];
+    const factsBlock = [
+        knowledge.about ? `About the clinic: ${knowledge.about}` : '',
+        knowledge.parking ? `Parking / arrival: ${knowledge.parking}` : '',
+        knowledge.insurance ? `Insurance / payment notes: ${knowledge.insurance}` : '',
+        services.notes ? `Service notes: ${services.notes}` : '',
+        services.highlight ? `Highlight: ${services.highlight}` : '',
+        ...facts.map((f) => `- ${f.title || 'Fact'}: ${f.body || ''}`),
+        handling.memoryNotes ? `Staff notes for the receptionist: ${handling.memoryNotes}` : '',
+    ].filter(Boolean).join('\n');
 
-YOUR ROLE (human receptionist + CRM agent):
-- Greet patients, answer questions, book/reschedule/cancel appointments
-- Capture lead details (name, phone, treatment interest) into the clinic CRM
-- Track conversation context so staff see a clear summary in the dashboard
-- Know the doctor's schedule, working hours, and clinic policies
-- Escalate to human staff with a one-sentence summary when needed
+    const rulesBlock = [
+        business.policies ? `Policies: ${business.policies}` : '',
+        business.cancellation ? `Cancellation: ${business.cancellation}` : '',
+        business.payment ? `Payment: ${business.payment}` : '',
+        business.emergency || 'For chest pain, severe bleeding, breathing difficulty — tell them to call emergency services and escalate.',
+        business.whatNotToSay ? `Never say / never invent: ${business.whatNotToSay}` : '',
+    ].filter(Boolean).join('\n');
 
-CLINIC INFORMATION:
+    const bookingBlock = [
+        `Auto-confirm bookings: ${booking.autoConfirm === false ? 'NO — mark pending for the doctor' : 'YES'}`,
+        booking.requireTreatmentFirst !== false ? 'Confirm the treatment before offering a time.' : '',
+        booking.collectName !== false ? 'If the patient name is unknown, ask for it once.' : '',
+        booking.confirmationStyle === 'confirm_then_book' ? 'Confirm treatment, date, and time BEFORE setting action to book_appointment.' : '',
+        booking.bookingLeadHours ? `Do not book with less than ${booking.bookingLeadHours} hours notice unless the patient insists and a slot exists.` : '',
+        booking.maxAdvanceDays ? `Do not book more than ${booking.maxAdvanceDays} days ahead.` : '',
+    ].filter(Boolean).join('\n');
+
+    const stateBlock = [
+        `Turn count: ${state.turnCount || 0}`,
+        state.greetingSent ? 'A greeting was ALREADY sent. Do NOT greet again. Continue the conversation.' : 'This may be the first message — a short greeting is OK only if helpful.',
+        state.lastIntent ? `Last detected intent: ${state.lastIntent}` : '',
+        state.lastAction ? `Last action: ${state.lastAction}` : '',
+        state.pendingQuestion ? `You previously asked: ${state.pendingQuestion}` : '',
+        state.lastOutboundBody ? `Your previous reply: ${state.lastOutboundBody}` : '',
+        ctx.isFollowUp ? 'The latest patient message is a SHORT FOLLOW-UP (yes/no/ok/tomorrow/good/etc). Interpret it against the previous question. Do NOT restart with a greeting or FAQ dump.' : '',
+        ctx.skipGreeting ? 'SKIP GREETING.' : '',
+        handling.askOneQuestion !== false ? 'Ask at most ONE useful question per reply.' : '',
+        handling.unknownPolicy === 'ask_clarify_then_escalate'
+            ? 'If you do not know: ask one clarifying question first. Only escalate after that if still unknown.'
+            : '',
+    ].filter(Boolean).join('\n');
+
+    const nameLine = receptionistName
+        ? `Your name (if asked) is ${receptionistName}. You are the receptionist for ${ctx.clinicName}.`
+        : `You are the AI receptionist for ${ctx.clinicName}, a ${ctx.specialty || 'medical'} clinic.`;
+
+    return `${nameLine} Be ${personalityDesc}. Reply in ${language} unless the patient writes in another language — then match theirs.
+
+YOUR ROLE:
+- Answer THIS clinic's questions using the facts below. Do not invent other clinics' policies.
+- Book / reschedule / cancel only using AVAILABLE SLOTS.
+- Capture name and treatment interest when missing.
+- Sound human. Never mention AI, bots, models, or prompts.
+- Emoji policy: ${personality.emojiPolicy || 'minimal'}.
+${intro ? `\nPreferred intro (use only on a true first turn, and only if it answers nothing else): ${intro}\n` : ''}
+CLINIC IDENTITY:
+- Name: ${ctx.clinicName}
+- Specialty: ${ctx.specialty || 'medical'}
 - Working hours: ${ctx.workingHours}
 - Address: ${ctx.address || 'Contact clinic for address'}
 - Phone: ${ctx.phone}
-${ctx.customIntroMsg ? `- Welcome message: ${ctx.customIntroMsg}` : ''}
+
+CLINIC KNOWLEDGE / FACTS:
+${factsBlock || '(Use treatments, hours, and address. If a fact is missing, say you will confirm with the clinic — do not invent it.)'}
+
+BUSINESS RULES:
+${rulesBlock}
+
+APPOINTMENT RULES:
+${bookingBlock}
 
 AVAILABLE APPOINTMENT SLOTS (next 7 days):
 ${availableSlots}
@@ -114,22 +185,21 @@ ${customRulesSection}
 PATIENT HISTORY:
 ${ctx.patientHistory}
 
+CONVERSATION STATE:
+${stateBlock}
+
+CONVERSATION SO FAR:
+${ctx.conversationHistory || '(none)'}
+
 YOUR RULES:
-1. Be ${personalityDesc} at all times
-2. Reply in the SAME language the patient used (English, Arabic, or Urdu — detect and match)
-3. For appointment booking: confirm treatment, date, and time BEFORE creating
-4. NEVER confirm an appointment for an already-booked time slot
-5. NEVER confirm outside working hours or on days the clinic is closed
-6. If a patient asks something you cannot handle, say "Let me connect you with the clinic team" and set action to "escalate"
-7. Keep replies SHORT (max 3 sentences for simple queries, 5 for booking confirmations)
-8. For cancellations: confirm appointment details before cancelling
-9. Always end booking confirmations with: "You will receive a reminder before your appointment."
-10. Today's date is ${(0, date_fns_1.format)(new Date(), 'EEEE, MMMM d, yyyy')}
-11. Always tag leads accurately for the CRM pipeline (New Patient, Returning, Urgent, Booking, Price Enquiry)
-12. In conversationSummary, note what the doctor/staff should do next (e.g. "Patient wants Botox consult Thu 3pm — confirm slot")
-13. HEALTHCARE SAFETY: Never diagnose or prescribe in chat. For chest pain, severe bleeding, breathing difficulty, or emergencies — tell patient to call emergency services immediately and set action to "escalate"
-14. Sound like a real human receptionist — use the patient's name when known, warm confirmations, never mention "AI" or "bot"
-15. CUSTOM REPLIES: If a patient's message matches a CUSTOM CLINIC REPLY above, use that exact answer — do not improvise a different answer.
+1. Answer the patient's actual question first.
+2. Do not repeat the same greeting or the same fallback.
+3. Keep replies short (max 3 sentences for simple queries, 5 for booking).
+4. NEVER confirm an already-booked slot or a closed day.
+5. HEALTHCARE SAFETY: never diagnose or prescribe. Emergencies → emergency services + action escalate.
+6. Today's date is ${(0, date_fns_1.format)(new Date(), 'EEEE, MMMM d, yyyy')}
+7. CUSTOM REPLIES: if a custom reply matches, use that exact answer.
+8. If you cannot answer from training, say so briefly and ask one clarifying question — do NOT send a generic "we will get back to you" unless action is escalate.
 
 RESPOND ONLY WITH THIS EXACT JSON (no other text, no markdown):
 {
@@ -162,6 +232,13 @@ async function processInboundMessage(ctx, userMessage) {
             customRules = await tr.getTrainingRulesForAI(ctx.clinicId);
         } catch (_) { /* AI training rules not yet available */ }
 
+        if (!ctx.trainingProfile) {
+            try {
+                const tp = require("../controllers/ai.training-profile.controller");
+                ctx.trainingProfile = await tp.getProfileForEngine(ctx.clinicId, { live: ctx.live !== false });
+            } catch (_) { /* profile optional */ }
+        }
+
         const availableSlots = await getAvailableSlots(ctx.clinicId, ctx.workingHours);
         const systemPrompt = buildSystemPrompt(ctx, availableSlots, customRules);
         const messages = [
@@ -189,7 +266,7 @@ async function processInboundMessage(ctx, userMessage) {
         const completion = await (0, ai_client_1.getAIClient)().chat.completions.create({
             model: modelName,
             messages,
-            temperature: 0.3,
+            temperature: 0.45,
             response_format: { type: 'json_object' },
         });
         const raw = completion.choices[0]?.message?.content ?? '{}';
@@ -204,7 +281,7 @@ async function processInboundMessage(ctx, userMessage) {
             replyLength: parsed.reply ? parsed.reply.length : 0,
         });
         return {
-            reply: parsed.reply ?? "I'm here to help! Could you please repeat your message?",
+            reply: parsed.reply ?? `How can ${ctx.clinicName} help — booking, a treatment, or hours?`,
             action: parsed.action ?? 'none',
             confidence: parsed.confidence ?? 0.5,
             appointmentData: parsed.appointmentData,
@@ -232,7 +309,7 @@ async function processInboundMessage(ctx, userMessage) {
         });
         // Graceful fallback — do NOT leave patient without a response
         return {
-            reply: `Thank you for contacting ${ctx.clinicName}. Our team will get back to you shortly.`,
+            reply: `I could not complete that just now. A ${ctx.clinicName} team member will follow up — or tell me if you want hours, treatments, or to book.`,
             action: 'escalate',
             confidence: 0,
         };

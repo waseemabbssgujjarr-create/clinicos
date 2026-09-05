@@ -54,7 +54,7 @@
     if (!el) return;
     var href = el.getAttribute('href');
     if (!href) return;
-    if (/^\/superadmin\/clinics\/[a-zA-Z0-9]+\/?$/.test(href) ||
+    if (/^\/superadmin(\/|$)/.test(href) ||
         /^\/dashboard(\/|$)/.test(href)) {
       e.preventDefault();
       e.stopPropagation();
@@ -62,64 +62,27 @@
     }
   }, true);
 
-  if (!document.querySelector('link[href*="platform-polish.css"]')) {
-    var polishLink = document.createElement('link');
-    polishLink.rel = 'stylesheet';
-    polishLink.href = '/platform-polish.css?v=5';
-    document.head.appendChild(polishLink);
-  }
-  if (!document.querySelector('link[href*="platform-hovers.css"]')) {
-    var hoverLink = document.createElement('link');
-    hoverLink.rel = 'stylesheet';
-    hoverLink.href = '/platform-hovers.css?v=2';
-    document.head.appendChild(hoverLink);
-  }
-  if (!document.querySelector('link[href*="dma-dashboard.css"]')) {
-    var dashLink = document.createElement('link');
-    dashLink.rel = 'stylesheet';
-    dashLink.href = '/dma-dashboard.css?v=11';
-    document.head.appendChild(dashLink);
-  }
+  var isDocStatic = document.documentElement.classList.contains('doc-static');
+  var isSaStatic = document.documentElement.classList.contains('sa-static') ||
+    (document.body && document.body.classList.contains('superadmin-app'));
 
-  // ── NEW DESIGN SYSTEM v4 ────────────────────────────────────────────────
   if (!document.querySelector('link[href*="dma-design-system.css"]')) {
     var dsLink = document.createElement('link');
     dsLink.rel = 'stylesheet';
-    dsLink.href = '/dma-design-system.css?v=5';
+    dsLink.href = '/dma-design-system.css?v=8';
     document.head.appendChild(dsLink);
   }
-
-  // ── CLINIC UI — light sidebar, blue brand, IQPigeon-inspired ────────────
-  var isDocStatic = document.documentElement.classList.contains('doc-static');
-  if (!isDocStatic && !document.querySelector('link[href*="dma-clinic-ui.css"]')) {
-    var clinicUiLink = document.createElement('link');
-    clinicUiLink.rel = 'stylesheet';
-    clinicUiLink.href = '/dma-clinic-ui.css?v=3';
-    document.head.appendChild(clinicUiLink);
-  }
-
-  // ── ADMIN UI — dark-blue sidebar, blue brand for superadmin ─────────────
-  if (/^\/superadmin(\/|$)/.test(location.pathname)) {
-    if (!document.querySelector('link[href*="dma-admin-ui.css"]')) {
-      var adminUiLink = document.createElement('link');
-      adminUiLink.rel = 'stylesheet';
-      adminUiLink.href = '/dma-admin-ui.css?v=2';
-      document.head.appendChild(adminUiLink);
-    }
-  }
-  if (!isDocStatic && !document.querySelector('link[href*="dma-doctor-app.css"]')) {
+  if (!isDocStatic && !isSaStatic && !document.querySelector('link[href*="dma-doctor-app.css"]')) {
     var appCss = document.createElement('link');
     appCss.rel = 'stylesheet';
-    appCss.href = '/dma-doctor-app.css?v=3';
+    appCss.href = '/dma-doctor-app.css?v=4';
     document.head.appendChild(appCss);
   }
 
-  // dma-doctor-pages.css — styles all .dma-* classes rendered by dma-doctor-pages.js
-  // Load on ALL pages (both doc-static and Next.js) — it only targets .dma-* selectors
-  if (!document.querySelector('link[href*="dma-doctor-pages.css"]')) {
+  if (!isSaStatic && !document.querySelector('link[href*="dma-doctor-pages.css"]')) {
     var pagesCss = document.createElement('link');
     pagesCss.rel = 'stylesheet';
-    pagesCss.href = '/dma-doctor-pages.css?v=1';
+    pagesCss.href = '/dma-doctor-pages.css?v=2';
     document.head.appendChild(pagesCss);
   }
 
@@ -179,42 +142,12 @@
   if (document.body) scheduleLiveBadgeMark();
   else document.addEventListener('DOMContentLoaded', scheduleLiveBadgeMark);
 
-  if (!isDocStatic && /^\/(dashboard|staff)(\/|$)/.test(location.pathname)) {
-    if (!document.querySelector('link[href*="dashboard-professional.css"]')) {
-      var proCss = document.createElement('link');
-      proCss.rel = 'stylesheet';
-      proCss.href = '/dashboard-professional.css?v=2';
-      document.head.appendChild(proCss);
-    }
-    if (!document.querySelector('link[href*="dashboard-unified.css"]')) {
-      var unifiedCss = document.createElement('link');
-      unifiedCss.rel = 'stylesheet';
-      unifiedCss.href = '/dashboard-unified.css?v=4';
-      document.head.appendChild(unifiedCss);
-    }
-    if (!document.querySelector('link[href*="dashboard-layout.css"]')) {
-      var layoutCss = document.createElement('link');
-      layoutCss.rel = 'stylesheet';
-      layoutCss.href = '/dashboard-layout.css?v=8';
-      document.head.appendChild(layoutCss);
-    }
-    if (!document.querySelector('link[href*="dashboard-fixes.css"]')) {
-      var fixesCss = document.createElement('link');
-      fixesCss.rel = 'stylesheet';
-      fixesCss.href = '/dashboard-fixes.css?v=4';
-      document.head.appendChild(fixesCss);
-    }
+  if (!isDocStatic && !isSaStatic && /^\/(dashboard|staff)(\/|$)/.test(location.pathname)) {
     if (!document.querySelector('script[src*="dashboard-layout.js"]')) {
       var layoutJs = document.createElement('script');
       layoutJs.src = '/dashboard-layout.js?v=7';
       layoutJs.defer = true;
       (document.head || document.documentElement).appendChild(layoutJs);
-    }
-    if (!document.querySelector('script[src*="dashboard-fixes.js"]')) {
-      var fixesJs = document.createElement('script');
-      fixesJs.src = '/dashboard-fixes.js?v=4';
-      fixesJs.defer = true;
-      (document.head || document.documentElement).appendChild(fixesJs);
     }
   }
 
@@ -255,12 +188,6 @@
         .catch(function () {});
     })();
 
-    if (!isDocStatic && !document.querySelector('link[href="/dashboard-signature.css"]')) {
-      var sigCss = document.createElement('link');
-      sigCss.rel = 'stylesheet';
-      sigCss.href = '/dashboard-signature.css?v=4';
-      document.head.appendChild(sigCss);
-    }
     if (!isDocStatic && !document.querySelector('script[src="/dashboard-signature.js"]')) {
       var sigJs = document.createElement('script');
       sigJs.src = '/dashboard-signature.js?v=5';
@@ -269,13 +196,7 @@
     }
   }
 
-  if (/^\/superadmin(\/|$)/.test(location.pathname)) {
-    if (!document.querySelector('link[href*="dashboard-unified.css"]')) {
-      var saUnified = document.createElement('link');
-      saUnified.rel = 'stylesheet';
-      saUnified.href = '/dashboard-unified.css?v=2';
-      document.head.appendChild(saUnified);
-    }
+  if (/^\/superadmin(\/|$)/.test(location.pathname) && !isSaStatic) {
     if (!document.querySelector('script[src*="superadmin-nav-fix.js"]')) {
       var saNavFix = document.createElement('script');
       saNavFix.src = '/superadmin-nav-fix.js?v=1';
@@ -284,14 +205,8 @@
     if (!document.querySelector('link[href*="superadmin-theme.css"]')) {
       var saCss = document.createElement('link');
       saCss.rel = 'stylesheet';
-      saCss.href = '/superadmin-theme.css?v=9';
+      saCss.href = '/superadmin-theme.css?v=10';
       document.head.appendChild(saCss);
-    }
-    if (!document.querySelector('link[href*="superadmin-polish.css"]')) {
-      var saPolish = document.createElement('link');
-      saPolish.rel = 'stylesheet';
-      saPolish.href = '/superadmin-polish.css?v=1';
-      document.head.appendChild(saPolish);
     }
     if (!document.getElementById('dma-sa-critical-style')) {
       var saCrit = document.createElement('style');

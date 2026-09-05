@@ -12,6 +12,11 @@ router.get('/config', ai_controller_1.getAIConfig);
 router.patch('/config', ai_controller_1.updateAIConfig);
 router.post('/test', ai_controller_1.testAI);
 router.post('/test-chat', ai_controller_1.testAIChat);
+const tp_controller_1 = require("../controllers/ai.training-profile.controller");
+router.get('/training-profile', tp_controller_1.getTrainingProfile);
+router.put('/training-profile', tp_controller_1.saveTrainingProfile);
+router.patch('/training-profile', tp_controller_1.saveTrainingProfile);
+router.post('/training-profile/publish', tp_controller_1.publishTrainingProfile);
 // ── Training rules (custom Q&A pairs) ────────────────────────────────────
 router.get('/training-rules',             tr_controller_1.listTrainingRules);
 router.post('/training-rules',            tr_controller_1.createTrainingRule);

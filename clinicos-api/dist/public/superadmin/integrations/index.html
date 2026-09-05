@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="sa-static">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,11 +7,11 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/superadmin-theme.css?v=9" />
-  <link rel="stylesheet" href="/dma-dashboard.css?v=4" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=8" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=10" />
   <style>
     .int-actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:8px; }
-    .int-banner { padding:14px 16px; border-radius:12px; background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af; font-size:.9rem; margin-bottom:16px; }
+    .int-banner { padding:14px 16px; border-radius:12px; background:#fff7ed; border:1px solid #fdba74; color:#9a3412; font-size:.9rem; margin-bottom:16px; }
     .int-ok { padding:14px 16px; border-radius:12px; background:#ecfdf5; border:1px solid #6ee7b7; color:#065f46; font-size:.9rem; margin-bottom:16px; display:none; }
     .int-err { padding:14px 16px; border-radius:12px; background:#fef2f2; border:1px solid #fca5a5; color:#991b1b; font-size:.9rem; margin-bottom:16px; display:none; }
     .int-webhooks { font-size:.85rem; color:#475569; margin:0 0 18px; line-height:1.55; padding:12px 14px; background:#f8fafc; border:1px solid #d0d7e2; border-radius:12px; }
@@ -23,9 +23,6 @@
     .int-status.partial { background:#ffedd5; color:#9a3412; border-color:#fdba74; }
     .int-status.empty { background:#f1f5f9; color:#475569; border-color:#cbd5e1; }
     .int-field label span.source { font-weight:500; color:#94a3b8; font-size:.75rem; }
-    .guide { font-size:.78rem; color:#64748b; margin-top:4px; line-height:1.45; }
-    .int-grid { display:grid; gap:20px; }
-    @media(min-width:900px){ .int-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
   </style>
 </head>
 <body class="superadmin-app">
@@ -34,9 +31,9 @@
     <main class="sa-main">
       <div class="sa-content-card">
         <h1>Integrations</h1>
-        <p class="sa-subtitle">Connect email, AI, WhatsApp, Stripe, and uploads — no code or .env edit required.</p>
+        <p class="sa-subtitle">Connect email, AI, WhatsApp, Stripe, and uploads — no code or .env edit required. Empty fields stay placeholders until you fill them.</p>
         <div class="int-banner">
-          <strong>Doctors My Agency</strong> is a CRM for doctors, clinics, and hospitals. Patients reach clinics via private booking / WhatsApp / web chat links.
+          Doctors My Agency is a <strong>CRM for doctors, clinics, and hospitals</strong>. Patients reach clinics via private booking / WhatsApp / web chat links — there is no public marketplace.
         </div>
         <div id="int-ok" class="int-ok"></div>
         <div id="int-err" class="int-err"></div>
@@ -54,133 +51,189 @@
   </div>
   <script src="/superadmin-admin-shell.js?v=4"></script>
   <script>
-  (function () {
-    if (!DmaAdminShell.initStaticPage('/superadmin/integrations/')) return;
+    (function () {
+      if (!DmaAdminShell.initStaticPage('/superadmin/integrations/')) return;
 
-    var state = null;
-    var okEl  = document.getElementById('int-ok');
-    var errEl = document.getElementById('int-err');
-    var grid  = document.getElementById('int-grid');
-    var hooks = document.getElementById('int-webhooks');
+      var state = null;
+      var okEl = document.getElementById('int-ok');
+      var errEl = document.getElementById('int-err');
+      var grid = document.getElementById('int-grid');
+      var hooks = document.getElementById('int-webhooks');
 
-    function showOk(msg) { okEl.style.display='block'; errEl.style.display='none'; okEl.textContent=msg; }
-    function showErr(msg){ errEl.style.display='block'; okEl.style.display='none'; errEl.textContent=msg; }
-
-    function renderSmtpLive(data) {
-      var box = document.getElementById('int-smtp-live');
-      if (!box) return;
-      var live = data && data.smtpLive;
-      var eg   = data && data.groups && data.groups.email;
-      if (live && live.ok) {
-        box.className='sa-alert sa-alert-ok'; box.style.display='block';
-        box.textContent='SMTP live check OK — '+live.host+' as '+live.user+'. Verification emails can send.';
-        return;
+      function showOk(msg) {
+        okEl.style.display = 'block';
+        errEl.style.display = 'none';
+        okEl.textContent = msg;
       }
-      if (eg && eg.liveError) {
-        box.className='sa-alert sa-alert-warn'; box.style.display='block';
-        box.textContent='SMTP not delivering: '+eg.liveError+' — Re-type the SMTP password for your mailbox, Save, then Send test email.';
-        return;
+      function showErr(msg) {
+        errEl.style.display = 'block';
+        okEl.style.display = 'none';
+        errEl.textContent = msg;
       }
-      if (live && live.error) {
-        box.className='sa-alert sa-alert-warn'; box.style.display='block';
-        box.textContent='SMTP not delivering: '+live.error;
-        return;
-      }
-      box.style.display='none';
-    }
 
-    function renderField(f) {
-      // Special: WHATSAPP_EMBEDDED_SIGNUP_ENABLED toggle
-      if (f.key === 'WHATSAPP_EMBEDDED_SIGNUP_ENABLED') {
-        var isOn = f.value === 'true' || f.value === '1';
-        var mGroup = state && state.groups && state.groups.meta;
-        var autoOn = false;
-        if (mGroup) {
-          var mf = mGroup.fields || [];
-          autoOn = mf.some(function(x){return x.key==='META_APP_ID'&&x.set;})
-                && mf.some(function(x){return x.key==='META_APP_SECRET'&&x.set;})
-                && mf.some(function(x){return x.key==='META_CONFIG_ID'&&x.set;});
+      function renderSmtpLive(data) {
+        var box = document.getElementById('int-smtp-live');
+        if (!box) return;
+        var live = data && data.smtpLive;
+        var emailGroup = data && data.groups && data.groups.email;
+        if (live && live.ok) {
+          box.className = 'sa-alert sa-alert-ok';
+          box.style.display = 'block';
+          box.textContent = 'SMTP live check OK — ' + (live.host || '') + ' as ' + (live.user || '') + '. Verification emails can send.';
+          return;
         }
-        var on = isOn || autoOn;
-        var badge = on
-          ? '<span style="background:#dcfce7;color:#166534;border:1px solid #86efac;padding:2px 8px;border-radius:6px;font-size:.7rem;font-weight:700">ENABLED'+(autoOn&&!isOn?' (auto)':'')+' ✓</span>'
-          : '<span style="background:#f1f5f9;color:#6b7280;border:1px solid #e2e8f0;padding:2px 8px;border-radius:6px;font-size:.7rem;font-weight:700">DISABLED</span>';
-        return '<div class="int-field" style="background:'+(on?'#f0fdf4':'#f8fafc')+';border:1px solid '+(on?'#86efac':'#e2e8f0')+';border-radius:10px;padding:14px 16px;margin-bottom:4px">'
-          +'<label style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px"><span style="font-weight:700;color:#0f172a">Connect WhatsApp button</span>'+badge+'</label>'
-          +'<p style="font-size:.8rem;color:#64748b;margin:0 0 8px">'
-          +(on ? '✓ The "Connect WhatsApp with Meta" button is visible on the doctor\'s WhatsApp page.'
-               : 'Leave blank to auto-enable once App ID, App Secret, and Config ID are all saved. Or set <code>true</code> explicitly.')
-          +'</p>'
-          +'<input type="text" data-key="'+f.key+'" data-secret="0" placeholder="true / false (blank = auto)" value="'+(f.value||'')+'" autocomplete="off" style="max-width:180px" />'
-          +'<div class="guide" style="margin-top:5px">'+f.guide+'</div></div>';
+        if (emailGroup && emailGroup.liveError) {
+          box.className = 'sa-alert sa-alert-warn';
+          box.style.display = 'block';
+          box.textContent = 'SMTP not delivering: ' + emailGroup.liveError + ' — Re-type the SMTP password for your mailbox, Save, then Send test email.';
+          return;
+        }
+        if (live && live.error) {
+          box.className = 'sa-alert sa-alert-warn';
+          box.style.display = 'block';
+          box.textContent = 'SMTP not delivering: ' + live.error + ' — Password must match the mailbox in SMTP username (not an old .env password).';
+          return;
+        }
+        box.style.display = 'none';
       }
 
-      var ph = f.secret
-        ? (f.set ? 'Saved: '+(f.masked||'••••')+' — leave blank to keep' : (f.placeholder||'Not set'))
-        : (f.placeholder||'');
-      var va = f.secret ? '' : ' value="'+String(f.value||'').replace(/"/g,'&quot;')+'"';
-      return '<div class="int-field">'
-        +'<label><span>'+f.label+'</span><span class="source">'+f.source+'</span></label>'
-        +'<input type="'+(f.secret?'password':'text')+'" data-key="'+f.key+'" data-secret="'+(f.secret?'1':'0')+'" placeholder="'+String(ph).replace(/"/g,'&quot;')+'"'+va+' autocomplete="off" />'
-        +'<div class="guide">'+(f.guide||'')+'</div>'
-        +'</div>';
-    }
+      function render() {
+        if (!state || !state.groups) {
+          grid.innerHTML = '<p class="sa-hint">No data</p>';
+          return;
+        }
+        renderSmtpLive(state);
+        if (state.webhookHints) {
+          hooks.innerHTML =
+            '<strong>Webhook URLs</strong> (paste in provider dashboards):<br>' +
+            'Twilio → <code>' + state.webhookHints.twilio + '</code><br>' +
+            (state.webhookHints.meta ? 'Meta WhatsApp → <code>' + state.webhookHints.meta + '</code><br>' : '') +
+            'Stripe → <code>' + state.webhookHints.stripe + '</code>';
+        }
+        var order = ['app', 'email', 'ai', 'meta', 'twilio', 'stripe', 'cloudinary'];
+        grid.innerHTML = order.map(function (id) {
+          var g = state.groups[id];
+          if (!g) return '';
+        var fields = (g.fields || []).map(function (f) {
+            // Special toggle rendering for WHATSAPP_EMBEDDED_SIGNUP_ENABLED
+            if (f.key === 'WHATSAPP_EMBEDDED_SIGNUP_ENABLED') {
+              var isOn = f.value === 'true' || f.value === '1';
+              var autoOn = (function() {
+                // Check if all Meta credentials are set (auto-enable condition)
+                var mGroup = state.groups && state.groups.meta;
+                if (!mGroup) return false;
+                var fields = mGroup.fields || [];
+                var hasAppId = fields.some(function(x){return x.key==='META_APP_ID'&&x.set;});
+                var hasSecret = fields.some(function(x){return x.key==='META_APP_SECRET'&&x.set;});
+                var hasConfigId = fields.some(function(x){return x.key==='META_CONFIG_ID'&&x.set;});
+                return hasAppId && hasSecret && hasConfigId;
+              })();
+              var effectivelyEnabled = isOn || autoOn;
+              var statusHtml = effectivelyEnabled
+                ? '<span style="background:#dcfce7;color:#166534;border:1px solid #86efac;padding:3px 8px;border-radius:6px;font-size:.72rem;font-weight:700">ENABLED' + (autoOn && !isOn ? ' (auto — all credentials set)' : '') + '</span>'
+                : '<span style="background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;padding:3px 8px;border-radius:6px;font-size:.72rem;font-weight:700">DISABLED</span>';
+              return (
+                '<div class="int-field" style="background:' + (effectivelyEnabled?'#f0fdf4':'#f8fafc') + ';border:1px solid ' + (effectivelyEnabled?'#86efac':'#e2e8f0') + ';border-radius:10px;padding:14px 16px;margin-bottom:8px">' +
+                  '<label style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px">' +
+                    '<span style="font-weight:700;color:#0f172a;font-size:.875rem">Connect WhatsApp button ' + statusHtml + '</span>' +
+                  '</label>' +
+                  '<p style="font-size:.8rem;color:#64748b;margin:0 0 10px">' +
+                    (effectivelyEnabled
+                      ? '✓ The "Connect WhatsApp with Meta" button will appear on the doctor\'s WhatsApp dashboard.'
+                      : 'Set to <code>true</code> to show the Connect button, or leave blank — button auto-enables when App ID, App Secret, and Config ID are all saved.') +
+                  '</p>' +
+                  '<input type="text" data-key="' + f.key + '" data-secret="0" placeholder="true / false (blank = auto)" value="' + (f.value||'') + '" autocomplete="off" style="max-width:160px" />' +
+                  '<div class="guide" style="margin-top:6px">' + f.guide + '</div>' +
+                '</div>'
+              );
+            }
 
-    function render() {
-      if (!state||!state.groups){ grid.innerHTML='<p class="sa-hint">No data</p>'; return; }
-      renderSmtpLive(state);
-      if (state.webhookHints) {
-        hooks.innerHTML='<strong>Webhook URLs</strong> (paste in provider dashboards):<br>'
-          +'Twilio → <code>'+state.webhookHints.twilio+'</code><br>'
-          +(state.webhookHints.meta?'Meta WhatsApp → <code>'+state.webhookHints.meta+'</code><br>':'')
-          +'Stripe → <code>'+state.webhookHints.stripe+'</code>';
+            var ph = f.secret
+              ? (f.set ? ('Saved: ' + (f.masked || '••••') + ' — leave blank to keep') : (f.placeholder || 'Not set'))
+              : (f.placeholder || '');
+            var valAttr = f.secret ? '' : (' value="' + String(f.value || '').replace(/"/g, '&quot;') + '"');
+            return (
+              '<div class="int-field">' +
+                '<label><span>' + f.label + '</span><span class="source">' + f.source + '</span></label>' +
+                '<input type="' + (f.secret ? 'password' : 'text') + '" data-key="' + f.key + '" data-secret="' + (f.secret ? '1' : '0') + '" placeholder="' + String(ph).replace(/"/g, '&quot;') + '"' + valAttr + ' autocomplete="off" />' +
+                '<div class="guide">' + (f.guide || '') + '</div>' +
+              '</div>'
+            );
+          }).join('');
+          return (
+            '<section class="int-card" data-group="' + id + '">' +
+              '<h2>' + g.title + '<span class="int-status ' + g.status + '">' + g.status + '</span></h2>' +
+              '<p class="desc">' + g.description + '</p>' +
+              fields +
+            '</section>'
+          );
+        }).join('');
       }
-      var order=['app','email','ai','meta','twilio','stripe','cloudinary'];
-      grid.innerHTML = order.map(function(id){
-        var g=state.groups[id]; if(!g) return '';
-        var fields=(g.fields||[]).map(renderField).join('');
-        return '<section class="int-card" data-group="'+id+'">'
-          +'<h2>'+g.title+'<span class="int-status '+g.status+'">'+g.status+'</span></h2>'
-          +'<p class="desc">'+g.description+'</p>'
-          +fields+'</section>';
-      }).join('');
-    }
 
-    function load() {
-      grid.innerHTML='<p class="sa-hint">Loading…</p>';
-      DmaAdminShell.api('/api/superadmin/integrations')
-        .then(function(data){ state=data; render(); })
-        .catch(function(e){ showErr(e.message||'Failed to load'); grid.innerHTML='<p class="sa-hint">Could not load. Is the Node API running?</p>'; });
-    }
+      function load() {
+        grid.innerHTML = '<p class="sa-hint">Loading…</p>';
+        return DmaAdminShell.api('/api/superadmin/integrations')
+          .then(function (data) {
+            state = data;
+            render();
+          })
+          .catch(function (e) {
+            showErr(e.message || 'Failed to load integrations');
+            grid.innerHTML = '<p class="sa-hint">Could not load. Is the Node API running? Upload latest superadmin routes and restart.</p>';
+          });
+      }
 
-    function save() {
-      var settings={};
-      grid.querySelectorAll('input[data-key]').forEach(function(el){
-        var k=el.getAttribute('data-key'), s=el.getAttribute('data-secret')==='1', v=el.value;
-        if(s&&!String(v||'').trim()) return;
-        settings[k]=v;
-      });
-      document.getElementById('int-save').disabled=true;
-      DmaAdminShell.api('/api/superadmin/integrations',{method:'PUT',body:{settings:settings}})
-        .then(function(data){ state=data.integrations||data; render(); showOk('Saved '+(data.saved||[]).length+' setting(s).'); })
-        .catch(function(e){ showErr(e.message||'Save failed'); })
-        .finally(function(){ document.getElementById('int-save').disabled=false; });
-    }
+      function save() {
+        var settings = {};
+        var inputs = grid.querySelectorAll('input[data-key]');
+        inputs.forEach(function (el) {
+          var key = el.getAttribute('data-key');
+          var secret = el.getAttribute('data-secret') === '1';
+          var val = el.value;
+          if (secret && !String(val || '').trim()) return;
+          settings[key] = val;
+        });
+        document.getElementById('int-save').disabled = true;
+        DmaAdminShell.api('/api/superadmin/integrations', { method: 'PUT', body: { settings: settings } })
+          .then(function (data) {
+            state = data.integrations || data;
+            render();
+            showOk('Saved ' + (data.saved || []).length + ' setting(s). Secrets left blank were kept unchanged.');
+          })
+          .catch(function (e) {
+            showErr(e.message || 'Save failed');
+          })
+          .finally(function () {
+            document.getElementById('int-save').disabled = false;
+          });
+      }
 
-    document.getElementById('int-save').onclick=save;
-    document.getElementById('int-reload').onclick=function(){ load(); };
-    document.getElementById('int-test-email').onclick=function(){
-      var to='admin@doctorsmyagency.com';
-      try{ var u=JSON.parse(localStorage.getItem('clinicos-store')||'{}').state.user; if(u&&u.email)to=u.email; }catch(_){}
-      to=window.prompt('Send test email to:',to); if(!to) return;
-      var btn=document.getElementById('int-test-email'); btn.disabled=true;
-      DmaAdminShell.api('/api/superadmin/integrations/test-email',{method:'POST',body:{to:to}})
-        .then(function(d){ showOk(d.message||'Test email sent to '+to+'. Check inbox.'); return load(); })
-        .catch(function(e){ showErr(e.message||'Test failed'); })
-        .finally(function(){ btn.disabled=false; });
-    };
-    load();
-  })();
+      document.getElementById('int-save').onclick = save;
+      document.getElementById('int-reload').onclick = function () { load(); };
+      document.getElementById('int-test-email').onclick = function () {
+        var to = window.prompt('Send test email to:', (localStorage.getItem('token') && '') || 'admin@doctorsmyagency.com');
+        try {
+          var raw = localStorage.getItem('clinicos-store');
+          if (raw) {
+            var u = JSON.parse(raw).state && JSON.parse(raw).state.user;
+            if (u && u.email) to = window.prompt('Send test email to:', u.email) || u.email;
+          }
+        } catch (_) {}
+        if (!to) return;
+        var btn = document.getElementById('int-test-email');
+        btn.disabled = true;
+        DmaAdminShell.api('/api/superadmin/integrations/test-email', { method: 'POST', body: { to: to } })
+          .then(function (data) {
+            showOk(data.message || ('Test email sent to ' + to + '. Check inbox and spam.'));
+            return load();
+          })
+          .catch(function (e) {
+            showErr((e.message || 'Test failed') + ' — Re-enter SMTP password for the workee mailbox, Save, restart Node if needed.');
+          })
+          .finally(function () { btn.disabled = false; });
+      };
+      load();
+    })();
   </script>
 </body>
 </html>

@@ -1,131 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="sa-static">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clinic Detail — Platform Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Clinic — Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/superadmin-theme.css?v=8" />
-  <link rel="stylesheet" href="/superadmin-polish.css?v=1" />
-  <script src="/dashboard-bootstrap.js"></script>
-  <style>
-    .detail-header { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:8px; }
-    .detail-header h1 { font-size:1.65rem; font-weight:800; margin:0 0 4px; font-family:Montserrat,Inter,sans-serif; color:var(--sa-text); }
-    .detail-header .sub { color:var(--sa-muted); font-size:0.9rem; font-weight:600; }
-    .badge-pill { display:inline-block; padding:6px 12px; border-radius:999px; font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; }
-    .badge-active { background:rgba(34,197,94,0.15); color:#15803d; border:1px solid rgba(34,197,94,0.25); }
-    .badge-suspended { background:rgba(239,68,68,0.12); color:#b91c1c; border:1px solid rgba(239,68,68,0.2); }
-    .stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:16px 0 20px; }
-    @media (max-width:600px){ .stat-grid { grid-template-columns:1fr; } }
-    .stat-box { background:#fff; border:1px solid var(--sa-border); border-top:3px solid var(--sa-orange); border-radius:14px; padding:16px; text-align:center; box-shadow:var(--sa-shadow-sm); }
-    .stat-box .num { font-size:1.6rem; font-weight:800; color:var(--sa-orange-dark); line-height:1.1; }
-    .stat-box .lbl { font-size:0.72rem; color:var(--sa-muted); font-weight:700; text-transform:uppercase; margin-top:6px; letter-spacing:0.05em; }
-    .plan-row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:12px; }
-    .plan-row select { padding:10px 12px; border-radius:10px; border:1px solid var(--sa-border); background:#fff; color:var(--sa-text); font-size:0.88rem; font-weight:600; min-width:140px; }
-    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; padding-top:20px; border-top:1px solid var(--sa-border); }
-    #loading, #error { text-align:center; padding:48px 24px; color:var(--sa-muted); }
-    #error { color:#b91c1c; background:#fef2f2; border:1px solid #fecaca; border-radius:14px; }
-    .sa-back { display:inline-flex; align-items:center; gap:0.35rem; margin-bottom:16px; color:var(--sa-orange); font-weight:700; text-decoration:none; font-size:0.88rem; }
-    .sa-back:hover { text-decoration:underline; }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=8" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=10" />
 </head>
 <body class="superadmin-app">
   <div class="sa-layout">
     <aside class="sa-sidebar" id="sa-sidebar"></aside>
     <main class="sa-main">
       <div class="sa-main-inner">
-        <a href="/superadmin/clinics/" class="sa-back">← Back to all clinics</a>
-        <div id="loading">Loading clinic…</div>
-        <div id="error" style="display:none"></div>
+        <a href="/superadmin/clinics/" class="sa-back">← Clinics</a>
+        <div id="loading" class="ds-loading">Loading clinic…</div>
+        <div id="error" class="ds-error" style="display:none"></div>
         <div id="content" style="display:none" class="sa-content-card">
-          <div class="detail-header">
+          <div class="ds-page-header">
             <div>
               <h1 id="clinic-name">—</h1>
-              <p class="sub" id="clinic-owner">—</p>
+              <p id="clinic-owner">—</p>
             </div>
-            <span id="status-badge" class="badge-pill badge-active">Active</span>
-          </div>
-
-          <div class="stat-grid">
-            <div class="stat-box"><div class="num" id="stat-patients">—</div><div class="lbl">Patients</div></div>
-            <div class="stat-box"><div class="num" id="stat-appointments">—</div><div class="lbl">Appointments</div></div>
-            <div class="stat-box"><div class="num" id="stat-staff">—</div><div class="lbl">Staff</div></div>
-          </div>
-
-          <div class="sa-detail-grid">
-            <div class="sa-section-card">
-              <h3>Contact & profile</h3>
-              <dl class="sa-info-list">
-                <div><dt>Email</dt><dd id="info-email">—</dd></div>
-                <div><dt>Phone</dt><dd id="info-phone">—</dd></div>
-                <div><dt>Specialty</dt><dd id="info-specialty">—</dd></div>
-                <div><dt>Address</dt><dd id="info-address">—</dd></div>
-                <div><dt>Booking slug</dt><dd id="info-slug">—</dd></div>
-                <div><dt>Joined</dt><dd id="info-created">—</dd></div>
-              </dl>
-            </div>
-            <div class="sa-section-card">
-              <h3>Subscription</h3>
-              <dl class="sa-info-list">
-                <div><dt>Plan</dt><dd id="info-plan">—</dd></div>
-                <div><dt>Plan status</dt><dd id="info-plan-status">—</dd></div>
-                <div><dt>AI enabled</dt><dd id="info-ai">—</dd></div>
-                <div><dt>Clinic ID</dt><dd id="info-id" style="font-size:0.78rem;font-family:monospace">—</dd></div>
-              </dl>
+            <div class="ds-page-actions">
+              <span id="status-badge" class="ds-badge sa-badge-ok">Active</span>
+              <button type="button" class="ds-btn ds-btn-outline" id="toggle-status-btn">Suspend</button>
+              <button type="button" class="ds-btn ds-btn-danger" id="delete-clinic-btn">Delete</button>
             </div>
           </div>
-
-          <div class="sa-plan-panel">
-            <h3>Override plan</h3>
-            <div class="plan-row">
-              <select id="plan-select">
-                <option value="TRIAL">Trial</option>
-                <option value="STARTER">Starter</option>
-                <option value="PRO">Pro</option>
-                <option value="ENTERPRISE">Enterprise</option>
-              </select>
-              <select id="plan-status-select">
-                <option value="ACTIVE">Active</option>
-                <option value="PAST_DUE">Past due</option>
-                <option value="CANCELLED">Cancelled</option>
-              </select>
-              <button type="button" class="sa-btn-primary" id="save-plan-btn">Save plan</button>
-            </div>
+          <div class="ds-kpis">
+            <div class="ds-kpi"><div><label>Patients</label><strong id="stat-patients">—</strong></div></div>
+            <div class="ds-kpi"><div><label>Appointments</label><strong id="stat-appointments">—</strong></div></div>
+            <div class="ds-kpi"><div><label>Staff</label><strong id="stat-staff">—</strong></div></div>
+            <div class="ds-kpi"><div><label>Messages</label><strong id="stat-messages">—</strong></div></div>
           </div>
-
-          <div class="actions">
-            <button type="button" class="sa-btn-primary" id="toggle-status-btn">Suspend clinic</button>
-            <button type="button" class="sa-btn-outline" id="delete-clinic-btn" style="border-color:#fecaca;color:#b91c1c">Delete permanently</button>
-          </div>
+          <div id="cos-workspace"></div>
         </div>
       </div>
     </main>
   </div>
-
-  <script src="/superadmin-admin-shell.js?v=5"></script>
-  <script src="/api-shim.js"></script>
+  <script src="/superadmin-admin-shell.js?v=8"></script>
+  <script src="/dma-ui.js?v=1"></script>
+  <script src="/superadmin-clinic-workspace.js?v=2"></script>
   <script>
     (function () {
       if (!DmaAdminShell.initStaticPage('/superadmin/clinics/')) return;
-      var PLANS = { TRIAL: 'Trial', STARTER: 'Starter', PRO: 'Pro', ENTERPRISE: 'Enterprise' };
 
       function clinicIdFromPath() {
+        var q = new URLSearchParams(location.search).get('id');
+        if (q) return q;
         var parts = location.pathname.replace(/\/+$/, '').split('/');
         var last = parts[parts.length - 1];
-        if (last === 'detail') return null;
+        if (last === 'detail' || last === 'clinics') return null;
         return /^[a-zA-Z0-9]+$/.test(last) ? last : null;
-      }
-
-      function api(path, opts) {
-        return DmaAdminShell.api(path, opts || {});
-      }
-
-      function fmtDate(iso) {
-        if (!iso) return '—';
-        try { return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); }
-        catch (_) { return iso; }
       }
 
       var clinicId = clinicIdFromPath();
@@ -133,6 +62,7 @@
       var loading = document.getElementById('loading');
       var errorEl = document.getElementById('error');
       var content = document.getElementById('content');
+      var toast = DmaUI.toast;
 
       if (!clinicId) {
         loading.style.display = 'none';
@@ -144,40 +74,27 @@
       function render(c) {
         clinic = c;
         document.getElementById('clinic-name').textContent = c.name || '—';
-        document.getElementById('clinic-owner').textContent = c.ownerName || '—';
+        document.getElementById('clinic-owner').textContent = (c.ownerName || '—') + (c.email ? ' · ' + c.email : '');
         document.getElementById('stat-patients').textContent = (c._count && c._count.patients != null) ? c._count.patients.toLocaleString() : '0';
         document.getElementById('stat-appointments').textContent = (c._count && c._count.appointments != null) ? c._count.appointments.toLocaleString() : '0';
         document.getElementById('stat-staff').textContent = (c._count && c._count.staff != null) ? c._count.staff.toLocaleString() : '0';
-        document.getElementById('info-email').textContent = c.email || '—';
-        document.getElementById('info-phone').textContent = c.phone || '—';
-        document.getElementById('info-specialty').textContent = c.specialty || '—';
-        document.getElementById('info-address').textContent = c.address || '—';
-        document.getElementById('info-plan').textContent = PLANS[c.plan] || c.plan || '—';
-        document.getElementById('info-plan-status').textContent = c.planStatus || '—';
-        document.getElementById('info-slug').textContent = c.bookingSlug ? '/book/' + c.bookingSlug : '—';
-        document.getElementById('info-ai').textContent = c.aiEnabled ? 'Yes' : 'No';
-        document.getElementById('info-created').textContent = fmtDate(c.createdAt);
-        document.getElementById('info-id').textContent = c.id || clinicId;
-
+        document.getElementById('stat-messages').textContent = (c._count && c._count.messages != null) ? c._count.messages.toLocaleString() : '0';
         var badge = document.getElementById('status-badge');
         var toggleBtn = document.getElementById('toggle-status-btn');
         if (c.isActive) {
           badge.textContent = 'Active';
-          badge.className = 'badge-pill badge-active';
-          toggleBtn.textContent = 'Suspend clinic';
+          badge.className = 'ds-badge sa-badge-ok';
+          toggleBtn.textContent = 'Suspend';
         } else {
           badge.textContent = 'Suspended';
-          badge.className = 'badge-pill badge-suspended';
-          toggleBtn.textContent = 'Activate clinic';
+          badge.className = 'ds-badge ds-badge-danger';
+          toggleBtn.textContent = 'Activate';
         }
-
-        document.getElementById('plan-select').value = c.plan || 'TRIAL';
-        document.getElementById('plan-status-select').value = c.planStatus || 'ACTIVE';
         document.title = (c.name || 'Clinic') + ' — Platform Admin';
       }
 
       function load() {
-        api('/api/superadmin/clinics/' + clinicId, { retries: 3 })
+        DmaAdminShell.api('/api/superadmin/clinics/' + clinicId)
           .then(function (data) {
             loading.style.display = 'none';
             content.style.display = 'block';
@@ -190,42 +107,28 @@
           });
       }
 
-      document.getElementById('toggle-status-btn').addEventListener('click', function () {
+      document.getElementById('toggle-status-btn').onclick = function () {
         if (!clinic) return;
         var next = !clinic.isActive;
-        var msg = next ? 'Activate this clinic? They will be able to sign in again.' : 'Suspend this clinic? They will be blocked from signing in.';
-        if (!confirm(msg)) return;
+        if (!confirm(next ? 'Activate this clinic?' : 'Suspend this clinic?')) return;
         var btn = this;
         btn.disabled = true;
-        api('/api/superadmin/clinics/' + clinicId + '/status', { method: 'PATCH', body: { isActive: next } })
-          .then(function () { clinic.isActive = next; render(clinic); })
-          .catch(function (err) { alert(err.message || 'Update failed'); })
+        DmaAdminShell.api('/api/superadmin/clinics/' + clinicId + '/status', { method: 'PATCH', body: { isActive: next } })
+          .then(function () { clinic.isActive = next; render(clinic); toast('Updated', 'ok'); })
+          .catch(function (err) { toast(err.message || 'Update failed', 'err'); })
           .finally(function () { btn.disabled = false; });
-      });
+      };
 
-      document.getElementById('delete-clinic-btn').addEventListener('click', function () {
+      document.getElementById('delete-clinic-btn').onclick = function () {
         if (!clinic) return;
-        var name = clinic.name || 'this clinic';
-        if (!confirm('Permanently delete "' + name + '"?\n\nAll patients, appointments, and staff will be removed. Cannot be undone.')) return;
-        if (!confirm('Final confirmation: delete "' + name + '" forever?')) return;
+        if (!confirm('Permanently delete "' + (clinic.name || 'this clinic') + '"?')) return;
+        if (!confirm('Final confirmation: delete forever?')) return;
         var btn = this;
         btn.disabled = true;
-        api('/api/superadmin/clinics/' + clinicId, { method: 'DELETE' })
+        DmaAdminShell.api('/api/superadmin/clinics/' + clinicId, { method: 'DELETE' })
           .then(function () { location.href = '/superadmin/clinics/'; })
-          .catch(function (err) { alert(err.message || 'Delete failed'); btn.disabled = false; });
-      });
-
-      document.getElementById('save-plan-btn').addEventListener('click', function () {
-        if (!clinic) return;
-        var plan = document.getElementById('plan-select').value;
-        var planStatus = document.getElementById('plan-status-select').value;
-        var btn = this;
-        btn.disabled = true;
-        api('/api/superadmin/clinics/' + clinicId + '/plan', { method: 'PATCH', body: { plan: plan, planStatus: planStatus } })
-          .then(function () { clinic.plan = plan; clinic.planStatus = planStatus; render(clinic); alert('Plan updated.'); })
-          .catch(function (err) { alert(err.message || 'Update failed'); })
-          .finally(function () { btn.disabled = false; });
-      });
+          .catch(function (err) { toast(err.message || 'Delete failed', 'err'); btn.disabled = false; });
+      };
 
       load();
     })();

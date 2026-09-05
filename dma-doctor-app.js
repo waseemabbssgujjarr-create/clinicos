@@ -46,6 +46,7 @@
 
   function get(path) { return req('GET', path).then(function (r) { return r.d; }); }
   function post(path, body) { return req('POST', path, body); }
+  function put(path, body) { return req('PUT', path, body); }
   function patch(path, body) { return req('PATCH', path, body); }
   function del(path) { return req('DELETE', path); }
 
@@ -207,6 +208,7 @@
     headers: headers,
     get: get,
     post: post,
+    put: put,
     patch: patch,
     del: del,
     logout: logout,

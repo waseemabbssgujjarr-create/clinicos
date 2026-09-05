@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.processInboundPatientMessage = processInboundPatientMessage;
 const prisma_1 = require("../lib/prisma");
 const ai_service_1 = require("./ai.service");
+const conversation_engine_1 = require("./conversation-engine.service");
+const human_reply_1 = require("./human-reply.service");
 const notification_service_1 = require("./notification.service");
 const lead_service_1 = require("./lead.service");
 const killer_features_service_1 = require("./killer-features.service");
@@ -46,12 +48,12 @@ async function processInboundPatientMessage(ctx) {
     // Backfill metaMessageId for WhatsApp idempotency deduplication
     if (channel === "WHATSAPP" && externalMessageId) {
         try {
-            await prisma_1.prisma.$executeRawUnsafe(
-                "UPDATE `Message` SET `metaMessageId` = ? WHERE `id` = ?",
-                externalMessageId,
-                inboundMsg.id
-            );
-        } catch (_) { /* column not yet migrated — non-fatal, idempotency just won't work until migration runs */ }
+        await prisma_1.prisma.$executeRawUnsafe(
+            "UPDATE `Message` SET `metaMessageId` = ?, `deliveryStatus` = 'delivered', `senderType` = 'HUMAN' WHERE `id` = ?",
+            externalMessageId,
+            inboundMsg.id
+        );
+    } catch (_) { /* column not yet migrated — non-fatal, idempotency just won't work until migration runs */ }
     }
     const missedCall = await prisma_1.prisma.missedCall.findFirst({
         where: { clinicId: clinic.id, callerPhone: fromPhone, recoverySent: true, replied: false },
@@ -64,17 +66,20 @@ async function processInboundPatientMessage(ctx) {
         });
     }
     if (!clinic.aiEnabled || clinic.planStatus === "CANCELLED" || clinic.planStatus === "PAST_DUE") {
-        await sendReply(fromPhone, `Thank you for contacting ${clinic.name}. Our team will get back to you shortly.`, channel);
+        const hold = clinic.aiEnabled
+            ? `Thanks for messaging ${clinic.name}. A team member will reply here shortly.`
+            : `Thanks for messaging ${clinic.name}. The receptionist is in human-only mode — someone will reply here shortly.`;
+        await sendReply(fromPhone, hold, channel);
         return;
     }
     const recentMessages = await prisma_1.prisma.message.findMany({
         where: { clinicId: clinic.id, patientId: patient.id },
         orderBy: { createdAt: "desc" },
-        take: 10,
+        take: 12,
     });
     const conversationHistory = recentMessages
         .reverse()
-        .map((m) => `${m.direction === "INBOUND" ? "Patient" : "AI"}: ${m.body}`)
+        .map((m) => `${m.direction === "INBOUND" ? "Patient" : (m.isHandledByAI ? "AI" : "Staff")}: ${m.body}`)
         .join("\n");
     const recentAppts = await prisma_1.prisma.appointment.findMany({
         where: { clinicId: clinic.id, patientId: patient.id },
@@ -85,8 +90,20 @@ async function processInboundPatientMessage(ctx) {
     const patientHistory = recentAppts.length > 0
         ? recentAppts.map((a) => `${(0, date_fns_1.format)(a.dateTime, "MMM d, yyyy")} - ${a.treatment} (${a.status})`).join("\n")
         : "First-time patient";
+
+    let profile = {};
+    let customRules = [];
+    try {
+        const tp = require("../controllers/ai.training-profile.controller");
+        profile = await tp.getProfileForEngine(clinic.id, { live: true });
+    } catch (_) { /* optional */ }
+    try {
+        const tr = require("../controllers/ai.training-rules.controller");
+        customRules = await tr.getTrainingRulesForAI(clinic.id);
+    } catch (_) { /* optional */ }
+
     const startTime = Date.now();
-    const aiResponse = await (0, ai_service_1.processInboundMessage)({
+    const aiResponse = await conversation_engine_1.planAndGenerateReply({
         clinicId: clinic.id,
         clinicName: clinic.name,
         specialty: clinic.specialty ?? "medical",
@@ -97,10 +114,17 @@ async function processInboundPatientMessage(ctx) {
         patientPhone: fromPhone,
         patientHistory,
         conversationHistory,
-        aiLanguage: clinic.aiLanguage,
-        aiPersonality: clinic.aiPersonality,
-        customIntroMsg: clinic.customIntroMsg ?? undefined,
-    }, body);
+        aiLanguage: (profile.personality && profile.personality.language) || clinic.aiLanguage,
+        aiPersonality: (profile.personality && profile.personality.tone) || clinic.aiPersonality,
+        customIntroMsg: (profile.personality && profile.personality.introMessage) || clinic.customIntroMsg || undefined,
+        live: true,
+        trainingProfile: profile,
+    }, body, {
+        patientId: patient.id,
+        profile,
+        customRules,
+        source: channel,
+    });
     const durationMs = Date.now() - startTime;
     await prisma_1.prisma.message.update({
         where: { id: inboundMsg.id },
@@ -210,7 +234,7 @@ async function processInboundPatientMessage(ctx) {
             link: "/dashboard/messages",
         });
     }
-    await prisma_1.prisma.message.create({
+    const outboundMsg = await prisma_1.prisma.message.create({
         data: {
             clinicId: clinic.id,
             patientId: patient.id,
@@ -224,15 +248,54 @@ async function processInboundPatientMessage(ctx) {
             isRead: true,
         },
     });
+    try {
+        await prisma_1.prisma.$executeRawUnsafe(
+            "UPDATE `Message` SET `deliveryStatus` = ?, `senderType` = 'AI' WHERE `id` = ?",
+            "sending",
+            outboundMsg.id
+        );
+    } catch (_) { /* optional columns */ }
     await prisma_1.prisma.aILog.create({
         data: {
             clinicId: clinic.id,
             action: aiResponse.action === "none" ? "answered_faq" : aiResponse.action,
-            details: `Patient: "${body.slice(0, 100)}" | Intent: ${aiResponse.intent} | Score: ${aiResponse.leadScore}`,
+            details: `Patient: "${body.slice(0, 100)}" | Intent: ${aiResponse.intent} | Score: ${aiResponse.leadScore} | Path: ${aiResponse.enginePath || "llm"}`,
             patientId: patient.id,
             durationMs,
             success: true,
         },
     });
-    await sendReply(fromPhone, aiResponse.reply, channel);
+    const humanLike = (profile && profile.humanLike) || {};
+    const metaId = await human_reply_1.deliverHumanLike({
+        clinicId: clinic.id,
+        inboundMetaId: channel === "WHATSAPP" ? externalMessageId : null,
+        reply: aiResponse.reply,
+        incomingText: body,
+        humanLike,
+        generateStartedAt: startTime,
+        sendFn: async () => sendReply(fromPhone, aiResponse.reply, channel),
+    });
+    if (metaId) {
+        try {
+            await prisma_1.prisma.$executeRawUnsafe(
+                "UPDATE `Message` SET `metaMessageId` = ?, `deliveryStatus` = 'sent' WHERE `id` = ?",
+                String(metaId),
+                outboundMsg.id
+            );
+        } catch (_) { /* optional */ }
+    } else {
+        try {
+            await prisma_1.prisma.$executeRawUnsafe(
+                "UPDATE `Message` SET `deliveryStatus` = 'failed' WHERE `id` = ?",
+                outboundMsg.id
+            );
+        } catch (_) { /* optional */ }
+    }
+    notification_service_1.emitClinicEvent(clinic.id, "message:new", {
+        patientId: patient.id,
+        direction: "OUTBOUND",
+        body: aiResponse.reply,
+        senderType: "AI",
+        deliveryStatus: metaId ? "sent" : "failed",
+    });
 }

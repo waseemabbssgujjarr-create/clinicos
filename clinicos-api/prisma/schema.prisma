@@ -231,10 +231,12 @@ model Message {
   tags          String?        @db.Text
   intent        String?
   summary       String?        @db.Text
-  twilioSid     String?
-  metaMessageId String?
-  replyToId     String?
-  createdAt     DateTime       @default(now())
+  twilioSid       String?
+  metaMessageId   String?
+  replyToId       String?
+  deliveryStatus  String         @default("sent")
+  senderType      String         @default("HUMAN")
+  createdAt       DateTime       @default(now())
 
   clinic        Clinic         @relation(fields: [clinicId], references: [id])
   patient       Patient?       @relation(fields: [patientId], references: [id])
@@ -512,4 +514,79 @@ model PlatformSetting {
   value     String   @db.Text
   updatedAt DateTime @updatedAt
   updatedBy String?
+}
+
+// ─────────────────────────────────────────────
+// AI TRAINING RULES (custom Q&A)
+// ─────────────────────────────────────────────
+model AITrainingRule {
+  id        String   @id
+  clinicId  String
+  question  String   @db.Text
+  answer    String   @db.Text
+  category  String   @default("general")
+  isActive  Boolean  @default(true)
+  priority  Int      @default(0)
+  matchType String   @default("contains")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clinicId, isActive])
+}
+
+// ─────────────────────────────────────────────
+// STRUCTURED AI TRAINING PROFILE (draft + published)
+// ─────────────────────────────────────────────
+model AITrainingProfile {
+  id             String    @id
+  clinicId       String    @unique
+  draftJson      String    @db.Text
+  publishedJson  String?   @db.Text
+  draftUpdatedAt DateTime  @default(now())
+  publishedAt    DateTime?
+  publishedBy    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// PER-PATIENT CONVERSATION MEMORY
+// ─────────────────────────────────────────────
+model ConversationState {
+  id               String   @id
+  clinicId         String
+  patientId        String
+  turnCount        Int      @default(0)
+  greetingSent     Boolean  @default(false)
+  lastIntent       String?
+  lastAction       String?
+  pendingQuestion  String?  @db.Text
+  pendingSlot      String?  @db.Text
+  lastOutboundBody String?  @db.Text
+  lastFallbackHash String?
+  memoryJson       String?  @db.Text
+  updatedAt        DateTime @updatedAt
+  createdAt        DateTime @default(now())
+
+  @@unique([clinicId, patientId])
+  @@index([clinicId])
+}
+
+// ─────────────────────────────────────────────
+// PLATFORM AUDIT LOG
+// ─────────────────────────────────────────────
+model AuditLog {
+  id         String   @id @default(cuid())
+  clinicId   String?
+  actorId    String?
+  actorRole  String?
+  action     String
+  entityType String?
+  entityId   String?
+  details    String?  @db.Text
+  success    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  @@index([clinicId, createdAt])
+  @@index([createdAt])
 }

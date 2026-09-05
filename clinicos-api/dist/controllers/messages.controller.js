@@ -5,6 +5,7 @@ const prisma_1 = require("../lib/prisma");
 const asyncHandler_1 = require("../lib/asyncHandler");
 const error_middleware_1 = require("../middleware/error.middleware");
 const twilio_service_1 = require("../services/twilio.service");
+const whatsapp_provider_1 = require("../services/meta/whatsapp-provider.service");
 const ai_service_1 = require("../services/ai.service");
 // GET /api/messages
 exports.listMessages = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
@@ -59,7 +60,20 @@ exports.sendMessage = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         where: { id: clinicId },
         select: { phone: true },
     });
-    const twilioSid = await (0, twilio_service_1.sendReply)(patient.phone, body, channel, clinicId);
+    let providerId = null;
+    let deliveryStatus = "sending";
+    if (channel === "WHATSAPP") {
+        providerId = await whatsapp_provider_1.sendText(clinicId, patient.phone, body);
+        if (!providerId) {
+            providerId = await (0, twilio_service_1.sendReply)(patient.phone, body, channel, clinicId);
+        }
+    } else {
+        providerId = await (0, twilio_service_1.sendReply)(patient.phone, body, channel, clinicId);
+    }
+    deliveryStatus = providerId ? "sent" : "failed";
+    if (!providerId) {
+        throw (0, error_middleware_1.createError)("Failed to send. Check WhatsApp connection.", 502, "SEND_FAILED");
+    }
     const message = await prisma_1.prisma.message.create({
         data: {
             clinicId,
@@ -70,10 +84,18 @@ exports.sendMessage = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             toNumber: patient.phone,
             body,
             isRead: true,
-            twilioSid: twilioSid ?? undefined,
+            twilioSid: providerId ?? undefined,
         },
     });
-    res.status(201).json(message);
+    try {
+        await prisma_1.prisma.$executeRawUnsafe(
+            "UPDATE `Message` SET `metaMessageId` = ?, `deliveryStatus` = ?, `senderType` = 'HUMAN' WHERE `id` = ?",
+            String(providerId),
+            deliveryStatus,
+            message.id
+        );
+    } catch (_) { /* optional columns */ }
+    res.status(201).json({ ...message, deliveryStatus, senderType: "HUMAN", metaMessageId: providerId });
 });
 // POST /api/messages/broadcast
 exports.broadcastMessage = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
@@ -159,6 +181,23 @@ exports.getThread = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         .map((m) => `${m.direction === 'INBOUND' ? 'Patient' : 'Clinic'}: ${m.body}`)
         .join('\n');
     const aiSuggestion = await (0, ai_service_1.generateReplySuggestion)(patient.fullName, lastMessages, '').catch(() => '');
-    res.json({ patient, messages, aiSuggestion });
+    let extra = {};
+    try {
+        const rows = await prisma_1.prisma.$queryRawUnsafe(
+            "SELECT `id`, `deliveryStatus`, `senderType`, `metaMessageId` FROM `Message` WHERE `clinicId` = ? AND `patientId` = ?",
+            clinicId,
+            req.params.patientId
+        );
+        if (Array.isArray(rows)) {
+            rows.forEach((r) => { extra[r.id] = r; });
+        }
+    } catch (_) { /* columns optional */ }
+    const enriched = messages.map((m) => ({
+        ...m,
+        deliveryStatus: extra[m.id]?.deliveryStatus || (m.direction === "OUTBOUND" ? "sent" : "delivered"),
+        senderType: extra[m.id]?.senderType || (m.isHandledByAI ? "AI" : "HUMAN"),
+        metaMessageId: extra[m.id]?.metaMessageId || m.metaMessageId || null,
+    }));
+    res.json({ patient, messages: enriched, aiSuggestion });
 });
 //# sourceMappingURL=messages.controller.js.map

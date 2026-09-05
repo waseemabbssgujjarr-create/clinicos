@@ -1,56 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="sa-static">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>User Management — Doctors My Agency</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Users — Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/superadmin-theme.css?v=4" />
-  <link rel="stylesheet" href="/dma-dashboard.css?v=4" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=8" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=10" />
 </head>
 <body class="superadmin-app">
   <div class="sa-layout">
     <aside class="sa-sidebar" id="sa-sidebar"></aside>
     <main class="sa-main">
       <div class="sa-content-card">
-        <h1>User Management</h1>
-        <p class="sa-subtitle">Clinic owners registered on the platform.</p>
-        <p class="sa-status" id="status">Loading users…</p>
-        <div class="sa-table-wrap">
-          <table class="sa-data-table" id="table" style="display:none;border:none;box-shadow:none">
-            <thead><tr><th>Owner</th><th>Email</th><th>Clinic</th><th>Status</th><th>Joined</th></tr></thead>
+        <div class="ds-page-header">
+          <div>
+            <h1>Users</h1>
+            <p>Clinic owners and staff. Open a profile without leaving this page.</p>
+          </div>
+          <p class="sa-status" id="status">Loading users…</p>
+        </div>
+        <form class="ds-toolbar" id="filters">
+          <input class="ds-input ds-search" id="q" type="search" placeholder="Search name or email" />
+          <button type="submit" class="ds-btn ds-btn-primary">Search</button>
+        </form>
+        <div class="ds-tabs" id="tabs">
+          <button type="button" class="active" data-k="owners">Owners</button>
+          <button type="button" data-k="staff">Staff</button>
+        </div>
+        <div id="state" class="ds-loading">Loading…</div>
+        <div class="ds-table-wrap ds-desktop-table">
+          <table class="ds-table" id="table">
+            <thead><tr id="thead"></tr></thead>
             <tbody id="tbody"></tbody>
           </table>
         </div>
+        <div class="ds-clinic-cards" id="cards"></div>
       </div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=4"></script>
+  <script src="/superadmin-admin-shell.js?v=8"></script>
+  <script src="/dma-ui.js?v=1"></script>
   <script>
-    function fmtDate(iso) {
-      if (!iso) return '—';
-      try { return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); } catch (_) { return iso; }
-    }
-    if (DmaAdminShell.initStaticPage('/superadmin/users/')) {
-      DmaAdminShell.api('/api/superadmin/clinics?limit=100')
-        .then(function (data) {
-          var clinics = data.data || data.clinics || data || [];
-          if (!Array.isArray(clinics)) clinics = [];
-          document.getElementById('status').textContent = clinics.length + ' clinic owner' + (clinics.length === 1 ? '' : 's');
-          document.getElementById('tbody').innerHTML = clinics.map(function (c) {
-            var badge = c.isActive
-              ? '<span class="sa-badge-ok">Active</span>'
-              : '<span class="sa-badge-warn">Suspended</span>';
-            return '<tr><td><strong>' + (c.ownerName || '—') + '</strong></td><td>' + (c.email || '—') + '</td><td>' + (c.name || '—') + '</td><td>' + badge + '</td><td>' + fmtDate(c.createdAt) + '</td></tr>';
-          }).join('');
-          document.getElementById('table').style.display = '';
-        })
-        .catch(function (e) {
-          document.getElementById('status').textContent = e.message || 'Could not load users.';
+    (function () {
+      if (!DmaAdminShell.initStaticPage('/superadmin/users/')) return;
+      var esc = DmaUI.esc;
+      var kind = 'owners';
+      var owners = [];
+      var staff = [];
+
+      function fmtDate(iso) {
+        if (!iso) return '—';
+        try { return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); }
+        catch (_) { return iso; }
+      }
+
+      function openUser(u) {
+        var html =
+          '<dl class="sa-info-list">' +
+          '<div><dt>Name</dt><dd>' + esc(u.name || u.ownerName) + '</dd></div>' +
+          '<div><dt>Email</dt><dd>' + esc(u.email) + '</dd></div>' +
+          '<div><dt>Phone</dt><dd>' + esc(u.phone || '—') + '</dd></div>' +
+          '<div><dt>Role</dt><dd>' + esc(u.kind === 'staff' ? (u.role || 'STAFF') : 'OWNER') + '</dd></div>' +
+          '<div><dt>Clinic</dt><dd>' + esc(u.clinicName || '—') + '</dd></div>' +
+          '<div><dt>Status</dt><dd>' + (u.isActive ? 'Active' : 'Suspended') + '</dd></div>' +
+          '<div><dt>Joined</dt><dd>' + esc(fmtDate(u.createdAt)) + '</dd></div>' +
+          (u.patientCount != null ? '<div><dt>Patients</dt><dd>' + esc(u.patientCount) + '</dd></div>' : '') +
+          (u.staffCount != null ? '<div><dt>Staff</dt><dd>' + esc(u.staffCount) + '</dd></div>' : '') +
+          '</dl>' +
+          (u.clinicId ? '<p style="margin-top:16px"><a class="ds-btn ds-btn-primary" href="/superadmin/clinics/' + encodeURIComponent(u.clinicId) + '/">Open clinic workspace</a></p>' : '');
+        DmaUI.drawer({ title: u.name || u.email || 'User', html: html });
+      }
+
+      function render() {
+        var list = kind === 'staff' ? staff : owners;
+        document.getElementById('status').textContent = owners.length + ' owners · ' + staff.length + ' staff';
+        document.getElementById('thead').innerHTML = kind === 'staff'
+          ? '<th>Name</th><th>Email</th><th>Clinic</th><th>Role</th><th>Status</th>'
+          : '<th>Owner</th><th>Email</th><th>Clinic</th><th>Status</th><th>Joined</th>';
+        if (!list.length) {
+          document.getElementById('tbody').innerHTML = '';
+          document.getElementById('cards').innerHTML = '';
+          document.getElementById('state').style.display = 'block';
+          document.getElementById('state').className = 'ds-empty';
+          document.getElementById('state').textContent = 'No users found.';
+          return;
+        }
+        document.getElementById('state').style.display = 'none';
+        document.getElementById('tbody').innerHTML = list.map(function (u, i) {
+          var badge = u.isActive ? '<span class="sa-badge-ok">Active</span>' : '<span class="sa-badge-warn">Suspended</span>';
+          if (kind === 'staff') {
+            return '<tr data-i="' + i + '"><td><strong>' + esc(u.name) + '</strong></td><td>' + esc(u.email) + '</td><td>' + esc(u.clinicName || '—') + '</td><td>' + esc(u.role || 'STAFF') + '</td><td>' + badge + '</td></tr>';
+          }
+          return '<tr data-i="' + i + '"><td><strong>' + esc(u.name || u.ownerName) + '</strong></td><td>' + esc(u.email) + '</td><td>' + esc(u.clinicName || '—') + '</td><td>' + badge + '</td><td>' + fmtDate(u.createdAt) + '</td></tr>';
+        }).join('');
+        document.getElementById('cards').innerHTML = list.map(function (u, i) {
+          return '<article class="ds-clinic-card" data-i="' + i + '"><h3>' + esc(u.name || u.ownerName) + '</h3>' +
+            '<div class="ds-clinic-meta">' + esc(u.email) + ' · ' + esc(u.clinicName || '') + '</div></article>';
+        }).join('');
+      }
+
+      function load() {
+        var q = (document.getElementById('q').value || '').trim();
+        document.getElementById('state').style.display = 'block';
+        document.getElementById('state').className = 'ds-loading';
+        document.getElementById('state').textContent = 'Loading users…';
+        DmaAdminShell.api('/api/superadmin/users?limit=100' + (q ? '&search=' + encodeURIComponent(q) : ''))
+          .then(function (data) {
+            owners = data.owners || [];
+            staff = data.staff || [];
+            render();
+          })
+          .catch(function (e) {
+            document.getElementById('state').className = 'ds-error';
+            document.getElementById('state').textContent = e.message || 'Could not load users.';
+          });
+      }
+
+      document.getElementById('tabs').onclick = function (e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+        kind = b.getAttribute('data-k');
+        [].forEach.call(document.getElementById('tabs').querySelectorAll('button'), function (x) {
+          x.classList.toggle('active', x === b);
         });
-    }
+        render();
+      };
+      document.getElementById('filters').onsubmit = function (e) { e.preventDefault(); load(); };
+      function pick(e) {
+        var row = e.target.closest('[data-i]');
+        if (!row) return;
+        var list = kind === 'staff' ? staff : owners;
+        openUser(list[Number(row.getAttribute('data-i'))]);
+      }
+      document.getElementById('tbody').onclick = pick;
+      document.getElementById('cards').onclick = pick;
+      load();
+    })();
   </script>
 </body>
 </html>

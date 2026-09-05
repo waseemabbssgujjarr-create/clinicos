@@ -1,4 +1,10 @@
 (function (global) {
+  if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
+    var ds = document.createElement('link');
+    ds.rel = 'stylesheet';
+    ds.href = '/dma-design-system.css?v=8';
+    document.head.appendChild(ds);
+  }
   var ICONS = {
     overview: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>',
     clinics: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/></svg>',
@@ -21,6 +27,8 @@
     { href: '/superadmin/users/', label: 'Users', icon: 'users' },
     { href: '/superadmin/whatsapp/', label: 'WhatsApp', icon: 'whatsapp' },
     { href: '/superadmin/integrations/', label: 'Integrations', icon: 'plug' },
+    { href: '/superadmin/health/', label: 'Health', icon: 'overview' },
+    { href: '/superadmin/audit/', label: 'Audit', icon: 'settings' },
     { href: '/superadmin/settings/', label: 'Settings', icon: 'settings' },
     { href: '/superadmin/stripe/', label: 'Connect Stripe', icon: 'stripe' },
   ];

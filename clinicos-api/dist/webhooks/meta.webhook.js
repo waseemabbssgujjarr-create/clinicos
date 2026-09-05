@@ -239,7 +239,25 @@ router.post("/", async (req, res) => {
                     phoneNumberId,
                     wabaId: entry.id || "(unknown)",
                     messageCount: (value.messages || []).length,
+                    statusCount: (value.statuses || []).length,
                 });
+
+                // Delivery / read / failed receipts — no clinic token needed for DB update
+                for (const st of value.statuses || []) {
+                    try {
+                        await whatsapp_provider_1.applyStatusUpdate(
+                            st.id,
+                            st.status,
+                            (st.errors && st.errors[0]) || null
+                        );
+                    } catch (stErr) {
+                        logger_1.logger.debug("META_WEBHOOK_STATUS_UPDATE_FAILED", {
+                            err: stErr instanceof Error ? stErr.message : String(stErr),
+                        });
+                    }
+                }
+
+                if (!(value.messages || []).length) continue;
 
                 let conn;
                 try {
@@ -302,7 +320,7 @@ router.post("/", async (req, res) => {
                             toPrefix: to ? String(to).slice(0, 6) + "…" : "(none)",
                             bodyLength: text ? text.length : 0,
                         });
-                        await whatsapp_provider_1.sendText(clinic.id, to, text);
+                        return whatsapp_provider_1.sendText(clinic.id, to, text);
                     };
 
                     await inbound_message_service_1.processInboundPatientMessage({
