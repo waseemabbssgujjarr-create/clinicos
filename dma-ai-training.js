@@ -63,12 +63,12 @@
 
     root.innerHTML =
       '<div class="dma-head dma-head-page"><div><h1>Train AI receptionist</h1>' +
-      '<p>Structured training the conversation engine actually uses — draft, test, then publish to WhatsApp.</p></div>' +
+      '<p class="dma-prose">Structured training the conversation engine actually uses — draft, test, then publish to WhatsApp.</p></div>' +
       '<div class="dma-head-actions">' +
         '<a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">WhatsApp</a>' +
         '<button type="button" class="dma-btn dma-btn-primary" id="ai-save-top">Save draft</button>' +
       "</div></div>" +
-      '<p class="cos-hint" id="ai-meta">Loading training…</p>' +
+      '<div class="dma-status-bar" id="ai-meta">Loading training…</div>' +
       '<div class="dma-tabs" id="ai-tabs"></div>' +
       '<div id="ai-body">' + (A() ? A().spinner() : "Loading…") + "</div>";
 
@@ -81,9 +81,14 @@
     function setMeta() {
       var d = meta.draftUpdatedAt ? new Date(meta.draftUpdatedAt).toLocaleString() : "—";
       var p = meta.publishedAt ? new Date(meta.publishedAt).toLocaleString() : "Never";
-      el("ai-meta").textContent = (dirty ? "Unsaved changes · " : "") +
-        "Draft updated " + d + " · Live published " + p +
-        (meta.isPublished ? "" : " · WhatsApp is using the latest draft until you publish");
+      var bar = el("ai-meta");
+      if (!bar) return;
+      bar.innerHTML =
+        '<span class="dma-chip ' + (dirty ? 'dma-chip-amber' : 'dma-chip-slate') + '">' + (dirty ? 'Unsaved changes' : 'Draft') + '</span>' +
+        '<span class="dma-chip ' + (meta.isPublished ? 'dma-chip-green' : 'dma-chip-amber') + '">' + (meta.isPublished ? 'Published' : 'Not published') + '</span>' +
+        '<span>Draft updated ' + esc(d) + '</span>' +
+        '<span>Last published ' + esc(p) + '</span>' +
+        (meta.isPublished ? '' : '<span>WhatsApp uses the latest draft until you publish</span>');
     }
 
     function saveDraft(showToast) {
@@ -160,24 +165,25 @@
       var body = el("ai-body");
 
       if (tab === "personality") {
-        body.innerHTML = '<section class="dma-panel"><div class="dma-panel-h"><h2>Receptionist personality</h2>' +
-          toggle("ai-on", p.enabled !== false) + '</div><div class="dma-panel-b">' +
-          '<p class="cos-hint">Controls tone, language, and whether the live WhatsApp receptionist is on. Saved into the clinic record and the training profile.</p>' +
+        body.innerHTML =
+          '<section class="dma-section dma-section-muted"><header class="dma-section-h"><h2>Receptionist identity</h2></header><div class="dma-section-b">' +
+          '<div class="dma-row"><label class="dma-switch">Enabled ' + toggle("ai-on", p.enabled !== false) + '</label></div>' +
           '<div class="dma-row">' +
             field("ai-name", "Receptionist name", "Optional. Used if a patient asks who they are speaking with.", input("ai-name", p.receptionistName, "e.g. Sara")) +
             field("ai-lang", "Language", "", select("ai-lang", [["english","English"],["urdu","Urdu"],["arabic","Arabic"],["hindi","Hindi"]], p.language)) +
           '</div><div class="dma-row">' +
             field("ai-tone", "Tone", "", select("ai-tone", [["professional","Professional"],["friendly","Friendly"],["formal","Formal"],["warm","Warm"]], p.tone)) +
             field("ai-emoji", "Emoji", "", select("ai-emoji", [["none","None"],["minimal","Minimal"],["natural","Natural"]], p.emojiPolicy || "minimal")) +
-          "</div>" +
+          "</div></div></section>" +
+          '<section class="dma-section"><header class="dma-section-h"><h2>First-contact behavior</h2></header><div class="dma-section-b">' +
           field("ai-intro", "First-contact intro", "Used only on a true first turn — not repeated every message.", area("ai-intro", p.introMessage, "Hello, thanks for contacting our clinic…")) +
           '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save section</button></div>' +
           "</div></section>";
       } else if (tab === "knowledge") {
         var txs = [];
         try { txs = A().parseJson(clinic.treatments, []) || []; } catch (_) {}
-        body.innerHTML = '<p class="cos-hint">Facts the engine injects on every turn. Treatments and hours still live in Settings so booking slots stay accurate.</p>' +
-          '<section class="dma-panel"><div class="dma-panel-h"><h2>Clinic facts</h2></div><div class="dma-panel-b">' +
+        body.innerHTML = '<p class="dma-prose">Facts the engine injects on every turn. Treatments and hours still live in Settings so booking slots stay accurate.</p>' +
+          '<section class="dma-section dma-section-muted"><header class="dma-section-h"><h2>Clinic facts</h2></header><div class="dma-section-b">' +
           field("kn-about", "About the clinic", "Identity, doctors, neighbourhood — anything patients ask that is not a treatment name.", area("kn-about", k.about)) +
           field("kn-park", "Parking / arrival", "", area("kn-park", k.parking, "", 3)) +
           field("kn-ins", "Insurance / payment notes", "", area("kn-ins", k.insurance, "", 3)) +
@@ -187,19 +193,19 @@
         try { list = A().parseJson(clinic.treatments, []) || []; } catch (_) {}
         if (!Array.isArray(list)) list = [];
         body.innerHTML = '<p class="cos-hint">Bookable treatments come from Settings. Extra notes here are sent to the conversation engine.</p>' +
-          '<section class="dma-panel"><div class="dma-panel-h"><h2>Treatments in Settings</h2><a href="/dashboard/settings/?tab=treatments">Edit treatments</a></div><div class="dma-panel-b">' +
+          '<section class="dma-section"><div class="dma-section-h"><h2>Treatments in Settings</h2><a href="/dashboard/settings/?tab=treatments">Edit treatments</a></div><div class="dma-section-b">' +
           (list.map(function (t) {
             var name = typeof t === "string" ? t : (t.name || "");
             var fee = typeof t === "object" ? (t.fee || t.price) : "";
             return '<div class="dma-row-item"><div class="name">' + esc(name) + '</div><div class="meta">' + (fee ? A().money(fee) : "") + "</div></div>";
           }).join("") || A().empty("No treatments", "Add them so WhatsApp booking knows what you offer.", "/dashboard/settings/?tab=treatments", "Add treatments")) +
           "</div></section>" +
-          '<section class="dma-panel" style="margin-top:16px"><div class="dma-panel-h"><h2>Service notes for the receptionist</h2></div><div class="dma-panel-b">' +
+          '<section class="dma-section" style="margin-top:16px"><div class="dma-section-h"><h2>Service notes for the receptionist</h2></div><div class="dma-section-b">' +
           field("sv-hi", "Highlight", "One thing the receptionist should mention when asked “what do you offer?”", input("sv-hi", s.highlight, "e.g. Same-day cleaning when slots allow")) +
           field("sv-notes", "Additional service notes", "", area("sv-notes", s.notes)) +
           '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save section</button></div></div></section>';
       } else if (tab === "rules") {
-        body.innerHTML = '<section class="dma-panel"><div class="dma-panel-h"><h2>Business rules</h2></div><div class="dma-panel-b">' +
+        body.innerHTML = '<section class="dma-section"><div class="dma-section-h"><h2>Business rules</h2></div><div class="dma-section-b">' +
           '<p class="cos-hint">Policies the engine must not invent around. Empty fields are omitted from the prompt.</p>' +
           field("br-pol", "Clinic policies", "", area("br-pol", b.policies)) +
           field("br-can", "Cancellation / no-show", "", area("br-can", b.cancellation, "", 3)) +
@@ -208,7 +214,7 @@
           field("br-no", "What not to say", "Never diagnose, never invent prices, never mention other clinics.", area("br-no", b.whatNotToSay, "", 3)) +
           '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save section</button></div></div></section>';
       } else if (tab === "booking") {
-        body.innerHTML = '<section class="dma-panel"><div class="dma-panel-h"><h2>Appointment & booking rules</h2></div><div class="dma-panel-b">' +
+        body.innerHTML = '<section class="dma-section"><div class="dma-section-h"><h2>Appointment & booking rules</h2></div><div class="dma-section-b">' +
           field("bk-auto", "Auto-confirm", "Yes writes CONFIRMED appointments. No leaves them PENDING for the doctor.", select("bk-auto", [["true","Yes — AI confirms"],["false","No — doctor confirms"]], a.autoConfirm !== false)) +
           field("bk-style", "Confirmation style", "", select("bk-style", [["confirm_then_book","Confirm details, then book"],["book_when_clear","Book as soon as slot is clear"]], a.confirmationStyle || "confirm_then_book")) +
           '<div class="dma-row">' +
@@ -219,7 +225,7 @@
           '<label class="dma-switch">Ask for name if unknown ' + toggle("bk-name", a.collectName !== false) + "</label></div>" +
           '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save section</button></div></div></section>';
       } else if (tab === "handling") {
-        body.innerHTML = '<section class="dma-panel"><div class="dma-panel-h"><h2>Customer handling</h2></div><div class="dma-panel-b">' +
+        body.innerHTML = '<section class="dma-section"><div class="dma-section-h"><h2>Customer handling</h2></div><div class="dma-section-b">' +
           '<p class="cos-hint">Follow-ups like “yes”, “tomorrow”, or “good” are interpreted against the previous question when this is on.</p>' +
           '<div class="dma-row"><label>Skip repeat greetings ' + toggle("ch-skip", h.skipRepeatGreeting !== false) + "</label>" +
           "<label>Ask one question at a time " + toggle("ch-one", h.askOneQuestion !== false) + "</label>" +
@@ -229,7 +235,7 @@
           field("ch-mem", "Memory notes for this clinic", "Standing reminders the receptionist should keep in mind.", area("ch-mem", h.memoryNotes, "", 3)) +
           '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save section</button></div></div></section>';
       } else if (tab === "human") {
-        body.innerHTML = '<section class="dma-panel"><div class="dma-panel-h"><h2>Human-like behaviour</h2></div><div class="dma-panel-b">' +
+        body.innerHTML = '<section class="dma-section"><div class="dma-section-h"><h2>Human-like behaviour</h2></div><div class="dma-section-b">' +
           '<p class="cos-hint">Typing uses Meta’s official typing indicator on the inbound message — not a fake “…” text. Delay scales with reply length.</p>' +
           "<label>Typing indicator " + toggle("hl-type", u.typingIndicator !== false) + "</label>" +
           "<label>Natural delay " + toggle("hl-delay", u.naturalDelay !== false) + "</label>" +
@@ -241,7 +247,7 @@
         renderTest(body);
         return;
       } else if (tab === "publish") {
-        body.innerHTML = '<section class="dma-panel"><div class="dma-panel-h"><h2>Publish to WhatsApp</h2></div><div class="dma-panel-b">' +
+        body.innerHTML = '<section class="dma-section"><div class="dma-section-h"><h2>Publish to WhatsApp</h2></div><div class="dma-section-b">' +
           '<p class="cos-hint">Draft is what you edit and test. Publish copies the draft to the live engine used by inbound WhatsApp. Until the first publish, live traffic uses the latest draft so existing clinics keep working.</p>' +
           "<p>Last published: <strong>" + esc(meta.publishedAt ? new Date(meta.publishedAt).toLocaleString() : "Never") + "</strong></p>" +
           '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-ghost" id="pub-save">Save draft first</button>' +
@@ -265,7 +271,7 @@
         body.innerHTML = A().spinner();
         A().get("/api/ai/logs?limit=40").then(function (logs) {
           var rows = Array.isArray(logs) ? logs : (logs.data || []);
-          body.innerHTML = '<section class="dma-panel"><div class="dma-table-wrap"><table class="dma-table"><thead><tr><th>When</th><th>Action</th><th>Detail</th></tr></thead><tbody>' +
+          body.innerHTML = '<section class="dma-section"><div class="dma-table-wrap"><table class="dma-table"><thead><tr><th>When</th><th>Action</th><th>Detail</th></tr></thead><tbody>' +
             (rows.map(function (l) {
               return "<tr><td>" + A().ago(l.createdAt) + "</td><td>" + A().chip(l.action || "event") + "</td><td>" + esc((l.details || l.summary || "").toString().slice(0, 180)) + "</td></tr>";
             }).join("") || '<tr><td colspan="3">' + A().empty("No AI activity yet", "Connect WhatsApp and send a test message.") + "</td></tr>") +
@@ -286,10 +292,9 @@
     }
 
     function renderTest(body) {
-      body.innerHTML = '<section class="dma-panel"><div class="dma-panel-h"><h2>Test chat</h2></div><div class="dma-panel-b">' +
-        '<p class="cos-hint">Uses the unsaved-or-saved draft, not WhatsApp. History is kept for this tab so follow-ups like “yes” work.</p>' +
-        '<div id="ai-chat" class="dma-thread-m" style="min-height:280px;border:1px solid var(--cos-border);border-radius:10px;margin-bottom:10px;padding:12px;overflow:auto"></div>' +
-        '<form id="ai-form" style="display:flex;gap:8px"><input id="ai-q" class="cos-input" placeholder="e.g. Do you do teeth whitening tomorrow?" style="flex:1">' +
+      body.innerHTML = '<section class="dma-section"><header class="dma-section-h"><h2>Test chat</h2><p>Uses the draft, not live WhatsApp. History stays on this tab so follow-ups like “yes” work.</p></header><div class="dma-section-b">' +
+        '<div id="ai-chat" class="dma-ai-chat dma-thread-m"></div>' +
+        '<form id="ai-form" class="dma-thread-c" style="margin-top:10px"><input id="ai-q" class="cos-input" placeholder="e.g. Do you do teeth whitening tomorrow?" style="flex:1">' +
         '<button class="dma-btn dma-btn-primary" type="submit">Send</button></form></div></section>';
       var log = el("ai-chat");
       function add(who, text, extra) {
@@ -325,8 +330,8 @@
       A().get("/api/ai/training-rules").then(function (d) {
         var rules = d.rules || [];
         body.innerHTML = '<p class="cos-hint">Matched in code before the LLM. Short follow-ups like “yes” skip these so conversation state still works.</p>' +
-          '<section class="dma-panel"><div class="dma-panel-h"><h2>Custom replies <span class="dma-chip">' + rules.length + "</span></h2>" +
-          '<button type="button" class="dma-btn dma-btn-primary dma-btn-sm" id="rl-new">Add reply</button></div><div class="dma-panel-b" id="rl-list">' +
+          '<section class="dma-section"><div class="dma-section-h"><h2>Custom replies <span class="dma-chip">' + rules.length + "</span></h2>" +
+          '<button type="button" class="dma-btn dma-btn-primary dma-btn-sm" id="rl-new">Add reply</button></div><div class="dma-section-b" id="rl-list">' +
           (rules.map(function (r) {
             return '<div class="dma-row-item" style="flex-direction:column;align-items:flex-start;gap:6px">' +
               "<div><strong>" + esc(r.question) + "</strong> · " + esc(CAT_LABELS[r.category] || r.category) +

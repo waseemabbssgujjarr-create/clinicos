@@ -5,7 +5,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=9';
+    ds.href = '/dma-design-system.css?v=10';
     document.head.appendChild(ds);
   }
   var GROUPS = [
@@ -128,7 +128,7 @@
         var cls = on ? 'active' : '';
         if (item.id === 'whatsapp') cls += (cls ? ' ' : '') + 'doc-nav-wa';
         html += '<a href="' + item.href + '" class="' + cls + '" data-nav="' + item.id + '" style="--nav-c:' + item.color + '">' +
-          '<span class="doc-nav-icon" style="color:' + (on ? '#fff' : item.color) + '">' + (ICONS[item.icon] || '') + '</span>' +
+          '<span class="doc-nav-icon" style="color:' + item.color + '">' + (ICONS[item.icon] || '') + '</span>' +
           '<span>' + item.label + '</span>' +
           (item.id === 'whatsapp' ? '<span class="doc-wa-status" id="doc-wa-dot"></span>' : '') +
           (item.id === 'updates' ? '<span class="doc-nav-badge" id="doc-upd-badge" hidden></span>' : '') +
@@ -152,35 +152,47 @@
     if (!actions) return;
     var u = getUser();
     var owner = u.ownerName || u.name || 'Doctor';
-    var links = [];
-    actions.querySelectorAll('a').forEach(function (a) {
-      links.push(a.outerHTML);
-    });
-    actions.innerHTML = links.join('') +
+    actions.innerHTML =
+      '<a class="doc-chip-wa" id="doc-wa-chip" href="/dashboard/whatsapp/" title="WhatsApp status">' +
+        '<span class="doc-wa-status" id="doc-wa-chip-dot"></span><span class="label">WhatsApp</span></a>' +
+      '<a class="doc-chip-note" href="/dashboard/notifications/" title="Updates">' +
+        'Updates<span class="doc-nav-badge" id="doc-upd-badge-top" hidden></span></a>' +
+      '<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/appointments/?action=book">Book</a>' +
       '<div class="doc-user-chip">' +
         '<div class="doc-user-avatar" aria-hidden="true">' + initialsOf(owner) + '</div>' +
         '<span class="doc-user-name" id="doc-user-label">' + owner + '</span>' +
         '<button type="button" class="doc-logout" id="doc-logout">Logout</button>' +
       '</div>';
     bindLogout(document.getElementById('doc-logout'));
+    refreshBadges();
   }
 
   function refreshBadges() {
     var App = global.DmaApp;
     if (!App) return;
     App.waStatus().then(function (s) {
-      var el = document.getElementById('doc-wa-dot');
-      if (!el) return;
       var on = !!(s.connected || s.status === 'connected' || s.status === 'CONNECTED');
-      el.className = 'doc-wa-status' + (on ? ' is-on' : '');
-      el.title = on ? 'WhatsApp connected' : 'WhatsApp not connected';
+      ['doc-wa-dot', 'doc-wa-chip-dot'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.className = 'doc-wa-status' + (on ? ' is-on' : '');
+        el.title = on ? 'WhatsApp connected' : 'WhatsApp not connected';
+      });
+      var chip = document.getElementById('doc-wa-chip');
+      if (chip) {
+        chip.classList.toggle('is-on', on);
+        var lab = chip.querySelector('.label');
+        if (lab) lab.textContent = on ? 'Connected' : 'WhatsApp';
+      }
     }).catch(function () {});
     App.get('/api/notifications/unread-count').then(function (d) {
       var n = (d && (d.count || d.unread)) || 0;
-      var b = document.getElementById('doc-upd-badge');
-      if (!b) return;
-      if (n > 0) { b.hidden = false; b.textContent = n > 9 ? '9+' : String(n); }
-      else b.hidden = true;
+      ['doc-upd-badge', 'doc-upd-badge-top'].forEach(function (id) {
+        var b = document.getElementById(id);
+        if (!b) return;
+        if (n > 0) { b.hidden = false; b.textContent = n > 9 ? '9+' : String(n); }
+        else b.hidden = true;
+      });
     }).catch(function () {});
   }
 
@@ -217,6 +229,14 @@
     }
     if (menuBtn) menuBtn.onclick = open;
     if (backdrop) backdrop.onclick = close;
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') close();
+    });
+    if (sidebar) {
+      sidebar.addEventListener('click', function (e) {
+        if (e.target.closest('a')) close();
+      });
+    }
     renderBottomNav();
     paintHeader();
   }

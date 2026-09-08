@@ -7,41 +7,15 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=9" />
-  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=6" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=10" />
+  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=7" />
   <link rel="stylesheet" href="/dma-doctor-app.css?v=3" />
-  <link rel="stylesheet" href="/dma-doctor-pages.css?v=1" />
+  <link rel="stylesheet" href="/dma-doctor-pages.css?v=2" />
   <style>
-    .bc-grid { display: grid; grid-template-columns: 1fr 400px; gap: 1.5rem; align-items: start; }
-    @media (max-width: 960px) { .bc-grid { grid-template-columns: 1fr; } }
-    .bc-form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
-    .bc-form-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: .625rem; }
-    .bc-form-header h2 { font-size: var(--f-base); font-weight: 800; color: var(--text-1); margin: 0; }
-    .bc-form-body { padding: 1.25rem 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
-    .bc-field label { font-size: var(--f-xs); font-weight: 700; color: var(--text-2); letter-spacing: .02em; display: block; margin-bottom: 5px; }
-    .bc-field input, .bc-field select, .bc-field textarea { width: 100%; }
-    .bc-field textarea { min-height: 120px; resize: vertical; }
-    .bc-audience-chips { display: flex; flex-wrap: wrap; gap: .625rem; margin-top: .5rem; }
-    .bc-chip { height: 32px; padding: 0 12px; border-radius: var(--r-full); font-size: .72rem; font-weight: 700; border: 1.5px solid var(--border-2); background: var(--surface); color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; transition: background .13s, border-color .13s, color .13s; }
-    .bc-chip.selected { background: linear-gradient(135deg, var(--c-blue), var(--c-blue-h)); color: #fff; border-color: transparent; }
-    .bc-char-counter { font-size: .72rem; color: var(--faint); text-align: right; margin-top: 3px; }
-    .bc-preview { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-md); padding: 1rem; min-height: 80px; font-size: var(--f-sm); color: var(--text-2); white-space: pre-wrap; line-height: 1.6; }
-    .bc-send-btn { background: linear-gradient(135deg, #16A34A, #15803D); color: #fff; border: none; border-radius: var(--r-md); height: 44px; padding: 0 24px; font-size: var(--f-sm); font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; transition: opacity .15s; }
-    .bc-send-btn:hover { opacity: .92; }
-    .bc-send-btn:disabled { opacity: .5; cursor: not-allowed; }
-    .bc-history-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
-    .bc-history-item { padding: .875rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 1rem; }
-    .bc-history-item:last-child { border-bottom: none; }
-    .bc-history-icon { width: 36px; height: 36px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: .9rem; }
-    .bc-history-body { flex: 1; min-width: 0; }
-    .bc-history-msg { font-size: var(--f-sm); color: var(--text-2); margin: 0 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-    .bc-history-meta { font-size: .72rem; color: var(--faint); }
-    .bc-history-stat { flex-shrink: 0; text-align: right; }
-    .bc-history-stat strong { font-size: var(--f-sm); font-weight: 800; color: var(--text-1); display: block; }
-    .bc-history-stat span { font-size: .67rem; color: var(--muted); }
-    .empty-bc { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 1.5rem; text-align: center; }
-    .empty-bc svg { color: var(--faint); margin-bottom: .75rem; }
-    .empty-bc p { color: var(--muted); font-size: var(--f-sm); font-weight: 600; margin: 0; }
+    .bc-audience-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .bc-chip { height: 32px; padding: 0 12px; border-radius: 5px; font-size: .72rem; font-weight: 700; border: 1px solid var(--ds-border-2, #CBD5E1); background: #fff; color: #64748B; cursor: pointer; }
+    .bc-chip.selected { background: var(--ds-primary, #1D4ED8); color: #fff; border-color: transparent; }
+    .bc-preview { background: var(--ds-surface-section, #EEF2F7); border: 1px solid var(--ds-border, #E2E8F0); border-radius: 5px; padding: 12px; min-height: 72px; font-size: .8125rem; white-space: pre-wrap; max-width: 40rem; }
   </style>
 </head>
 <body>
@@ -59,153 +33,96 @@
           <span id="doc-user-label">Doctor</span>
         </div>
       </header>
-      <main class="doc-main">
-
-        <!-- Info banner -->
-        <div style="background:linear-gradient(90deg,rgba(37,99,235,.07) 0%,transparent 100%);border-left:4px solid var(--c-blue);border-radius:0 var(--r-md) var(--r-md) 0;padding:12px 16px;margin-bottom:1.25rem">
-          <p style="margin:0;font-size:var(--f-sm);color:var(--text-2)">
-            <strong>Send WhatsApp broadcasts</strong> to your patients — appointment reminders, promotions, health tips, or recalls.
-            Only sent to patients who have <strong>not opted out</strong>.
-          </p>
-        </div>
-
-        <div class="bc-grid">
-          <!-- Compose form -->
+      <main class="doc-main dma-clinic-canvas">
+        <div class="dma-head dma-head-page">
           <div>
-            <div class="bc-form-card">
-              <div class="bc-form-header">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--c-blue)"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.82 2 2 0 0 1 3.57 2.63H6.5a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.05 6.05l1.36-1.36a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                <h2>Compose Broadcast</h2>
-              </div>
-              <div class="bc-form-body">
-                <div class="bc-field">
-                  <label>Audience</label>
-                  <div class="bc-audience-chips">
-                    <button type="button" class="bc-chip selected" data-v="ALL_PATIENTS">All Patients</button>
-                    <button type="button" class="bc-chip" data-v="HOT_LEADS">Hot Leads</button>
-                    <button type="button" class="bc-chip" data-v="NO_SHOW">No-show Follow-up</button>
-                    <button type="button" class="bc-chip" data-v="INACTIVE">Inactive (90+ days)</button>
-                    <button type="button" class="bc-chip" data-v="CUSTOM">Custom segment</button>
-                  </div>
-                </div>
-
-                <div class="bc-field">
-                  <label>Message <span style="color:var(--c-red)">*</span></label>
-                  <textarea id="bc-message" placeholder="Hi {{name}}, we have a special offer for you at our clinic…" maxlength="4096" oninput="updatePreview()"></textarea>
-                  <p class="bc-char-counter"><span id="bc-char">0</span>/4096 characters</p>
-                </div>
-
-                <div class="bc-field">
-                  <label>Schedule (optional)</label>
-                  <input type="datetime-local" id="bc-schedule" />
-                  <p style="font-size:.72rem;color:var(--muted);margin:4px 0 0">Leave blank to send immediately</p>
-                </div>
-
-                <div class="bc-field">
-                  <label>Preview</label>
-                  <div class="bc-preview" id="bc-preview">Your message will appear here…</div>
-                </div>
-
-                <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:.875rem">
-                  <p style="font-size:.72rem;font-weight:700;color:var(--text-2);margin:0 0 6px">Audience estimate</p>
-                  <p style="font-size:1.25rem;font-weight:800;color:var(--text-1);margin:0;font-family:'Montserrat',sans-serif" id="bc-audience-count">—</p>
-                  <p style="font-size:.72rem;color:var(--muted);margin:2px 0 0">opted-in patients</p>
-                </div>
-
-                <button class="bc-send-btn" id="bc-send-btn" onclick="sendBroadcast()">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                  Send Broadcast
-                </button>
-              </div>
-            </div>
+            <h1>Broadcasts</h1>
+            <p class="dma-prose">Send WhatsApp messages to opted-in patients. Drafts and scheduling are not available yet — only send now.</p>
           </div>
-
-          <!-- Broadcast history -->
-          <div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem">
-              <p style="font-size:var(--f-base);font-weight:800;color:var(--text-1);margin:0;font-family:'Montserrat',sans-serif">Broadcast History</p>
-              <span style="font-size:var(--f-xs);color:var(--muted);font-weight:600" id="bc-hist-count">Loading…</span>
-            </div>
-            <div class="bc-history-card" id="bc-history">
-              <div class="empty-bc">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.82 2 2 0 0 1 3.57 2.63H6.5a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.05 6.05l1.36-1.36a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                <p>No broadcasts sent yet</p>
-                <p style="margin-top:4px;font-size:.72rem;color:var(--faint);font-weight:500">Your broadcast history will appear here</p>
-              </div>
-            </div>
+          <div class="dma-head-actions">
+            <button type="button" class="dma-btn dma-btn-primary" id="bc-new">New broadcast</button>
           </div>
         </div>
+        <div class="dma-tabs"><button type="button" class="active">Sent</button></div>
+        <p class="dma-hint" id="bc-hist-count">Loading…</p>
+        <section class="dma-section">
+          <div class="dma-section-b" id="bc-history">
+            <div class="ds-empty-panel"><strong>No broadcasts sent yet</strong>Your sent history will appear here.</div>
+          </div>
+        </section>
       </main>
     </div>
   </div>
   <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
-  <script src="/dashboard-doctor-shell.js?v=6"></script>
+  <script src="/dashboard-doctor-shell.js?v=7"></script>
+  <script src="/dma-ui.js?v=2"></script>
   <script src="/dma-doctor-app.js?v=1"></script>
-  <script src="/dashboard-bootstrap.js?v=2"></script>
+  <script src="/dashboard-bootstrap.js?v=3"></script>
   <script>
   (function () {
     if (!DmaDoctorShell.initStaticPage('/dashboard/broadcasts/', 'Broadcasts')) return;
-    try {
-      var u = JSON.parse(localStorage.getItem('clinicos-store') || '{}').state.user;
-      if (u && u.ownerName) document.getElementById('doc-user-label').textContent = u.ownerName;
-    } catch (_) {}
-
     var selectedAudience = 'ALL_PATIENTS';
-    document.querySelectorAll('.bc-chip').forEach(function (c) {
-      c.onclick = function () {
-        document.querySelectorAll('.bc-chip').forEach(function (x) { x.classList.remove('selected'); });
-        c.classList.add('selected');
-        selectedAudience = c.getAttribute('data-v');
-      };
-    });
-
-    window.updatePreview = function () {
-      var msg = document.getElementById('bc-message').value;
-      document.getElementById('bc-char').textContent = msg.length;
-      document.getElementById('bc-preview').textContent = msg || 'Your message will appear here…';
-    };
-
     var token = localStorage.getItem('token');
     function ah() { return { Authorization: 'Bearer ' + (token || ''), 'Content-Type': 'application/json' }; }
+    function toast(msg, kind) {
+      if (window.DmaApp && DmaApp.toast) DmaApp.toast(msg, kind);
+      else alert(msg);
+    }
 
-    // Load patient count
-    fetch('/api/patients?limit=1', { headers: ah(), credentials: 'include' })
-      .then(function (r) { return r.ok ? r.json() : {}; })
-      .then(function (d) {
-        var count = d.total || (d.patients && d.patients.length) || '—';
-        document.getElementById('bc-audience-count').textContent = count;
-      }).catch(function () {});
-
-    // Load broadcast history
-    fetch('/api/messages/broadcasts', { headers: ah(), credentials: 'include' })
-      .then(function (r) { return r.ok ? r.json() : []; })
-      .then(function (data) {
-        var list = data.broadcasts || data || [];
-        document.getElementById('bc-hist-count').textContent = list.length + ' sent';
-        if (!list.length) return;
-        var icons = { WHATSAPP: '💬', SMS: '📱', EMAIL: '✉️' };
-        document.getElementById('bc-history').innerHTML = list.slice(0, 20).map(function (b) {
-          var bg = b.channel === 'WHATSAPP' ? 'rgba(34,197,94,.1)' : 'rgba(37,99,235,.1)';
-          var icon = icons[b.channel] || '📢';
-          var date = b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '—';
-          return '<div class="bc-history-item">' +
-            '<div class="bc-history-icon" style="background:' + bg + '">' + icon + '</div>' +
-            '<div class="bc-history-body">' +
-              '<p class="bc-history-msg">' + (b.messageBody || '').slice(0, 80) + '…</p>' +
-              '<p class="bc-history-meta">' + date + ' · ' + (b.targetGroup || 'All patients') + '</p>' +
-            '</div>' +
-            '<div class="bc-history-stat"><strong>' + (b.sentCount || 0) + '</strong><span>sent</span></div>' +
-            '</div>';
-        }).join('');
-      }).catch(function () {
-        document.getElementById('bc-hist-count').textContent = '';
+    function bindChips() {
+      document.querySelectorAll('.bc-chip').forEach(function (c) {
+        c.onclick = function () {
+          document.querySelectorAll('.bc-chip').forEach(function (x) { x.classList.remove('selected'); });
+          c.classList.add('selected');
+          selectedAudience = c.getAttribute('data-v');
+        };
       });
+      var ta = document.getElementById('bc-message');
+      if (ta) ta.oninput = function () {
+        var n = document.getElementById('bc-char');
+        var p = document.getElementById('bc-preview');
+        if (n) n.textContent = ta.value.length;
+        if (p) p.textContent = ta.value || 'Your message will appear here…';
+      };
+    }
 
-    window.sendBroadcast = function () {
-      var msg = (document.getElementById('bc-message').value || '').trim();
-      if (!msg) { alert('Please enter a message.'); return; }
+    var composeModal = null;
+    function openCompose() {
+      var html =
+        '<div class="dma-field"><label>Audience</label>' +
+        '<div class="bc-audience-chips">' +
+          '<button type="button" class="bc-chip selected" data-v="ALL_PATIENTS">All patients</button>' +
+          '<button type="button" class="bc-chip" data-v="HOT_LEADS">Hot leads</button>' +
+          '<button type="button" class="bc-chip" data-v="NO_SHOW">No-show follow-up</button>' +
+          '<button type="button" class="bc-chip" data-v="INACTIVE">Inactive (90+ days)</button>' +
+        '</div></div>' +
+        '<div class="dma-field"><label>Message</label>' +
+        '<textarea id="bc-message" maxlength="4096" placeholder="Hi {{name}}, we have an update from the clinic…"></textarea>' +
+        '<p class="dma-hint"><span id="bc-char">0</span>/4096</p></div>' +
+        '<div class="dma-field"><label>Preview</label><div class="bc-preview" id="bc-preview">Your message will appear here…</div></div>';
+      if (window.DmaUI && DmaUI.modal) {
+        composeModal = DmaUI.modal({
+          title: 'New broadcast',
+          html: html,
+          footer: '<button type="button" class="dma-btn dma-btn-ghost" data-close="1">Cancel</button>' +
+            '<button type="button" class="dma-btn dma-btn-primary" id="bc-send-btn">Send now</button>'
+        });
+      } else if (window.DmaApp) {
+        DmaApp.modal('New broadcast', html,
+          '<button class="dma-btn dma-btn-ghost" data-close>Cancel</button><button class="dma-btn dma-btn-primary" id="bc-send-btn">Send now</button>');
+      }
+      selectedAudience = 'ALL_PATIENTS';
+      bindChips();
+      var send = document.getElementById('bc-send-btn');
+      if (send) send.onclick = sendBroadcast;
+    }
+
+    function sendBroadcast() {
+      var msgEl = document.getElementById('bc-message');
+      var msg = (msgEl && msgEl.value || '').trim();
+      if (!msg) { toast('Enter a message', 'err'); return; }
       var btn = document.getElementById('bc-send-btn');
-      btn.disabled = true; btn.textContent = 'Sending…';
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
       fetch('/api/messages/broadcasts', {
         method: 'POST',
         headers: ah(),
@@ -213,17 +130,38 @@
         body: JSON.stringify({ messageBody: msg, targetGroup: selectedAudience, channel: 'WHATSAPP' })
       }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
       .then(function (res) {
-        btn.disabled = false; btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Broadcast';
-        if (!res.ok) { alert(res.d.error || 'Send failed. Try again.'); return; }
-        alert('Broadcast sent to ' + (res.d.sentCount || '—') + ' patients!');
-        document.getElementById('bc-message').value = '';
-        window.updatePreview();
+        if (btn) { btn.disabled = false; btn.textContent = 'Send now'; }
+        if (!res.ok) { toast((res.d && res.d.error) || 'Send failed', 'err'); return; }
+        toast('Broadcast sent to ' + (res.d.sentCount || '—') + ' patients', 'ok');
+        if (composeModal && composeModal.close) composeModal.close();
+        else if (window.DmaApp) DmaApp.closeModal();
         location.reload();
       }).catch(function () {
-        btn.disabled = false; btn.textContent = 'Send Broadcast';
-        alert('Network error. Try again.');
+        if (btn) { btn.disabled = false; btn.textContent = 'Send now'; }
+        toast('Network error', 'err');
       });
-    };
+    }
+
+    document.getElementById('bc-new').onclick = openCompose;
+
+    fetch('/api/messages/broadcasts', { headers: ah(), credentials: 'include' })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (data) {
+        var list = data.broadcasts || data || [];
+        if (!Array.isArray(list)) list = [];
+        document.getElementById('bc-hist-count').textContent = list.length ? (list.length + ' sent') : 'No broadcasts yet';
+        if (!list.length) return;
+        document.getElementById('bc-history').innerHTML = list.slice(0, 40).map(function (b) {
+          var date = b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '—';
+          var body = (b.messageBody || '').slice(0, 120);
+          return '<div class="bc-history-item">' +
+            '<div class="bc-history-body"><p class="bc-history-msg">' + body + '</p>' +
+            '<p class="bc-history-meta">' + date + ' · ' + (b.targetGroup || 'All patients') + '</p></div>' +
+            '<div class="bc-history-stat"><strong>' + (b.sentCount || 0) + '</strong><span>sent</span></div></div>';
+        }).join('');
+      }).catch(function () {
+        document.getElementById('bc-hist-count').textContent = 'Could not load broadcasts';
+      });
   })();
   </script>
 </body>

@@ -69,7 +69,7 @@
   if (!document.querySelector('link[href*="dma-design-system.css"]')) {
     var dsLink = document.createElement('link');
     dsLink.rel = 'stylesheet';
-    dsLink.href = '/dma-design-system.css?v=9';
+    dsLink.href = '/dma-design-system.css?v=10';
     document.head.appendChild(dsLink);
   }
   if (!isDocStatic && !isSaStatic && !document.querySelector('link[href*="dma-doctor-app.css"]')) {
@@ -474,7 +474,7 @@
 
   // ── 2. Inject dark/light toggle button ──
   function injectThemeToggle() {
-    if (isSaStatic) return;
+    if (isSaStatic || isDocStatic) return;
     if (document.getElementById('dma-theme-toggle')) return;
     var btn = document.createElement('button');
     btn.id = 'dma-theme-toggle';

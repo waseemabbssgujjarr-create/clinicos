@@ -7,49 +7,10 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=9" />
-  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=6" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=10" />
+  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=7" />
   <link rel="stylesheet" href="/dma-doctor-app.css?v=3" />
-  <link rel="stylesheet" href="/dma-doctor-pages.css?v=1" />
-  <style>
-    .leads-pipeline { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-    @media (max-width: 900px) { .leads-pipeline { grid-template-columns: repeat(2,1fr); } }
-    @media (max-width: 480px) { .leads-pipeline { grid-template-columns: 1fr 1fr; gap: .625rem; } }
-
-    .pipeline-col { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; min-height: 140px; display: flex; flex-direction: column; }
-    .pipeline-col-header { padding: .875rem 1rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .pipeline-col-title { font-size: var(--f-sm); font-weight: 800; letter-spacing: .02em; }
-    .pipeline-badge { font-size: .67rem; font-weight: 800; padding: 2px 8px; border-radius: var(--r-full); }
-    .col-new    .pipeline-col-title { color: #2563EB; } .col-new    .pipeline-badge { background: rgba(37,99,235,.1); color: #2563EB; }
-    .col-warm   .pipeline-col-title { color: #D97706; } .col-warm   .pipeline-badge { background: rgba(217,119,6,.1); color: #D97706; }
-    .col-hot    .pipeline-col-title { color: #DC2626; } .col-hot    .pipeline-badge { background: rgba(220,38,38,.1); color: #DC2626; }
-    .col-booked .pipeline-col-title { color: #16A34A; } .col-booked .pipeline-badge { background: rgba(22,163,74,.1); color: #16A34A; }
-    .pipeline-col-body { padding: .75rem; display: flex; flex-direction: column; gap: .625rem; flex: 1; overflow-y: auto; }
-
-    .lead-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-md); padding: .875rem; cursor: pointer; transition: box-shadow .14s, border-color .14s; }
-    .lead-card:hover { box-shadow: var(--shadow-sm); border-color: rgba(37,99,235,.3); }
-    .lead-card-name { font-size: var(--f-sm); font-weight: 700; color: var(--text-1); margin-bottom: 3px; }
-    .lead-card-phone { font-size: var(--f-xs); color: var(--muted); margin-bottom: 6px; }
-    .lead-card-footer { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
-    .lead-card-treatment { font-size: .67rem; font-weight: 700; padding: 2px 7px; border-radius: var(--r-full); background: var(--c-blue-soft); color: var(--c-blue); }
-    .lead-card-time { font-size: .67rem; color: var(--faint); }
-
-    .leads-table-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
-    .leads-table-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-
-    .score-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
-    .score-hot  { background: #DC2626; }
-    .score-warm { background: #D97706; }
-    .score-cold { background: #94A3B8; }
-
-    .view-toggle { display: flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-md); padding: 3px; gap: 2px; }
-    .view-toggle button { padding: 6px 12px; border-radius: 8px; border: none; background: none; cursor: pointer; font-size: var(--f-xs); font-weight: 700; color: var(--muted); transition: background .13s, color .13s; }
-    .view-toggle button.active { background: var(--c-blue); color: #fff; }
-
-    .search-bar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; padding: .875rem 1.25rem; border-bottom: 1px solid var(--border); background: var(--surface-2); }
-    .search-bar input { flex: 1 1 200px; min-width: 0; height: 38px; }
-    .filter-sel { height: 38px; padding: 0 12px; border: 1.5px solid var(--border-2); border-radius: var(--r-md); background: var(--surface); color: var(--text-2); font-size: var(--f-sm); font-weight: 600; cursor: pointer; }
-  </style>
+  <link rel="stylesheet" href="/dma-doctor-pages.css?v=2" />
 </head>
 <body>
   <div class="doc-layout">
@@ -66,46 +27,31 @@
           <span id="doc-user-label">Doctor</span>
         </div>
       </header>
-      <main class="doc-main">
+      <main class="doc-main dma-clinic-canvas">
 
-        <!-- Stats row -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem" id="leads-stats">
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.125rem 1.25rem;border-top:3px solid var(--c-blue)">
-            <p style="font-size:.67rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 6px">Total Leads</p>
-            <p style="font-family:'Montserrat',sans-serif;font-size:1.75rem;font-weight:800;color:var(--text-1);margin:0;line-height:1" id="stat-total">—</p>
-            <p style="font-size:.72rem;color:var(--muted);margin:4px 0 0">all time</p>
-          </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.125rem 1.25rem;border-top:3px solid var(--c-red)">
-            <p style="font-size:.67rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 6px">Hot Leads</p>
-            <p style="font-family:'Montserrat',sans-serif;font-size:1.75rem;font-weight:800;color:#DC2626;margin:0;line-height:1" id="stat-hot">—</p>
-            <p style="font-size:.72rem;color:var(--muted);margin:4px 0 0">need follow-up</p>
-          </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.125rem 1.25rem;border-top:3px solid var(--c-green)">
-            <p style="font-size:.67rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 6px">Booked</p>
-            <p style="font-family:'Montserrat',sans-serif;font-size:1.75rem;font-weight:800;color:#16A34A;margin:0;line-height:1" id="stat-booked">—</p>
-            <p style="font-size:.72rem;color:var(--muted);margin:4px 0 0">this month</p>
-          </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.125rem 1.25rem;border-top:3px solid var(--c-orange)">
-            <p style="font-size:.67rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 6px">Conversion</p>
-            <p style="font-family:'Montserrat',sans-serif;font-size:1.75rem;font-weight:800;color:var(--c-orange);margin:0;line-height:1" id="stat-conv">—%</p>
-            <p style="font-size:.72rem;color:var(--muted);margin:4px 0 0">lead → booked</p>
-          </div>
-        </div>
-
-        <!-- View switcher -->
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+        <div class="dma-head dma-head-page">
           <div>
-            <p style="font-size:var(--f-lg);font-weight:800;color:var(--text-1);margin:0;font-family:'Montserrat',sans-serif">Patient Pipeline</p>
-            <p style="font-size:var(--f-sm);color:var(--muted);margin:2px 0 0" id="leads-count-label">Loading…</p>
+            <h1>Leads</h1>
+            <p class="dma-prose">Pipeline of new, warm, hot, and booked patients from WhatsApp and the booking page.</p>
           </div>
-          <div style="display:flex;gap:.625rem;align-items:center;flex-wrap:wrap">
-            <div class="view-toggle">
-              <button class="active" onclick="switchView('kanban',this)">Kanban</button>
-              <button onclick="switchView('list',this)">List</button>
-            </div>
-            <button type="button" class="ds-btn ds-btn-primary" onclick="location.href='/dashboard/patients/'">Add patient</button>
+          <div class="dma-head-actions">
+            <a class="dma-btn dma-btn-ghost" href="/dashboard/patients/">Patients</a>
+            <a class="dma-btn dma-btn-primary" href="/dashboard/patients/?action=new">Add patient</a>
           </div>
         </div>
+
+        <div class="dma-kpis" id="leads-stats">
+          <div class="dma-kpi"><div><label>Total</label><strong id="stat-total">—</strong><span class="sub">all time</span></div></div>
+          <div class="dma-kpi"><div><label>Hot</label><strong id="stat-hot">—</strong><span class="sub">need follow-up</span></div></div>
+          <div class="dma-kpi"><div><label>Booked</label><strong id="stat-booked">—</strong><span class="sub">this month</span></div></div>
+          <div class="dma-kpi"><div><label>Conversion</label><strong id="stat-conv">—%</strong><span class="sub">lead → booked</span></div></div>
+        </div>
+
+        <div class="dma-tabs" id="leads-view">
+          <button type="button" class="active" onclick="switchView('kanban', this)">Pipeline</button>
+          <button type="button" onclick="switchView('list', this)">List</button>
+        </div>
+        <p class="dma-hint" id="leads-count-label">Loading…</p>
 
         <!-- Kanban view -->
         <div id="view-kanban">
@@ -186,10 +132,10 @@
   </div>
   <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
 
-  <script src="/dashboard-doctor-shell.js?v=6"></script>
+  <script src="/dashboard-doctor-shell.js?v=7"></script>
   <script src="/dma-ui.js?v=2"></script>
   <script src="/dma-doctor-app.js?v=1"></script>
-  <script src="/dashboard-bootstrap.js?v=2"></script>
+  <script src="/dashboard-bootstrap.js?v=3"></script>
   <script>
   (function () {
     if (!DmaDoctorShell.initStaticPage('/dashboard/leads/', 'Leads & Pipeline')) return;
@@ -223,7 +169,7 @@
         DmaUI.drawer({
           title: l.fullName || l.phone || 'Lead',
           subtitle: (l.leadScore || '') + (l.status ? ' · ' + l.status : ''),
-          html: DmaUI.kv([
+          html: (window.DmaUI ? DmaUI.kv([
             ['Phone', l.phone || '—'],
             ['Email', l.email || '—'],
             ['Score', l.leadScore || '—'],
@@ -231,7 +177,24 @@
             ['Treatment', l.treatmentInterest || l.intent || '—'],
             ['Source', l.source || '—'],
             ['Updated', ago(l.updatedAt || l.createdAt)]
-          ]),
+          ]) : ''),
+          tabs: [
+            { id: 'overview', label: 'Overview' },
+            { id: 'contact', label: 'Contact' },
+            { id: 'activity', label: 'Activity' }
+          ],
+          onTab: function (tab, api) {
+            if (tab === 'contact') {
+              api.setBody((window.DmaUI ? DmaUI.kv([['Phone', l.phone], ['Email', l.email], ['Source', l.source]]) : ''));
+            } else if (tab === 'activity') {
+              api.setBody('<p class="dma-hint">Last activity ' + ago(l.updatedAt || l.createdAt) + '. Open Messages for the conversation thread.</p>');
+            } else {
+              api.setBody((window.DmaUI ? DmaUI.kv([
+                ['Score', l.leadScore], ['Status', l.status],
+                ['Treatment', l.treatmentInterest || l.intent], ['Updated', ago(l.updatedAt || l.createdAt)]
+              ]) : ''));
+            }
+          },
           footer:
             '<button type="button" class="ds-btn ds-btn-outline" data-close="1">Close</button>' +
             '<a class="ds-btn ds-btn-outline" href="/dashboard/messages/' + (l.patientId ? '?patient=' + encodeURIComponent(l.patientId) : '') + '">Message</a>' +
@@ -356,7 +319,7 @@
     window.switchView = function (v, btn) {
       document.getElementById('view-kanban').style.display = v === 'kanban' ? '' : 'none';
       document.getElementById('view-list').style.display = v === 'list' ? '' : 'none';
-      document.querySelectorAll('.view-toggle button').forEach(function(b){b.classList.remove('active');});
+      document.querySelectorAll('#leads-view button').forEach(function(b){b.classList.remove('active');});
       btn.classList.add('active');
     }
 

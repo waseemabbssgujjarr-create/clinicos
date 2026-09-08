@@ -29,6 +29,18 @@
     };
   }
 
+  function pageHead(title, desc, actionsHtml) {
+    return '<div class="dma-head dma-head-page"><div><h1>' + title + '</h1>' +
+      (desc ? '<p class="dma-prose">' + desc + '</p>' : '') + '</div>' +
+      (actionsHtml ? '<div class="dma-head-actions">' + actionsHtml + '</div>' : '') + '</div>';
+  }
+
+  function sectionBlock(title, body, extra) {
+    return '<section class="dma-section' + (extra ? ' ' + extra : '') + '">' +
+      (title ? '<header class="dma-section-h"><h2>' + title + '</h2></header>' : '') +
+      '<div class="dma-section-b">' + body + '</div></section>';
+  }
+
   function firstName() {
     var u = A().user();
     var n = (u.ownerName || u.name || 'Doctor').trim().split(/\s+/)[0];
@@ -48,19 +60,17 @@
     var root = page();
     var u = A().user();
     root.innerHTML =
-      '<div class="dma-head dma-head-home"><div><h1>' + greeting() + ', ' + esc(firstName()) + '</h1>' +
-      '<p>Today’s work — appointments, inbox, and leads that need a response.</p></div>' +
-      '<div class="dma-head-actions">' +
+      pageHead(greeting() + ', ' + esc(firstName()),
+        'Today’s work — appointments, inbox, and leads that need a response.',
         '<a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">WhatsApp</a>' +
-        '<a class="dma-btn dma-btn-primary" href="/dashboard/appointments/?action=book">New appointment</a>' +
-      '</div></div>' +
+        '<a class="dma-btn dma-btn-primary" href="/dashboard/appointments/?action=book">New appointment</a>') +
       '<div id="home-status"></div>' +
       '<div class="dma-kpis" id="home-kpis">' + A().spinner() + '</div>' +
       '<div class="dma-grid-2">' +
-        '<section class="dma-panel"><div class="dma-panel-h"><h2>Today’s appointments</h2><a href="/dashboard/appointments/?filter=today">View all</a></div><div class="dma-panel-b" id="home-appts"></div></section>' +
+        '<section class="dma-section"><header class="dma-section-h"><h2>Today’s appointments</h2><a href="/dashboard/appointments/?filter=today">View all</a></header><div class="dma-section-b" id="home-appts"></div></section>' +
         '<div class="dma-stack">' +
-          '<section class="dma-panel"><div class="dma-panel-h"><h2>Needs attention</h2></div><div class="dma-panel-b" id="home-attn"></div></section>' +
-          '<section class="dma-panel"><div class="dma-panel-h"><h2>Recent activity</h2><a href="/dashboard/notifications/">Updates</a></div><div class="dma-panel-b" id="home-notes"></div></section>' +
+          '<section class="dma-section dma-section-muted"><header class="dma-section-h"><h2>Needs attention</h2></header><div class="dma-section-b" id="home-attn"></div></section>' +
+          '<section class="dma-section"><header class="dma-section-h"><h2>Recent activity</h2><a href="/dashboard/notifications/">Updates</a></header><div class="dma-section-b" id="home-notes"></div></section>' +
         '</div>' +
       '</div>';
 
@@ -174,10 +184,10 @@
   function appointments() {
     var root = page();
     root.innerHTML =
-      '<div class="dma-head dma-head-page"><div><h1>Appointments</h1><p>Schedule, confirm, and follow up from WhatsApp or the front desk.</p></div>' +
-      '<div class="dma-head-actions"><button class="dma-btn dma-btn-primary" id="btn-book">New appointment</button></div></div>' +
+      pageHead('Appointments', 'Schedule, confirm, and follow up from WhatsApp or the front desk.',
+        '<button class="dma-btn dma-btn-primary" id="btn-book">New appointment</button>') +
       '<div class="dma-tabs" id="appt-view"></div>' +
-      '<section class="dma-panel"><div class="dma-panel-b" id="appt-list">' + A().spinner() + '</div></section>';
+      '<section class="dma-section"><div class="dma-section-b" id="appt-list">' + A().spinner() + '</div></section>';
 
     var view = A().qs('view') || (A().qs('filter') === '' ? 'list' : 'today');
     if (view !== 'calendar' && view !== 'list') view = 'today';
@@ -357,7 +367,8 @@
         { id: 'overview', label: 'Overview' },
         { id: 'appointments', label: 'Appointments' },
         { id: 'messages', label: 'Messages' },
-        { id: 'notes', label: 'Notes' }
+        { id: 'notes', label: 'Notes' },
+        { id: 'activity', label: 'Activity' }
       ],
       footer:
         '<a class="dma-btn dma-btn-ghost" href="/dashboard/patients/detail/?id=' + esc(p.id) + '">Open full chart</a>' +
@@ -387,8 +398,15 @@
               return '<p class="dma-hint"><strong>' + (m.direction === 'INBOUND' ? 'Patient' : 'Clinic') + ':</strong> ' + esc((m.body || '').slice(0, 160)) + '</p>';
             }).join('') : '<p class="dma-hint">No messages yet.</p>');
           }).catch(function () { api.setBody('<p class="dma-hint">Could not load messages.</p>'); });
+        } else if (tab === 'activity') {
+          A().get('/api/patients/' + p.id + '/appointments').then(function (d) {
+            var rows = Array.isArray(d) ? d : (d.data || []);
+            api.setBody(rows.length ? rows.slice(0, 12).map(function (a) {
+              return '<div class="dma-row-item"><div><div class="name">' + esc(a.status) + ' · ' + esc(a.treatment || 'Visit') + '</div><div class="sub">' + A().fmtDate(a.dateTime) + '</div></div></div>';
+            }).join('') : '<p class="dma-hint">No activity recorded yet.</p>');
+          }).catch(function () { api.setBody('<p class="dma-hint">Could not load activity.</p>'); });
         } else {
-          api.setBody('<p>' + esc(p.medicalNotes || 'No notes recorded.') + '</p>');
+          api.setBody('<p class="dma-prose">' + esc(p.medicalNotes || 'No notes recorded.') + '</p>');
         }
       }
     });
@@ -399,9 +417,10 @@
   function patients() {
     var root = page();
     root.innerHTML =
-      '<div class="dma-head dma-head-page"><div><h1>Patients</h1><p>Charts, WhatsApp threads, and appointments for every patient.</p></div>' +
-      '<div class="dma-head-actions"><input class="dma-search" id="pt-search" placeholder="Search name or phone"><button class="dma-btn dma-btn-primary" id="pt-add">Add patient</button></div></div>' +
-      '<section class="dma-panel"><div class="dma-table-wrap"><table class="dma-table"><thead><tr><th>Patient</th><th>Phone</th><th>Visits</th><th>Last visit</th><th></th></tr></thead><tbody id="pt-body"><tr><td colspan="5">' + A().spinner() + '</td></tr></tbody></table></div></section>';
+      pageHead('Patients', 'Manage patient records, appointments and conversations.',
+        '<input class="dma-search" id="pt-search" placeholder="Search name or phone" aria-label="Search patients">' +
+        '<button class="dma-btn dma-btn-primary" id="pt-add">Add patient</button>') +
+      '<section class="dma-section"><div class="dma-table-wrap"><table class="dma-table"><thead><tr><th>Patient</th><th>Phone</th><th>Visits</th><th>Last visit</th><th></th></tr></thead><tbody id="pt-body"><tr><td colspan="5">' + A().spinner() + '</td></tr></tbody></table></div></section>';
 
     var rows = [];
     function load(q) {
@@ -414,7 +433,7 @@
         el('pt-body').innerHTML = rows.map(function (p, i) {
           var last = (p.appointments && p.appointments[0]) || {};
           return '<tr data-i="' + i + '">' +
-            '<td><strong>' + esc(p.fullName) + '</strong></td>' +
+            '<td><div class="dma-pt-identity"><div class="dma-avatar" aria-hidden="true">' + A().initials(p.fullName) + '</div><div><strong>' + esc(p.fullName) + '</strong></div></div></td>' +
             '<td>' + esc(p.phone) + '</td>' +
             '<td>' + esc((p._count && p._count.appointments) || 0) + '</td>' +
             '<td>' + (last.dateTime ? A().fmtDate(last.dateTime) + ' ' + A().chip(last.status) : '—') + '</td>' +
@@ -467,18 +486,16 @@
       var tab = 'overview';
       function draw() {
         root.innerHTML =
-          '<div class="dma-head"><div><a href="/dashboard/patients/" class="dma-hint">← Patients</a>' +
-          '<h1>' + esc(p.fullName) + '</h1><p>' + esc(p.phone || '') + (p.email ? ' · ' + esc(p.email) : '') + '</p></div>' +
-          '<div class="dma-head-actions">' +
+          pageHead(esc(p.fullName), esc(p.phone || '') + (p.email ? ' · ' + esc(p.email) : ''),
             '<a class="dma-btn dma-btn-ghost" href="/dashboard/messages/?patient=' + esc(p.id) + '">WhatsApp thread</a>' +
-            '<a class="dma-btn dma-btn-primary" href="/dashboard/appointments/?action=book&patient=' + esc(p.id) + '">Book visit</a>' +
-          '</div></div>' +
+            '<a class="dma-btn dma-btn-primary" href="/dashboard/appointments/?action=book&patient=' + esc(p.id) + '">Book visit</a>') +
+          '<p class="dma-hint" style="margin-top:-8px"><a href="/dashboard/patients/">← Patients</a></p>' +
           '<div class="dma-tabs" id="pt-tabs">' +
             [['overview','Overview'],['appointments','Appointments'],['messages','Messages'],['notes','Notes']].map(function (t) {
               return '<button type="button" data-t="' + t[0] + '" class="' + (tab === t[0] ? 'active' : '') + '">' + t[1] + '</button>';
             }).join('') +
-          '</div><div id="pt-tab-body" class="dma-panel"><div class="dma-panel-b"></div></div>';
-        var body = el('pt-tab-body').querySelector('.dma-panel-b');
+          '</div><div id="pt-tab-body" class="dma-section"><div class="dma-section-b"></div></div>';
+        var body = el('pt-tab-body').querySelector('.dma-section-b');
         if (tab === 'overview') {
           body.innerHTML = [['Phone', p.phone], ['Email', p.email], ['Gender', p.gender], ['Blood group', p.bloodGroup], ['Allergies', p.allergies]].map(function (row) {
             return '<div class="dma-field"><label>' + row[0] + '</label><div>' + esc(row[1] || '—') + '</div></div>';
@@ -510,10 +527,10 @@
   function messages() {
     var root = page();
     root.innerHTML =
-      '<div class="dma-head dma-head-page"><div><h1>Messages</h1><p>WhatsApp inbox — reply, escalate, or jump to the patient chart.</p></div>' +
-      '<div class="dma-head-actions"><a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">Connection</a><a class="dma-btn dma-btn-primary" href="/dashboard/broadcasts/">Broadcast</a></div></div>' +
+      pageHead('Messages', 'Clinic WhatsApp inbox — separate from connection setup. Reply, escalate, or open the patient chart.',
+        '<a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">Connection</a><a class="dma-btn dma-btn-primary" href="/dashboard/broadcasts/">Broadcast</a>') +
       '<div id="msg-wa"></div>' +
-      '<div class="dma-inbox" id="msg-inbox"><div class="dma-inbox-list" id="msg-list">' + A().spinner() + '</div><div class="dma-thread" id="msg-thread"></div></div>';
+      '<div class="dma-inbox" id="msg-inbox"><div class="dma-inbox-list" id="msg-list">' + A().spinner() + '</div><div class="dma-thread" id="msg-thread"></div><aside class="dma-inbox-ctx" id="msg-ctx"></aside></div>';
 
     A().waStatus().then(function (wa) {
       var on = !!(wa.connected || wa.status === 'connected' || wa.status === 'CONNECTED');
@@ -569,6 +586,17 @@
           '</div>' +
           '<div class="dma-thread-m" id="msg-bubbles">' + A().spinner() + '</div>' +
           '<form class="dma-thread-c" id="msg-form"><input id="msg-input" placeholder="Reply on WhatsApp…" autocomplete="off"><button class="dma-btn dma-btn-primary" type="submit">Send</button></form>';
+        var ctx = el('msg-ctx');
+        if (ctx) {
+          ctx.innerHTML =
+            '<div class="dma-pt-identity" style="margin-bottom:12px"><div class="dma-avatar">' + A().initials(p.fullName) + '</div>' +
+            '<div><strong>' + esc(p.fullName || 'Patient') + '</strong><div class="dma-hint">' + esc(p.phone || '') + '</div></div></div>' +
+            '<p class="dma-hint">Patient context from this clinic. Open the chart for full history.</p>' +
+            '<div class="dma-btn-row" style="margin-top:12px">' +
+              '<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/patients/detail/?id=' + esc(selected) + '">Open chart</a>' +
+              '<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/leads/">Leads</a>' +
+            '</div>';
+        }
         var back = el('msg-back');
         if (back) {
           if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches) back.style.display = '';
@@ -624,20 +652,34 @@
   /* ── ANALYTICS ────────────────────────────────────────────────────────── */
   function analytics() {
     var root = page();
+    var tab = A().qs('tab') || 'overview';
     root.innerHTML =
-      '<div class="dma-head dma-head-page"><div><h1>Analytics</h1><p>Appointments, revenue, and WhatsApp volume for this clinic.</p></div>' +
-      '<a class="dma-btn dma-btn-ghost" href="/dashboard/leads/">Lead conversion</a></div>' +
+      pageHead('Analytics', 'Appointments, patients, and WhatsApp volume for this clinic — only metrics this clinic has recorded.',
+        '<a class="dma-btn dma-btn-ghost" href="/dashboard/leads/">Lead conversion</a>') +
+      '<div class="dma-tabs" id="an-tabs"></div>' +
       '<div class="dma-kpis" id="an-kpis">' + A().spinner() + '</div>' +
-      '<div class="dma-grid-2"><section class="dma-panel"><div class="dma-panel-h"><h2>Appointments (7 days)</h2></div><div class="dma-panel-b" id="an-week"></div></section>' +
-      '<section class="dma-panel"><div class="dma-panel-h"><h2>Top treatments</h2></div><div class="dma-panel-b" id="an-tx"></div></section></div>' +
-      '<section class="dma-panel" style="margin-top:16px"><div class="dma-panel-h"><h2>Messages by channel</h2></div><div class="dma-panel-b" id="an-ch"></div></section>';
-    Promise.all([
-      A().get('/api/analytics/overview'),
-      A().get('/api/analytics/weekly-appointments'),
-      A().get('/api/analytics/top-treatments'),
-      A().get('/api/analytics/messages-by-channel'),
-    ]).then(function (p) {
-      var ov = p[0] || {};
+      '<div id="an-body"></div>';
+    var tabs = [['overview', 'Overview'], ['appointments', 'Appointments'], ['messages', 'Messages']];
+    function drawTabs() {
+      el('an-tabs').innerHTML = tabs.map(function (t) {
+        return '<button type="button" data-t="' + t[0] + '" class="' + (tab === t[0] ? 'active' : '') + '">' + t[1] + '</button>';
+      }).join('');
+    }
+    drawTabs();
+    el('an-tabs').onclick = function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      tab = b.getAttribute('data-t');
+      A().setQs({ tab: tab }, true);
+      drawTabs();
+      paint();
+    };
+    var cache = null;
+    function paint() {
+      if (!cache) return;
+      var ov = cache[0] || {};
+      var week = Array.isArray(cache[1]) ? cache[1] : [];
+      var txs = Array.isArray(cache[2]) ? cache[2] : (cache[2].data || []);
+      var ch = Array.isArray(cache[3]) ? cache[3] : [];
       el('an-kpis').innerHTML = [
         ['Revenue', ov.revenue && A().money(ov.revenue.value), ov.revenue && ((ov.revenue.change >= 0 ? 'up' : 'down') + ' ' + ov.revenue.change + '% vs last month')],
         ['Appointments', ov.appointments && ov.appointments.value, ov.appointments && (ov.appointments.change + '% vs last month')],
@@ -646,20 +688,40 @@
       ].map(function (k) {
         return '<div class="dma-kpi"><div><label>' + k[0] + '</label><strong>' + esc(k[1] != null ? k[1] : '—') + '</strong><span class="sub">' + esc(k[2] || '') + '</span></div></div>';
       }).join('');
-      var week = Array.isArray(p[1]) ? p[1] : [];
       var max = Math.max.apply(null, week.map(function (d) { return d.count || 0; }).concat([1]));
-      el('an-week').innerHTML = '<div style="display:flex;align-items:flex-end;gap:8px;height:140px">' + week.map(function (d) {
-        var h = Math.round(((d.count || 0) / max) * 120);
-        return '<div style="flex:1;text-align:center"><div style="height:' + h + 'px;background:#2563EB;border-radius:6px 6px 0 0"></div><div class="dma-hint">' + esc(d.date) + '<br>' + (d.count || 0) + '</div></div>';
-      }).join('') + '</div>';
-      var txs = Array.isArray(p[2]) ? p[2] : (p[2].data || []);
-      el('an-tx').innerHTML = txs.length ? txs.map(function (t) {
+      var weekHtml = week.length
+        ? '<div style="display:flex;align-items:flex-end;gap:8px;height:140px">' + week.map(function (d) {
+            var h = Math.round(((d.count || 0) / max) * 120);
+            return '<div style="flex:1;text-align:center"><div style="height:' + h + 'px;background:#1D4ED8;border-radius:5px 5px 0 0"></div><div class="dma-hint">' + esc(d.date) + '<br>' + (d.count || 0) + '</div></div>';
+          }).join('') + '</div>'
+        : '<p class="dma-hint">No appointments in the last 7 days.</p>';
+      var txHtml = txs.length ? txs.map(function (t) {
         return '<div class="dma-row-item"><div class="name">' + esc(t.treatment || t.name) + '</div><div class="meta">' + esc(t.count || t._count || 0) + '</div></div>';
       }).join('') : '<p class="dma-hint">No completed treatments yet.</p>';
-      var ch = Array.isArray(p[3]) ? p[3] : [];
-      el('an-ch').innerHTML = ch.length ? ch.map(function (c) {
+      var chHtml = ch.length ? ch.map(function (c) {
         return '<div class="dma-row-item"><div class="name">' + esc(c.channel || c.name) + '</div><div class="meta">' + esc(c.count || 0) + '</div></div>';
       }).join('') : '<p class="dma-hint">No messages yet. <a href="/dashboard/whatsapp/">Connect WhatsApp</a>.</p>';
+      if (tab === 'appointments') {
+        el('an-body').innerHTML = sectionBlock('Appointments (7 days)', weekHtml) + sectionBlock('Top treatments', txHtml);
+      } else if (tab === 'messages') {
+        el('an-body').innerHTML = sectionBlock('Messages by channel', chHtml);
+      } else {
+        el('an-body').innerHTML =
+          '<div class="dma-grid-2">' + sectionBlock('Appointments (7 days)', weekHtml) + sectionBlock('Top treatments', txHtml) + '</div>' +
+          sectionBlock('Messages by channel', chHtml);
+      }
+    }
+    Promise.all([
+      A().get('/api/analytics/overview'),
+      A().get('/api/analytics/weekly-appointments'),
+      A().get('/api/analytics/top-treatments'),
+      A().get('/api/analytics/messages-by-channel'),
+    ]).then(function (p) {
+      cache = p;
+      paint();
+    }).catch(function () {
+      el('an-kpis').innerHTML = '';
+      el('an-body').innerHTML = A().empty('Could not load analytics', 'Check your connection and try again.');
     });
   }
 
@@ -667,8 +729,8 @@
   function reviews() {
     var root = page();
     root.innerHTML =
-      '<div class="dma-head dma-head-page"><div><h1>Reviews</h1><p>Request Google reviews from completed visits over WhatsApp.</p></div>' +
-      '<button class="dma-btn dma-btn-primary" id="rv-req">Request reviews</button></div>' +
+      pageHead('Reviews', 'Request Google reviews from completed visits over WhatsApp.',
+        '<button class="dma-btn dma-btn-primary" id="rv-req">Request reviews</button>') +
       '<div id="rv-body">' + A().spinner() + '</div>';
     A().get('/api/reviews').then(function (d) {
       if (!d.configured) {
@@ -679,11 +741,23 @@
       el('rv-body').innerHTML =
         '<div class="dma-kpis"><div class="dma-kpi"><div><label>Rating</label><strong>' + esc(d.rating || '—') + '</strong></div></div>' +
         '<div class="dma-kpi"><div><label>Reviews</label><strong>' + esc(d.totalReviews || rows.length) + '</strong></div></div></div>' +
-        '<section class="dma-panel"><div class="dma-panel-b">' +
-        (rows.map(function (r) {
-          return '<div class="dma-row-item"><div><div class="name">' + esc(r.author_name || 'Patient') + ' · ' + esc(r.rating) + '/5</div><div class="sub">' + esc(r.text || '') + '</div></div></div>';
+        '<section class="dma-section"><header class="dma-section-h"><h2>Google reviews</h2></header><div class="dma-section-b">' +
+        (rows.map(function (r, i) {
+          return '<div class="dma-row-item" data-rv="' + i + '" role="button" tabindex="0"><div><div class="name">' + esc(r.author_name || 'Patient') + ' · ' + esc(r.rating) + '/5</div><div class="sub">' + esc((r.text || '').slice(0, 120)) + '</div></div></div>';
         }).join('') || '<p class="dma-hint">No Google reviews returned yet.</p>') +
         '</div></section>';
+      el('rv-body').querySelectorAll('[data-rv]').forEach(function (n) {
+        n.onclick = function () {
+          var r = rows[Number(n.getAttribute('data-rv'))];
+          if (!r) return;
+          drawer({
+            title: r.author_name || 'Review',
+            subtitle: (r.rating || '—') + '/5',
+            html: '<p class="dma-prose">' + esc(r.text || 'No comment.') + '</p>',
+            footer: '<button type="button" class="dma-btn dma-btn-ghost" data-close="1">Close</button>'
+          });
+        };
+      });
     });
     el('rv-req').onclick = function () {
       A().get('/api/appointments?filter=month&limit=50').then(function (d) {
@@ -702,16 +776,30 @@
   function staff() {
     var root = page();
     root.innerHTML =
-      '<div class="dma-head dma-head-page"><div><h1>Team</h1><p>Invite reception and doctors. Permissions stay on this clinic.</p></div>' +
-      '<button class="dma-btn dma-btn-primary" id="st-add">Invite staff</button></div>' +
-      '<section class="dma-panel"><div class="dma-table-wrap"><table class="dma-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody id="st-body"></tbody></table></div></section>';
+      pageHead('Team', 'Invite reception and doctors. Permissions stay on this clinic.',
+        '<button class="dma-btn dma-btn-primary" id="st-add">Invite staff</button>') +
+      '<div class="dma-tabs" id="team-tabs"><button type="button" class="active">Members</button></div>' +
+      '<section class="dma-section"><div class="dma-table-wrap"><table class="dma-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody id="st-body"></tbody></table></div></section>';
     function load() {
       A().get('/api/staff').then(function (rows) {
         var list = Array.isArray(rows) ? rows : [];
-        el('st-body').innerHTML = list.length ? list.map(function (s) {
-          return '<tr><td><strong>' + esc(s.name) + '</strong></td><td>' + esc(s.email) + '</td><td>' + esc(s.role) + '</td><td>' + A().chip(s.status) + '</td>' +
+        el('st-body').innerHTML = list.length ? list.map(function (s, i) {
+          return '<tr data-i="' + i + '"><td><div class="dma-pt-identity"><div class="dma-avatar">' + A().initials(s.name) + '</div><strong>' + esc(s.name) + '</strong></div></td><td>' + esc(s.email) + '</td><td>' + esc(s.role) + '</td><td>' + A().chip(s.status) + '</td>' +
             '<td><button class="dma-btn dma-btn-danger dma-btn-sm" data-id="' + esc(s.id) + '">Deactivate</button></td></tr>';
         }).join('') : '<tr><td colspan="5">' + A().empty('No staff yet', 'Invite a receptionist to share the inbox.') + '</td></tr>';
+        el('st-body').onclick = function (e) {
+          if (e.target.closest('button[data-id]')) return;
+          var tr = e.target.closest('[data-i]');
+          if (!tr) return;
+          var s = list[Number(tr.getAttribute('data-i'))];
+          if (!s) return;
+          drawer({
+            title: s.name,
+            subtitle: s.role,
+            html: (global.DmaUI ? DmaUI.kv([['Email', s.email], ['Role', s.role], ['Status', s.status], ['Joined', s.createdAt ? A().fmtDate(s.createdAt) : '—']]) : ''),
+            footer: '<button type="button" class="dma-btn dma-btn-ghost" data-close="1">Close</button>'
+          });
+        };
         el('st-body').querySelectorAll('button[data-id]').forEach(function (b) {
           b.onclick = function () {
             A().del('/api/staff/' + b.getAttribute('data-id')).then(function (r) {
@@ -743,21 +831,23 @@
   function billing() {
     var root = page();
     root.innerHTML =
-      '<div class="dma-head dma-head-page"><div><h1>Billing</h1><p>Plan, invoices, and WhatsApp messaging allowance for this clinic.</p></div></div>' +
+      pageHead('Billing', 'Current plan, usage, and invoices for this clinic. Payment is managed in Stripe — technical IDs stay hidden.') +
       '<div id="bl-body">' + A().spinner() + '</div>';
     Promise.all([A().get('/api/billing/subscription'), A().get('/api/billing/invoices').catch(function () { return []; })]).then(function (p) {
       var s = p[0] || {};
       var inv = Array.isArray(p[1]) ? p[1] : [];
       var d = s.planDetails || {};
       el('bl-body').innerHTML =
-        '<div class="dma-grid-2"><section class="dma-panel"><div class="dma-panel-h"><h2>' + esc(d.name || s.plan || 'Plan') + '</h2>' + A().chip(s.planStatus || s.plan) + '</div>' +
-        '<div class="dma-panel-b"><p class="dma-hint">Staff seats: ' + esc(d.staff) + ' · Patients: ' + esc(d.patients) + ' · AI messages: ' + esc(d.aiMessages) + '</p>' +
+        '<div class="dma-grid-2">' +
+        '<section class="dma-section"><header class="dma-section-h"><h2>Current plan</h2>' + A().chip(s.planStatus || s.plan) + '</header>' +
+        '<div class="dma-section-b"><p class="dma-prose">' + esc(d.name || s.plan || 'Plan') + '</p>' +
+        '<p class="dma-hint">Staff seats: ' + esc(d.staff) + ' · Patients: ' + esc(d.patients) + ' · AI messages: ' + esc(d.aiMessages) + '</p>' +
         (s.trialEndsAt ? '<p class="dma-hint">Trial ends ' + A().fmtDate(s.trialEndsAt) + '</p>' : '') +
         (s.currentPeriodEnd ? '<p class="dma-hint">Renews ' + A().fmtDate(s.currentPeriodEnd) + '</p>' : '') +
         '<div class="dma-btn-row"><button class="dma-btn dma-btn-primary" id="bl-up">Upgrade</button><button class="dma-btn dma-btn-ghost" id="bl-portal">Manage payment</button></div>' +
         '</div></section>' +
-        '<section class="dma-panel"><div class="dma-panel-h"><h2>Need WhatsApp?</h2></div><div class="dma-panel-b"><p class="dma-hint">Connection is included with the clinic workspace. Finish Meta Embedded Signup on the WhatsApp page.</p><a class="dma-btn dma-btn-wa" href="/dashboard/whatsapp/">Open WhatsApp</a></div></section></div>' +
-        '<section class="dma-panel" style="margin-top:16px"><div class="dma-panel-h"><h2>Invoices</h2></div><div class="dma-panel-b">' +
+        '<section class="dma-section dma-section-muted"><header class="dma-section-h"><h2>WhatsApp</h2></header><div class="dma-section-b"><p class="dma-prose">Connection is included with the clinic workspace. Finish Meta Embedded Signup on the WhatsApp page.</p><a class="dma-btn dma-btn-wa" href="/dashboard/whatsapp/">Open WhatsApp</a></div></section></div>' +
+        '<section class="dma-section"><header class="dma-section-h"><h2>Invoices</h2></header><div class="dma-section-b">' +
         (inv.map(function (i) {
           return '<div class="dma-row-item"><div class="name">' + esc(i.number || i.id) + '</div><div class="meta">' + esc(i.status) + ' · ' + A().fmtDate(i.created || i.date) + '</div></div>';
         }).join('') || '<p class="dma-hint">No invoices yet.</p>') +
@@ -782,9 +872,9 @@
     var root = page();
     var tab = A().qs('tab', 'clinic');
     root.innerHTML =
-      '<div class="dma-head dma-head-page"><div><h1>Settings</h1><p>Clinic profile, hours, treatments — everything the receptionist and booking page use.</p></div></div>' +
+      pageHead('Settings', 'Clinic profile, hours, treatments — everything the receptionist and booking page use.') +
       '<div class="dma-tabs" id="st-tabs"></div><div id="st-body"></div>';
-    var tabs = [['clinic', 'Clinic'], ['hours', 'Hours'], ['treatments', 'Treatments'], ['booking', 'Booking page']];
+    var tabs = [['clinic', 'Clinic'], ['hours', 'Hours'], ['treatments', 'Treatments'], ['booking', 'Booking'], ['profile', 'Profile']];
     function draw() {
       el('st-tabs').innerHTML = tabs.map(function (t) {
         return '<button data-t="' + t[0] + '" class="' + (tab === t[0] ? 'active' : '') + '">' + t[1] + '</button>';
@@ -796,22 +886,21 @@
       tab = b.getAttribute('data-t'); A().setQs({ tab: tab }, true); draw(); render();
     };
     function render() {
-      A().get('/api/settings').then(function (s) {
+      A().get('/api/settings').catch(function () { return {}; }).then(function (s) {
         if (tab === 'clinic') {
           el('st-body').innerHTML =
-            '<div class="dma-banner">WhatsApp uses this profile in greetings. <a href="/dashboard/whatsapp/">Manage connection</a> · <a href="/dashboard/ai/">Train AI</a></div>' +
-            '<section class="dma-panel"><div class="dma-panel-b">' +
+            '<div class="dma-notice">WhatsApp uses this profile in greetings. <a href="/dashboard/whatsapp/">Manage connection</a> · <a href="/dashboard/ai/">Train AI</a></div>' +
+            '<section class="dma-section dma-section-muted"><header class="dma-section-h"><h2>Clinic identity</h2></header><div class="dma-section-b">' +
             '<div class="dma-row"><div class="dma-field"><label>Clinic name</label><input id="s-name" value="' + esc(s.name || '') + '"></div>' +
-            '<div class="dma-field"><label>Owner</label><input id="s-owner" value="' + esc(s.ownerName || '') + '"></div></div>' +
+            '<div class="dma-field"><label>Specialty</label><input id="s-spec" value="' + esc(s.specialty || '') + '"></div></div>' +
             '<div class="dma-row"><div class="dma-field"><label>Phone</label><input id="s-phone" value="' + esc(s.phone || '') + '"></div>' +
             '<div class="dma-field"><label>Email</label><input id="s-email" value="' + esc(s.email || '') + '"></div></div>' +
-            '<div class="dma-field"><label>Specialty</label><input id="s-spec" value="' + esc(s.specialty || '') + '"></div>' +
             '<div class="dma-field"><label>Address</label><input id="s-addr" value="' + esc(s.address || '') + '"></div>' +
             '<div class="dma-field"><label>Google Place ID</label><input id="s-place" value="' + esc(s.googlePlaceId || '') + '"><p class="dma-hint">Used on the Reviews page.</p></div>' +
             '<button class="dma-btn dma-btn-primary" id="s-save">Save clinic</button></div></section>';
           el('s-save').onclick = function () {
             A().patch('/api/settings/clinic', {
-              name: el('s-name').value, ownerName: el('s-owner').value, phone: el('s-phone').value,
+              name: el('s-name').value, phone: el('s-phone').value,
               email: el('s-email').value, specialty: el('s-spec').value, address: el('s-addr').value,
               googlePlaceId: el('s-place').value || undefined,
             }).then(function (r) {
@@ -823,13 +912,13 @@
           var days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
           var wh = A().parseJson(s.workingHours, {}) || {};
           if (typeof wh !== 'object' || Array.isArray(wh)) wh = {};
-          el('st-body').innerHTML = '<section class="dma-panel"><div class="dma-panel-b" id="hrs">' +
+          el('st-body').innerHTML = '<section class="dma-section dma-section-muted"><header class="dma-section-h"><h2>Working hours</h2><p>Each day is a compact row. Closed days are skipped by booking.</p></header><div class="dma-section-b" id="hrs">' +
             days.map(function (d) {
               var row = wh[d] || { open: '09:00', close: '17:00', closed: false };
               if (typeof row === 'string') row = { open: '09:00', close: '17:00', closed: false };
               return '<div class="ds-hours-row"><strong>' + d + '</strong>' +
-                '<input type="time" data-d="' + d + '" data-k="open" value="' + esc(row.open || '09:00') + '">' +
-                '<input type="time" data-d="' + d + '" data-k="close" value="' + esc(row.close || '17:00') + '">' +
+                '<input type="time" aria-label="' + d + ' open" data-d="' + d + '" data-k="open" value="' + esc(row.open || '09:00') + '">' +
+                '<input type="time" aria-label="' + d + ' close" data-d="' + d + '" data-k="close" value="' + esc(row.close || '17:00') + '">' +
                 '<label><input type="checkbox" data-d="' + d + '" data-k="closed"' + (row.closed ? ' checked' : '') + '> Closed</label></div>';
             }).join('') + '<button class="dma-btn dma-btn-primary" id="hrs-save">Save hours</button></div></section>';
           el('hrs-save').onclick = function () {
@@ -850,8 +939,7 @@
           var txs = A().parseJson(s.treatments, []) || [];
           if (!Array.isArray(txs)) txs = [];
           function drawTx() {
-            el('st-body').innerHTML = '<section class="dma-panel"><div class="dma-panel-b">' +
-              '<p class="dma-hint">These treatments appear in booking, WhatsApp, broadcasts, and the AI knowledge tab.</p>' +
+            el('st-body').innerHTML = '<section class="dma-section dma-section-muted"><header class="dma-section-h"><h2>Treatments</h2><p>These treatments appear in booking, WhatsApp, broadcasts, and Train AI.</p></header><div class="dma-section-b">' +
               '<div id="tx-list"></div><button class="dma-btn dma-btn-ghost" id="tx-add">Add treatment</button> ' +
               '<button class="dma-btn dma-btn-primary" id="tx-save">Save treatments</button></div></section>';
             el('tx-list').innerHTML = (txs.length ? txs : [{ name: '', fee: '' }]).map(function (t, i) {
@@ -880,11 +968,23 @@
             };
           }
           drawTx();
+        } else if (tab === 'profile') {
+          el('st-body').innerHTML =
+            '<section class="dma-section dma-section-muted"><header class="dma-section-h"><h2>Owner profile</h2><p>Displayed in the top bar and used in clinic communications.</p></header><div class="dma-section-b">' +
+            '<div class="dma-field"><label>Owner name</label><input id="s-owner" value="' + esc(s.ownerName || '') + '"></div>' +
+            '<div class="dma-field"><label>Clinic email</label><input id="s-email-p" type="email" value="' + esc(s.email || '') + '"></div>' +
+            '<button class="dma-btn dma-btn-primary" id="s-prof">Save profile</button></div></section>';
+          el('s-prof').onclick = function () {
+            A().patch('/api/settings/clinic', { ownerName: el('s-owner').value, email: el('s-email-p').value }).then(function (r) {
+              if (r.ok) A().toast('Profile saved', 'ok');
+              else A().toast((r.d && r.d.error) || 'Save failed', 'err');
+            });
+          };
         } else {
           var slug = s.bookingSlug || '';
           var url = location.origin + '/patients/clinic/' + slug;
           el('st-body').innerHTML =
-            '<section class="dma-panel"><div class="dma-panel-b">' +
+            '<section class="dma-section dma-section-muted"><header class="dma-section-h"><h2>Public booking</h2></header><div class="dma-section-b">' +
             '<div class="dma-field"><label>Booking slug</label><input id="bk-slug" value="' + esc(slug) + '"></div>' +
             '<p class="dma-hint">Public page: <a href="' + esc(url) + '" target="_blank">' + esc(url) + '</a></p>' +
             '<div class="dma-field"><label>Default fee</label><input id="bk-fee" type="number" value="' + esc(s.defaultFee || '') + '"></div>' +
@@ -905,9 +1005,9 @@
   function notifications() {
     var root = page();
     root.innerHTML =
-      '<div class="dma-head dma-head-page"><div><h1>Updates</h1><p>Bookings, WhatsApp escalations, and system notices.</p></div>' +
-      '<button class="dma-btn dma-btn-ghost" id="n-read">Mark all read</button></div>' +
-      '<section class="dma-panel"><div class="dma-panel-b" id="n-list">' + A().spinner() + '</div></section>';
+      pageHead('Updates', 'Bookings, WhatsApp escalations, and system notices.',
+        '<button class="dma-btn dma-btn-ghost" id="n-read">Mark all read</button>') +
+      '<section class="dma-section"><div class="dma-section-b" id="n-list">' + A().spinner() + '</div></section>';
     function load() {
       A().get('/api/notifications').then(function (rows) {
         var list = Array.isArray(rows) ? rows : [];
@@ -916,7 +1016,7 @@
             : /lead/i.test(n.type || n.title || '') ? '/dashboard/leads/'
             : /appoint/i.test(n.type || n.title || '') ? '/dashboard/appointments/'
             : '/dashboard/';
-          return '<a class="dma-row-item" href="' + href + '"><div><div class="name">' + esc(n.title || 'Update') + '</div><div class="sub">' + esc(n.body || '') + '</div></div><div class="meta">' + A().ago(n.createdAt) + (n.isRead ? '' : ' · new') + '</div></a>';
+          return '<a class="dma-row-item' + (n.isRead ? '' : ' unread') + '" href="' + href + '"><div><div class="name">' + esc(n.title || 'Update') + '</div><div class="sub">' + esc(n.body || '') + '</div></div><div class="meta">' + A().ago(n.createdAt) + (n.isRead ? '' : ' · new') + '</div></a>';
         }).join('') : A().empty('No updates', 'New bookings and WhatsApp alerts will land here.');
       });
     }

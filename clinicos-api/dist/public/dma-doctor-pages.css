@@ -48,22 +48,15 @@
   margin: 0 0 4px;
 }
 
-.dma-head h1::after {
-  content: "";
-  display: block;
-  width: 28px;
-  height: 3px;
-  border-radius: 2px;
-  margin-top: 7px;
-  background: linear-gradient(90deg, #2563EB, #1D4ED8);
-}
+.dma-head h1::after { display: none; }
 
 .dma-head > div > p,
 .dma-head p {
   font-size: 0.8125rem;
   color: var(--doc-muted, #6B7280);
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.55;
+  max-width: var(--ds-measure, 40rem);
 }
 
 .dma-head-actions {
@@ -95,17 +88,17 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 38px;
-  padding: 0 18px;
-  border-radius: 10px;
+  height: var(--ds-h-ctrl, 40px);
+  padding: 0 16px;
+  border-radius: var(--ds-r-control, 5px);
   font-size: 0.8125rem;
-  font-weight: 700;
+  font-weight: 650;
   font-family: inherit;
   white-space: nowrap;
   cursor: pointer;
-  border: none;
+  border: 1px solid transparent;
   text-decoration: none;
-  transition: opacity 0.14s, transform 0.14s, box-shadow 0.14s, background 0.14s, border-color 0.14s;
+  transition: background 0.14s, transform 0.14s, box-shadow 0.14s, border-color 0.14s, color 0.14s;
   line-height: 1;
   user-select: none;
   flex-shrink: 0;
@@ -172,10 +165,10 @@
 
 /* Small */
 .dma-btn-sm {
-  height: 30px;
-  padding: 0 12px;
-  font-size: 0.72rem;
-  border-radius: 8px;
+  height: var(--ds-h-ctrl-sm, 32px);
+  padding: 0 10px;
+  font-size: 0.75rem;
+  border-radius: var(--ds-r-control, 5px);
 }
 
 /* Button row */
@@ -593,33 +586,37 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
   flex-wrap: nowrap;
   overflow-x: auto;
   scrollbar-width: none;
-  border-bottom: 2px solid var(--doc-border, #E2E8F0);
-  gap: 0;
+  gap: 4px;
   margin-bottom: 1.25rem;
+  padding: 4px;
+  background: var(--ds-surface-section, #EEF2F7);
+  border: 1px solid var(--doc-border, #E2E8F0);
+  border-radius: var(--ds-r-card, 8px);
 }
 .dma-tabs::-webkit-scrollbar { display: none; }
 
 .dma-tabs button {
   flex-shrink: 0;
-  padding: 10px 18px;
+  height: 36px;
+  padding: 0 14px;
   font-size: 0.8125rem;
-  font-weight: 700;
+  font-weight: 650;
   font-family: inherit;
   color: #6B7280;
   background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  border-radius: 0;
+  border-radius: var(--ds-r-control, 5px);
   white-space: nowrap;
   cursor: pointer;
-  transition: color 0.13s, border-color 0.13s;
+  transition: color 0.13s, background 0.13s, box-shadow 0.13s;
 }
-.dma-tabs button:hover { color: #2563EB; }
+.dma-tabs button:hover { color: #1D4ED8; background: #fff; }
+.dma-tabs button:focus-visible { outline: none; box-shadow: var(--ds-focus); }
 .dma-tabs button.active {
-  color: #2563EB;
-  border-bottom-color: #2563EB;
-  font-weight: 800;
+  color: #1D4ED8;
+  background: #fff;
+  font-weight: 750;
+  box-shadow: var(--ds-shadow-xs);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -694,15 +691,15 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
 .dma-search,
 .dma-status-sel {
   background: #fff;
-  border: 1.5px solid #CBD5E1;
-  border-radius: 10px;
+  border: 1px solid var(--ds-border-2, #CBD5E1);
+  border-radius: var(--ds-r-control, 5px);
   color: #111827;
   font-size: 0.875rem;
   font-family: inherit;
-  padding: 0 14px;
-  height: 42px;
+  padding: 0 12px;
+  height: var(--ds-h-ctrl, 40px);
   width: 100%;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
   outline: none;
   -webkit-appearance: none;
   appearance: none;
@@ -824,9 +821,9 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
    ═══════════════════════════════════════════════════════════ */
 .dma-inbox {
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 1rem;
-  min-height: 500px;
+  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr) minmax(220px, 260px);
+  gap: 12px;
+  min-height: min(640px, calc(100vh - 180px));
 }
 
 @media (max-width: 900px) {
