@@ -43,7 +43,7 @@
     if (!id || !host) return;
 
     var tabsEl = document.createElement("div");
-    tabsEl.className = "dma-tabs";
+    tabsEl.className = "ds-tabs";
     tabsEl.id = "cos-clinic-tabs";
     tabsEl.innerHTML = TABS.map(function (t, i) {
       return '<button type="button" data-t="' + t[0] + '" class="' + (i === 0 ? "active" : "") + '">' + t[1] + "</button>";

@@ -7,51 +7,68 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=8" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=9" />
   <link rel="stylesheet" href="/superadmin-theme.css?v=10" />
 </head>
 <body class="superadmin-app">
   <div class="sa-layout">
     <aside class="sa-sidebar" id="sa-sidebar"></aside>
     <main class="sa-main">
-      <div class="sa-content-card">
-        <div class="ds-page-header">
-          <div>
-            <h1>Platform overview</h1>
-            <p>Live clinics, usage, and the work that needs attention.</p>
-          </div>
-          <a class="ds-btn ds-btn-primary" href="/superadmin/clinics/">Open clinics</a>
+      <div class="ds-work-header">
+        <div>
+          <h1 style="margin:0;font-size:1.25rem">Platform overview</h1>
+          <p class="sa-subtitle" style="margin:4px 0 0">Operational command center — clinics, WhatsApp, and system health.</p>
         </div>
-        <div id="kpis" class="ds-kpis"><div class="ds-loading">Loading metrics…</div></div>
-        <div class="dma-grid-2" style="display:grid;grid-template-columns:1.4fr .8fr;gap:16px">
-          <section class="sa-section-card" style="padding:16px">
-            <h2 class="ds-card-title" style="margin:0 0 12px;font-size:0.9375rem">Recent signups</h2>
-            <div id="signups" class="ds-loading">Loading…</div>
-          </section>
-          <section class="sa-section-card" style="padding:16px">
-            <h2 style="margin:0 0 12px;font-size:0.9375rem">System</h2>
-            <div id="health" class="ds-loading">Checking health…</div>
-            <p style="margin:16px 0 0"><a class="ds-btn ds-btn-outline ds-btn-sm" href="/superadmin/health/">Health console</a>
-            <a class="ds-btn ds-btn-outline ds-btn-sm" href="/superadmin/audit/">Audit log</a></p>
-          </section>
-        </div>
+        <a class="ds-btn ds-btn-primary" href="/superadmin/clinics/">Open clinics</a>
+      </div>
+      <div id="kpis" class="ds-kpis"><div class="ds-loading">Loading metrics…</div></div>
+      <div class="ds-ops-grid" style="margin-bottom:16px">
+        <section class="ds-section">
+          <h2>Recent clinics</h2>
+          <div id="signups"></div>
+        </section>
+        <section class="ds-section ds-section-muted">
+          <h2>Attention required</h2>
+          <div id="attention"></div>
+        </section>
+      </div>
+      <div class="ds-ops-grid-3">
+        <section class="ds-section">
+          <h2>WhatsApp</h2>
+          <div id="wa"></div>
+        </section>
+        <section class="ds-section">
+          <h2>System health</h2>
+          <div id="health"></div>
+        </section>
+        <section class="ds-section">
+          <h2>Recent activity</h2>
+          <div id="activity"></div>
+        </section>
       </div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=8"></script>
-  <script src="/dma-ui.js?v=1"></script>
+  <script src="/superadmin-admin-shell.js?v=9"></script>
+  <script src="/dma-ui.js?v=2"></script>
   <script>
     (function () {
       if (!DmaAdminShell.initStaticPage('/superadmin/')) return;
       var esc = DmaUI.esc;
       Promise.all([
         DmaAdminShell.api('/api/superadmin/stats'),
-        DmaAdminShell.api('/api/superadmin/health').catch(function () { return null; })
+        DmaAdminShell.api('/api/superadmin/health').catch(function () { return {}; }),
+        DmaAdminShell.api('/api/superadmin/whatsapp/clinics').catch(function () { return {}; }),
+        DmaAdminShell.api('/api/superadmin/audit?limit=8').catch(function () { return { data: [] }; }),
+        DmaAdminShell.api('/api/superadmin/clinics?limit=10').catch(function () { return { data: [] }; })
       ]).then(function (parts) {
         var s = parts[0] || {};
         var h = parts[1] || {};
+        var wa = parts[2] || {};
+        var audit = parts[3].data || parts[3].logs || [];
+        var clinics = parts[4].data || [];
         var items = [
-          { l: 'Clinics', v: s.totalClinics, sub: (s.activeClinics || 0) + ' active' },
+          { l: 'Clinics', v: s.totalClinics, sub: 'all registered' },
+          { l: 'Active', v: s.activeClinics, sub: 'live plans' },
           { l: 'Patients', v: s.totalPatients, sub: 'platform-wide' },
           { l: 'Appointments', v: s.totalAppointments, sub: 'all time' },
           { l: 'Est. MRR', v: '$' + (s.mrr || 0), sub: (s.newThisMonth || 0) + ' new this month' }
@@ -59,20 +76,45 @@
         document.getElementById('kpis').innerHTML = items.map(function (k) {
           return '<div class="ds-kpi"><div><label>' + k.l + '</label><strong>' + esc(k.v != null ? k.v : '—') + '</strong><span class="sub" style="color:var(--ds-muted);font-size:0.75rem">' + k.sub + '</span></div></div>';
         }).join('');
-        var signups = s.recentSignups || [];
+
+        var signups = s.recentSignups || clinics;
         document.getElementById('signups').innerHTML = signups.length
           ? '<table class="ds-table"><thead><tr><th>Clinic</th><th>Owner</th><th>Plan</th></tr></thead><tbody>' +
-            signups.map(function (c) {
-              return '<tr data-href="/superadmin/clinics/' + encodeURIComponent(c.id) + '/" style="cursor:pointer"><td><strong>' + esc(c.name) + '</strong></td><td>' + esc(c.ownerName || '—') + '</td><td>' + esc(c.plan || '—') + '</td></tr>';
+            signups.slice(0, 8).map(function (c) {
+              return '<tr data-id="' + esc(c.id) + '"><td><strong>' + esc(c.name) + '</strong></td><td>' + esc(c.ownerName || '—') + '</td><td>' + esc(c.plan || '—') + '</td></tr>';
             }).join('') + '</tbody></table>'
-          : '<p class="ds-empty">No recent signups.</p>';
+          : '<p class="ds-empty">No recent clinics.</p>';
         document.getElementById('signups').onclick = function (e) {
-          var tr = e.target.closest('tr[data-href]');
-          if (tr) location.href = tr.getAttribute('data-href');
+          var tr = e.target.closest('tr[data-id]');
+          if (tr) location.href = '/superadmin/clinics/';
         };
+
+        var attn = [];
+        clinics.forEach(function (c) {
+          if (!c.isActive) attn.push(c.name + ' is suspended');
+          if (!c.aiEnabled) attn.push(c.name + ' — AI off');
+          var w = c.whatsapp || {};
+          if (!w.connectionStatus && !w.phoneNumber) attn.push(c.name + ' — WhatsApp not connected');
+        });
+        document.getElementById('attention').innerHTML = attn.length
+          ? '<ul style="margin:0;padding-left:18px;font-size:0.875rem;line-height:1.7">' + attn.slice(0, 8).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>'
+          : '<p class="ds-empty">Nothing needs attention in the latest clinics.</p>';
+
+        document.getElementById('wa').innerHTML =
+          '<p style="margin:0 0 8px"><strong>' + esc(wa.connected || 0) + '</strong> connected · ' +
+          esc((wa.total || 0) - (wa.connected || 0)) + ' not connected</p>' +
+          '<a class="ds-btn ds-btn-outline ds-btn-sm" href="/superadmin/whatsapp/">WhatsApp ops</a>';
+
         var db = h.database === 'unavailable' ? 'Database issue' : 'Database reachable';
-        var wa = h.whatsappConnections != null ? h.whatsappConnections + ' WhatsApp connections' : 'See Health for WhatsApp';
-        document.getElementById('health').innerHTML = '<p class="cos-hint" style="margin:0">' + esc(db) + '<br>' + esc(wa) + '</p>';
+        document.getElementById('health').innerHTML =
+          '<p style="margin:0 0 8px">' + esc(db) + (h.whatsappConnections != null ? '<br>' + esc(h.whatsappConnections) + ' WhatsApp connections' : '') + '</p>' +
+          '<a class="ds-btn ds-btn-outline ds-btn-sm" href="/superadmin/health/">Health</a>';
+
+        document.getElementById('activity').innerHTML = audit.length
+          ? audit.slice(0, 6).map(function (a) {
+              return '<div class="ds-clinic-meta" style="margin-bottom:8px"><strong>' + esc((a.action || '').replace(/_/g, ' ')) + '</strong><br>' + esc(a.createdAt ? new Date(a.createdAt).toLocaleString() : '') + '</div>';
+            }).join('') + '<a class="ds-btn ds-btn-outline ds-btn-sm" href="/superadmin/audit/">Audit log</a>'
+          : '<p class="ds-empty">No audit events yet.</p>';
       }).catch(function (err) {
         document.getElementById('kpis').innerHTML = '<div class="ds-error">' + esc(err.message || 'Could not load overview.') + '</div>';
       });

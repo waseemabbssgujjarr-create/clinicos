@@ -7,64 +7,119 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=8" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=9" />
   <link rel="stylesheet" href="/superadmin-theme.css?v=10" />
 </head>
 <body class="superadmin-app">
   <div class="sa-layout">
     <aside class="sa-sidebar" id="sa-sidebar"></aside>
     <main class="sa-main">
-      <div class="sa-content-card">
-        <div class="ds-page-header">
-          <div>
-            <h1>Revenue</h1>
-            <p>Estimated monthly revenue from active paid clinics. Stripe invoices remain the billing source of truth.</p>
-          </div>
-          <a class="ds-btn ds-btn-outline" href="/superadmin/stripe/">Stripe</a>
+      <div class="ds-work-header">
+        <div>
+          <h1 style="margin:0;font-size:1.25rem">Revenue overview</h1>
+          <p class="sa-subtitle" style="margin:4px 0 0">Estimated monthly revenue from active paid clinics. Stripe invoices remain the billing source of truth.</p>
         </div>
-        <div id="state" class="ds-loading">Loading revenue…</div>
-        <div id="content" style="display:none">
-          <div class="ds-kpis" id="kpis"></div>
-          <div class="ds-table-wrap">
-            <table class="ds-table">
-              <thead><tr><th>Month</th><th>Estimated revenue</th></tr></thead>
-              <tbody id="tbody"></tbody>
-            </table>
-          </div>
-          <h2 style="font-size:0.9375rem;margin:24px 0 12px">Plan mix</h2>
-          <div id="dist"></div>
+        <a class="ds-btn ds-btn-outline" href="/superadmin/stripe/">Stripe</a>
+      </div>
+      <div id="state" class="ds-loading">Loading revenue…</div>
+      <div id="content" style="display:none">
+        <div class="ds-kpis" id="kpis"></div>
+        <div class="ds-tabs" id="tabs">
+          <button type="button" class="active" data-t="trend">Trend</button>
+          <button type="button" data-t="history">History</button>
+          <button type="button" data-t="mix">Plan mix</button>
         </div>
+        <div id="tab-body" class="ds-section"></div>
       </div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=8"></script>
-  <script src="/dma-ui.js?v=1"></script>
+  <script src="/superadmin-admin-shell.js?v=9"></script>
+  <script src="/dma-ui.js?v=2"></script>
   <script>
     (function () {
       if (!DmaAdminShell.initStaticPage('/superadmin/revenue/')) return;
       var esc = DmaUI.esc;
-      DmaAdminShell.api('/api/superadmin/revenue').then(function (d) {
-        var monthly = d.monthly || [];
-        var dist = d.distribution || [];
+      var monthly = [];
+      var dist = [];
+      var tab = 'trend';
+
+      function money(n) { return '$' + Number(n || 0).toLocaleString(); }
+
+      function draw() {
+        var body = document.getElementById('tab-body');
+        if (tab === 'trend') {
+          if (!monthly.length) {
+            body.innerHTML = '<div class="ds-empty-panel"><strong>No revenue history yet</strong>Paid clinics will appear here as they convert from trial.</div>';
+            return;
+          }
+          var max = 1;
+          monthly.forEach(function (m) { if (Number(m.estimatedRevenue) > max) max = Number(m.estimatedRevenue); });
+          body.innerHTML = '<h2>Estimated revenue trend</h2><div class="ds-bars">' +
+            monthly.map(function (m) {
+              var h = Math.max(6, Math.round((Number(m.estimatedRevenue) / max) * 100));
+              return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">' +
+                '<div class="ds-bar" style="height:' + h + '%" title="' + esc(m.month) + ' ' + money(m.estimatedRevenue) + '"></div>' +
+                '<div class="ds-bar-label">' + esc(String(m.month).slice(5)) + '</div></div>';
+            }).join('') + '</div>';
+        } else if (tab === 'history') {
+          body.innerHTML = monthly.length
+            ? '<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th>Month</th><th>Estimated revenue</th></tr></thead><tbody>' +
+              monthly.map(function (m) {
+                return '<tr><td>' + esc(m.month) + '</td><td>' + money(m.estimatedRevenue) + '</td></tr>';
+              }).join('') + '</tbody></table></div>'
+            : '<div class="ds-empty-panel"><strong>No months recorded</strong></div>';
+        } else {
+          body.innerHTML = dist.length
+            ? '<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th>Plan</th><th>Clinics</th></tr></thead><tbody>' +
+              dist.map(function (g) {
+                return '<tr><td>' + esc(g.plan) + '</td><td>' + esc(g._count && g._count.plan) + '</td></tr>';
+              }).join('') + '</tbody></table></div>'
+            : '<div class="ds-empty-panel"><strong>No plan mix yet</strong></div>';
+        }
+      }
+
+      Promise.all([
+        DmaAdminShell.api('/api/superadmin/revenue'),
+        DmaAdminShell.api('/api/superadmin/stats').catch(function () { return {}; })
+      ]).then(function (parts) {
+        var d = parts[0] || {};
+        var s = parts[1] || {};
+        monthly = d.monthly || [];
+        dist = d.distribution || [];
         var last = monthly[monthly.length - 1] || {};
+        var prev = monthly[monthly.length - 2] || {};
+        var cur = Number(last.estimatedRevenue != null ? last.estimatedRevenue : s.mrr || 0);
+        var prevN = Number(prev.estimatedRevenue || 0);
+        var growth = prevN ? Math.round(((cur - prevN) / prevN) * 100) : 0;
+        var paid = 0, trial = 0;
+        dist.forEach(function (g) {
+          var n = Number(g._count && g._count.plan) || 0;
+          if (String(g.plan).toUpperCase() === 'TRIAL') trial += n;
+          else paid += n;
+        });
         document.getElementById('kpis').innerHTML =
-          '<div class="ds-kpi"><div><label>This month (est.)</label><strong>$' + esc(last.estimatedRevenue || 0) + '</strong></div></div>' +
-          '<div class="ds-kpi"><div><label>Months</label><strong>' + monthly.length + '</strong></div></div>';
-        document.getElementById('tbody').innerHTML = monthly.map(function (m) {
-          return '<tr><td>' + esc(m.month) + '</td><td>$' + esc(m.estimatedRevenue) + '</td></tr>';
-        }).join('');
-        document.getElementById('dist').innerHTML = dist.length
-          ? '<table class="ds-table"><thead><tr><th>Plan</th><th>Clinics</th></tr></thead><tbody>' +
-            dist.map(function (g) {
-              return '<tr><td>' + esc(g.plan) + '</td><td>' + esc(g._count && g._count.plan) + '</td></tr>';
-            }).join('') + '</tbody></table>'
-          : '<p class="ds-empty">No plan distribution yet.</p>';
+          '<div class="ds-kpi"><div><label>Current MRR</label><strong>' + money(s.mrr != null ? s.mrr : cur) + '</strong></div></div>' +
+          '<div class="ds-kpi"><div><label>Previous MRR</label><strong>' + money(prevN) + '</strong></div></div>' +
+          '<div class="ds-kpi"><div><label>Paid clinics</label><strong>' + esc(paid || s.activeClinics || 0) + '</strong></div></div>' +
+          '<div class="ds-kpi"><div><label>Trial clinics</label><strong>' + esc(trial) + '</strong></div></div>' +
+          '<div class="ds-kpi"><div><label>Growth</label><strong>' + (prevN ? (growth > 0 ? '+' : '') + growth + '%' : '—') + '</strong></div></div>';
         document.getElementById('state').style.display = 'none';
         document.getElementById('content').style.display = 'block';
+        draw();
       }).catch(function (err) {
         document.getElementById('state').className = 'ds-error';
         document.getElementById('state').textContent = err.message || 'Could not load revenue.';
       });
+
+      document.getElementById('tabs').onclick = function (e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+        tab = b.getAttribute('data-t');
+        [].forEach.call(document.getElementById('tabs').querySelectorAll('button'), function (x) {
+          x.classList.toggle('active', x === b);
+        });
+        draw();
+      };
     })();
   </script>
 </body>

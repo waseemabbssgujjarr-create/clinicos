@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=8" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=9" />
   <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=6" />
   <link rel="stylesheet" href="/dma-doctor-app.css?v=3" />
   <link rel="stylesheet" href="/dma-doctor-pages.css?v=1" />
@@ -16,7 +16,7 @@
     @media (max-width: 900px) { .leads-pipeline { grid-template-columns: repeat(2,1fr); } }
     @media (max-width: 480px) { .leads-pipeline { grid-template-columns: 1fr 1fr; gap: .625rem; } }
 
-    .pipeline-col { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; min-height: 400px; display: flex; flex-direction: column; }
+    .pipeline-col { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; min-height: 140px; display: flex; flex-direction: column; }
     .pipeline-col-header { padding: .875rem 1rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .pipeline-col-title { font-size: var(--f-sm); font-weight: 800; letter-spacing: .02em; }
     .pipeline-badge { font-size: .67rem; font-weight: 800; padding: 2px 8px; border-radius: var(--r-full); }
@@ -103,10 +103,7 @@
               <button class="active" onclick="switchView('kanban',this)">Kanban</button>
               <button onclick="switchView('list',this)">List</button>
             </div>
-            <button onclick="location.href='/dashboard/patients/'" style="display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 16px;background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;border:none;border-radius:var(--r-md);font-weight:700;font-size:var(--f-sm);cursor:pointer">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Add Patient
-            </button>
+            <button type="button" class="ds-btn ds-btn-primary" onclick="location.href='/dashboard/patients/'">Add patient</button>
           </div>
         </div>
 
@@ -189,7 +186,8 @@
   </div>
   <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
 
-  <script src="/dashboard-doctor-shell.js?v=5"></script>
+  <script src="/dashboard-doctor-shell.js?v=6"></script>
+  <script src="/dma-ui.js?v=2"></script>
   <script src="/dma-doctor-app.js?v=1"></script>
   <script src="/dashboard-bootstrap.js?v=2"></script>
   <script>
@@ -213,6 +211,38 @@
     }
 
     var allLeads = [];
+
+    function findLead(id) {
+      for (var i = 0; i < allLeads.length; i++) if (String(allLeads[i].id) === String(id)) return allLeads[i];
+      return null;
+    }
+
+    function openLead(l) {
+      if (!l) return;
+      if (window.DmaUI && DmaUI.drawer) {
+        DmaUI.drawer({
+          title: l.fullName || l.phone || 'Lead',
+          subtitle: (l.leadScore || '') + (l.status ? ' · ' + l.status : ''),
+          html: DmaUI.kv([
+            ['Phone', l.phone || '—'],
+            ['Email', l.email || '—'],
+            ['Score', l.leadScore || '—'],
+            ['Status', l.status || '—'],
+            ['Treatment', l.treatmentInterest || l.intent || '—'],
+            ['Source', l.source || '—'],
+            ['Updated', ago(l.updatedAt || l.createdAt)]
+          ]),
+          footer:
+            '<button type="button" class="ds-btn ds-btn-outline" data-close="1">Close</button>' +
+            '<a class="ds-btn ds-btn-outline" href="/dashboard/messages/' + (l.patientId ? '?patient=' + encodeURIComponent(l.patientId) : '') + '">Message</a>' +
+            (l.patientId
+              ? '<a class="ds-btn ds-btn-primary" href="/dashboard/appointments/?action=book&patient=' + encodeURIComponent(l.patientId) + '">Book</a>'
+              : '<a class="ds-btn ds-btn-primary" href="/dashboard/patients/?action=new">Add patient</a>')
+        });
+        return;
+      }
+      if (l.patientId) location.href = '/dashboard/patients/detail/?id=' + encodeURIComponent(l.patientId);
+    }
 
     function loadLeads() {
       fetch('/api/leads', { headers: ah(), credentials: 'include' })
@@ -261,18 +291,17 @@
           return;
         }
         col.innerHTML = buckets[k].slice(0, 20).map(function (l) {
-          var pid = l.patientId || '';
-          var href = pid
-            ? '/dashboard/patients/detail/?id=' + encodeURIComponent(pid)
-            : '/dashboard/messages/';
-          return '<a class="lead-card" href="' + href + '" style="text-decoration:none;color:inherit;display:block">' +
+          return '<article class="lead-card" data-id="' + esc(l.id) + '" role="button" tabindex="0">' +
             '<div class="lead-card-name">' + esc(l.fullName || l.phone) + '</div>' +
             '<div class="lead-card-phone">' + esc(l.phone || '') + '</div>' +
             '<div class="lead-card-footer">' +
               '<span class="lead-card-treatment">' + esc(l.treatmentInterest || l.intent || 'General') + '</span>' +
               '<span class="lead-card-time">' + ago(l.updatedAt || l.createdAt) + '</span>' +
-            '</div></a>';
+            '</div></article>';
         }).join('');
+        col.querySelectorAll('[data-id]').forEach(function (card) {
+          card.onclick = function () { openLead(findLead(card.getAttribute('data-id'))); };
+        });
       });
     }
 
@@ -299,7 +328,7 @@
         var score = (l.leadScore || 'COLD').toUpperCase();
         var status = l.status || 'NEW';
         var srcIcon = l.source === 'WHATSAPP' ? '📱' : l.source === 'EMAIL' ? '✉️' : '🌐';
-        return '<tr data-label="Patient">' +
+        return '<tr data-id="' + esc(l.id) + '">' +
           '<td data-label="Patient"><strong>' + esc(l.fullName || '—') + '</strong><br><span style="color:var(--muted);font-size:.72rem">' + esc(l.phone || '') + '</span></td>' +
           '<td data-label="Treatment">' + esc(l.treatmentInterest || l.intent || '—') + '</td>' +
           '<td data-label="Score"><span style="display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;color:' + (scoreColors[score] || '#94A3B8') + '">' +
@@ -316,6 +345,12 @@
           '</td>' +
           '</tr>';
       }).join('');
+      tbody.querySelectorAll('tr[data-id]').forEach(function (tr) {
+        tr.onclick = function (e) {
+          if (e.target.closest('a, button')) return;
+          openLead(findLead(tr.getAttribute('data-id')));
+        };
+      });
     }
 
     window.switchView = function (v, btn) {

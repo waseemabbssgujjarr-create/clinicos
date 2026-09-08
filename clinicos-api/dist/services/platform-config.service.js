@@ -48,6 +48,12 @@ const CATALOG = [
   { key: "CLOUDINARY_CLOUD_NAME", group: "cloudinary", label: "Cloudinary cloud name", secret: false, placeholder: "", guide: "Clinic logo uploads." },
   { key: "CLOUDINARY_API_KEY", group: "cloudinary", label: "Cloudinary API key", secret: false, placeholder: "", guide: "From Cloudinary dashboard." },
   { key: "CLOUDINARY_API_SECRET", group: "cloudinary", label: "Cloudinary API secret", secret: true, placeholder: "", guide: "Keep secret." },
+
+  { key: "EXT_CRM_ENABLED", group: "apiprovider", label: "External CRM provider enabled", secret: false, placeholder: "false", guide: "Admin-side flag only. Does not connect a live CRM. Meta WhatsApp remains the production provider." },
+  { key: "EXT_CRM_NAME", group: "apiprovider", label: "Provider name", secret: false, placeholder: "Internal API", guide: "Label for this admin workspace. Not a live integration." },
+  { key: "EXT_CRM_AUTH_MODE", group: "apiprovider", label: "Auth method", secret: false, placeholder: "bearer", guide: "Planned: bearer | hmac | none. Stored for future provider runtime." },
+  { key: "EXT_CRM_API_VERSION", group: "apiprovider", label: "API version", secret: false, placeholder: "v1", guide: "Documented version for the future public API." },
+  { key: "EXT_CRM_API_KEY", group: "apiprovider", label: "Provider API key", secret: true, placeholder: "", guide: "Optional secret for a future CRM/API provider. Leave blank to keep current. Does not send traffic until the runtime is built." },
 ];
 
 const GROUP_META = {
@@ -58,6 +64,7 @@ const GROUP_META = {
   meta: { title: "Meta WhatsApp (Cloud API)", description: "Approved Doctors My Agency Meta app. Clinics connect with Embedded Signup." },
   stripe: { title: "Stripe billing", description: "Required only when trials convert to paid plans." },
   cloudinary: { title: "Cloudinary", description: "Optional clinic logo / media uploads." },
+  apiprovider: { title: "API providers", description: "Admin architecture for a future external CRM/API. Meta Cloud API remains the live WhatsApp provider. Saving config here does not connect an external CRM." },
 };
 
 function isPlaceholder(v) {
@@ -161,6 +168,7 @@ function statusForGroup(group) {
   else if (group === "stripe") status = envReady("STRIPE_SECRET_KEY") ? "ready" : configured ? "partial" : "empty";
   else if (group === "cloudinary") status = envReady("CLOUDINARY_CLOUD_NAME") && envReady("CLOUDINARY_API_KEY") ? "ready" : configured ? "partial" : "empty";
   else if (group === "app") status = envReady("APP_URL") ? "ready" : configured ? "partial" : "empty";
+  else if (group === "apiprovider") status = envReady("EXT_CRM_API_KEY") || envReady("EXT_CRM_NAME") ? "partial" : "empty";
   return { configured, total: keys.length, status, requiredish: requiredish.length };
 }
 
@@ -210,6 +218,7 @@ async function getIntegrationsPayload() {
       twilio: `${process.env.APP_URL || "https://your-domain"}/api/webhooks/twilio`,
       meta: `${process.env.APP_URL || "https://your-domain"}/api/webhooks/meta`,
       stripe: `${process.env.APP_URL || "https://your-domain"}/api/webhooks/stripe`,
+      externalCrmReserved: `${process.env.APP_URL || "https://your-domain"}/api/webhooks/external-crm`,
     },
     groups,
   };

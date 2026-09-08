@@ -69,7 +69,7 @@
   if (!document.querySelector('link[href*="dma-design-system.css"]')) {
     var dsLink = document.createElement('link');
     dsLink.rel = 'stylesheet';
-    dsLink.href = '/dma-design-system.css?v=8';
+    dsLink.href = '/dma-design-system.css?v=9';
     document.head.appendChild(dsLink);
   }
   if (!isDocStatic && !isSaStatic && !document.querySelector('link[href*="dma-doctor-app.css"]')) {
@@ -468,9 +468,13 @@
   }
 
   if (!isDashboard()) return;
+  var isSaStatic = document.documentElement.classList.contains('sa-static') ||
+    (document.body && document.body.classList.contains('superadmin-app'));
+  var isDocStatic = document.documentElement.classList.contains('doc-static');
 
   // ── 2. Inject dark/light toggle button ──
   function injectThemeToggle() {
+    if (isSaStatic) return;
     if (document.getElementById('dma-theme-toggle')) return;
     var btn = document.createElement('button');
     btn.id = 'dma-theme-toggle';
@@ -499,7 +503,7 @@
 
   // ── 3. Inject mobile bottom navigation ──
   function injectMobileNav() {
-    if (document.getElementById('dma-mobile-nav')) return;
+    if (isDocStatic || document.getElementById('dma-bottom-nav') || document.getElementById('dma-mobile-nav')) return;
     if (!/^\/dashboard(\/|$)/.test(location.pathname)) return;
 
     var path = location.pathname.replace(/\/$/, '') || '/dashboard';

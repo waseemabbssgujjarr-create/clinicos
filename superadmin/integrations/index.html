@@ -2,235 +2,147 @@
 <html lang="en" class="sa-static">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Integrations — Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=8" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=9" />
   <link rel="stylesheet" href="/superadmin-theme.css?v=10" />
-  <style>
-    .int-actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:8px; }
-    .int-banner { padding:14px 16px; border-radius:12px; background:#fff7ed; border:1px solid #fdba74; color:#9a3412; font-size:.9rem; margin-bottom:16px; }
-    .int-ok { padding:14px 16px; border-radius:12px; background:#ecfdf5; border:1px solid #6ee7b7; color:#065f46; font-size:.9rem; margin-bottom:16px; display:none; }
-    .int-err { padding:14px 16px; border-radius:12px; background:#fef2f2; border:1px solid #fca5a5; color:#991b1b; font-size:.9rem; margin-bottom:16px; display:none; }
-    .int-webhooks { font-size:.85rem; color:#475569; margin:0 0 18px; line-height:1.55; padding:12px 14px; background:#f8fafc; border:1px solid #d0d7e2; border-radius:12px; }
-    .int-webhooks code { background:#fff; border:1px solid #e2e8f0; padding:2px 6px; border-radius:6px; }
-    .int-card h2 { margin:0 0 4px; font-size:1.05rem; color:#0f172a; }
-    .int-card .desc { color:#64748b; font-size:.9rem; margin:0 0 14px; }
-    .int-status { display:inline-block; font-size:.72rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:4px 8px; border-radius:999px; margin-left:8px; vertical-align:middle; border:1px solid transparent; }
-    .int-status.ready { background:#dcfce7; color:#166534; border-color:#86efac; }
-    .int-status.partial { background:#ffedd5; color:#9a3412; border-color:#fdba74; }
-    .int-status.empty { background:#f1f5f9; color:#475569; border-color:#cbd5e1; }
-    .int-field label span.source { font-weight:500; color:#94a3b8; font-size:.75rem; }
-  </style>
 </head>
 <body class="superadmin-app">
   <div class="sa-layout">
     <aside class="sa-sidebar" id="sa-sidebar"></aside>
     <main class="sa-main">
-      <div class="sa-content-card">
-        <h1>Integrations</h1>
-        <p class="sa-subtitle">Connect email, AI, WhatsApp, Stripe, and uploads — no code or .env edit required. Empty fields stay placeholders until you fill them.</p>
-        <div class="int-banner">
-          Doctors My Agency is a <strong>CRM for doctors, clinics, and hospitals</strong>. Patients reach clinics via private booking / WhatsApp / web chat links — there is no public marketplace.
+      <div class="ds-work-header">
+        <div>
+          <h1 style="margin:0;font-size:1.25rem">Integrations</h1>
+          <p class="sa-subtitle" style="margin:4px 0 0">Configure one provider at a time. Secrets stay masked. Empty fields keep the current value.</p>
         </div>
-        <div id="int-ok" class="int-ok"></div>
-        <div id="int-err" class="int-err"></div>
-        <div id="int-webhooks" class="int-webhooks"></div>
-        <div class="int-actions" style="margin-bottom:18px">
-          <button type="button" class="sa-btn-primary" id="int-save">Save integrations</button>
-          <button type="button" class="sa-btn-secondary" id="int-reload">Reload</button>
-          <button type="button" class="sa-btn-secondary" id="int-test-email">Send test email</button>
-          <a href="/superadmin/settings/" class="sa-btn-secondary">Settings</a>
+        <div class="ds-page-actions">
+          <button type="button" class="ds-btn ds-btn-outline" id="int-reload">Reload</button>
+          <button type="button" class="ds-btn ds-btn-outline" id="int-test-email">Test email</button>
+          <button type="button" class="ds-btn ds-btn-primary" id="int-save">Save this section</button>
         </div>
-        <div id="int-smtp-live" class="sa-alert sa-alert-warn" style="display:none"></div>
-        <div id="int-grid" class="int-grid"><p class="sa-hint">Loading…</p></div>
       </div>
+      <div id="int-ok" class="ds-empty" style="display:none"></div>
+      <div id="int-err" class="ds-error" style="display:none"></div>
+      <div id="int-smtp-live" class="ds-section-muted" style="display:none;padding:12px;margin-bottom:12px;border-radius:8px"></div>
+      <div class="ds-tabs" id="int-tabs"></div>
+      <div id="int-body" class="ds-section"><p class="ds-loading">Loading…</p></div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=4"></script>
+  <script src="/superadmin-admin-shell.js?v=9"></script>
+  <script src="/dma-ui.js?v=2"></script>
   <script>
     (function () {
       if (!DmaAdminShell.initStaticPage('/superadmin/integrations/')) return;
-
+      var TABS = [
+        ['overview', 'Overview'],
+        ['app', 'Application'],
+        ['email', 'Email / SMTP'],
+        ['ai', 'AI'],
+        ['meta', 'WhatsApp / Meta'],
+        ['twilio', 'Twilio'],
+        ['stripe', 'Stripe'],
+        ['cloudinary', 'Cloudinary'],
+        ['apiprovider', 'API providers']
+      ];
+      var tab = 'overview';
       var state = null;
-      var okEl = document.getElementById('int-ok');
-      var errEl = document.getElementById('int-err');
-      var grid = document.getElementById('int-grid');
-      var hooks = document.getElementById('int-webhooks');
+      var esc = DmaUI.esc;
 
-      function showOk(msg) {
-        okEl.style.display = 'block';
-        errEl.style.display = 'none';
-        okEl.textContent = msg;
-      }
-      function showErr(msg) {
-        errEl.style.display = 'block';
-        okEl.style.display = 'none';
-        errEl.textContent = msg;
-      }
+      function showOk(m) { document.getElementById('int-ok').style.display = 'block'; document.getElementById('int-ok').textContent = m; document.getElementById('int-err').style.display = 'none'; }
+      function showErr(m) { document.getElementById('int-err').style.display = 'block'; document.getElementById('int-err').textContent = m; document.getElementById('int-ok').style.display = 'none'; }
 
-      function renderSmtpLive(data) {
-        var box = document.getElementById('int-smtp-live');
-        if (!box) return;
-        var live = data && data.smtpLive;
-        var emailGroup = data && data.groups && data.groups.email;
-        if (live && live.ok) {
-          box.className = 'sa-alert sa-alert-ok';
-          box.style.display = 'block';
-          box.textContent = 'SMTP live check OK — ' + (live.host || '') + ' as ' + (live.user || '') + '. Verification emails can send.';
-          return;
-        }
-        if (emailGroup && emailGroup.liveError) {
-          box.className = 'sa-alert sa-alert-warn';
-          box.style.display = 'block';
-          box.textContent = 'SMTP not delivering: ' + emailGroup.liveError + ' — Re-type the SMTP password for your mailbox, Save, then Send test email.';
-          return;
-        }
-        if (live && live.error) {
-          box.className = 'sa-alert sa-alert-warn';
-          box.style.display = 'block';
-          box.textContent = 'SMTP not delivering: ' + live.error + ' — Password must match the mailbox in SMTP username (not an old .env password).';
-          return;
-        }
-        box.style.display = 'none';
-      }
-
-      function render() {
-        if (!state || !state.groups) {
-          grid.innerHTML = '<p class="sa-hint">No data</p>';
-          return;
-        }
-        renderSmtpLive(state);
-        if (state.webhookHints) {
-          hooks.innerHTML =
-            '<strong>Webhook URLs</strong> (paste in provider dashboards):<br>' +
-            'Twilio → <code>' + state.webhookHints.twilio + '</code><br>' +
-            (state.webhookHints.meta ? 'Meta WhatsApp → <code>' + state.webhookHints.meta + '</code><br>' : '') +
-            'Stripe → <code>' + state.webhookHints.stripe + '</code>';
-        }
-        var order = ['app', 'email', 'ai', 'meta', 'twilio', 'stripe', 'cloudinary'];
-        grid.innerHTML = order.map(function (id) {
-          var g = state.groups[id];
-          if (!g) return '';
-        var fields = (g.fields || []).map(function (f) {
-            // Special toggle rendering for WHATSAPP_EMBEDDED_SIGNUP_ENABLED
-            if (f.key === 'WHATSAPP_EMBEDDED_SIGNUP_ENABLED') {
-              var isOn = f.value === 'true' || f.value === '1';
-              var autoOn = (function() {
-                // Check if all Meta credentials are set (auto-enable condition)
-                var mGroup = state.groups && state.groups.meta;
-                if (!mGroup) return false;
-                var fields = mGroup.fields || [];
-                var hasAppId = fields.some(function(x){return x.key==='META_APP_ID'&&x.set;});
-                var hasSecret = fields.some(function(x){return x.key==='META_APP_SECRET'&&x.set;});
-                var hasConfigId = fields.some(function(x){return x.key==='META_CONFIG_ID'&&x.set;});
-                return hasAppId && hasSecret && hasConfigId;
-              })();
-              var effectivelyEnabled = isOn || autoOn;
-              var statusHtml = effectivelyEnabled
-                ? '<span style="background:#dcfce7;color:#166534;border:1px solid #86efac;padding:3px 8px;border-radius:6px;font-size:.72rem;font-weight:700">ENABLED' + (autoOn && !isOn ? ' (auto — all credentials set)' : '') + '</span>'
-                : '<span style="background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;padding:3px 8px;border-radius:6px;font-size:.72rem;font-weight:700">DISABLED</span>';
-              return (
-                '<div class="int-field" style="background:' + (effectivelyEnabled?'#f0fdf4':'#f8fafc') + ';border:1px solid ' + (effectivelyEnabled?'#86efac':'#e2e8f0') + ';border-radius:10px;padding:14px 16px;margin-bottom:8px">' +
-                  '<label style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px">' +
-                    '<span style="font-weight:700;color:#0f172a;font-size:.875rem">Connect WhatsApp button ' + statusHtml + '</span>' +
-                  '</label>' +
-                  '<p style="font-size:.8rem;color:#64748b;margin:0 0 10px">' +
-                    (effectivelyEnabled
-                      ? '✓ The "Connect WhatsApp with Meta" button will appear on the doctor\'s WhatsApp dashboard.'
-                      : 'Set to <code>true</code> to show the Connect button, or leave blank — button auto-enables when App ID, App Secret, and Config ID are all saved.') +
-                  '</p>' +
-                  '<input type="text" data-key="' + f.key + '" data-secret="0" placeholder="true / false (blank = auto)" value="' + (f.value||'') + '" autocomplete="off" style="max-width:160px" />' +
-                  '<div class="guide" style="margin-top:6px">' + f.guide + '</div>' +
-                '</div>'
-              );
-            }
-
-            var ph = f.secret
-              ? (f.set ? ('Saved: ' + (f.masked || '••••') + ' — leave blank to keep') : (f.placeholder || 'Not set'))
-              : (f.placeholder || '');
-            var valAttr = f.secret ? '' : (' value="' + String(f.value || '').replace(/"/g, '&quot;') + '"');
-            return (
-              '<div class="int-field">' +
-                '<label><span>' + f.label + '</span><span class="source">' + f.source + '</span></label>' +
-                '<input type="' + (f.secret ? 'password' : 'text') + '" data-key="' + f.key + '" data-secret="' + (f.secret ? '1' : '0') + '" placeholder="' + String(ph).replace(/"/g, '&quot;') + '"' + valAttr + ' autocomplete="off" />' +
-                '<div class="guide">' + (f.guide || '') + '</div>' +
-              '</div>'
-            );
-          }).join('');
-          return (
-            '<section class="int-card" data-group="' + id + '">' +
-              '<h2>' + g.title + '<span class="int-status ' + g.status + '">' + g.status + '</span></h2>' +
-              '<p class="desc">' + g.description + '</p>' +
-              fields +
-            '</section>'
-          );
+      function drawTabs() {
+        document.getElementById('int-tabs').innerHTML = TABS.map(function (t) {
+          var g = state && state.groups && state.groups[t[0]];
+          var st = g ? ' · ' + g.status : '';
+          return '<button type="button" data-t="' + t[0] + '" class="' + (tab === t[0] ? 'active' : '') + '">' + t[1] + (t[0] !== 'overview' ? st : '') + '</button>';
         }).join('');
       }
 
-      function load() {
-        grid.innerHTML = '<p class="sa-hint">Loading…</p>';
-        return DmaAdminShell.api('/api/superadmin/integrations')
-          .then(function (data) {
-            state = data;
-            render();
-          })
-          .catch(function (e) {
-            showErr(e.message || 'Failed to load integrations');
-            grid.innerHTML = '<p class="sa-hint">Could not load. Is the Node API running? Upload latest superadmin routes and restart.</p>';
-          });
+      function fieldHtml(f) {
+        var ph = f.secret ? (f.set ? ('Saved: ' + (f.masked || '••••') + ' — leave blank to keep') : (f.placeholder || 'Not set')) : (f.placeholder || '');
+        var valAttr = f.secret ? '' : (' value="' + String(f.value || '').replace(/"/g, '&quot;') + '"');
+        return '<div class="int-field dma-field"><label>' + esc(f.label) + ' <span class="source" style="color:var(--ds-muted);font-weight:500">' + esc(f.source || '') + '</span></label>' +
+          '<input class="cos-input" type="' + (f.secret ? 'password' : 'text') + '" data-key="' + f.key + '" data-secret="' + (f.secret ? '1' : '0') + '" placeholder="' + String(ph).replace(/"/g, '&quot;') + '"' + valAttr + ' autocomplete="off" />' +
+          '<p class="guide cos-hint">' + esc(f.guide || '') + '</p></div>';
       }
 
-      function save() {
+      function render() {
+        drawTabs();
+        var body = document.getElementById('int-body');
+        if (tab === 'overview') {
+          var groups = (state && state.groups) || {};
+          var hooks = state && state.webhookHints || {};
+          body.innerHTML =
+            '<p class="cos-hint">Status is configuration state, not a live vendor connection except where Health verifies SMTP.</p>' +
+            '<div class="ds-ops-grid-3">' +
+            TABS.filter(function (t) { return t[0] !== 'overview'; }).map(function (t) {
+              var g = groups[t[0]] || {};
+              return '<div class="int-card"><strong>' + t[1] + '</strong> ' + DmaUI.badge(g.status || 'empty', g.status === 'ready' ? 'ok' : g.status === 'partial' ? 'warn' : 'off') +
+                '<p class="cos-hint" style="margin:8px 0 0">' + esc(g.description || '') + '</p></div>';
+            }).join('') + '</div>' +
+            '<div class="ds-section-muted" style="margin-top:16px;padding:12px;border-radius:8px">' +
+            '<strong>Webhook URLs</strong><br>Meta: <code>' + esc(hooks.meta) + '</code> <button type="button" class="ds-btn ds-btn-outline ds-btn-sm" data-copy="' + esc(hooks.meta || '') + '">Copy</button><br>' +
+            'Stripe: <code>' + esc(hooks.stripe) + '</code><br>Twilio: <code>' + esc(hooks.twilio) + '</code></div>';
+          body.onclick = function (e) {
+            var b = e.target.closest('[data-copy]');
+            if (b) DmaUI.copy(b.getAttribute('data-copy'));
+          };
+          return;
+        }
+        var g = state.groups && state.groups[tab];
+        if (!g) { body.innerHTML = '<p class="ds-empty">This section has no fields yet.</p>'; return; }
+        body.innerHTML = '<div class="int-card"><h2 style="margin:0 0 8px;text-transform:none;font-size:1rem;color:var(--ds-text)">' + esc(g.title) + ' ' + DmaUI.badge(g.status, g.status === 'ready' ? 'ok' : g.status === 'partial' ? 'warn' : 'off') + '</h2>' +
+          '<p class="desc cos-hint">' + esc(g.description) + '</p>' +
+          (g.fields || []).map(fieldHtml).join('') + '</div>';
+      }
+
+      function load() {
+        return DmaAdminShell.api('/api/superadmin/integrations').then(function (data) {
+          state = data;
+          var box = document.getElementById('int-smtp-live');
+          if (data.smtpLive && data.smtpLive.ok) { box.style.display = 'block'; box.textContent = 'SMTP live check OK.'; }
+          else if (data.smtpLive && data.smtpLive.error) { box.style.display = 'block'; box.textContent = 'SMTP: ' + data.smtpLive.error; }
+          else box.style.display = 'none';
+          render();
+        }).catch(function (e) { showErr(e.message || 'Failed to load'); });
+      }
+
+      document.getElementById('int-tabs').onclick = function (e) {
+        var b = e.target.closest('button'); if (!b) return;
+        tab = b.getAttribute('data-t'); render();
+      };
+      document.getElementById('int-save').onclick = function () {
+        if (tab === 'overview') { showOk('Select a provider tab to save.'); return; }
         var settings = {};
-        var inputs = grid.querySelectorAll('input[data-key]');
-        inputs.forEach(function (el) {
-          var key = el.getAttribute('data-key');
+        document.querySelectorAll('#int-body input[data-key]').forEach(function (el) {
           var secret = el.getAttribute('data-secret') === '1';
-          var val = el.value;
-          if (secret && !String(val || '').trim()) return;
-          settings[key] = val;
+          if (secret && !String(el.value || '').trim()) return;
+          settings[el.getAttribute('data-key')] = el.value;
         });
-        document.getElementById('int-save').disabled = true;
+        var btn = document.getElementById('int-save');
+        btn.disabled = true;
         DmaAdminShell.api('/api/superadmin/integrations', { method: 'PUT', body: { settings: settings } })
           .then(function (data) {
             state = data.integrations || data;
             render();
-            showOk('Saved ' + (data.saved || []).length + ' setting(s). Secrets left blank were kept unchanged.');
+            showOk('Saved this section. Blank secrets were unchanged.');
+            DmaUI.toast('Saved', 'ok');
           })
-          .catch(function (e) {
-            showErr(e.message || 'Save failed');
-          })
-          .finally(function () {
-            document.getElementById('int-save').disabled = false;
-          });
-      }
-
-      document.getElementById('int-save').onclick = save;
-      document.getElementById('int-reload').onclick = function () { load(); };
-      document.getElementById('int-test-email').onclick = function () {
-        var to = window.prompt('Send test email to:', (localStorage.getItem('token') && '') || 'admin@doctorsmyagency.com');
-        try {
-          var raw = localStorage.getItem('clinicos-store');
-          if (raw) {
-            var u = JSON.parse(raw).state && JSON.parse(raw).state.user;
-            if (u && u.email) to = window.prompt('Send test email to:', u.email) || u.email;
-          }
-        } catch (_) {}
-        if (!to) return;
-        var btn = document.getElementById('int-test-email');
-        btn.disabled = true;
-        DmaAdminShell.api('/api/superadmin/integrations/test-email', { method: 'POST', body: { to: to } })
-          .then(function (data) {
-            showOk(data.message || ('Test email sent to ' + to + '. Check inbox and spam.'));
-            return load();
-          })
-          .catch(function (e) {
-            showErr((e.message || 'Test failed') + ' — Re-enter SMTP password for the workee mailbox, Save, restart Node if needed.');
-          })
+          .catch(function (e) { showErr(e.message || 'Save failed'); })
           .finally(function () { btn.disabled = false; });
+      };
+      document.getElementById('int-reload').onclick = load;
+      document.getElementById('int-test-email').onclick = function () {
+        var to = window.prompt('Send test email to:');
+        if (!to) return;
+        DmaAdminShell.api('/api/superadmin/integrations/test-email', { method: 'POST', body: { to: to } })
+          .then(function (d) { showOk(d.message || 'Sent'); })
+          .catch(function (e) { showErr(e.message || 'Test failed'); });
       };
       load();
     })();

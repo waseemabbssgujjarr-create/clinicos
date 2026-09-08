@@ -5,7 +5,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=8';
+    ds.href = '/dma-design-system.css?v=9';
     document.head.appendChild(ds);
   }
   var GROUPS = [

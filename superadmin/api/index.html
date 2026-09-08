@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" class="sa-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>WhatsApp API — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=9" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=10" />
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="ds-work-header">
+        <div>
+          <h1 style="margin:0;font-size:1.25rem">WhatsApp API / providers</h1>
+          <p class="sa-subtitle" style="margin:4px 0 0">Admin architecture for a future external CRM. Meta Cloud API is the live provider. Nothing here claims an external CRM is connected.</p>
+        </div>
+      </div>
+      <div class="ds-tabs" id="tabs">
+        <button type="button" class="active" data-t="overview">Overview</button>
+        <button type="button" data-t="meta">Meta Cloud API</button>
+        <button type="button" data-t="external">External CRM</button>
+        <button type="button" data-t="docs">Reference</button>
+        <button type="button" data-t="logs">Logs</button>
+      </div>
+      <div id="body" class="ds-section"><p class="ds-loading">Loading…</p></div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=9"></script>
+  <script src="/dma-ui.js?v=2"></script>
+  <script>
+    (function () {
+      if (!DmaAdminShell.initStaticPage('/superadmin/api/')) return;
+      var tab = 'overview';
+      var state = null;
+      var esc = DmaUI.esc;
+
+      function render() {
+        var body = document.getElementById('body');
+        var g = (state && state.groups) || {};
+        var meta = g.meta || {};
+        var ext = g.apiprovider || {};
+        var hooks = (state && state.webhookHints) || {};
+        if (tab === 'overview') {
+          body.innerHTML =
+            '<div class="ds-kpis">' +
+              '<div class="ds-kpi"><div><label>Live provider</label><strong>Meta Cloud API</strong><span class="sub" style="color:var(--ds-muted);font-size:0.75rem">Production WhatsApp</span></div></div>' +
+              '<div class="ds-kpi"><div><label>Meta config</label><strong>' + esc(meta.status || 'unknown') + '</strong></div></div>' +
+              '<div class="ds-kpi"><div><label>External CRM</label><strong>Not connected</strong><span class="sub" style="color:var(--ds-muted);font-size:0.75rem">Admin scaffold only</span></div></div>' +
+            '</div>' +
+            '<p class="cos-hint">Webhook for live traffic: <code>' + esc(hooks.meta) + '</code> <button type="button" class="ds-btn ds-btn-outline ds-btn-sm" id="copy-meta">Copy</button></p>' +
+            '<p class="cos-hint">Reserved future CRM webhook (not implemented): <code>' + esc(hooks.externalCrmReserved) + '</code></p>';
+          var c = document.getElementById('copy-meta');
+          if (c) c.onclick = function () { DmaUI.copy(hooks.meta); };
+        } else if (tab === 'meta') {
+          body.innerHTML = '<p class="cos-hint">Edit Meta credentials in Integrations → WhatsApp / Meta. This tab is status only so live send/webhook flow is not duplicated.</p>' +
+            DmaUI.kv([['Status', meta.status], ['Configured fields', String(meta.configured || 0) + ' / ' + String(meta.total || 0)]]) +
+            '<a class="ds-btn ds-btn-primary" href="/superadmin/integrations/">Open Meta settings</a> ' +
+            '<a class="ds-btn ds-btn-outline" href="/superadmin/whatsapp/">Clinic connections</a>';
+        } else if (tab === 'external') {
+          var fields = ext.fields || [];
+          body.innerHTML = '<div class="int-card"><p class="cos-hint">' + esc(ext.description || '') + '</p>' +
+            fields.map(function (f) {
+              var ph = f.secret ? (f.set ? ('Saved: ' + (f.masked || '••••') + ' — leave blank to keep') : 'Not set') : (f.placeholder || '');
+              var valAttr = f.secret ? '' : (' value="' + String(f.value || '').replace(/"/g, '&quot;') + '"');
+              return '<div class="dma-field"><label>' + esc(f.label) + '</label><input data-key="' + f.key + '" data-secret="' + (f.secret ? '1' : '0') + '" placeholder="' + String(ph).replace(/"/g,'&quot;') + '"' + valAttr + '></div>';
+            }).join('') +
+            '<button type="button" class="ds-btn ds-btn-primary" id="ext-save">Save provider config</button></div>' +
+            '<p class="cos-hint">Saving does not send traffic to an external CRM.</p>';
+          var btn = document.getElementById('ext-save');
+          if (btn) btn.onclick = function () {
+            var settings = {};
+            body.querySelectorAll('input[data-key]').forEach(function (el) {
+              if (el.getAttribute('data-secret') === '1' && !String(el.value || '').trim()) return;
+              settings[el.getAttribute('data-key')] = el.value;
+            });
+            btn.disabled = true;
+            DmaAdminShell.api('/api/superadmin/integrations', { method: 'PUT', body: { settings: settings } })
+              .then(function (d) { state = d.integrations || d; DmaUI.toast('Saved', 'ok'); render(); })
+              .catch(function (e) { DmaUI.toast(e.message || 'Save failed', 'err'); })
+              .finally(function () { btn.disabled = false; });
+          };
+        } else if (tab === 'docs') {
+          body.innerHTML = '<div class="int-card"><h2 style="text-transform:none;font-size:1rem;color:var(--ds-text)">Reference</h2>' +
+            '<p class="cos-hint">Live path: inbound Meta webhook → clinic resolution → conversation engine → Meta send. Future CRM/API will sit beside this, not replace it.</p>' +
+            '<p class="cos-hint">Auth (planned): bearer token or HMAC. Version: stored as EXT_CRM_API_VERSION.</p>' +
+            '<p class="cos-hint">Test request: not available until the provider runtime exists. Do not treat this page as a live CRM console.</p></div>';
+        } else {
+          body.innerHTML = '<p class="ds-empty">No provider runtime logs yet. Clinic WhatsApp delivery lives in Audit and clinic Activity.</p>' +
+            '<a class="ds-btn ds-btn-outline" href="/superadmin/audit/">Open audit</a>';
+        }
+      }
+
+      document.getElementById('tabs').onclick = function (e) {
+        var b = e.target.closest('button'); if (!b) return;
+        tab = b.getAttribute('data-t');
+        [].forEach.call(document.getElementById('tabs').querySelectorAll('button'), function (x) { x.classList.toggle('active', x === b); });
+        render();
+      };
+
+      DmaAdminShell.api('/api/superadmin/integrations').then(function (d) { state = d; render(); })
+        .catch(function (e) { document.getElementById('body').innerHTML = '<p class="ds-error">' + esc(e.message) + '</p>'; });
+    })();
+  </script>
+</body>
+</html>

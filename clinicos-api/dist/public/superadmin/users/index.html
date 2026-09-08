@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=8" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=9" />
   <link rel="stylesheet" href="/superadmin-theme.css?v=10" />
 </head>
 <body class="superadmin-app">
@@ -41,8 +41,8 @@
       </div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=8"></script>
-  <script src="/dma-ui.js?v=1"></script>
+  <script src="/superadmin-admin-shell.js?v=9"></script>
+  <script src="/dma-ui.js?v=2"></script>
   <script>
     (function () {
       if (!DmaAdminShell.initStaticPage('/superadmin/users/')) return;
@@ -57,21 +57,32 @@
         catch (_) { return iso; }
       }
 
+      function initials(name) {
+        return String(name || '?').split(/\s+/).slice(0, 2).map(function (w) { return (w[0] || '').toUpperCase(); }).join('');
+      }
+
       function openUser(u) {
-        var html =
-          '<dl class="sa-info-list">' +
-          '<div><dt>Name</dt><dd>' + esc(u.name || u.ownerName) + '</dd></div>' +
-          '<div><dt>Email</dt><dd>' + esc(u.email) + '</dd></div>' +
-          '<div><dt>Phone</dt><dd>' + esc(u.phone || '—') + '</dd></div>' +
-          '<div><dt>Role</dt><dd>' + esc(u.kind === 'staff' ? (u.role || 'STAFF') : 'OWNER') + '</dd></div>' +
-          '<div><dt>Clinic</dt><dd>' + esc(u.clinicName || '—') + '</dd></div>' +
-          '<div><dt>Status</dt><dd>' + (u.isActive ? 'Active' : 'Suspended') + '</dd></div>' +
-          '<div><dt>Joined</dt><dd>' + esc(fmtDate(u.createdAt)) + '</dd></div>' +
-          (u.patientCount != null ? '<div><dt>Patients</dt><dd>' + esc(u.patientCount) + '</dd></div>' : '') +
-          (u.staffCount != null ? '<div><dt>Staff</dt><dd>' + esc(u.staffCount) + '</dd></div>' : '') +
-          '</dl>' +
-          (u.clinicId ? '<p style="margin-top:16px"><a class="ds-btn ds-btn-primary" href="/superadmin/clinics/' + encodeURIComponent(u.clinicId) + '/">Open clinic workspace</a></p>' : '');
-        DmaUI.drawer({ title: u.name || u.email || 'User', html: html });
+        var role = u.kind === 'staff' ? (u.role || 'STAFF') : 'OWNER';
+        DmaUI.drawer({
+          title: u.name || u.ownerName || u.email || 'User',
+          subtitle: role + ' · ' + (u.clinicName || ''),
+          html:
+            '<div class="ds-avatar-lg">' + esc(initials(u.name || u.ownerName || u.email)) + '</div>' +
+            DmaUI.kv([
+              ['Name', u.name || u.ownerName],
+              ['Email', u.email],
+              ['Phone', u.phone || '—'],
+              ['Role', role],
+              ['Clinic', u.clinicName || '—'],
+              ['Status', u.isActive ? 'Active' : 'Suspended'],
+              ['Joined', fmtDate(u.createdAt)],
+              ['Last activity', fmtDate(u.lastActivity || u.lastLogin)]
+            ]) +
+            (u.patientCount != null ? '<p class="cos-hint">' + esc(u.patientCount) + ' patients · ' + esc(u.staffCount || 0) + ' staff</p>' : ''),
+          footer:
+            '<button type="button" class="ds-btn ds-btn-outline" data-close="1">Close</button>' +
+            (u.clinicId ? '<a class="ds-btn ds-btn-primary" href="/superadmin/clinics/' + encodeURIComponent(u.clinicId) + '/">Open clinic</a>' : '')
+        });
       }
 
       function render() {

@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=8" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=9" />
   <link rel="stylesheet" href="/superadmin-theme.css?v=8" />
   <style>
     .health-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem; }
@@ -44,10 +44,7 @@
           </div>
           <div style="display:flex;gap:.625rem;align-items:center">
             <span id="last-checked" style="font-size:.72rem;color:var(--muted)">Checking…</span>
-            <button onclick="runChecks()" style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;border:none;border-radius:var(--r-md);font-size:var(--f-sm);font-weight:700;cursor:pointer">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-              Re-check
-            </button>
+            <button type="button" class="ds-btn ds-btn-primary" onclick="runChecks()">Refresh</button>
           </div>
         </div>
 
@@ -71,14 +68,14 @@
 
         <!-- Recent logs -->
         <div>
-          <p style="font-size:var(--f-base);font-weight:800;color:var(--text-1);margin:0 0 .75rem;font-family:'Montserrat',sans-serif">Recent Startup Log</p>
-          <div class="log-block" id="startup-log">Loading startup log…</div>
+          <button type="button" class="ds-btn ds-btn-outline" id="toggle-logs">View startup logs</button>
+          <div class="ds-log" id="log-wrap"><div class="log-block" id="startup-log">Loading startup log…</div></div>
         </div>
       </div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=4"></script>
-  <script src="/dashboard-bootstrap.js"></script>
+  <script src="/superadmin-admin-shell.js?v=9"></script>
+  <script src="/dma-ui.js?v=2"></script>
   <script>
   (function () {
     if (!DmaAdminShell.initStaticPage('/superadmin/health/')) return;
@@ -222,6 +219,15 @@
       .catch(function () {
         document.getElementById('startup-log').textContent = 'Log not accessible from browser (server-side file).\nCheck clinicos-api/logs/startup.log on the server.';
       });
+
+    var toggleLogs = document.getElementById('toggle-logs');
+    if (toggleLogs) {
+      toggleLogs.onclick = function () {
+        var wrap = document.getElementById('log-wrap');
+        var open = wrap.classList.toggle('open');
+        toggleLogs.textContent = open ? 'Hide startup logs' : 'View startup logs';
+      };
+    }
 
     runChecks();
     setTimeout(runChecks, 30000); // auto-refresh every 30s

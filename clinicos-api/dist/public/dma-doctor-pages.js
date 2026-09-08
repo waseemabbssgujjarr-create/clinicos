@@ -16,6 +16,19 @@
     return 'Good evening';
   }
 
+  function drawer(opts) {
+    if (global.DmaUI && DmaUI.drawer) return DmaUI.drawer(opts);
+    A().modal(opts.title, opts.html, opts.footer || '');
+    return {
+      close: function () { A().closeModal(); },
+      setBody: function (html) {
+        var b = document.querySelector('.dma-modal-b, .ds-drawer-b');
+        if (b) b.innerHTML = html;
+      },
+      el: document.getElementById('ds-drawer') || document.querySelector('.dma-modal')
+    };
+  }
+
   function firstName() {
     var u = A().user();
     var n = (u.ownerName || u.name || 'Doctor').trim().split(/\s+/)[0];
@@ -36,29 +49,20 @@
     var u = A().user();
     root.innerHTML =
       '<div class="dma-head dma-head-home"><div><h1>' + greeting() + ', ' + esc(firstName()) + '</h1>' +
-      '<p>Your clinic today — appointments, leads, and WhatsApp in one place.</p></div>' +
+      '<p>Today’s work — appointments, inbox, and leads that need a response.</p></div>' +
       '<div class="dma-head-actions">' +
         '<a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">WhatsApp</a>' +
         '<a class="dma-btn dma-btn-primary" href="/dashboard/appointments/?action=book">New appointment</a>' +
       '</div></div>' +
-      '<div id="home-wa"></div>' +
+      '<div id="home-status"></div>' +
       '<div class="dma-kpis" id="home-kpis">' + A().spinner() + '</div>' +
       '<div class="dma-grid-2">' +
         '<section class="dma-panel"><div class="dma-panel-h"><h2>Today’s appointments</h2><a href="/dashboard/appointments/?filter=today">View all</a></div><div class="dma-panel-b" id="home-appts"></div></section>' +
         '<div class="dma-stack">' +
-          '<section class="dma-panel"><div class="dma-panel-h"><h2>Hot leads</h2><a href="/dashboard/leads/">Pipeline</a></div><div class="dma-panel-b" id="home-leads"></div></section>' +
-          '<section class="dma-panel"><div class="dma-panel-h"><h2>Updates</h2><a href="/dashboard/notifications/">Inbox</a></div><div class="dma-panel-b" id="home-notes"></div></section>' +
+          '<section class="dma-panel"><div class="dma-panel-h"><h2>Needs attention</h2></div><div class="dma-panel-b" id="home-attn"></div></section>' +
+          '<section class="dma-panel"><div class="dma-panel-h"><h2>Recent activity</h2><a href="/dashboard/notifications/">Updates</a></div><div class="dma-panel-b" id="home-notes"></div></section>' +
         '</div>' +
-      '</div>' +
-      '<section class="dma-panel" style="margin-top:16px"><div class="dma-panel-h"><h2>Quick actions</h2></div>' +
-        '<div class="dma-panel-b dma-qa-grid">' +
-          '<a class="dma-btn dma-btn-ghost" href="/dashboard/patients/?action=new">Add patient</a>' +
-          '<a class="dma-btn dma-btn-ghost" href="/dashboard/messages/">Open inbox</a>' +
-          '<a class="dma-btn dma-btn-ghost" href="/dashboard/broadcasts/">Send broadcast</a>' +
-          '<a class="dma-btn dma-btn-ghost" href="/dashboard/ai/?tab=test">Test AI receptionist</a>' +
-          '<a class="dma-btn dma-btn-ghost" href="/dashboard/settings/?tab=treatments">Edit treatments</a>' +
-          '<a class="dma-btn dma-btn-ghost" href="/dashboard/reviews/">Request reviews</a>' +
-        '</div></section>';
+      '</div>';
 
     Promise.all([
       A().get('/api/analytics/overview').catch(function () { return {}; }),
@@ -67,24 +71,34 @@
       A().get('/api/notifications').catch(function () { return []; }),
       A().waStatus().catch(function () { return {}; }),
       A().get('/api/messages/stats').catch(function () { return {}; }),
+      A().get('/api/ai/training-profile').catch(function () { return {}; }),
     ]).then(function (parts) {
       var ov = parts[0] || {};
       var appts = parts[1].data || parts[1].appointments || [];
-      var leads = (parts[2].leads || []).filter(function (l) { return (l.leadScore || '').toUpperCase() === 'HOT'; }).slice(0, 5);
+      var leadList = parts[2].leads || [];
+      var newLeads = leadList.filter(function (l) { return String(l.status || '').toUpperCase() === 'NEW' || String(l.leadScore || '').toUpperCase() === 'HOT'; }).slice(0, 5);
       var notes = Array.isArray(parts[3]) ? parts[3].slice(0, 5) : (parts[3].notifications || []).slice(0, 5);
       var wa = parts[4] || {};
       var ms = parts[5] || {};
+      var train = parts[6] || {};
       var connected = !!(wa.connected || wa.status === 'connected' || wa.status === 'CONNECTED');
+      var published = !!(train.isPublished || train.publishedAt);
 
-      el('home-wa').innerHTML = connected
-        ? '<div class="dma-banner ok">WhatsApp is connected' + (wa.phoneNumber ? ' · ' + esc(wa.phoneNumber) : '') + '. <a href="/dashboard/messages/">Open inbox</a> · <a href="/dashboard/ai/">Train AI</a></div>'
-        : '<div class="dma-banner warn">WhatsApp is not connected. Patients cannot message your clinic until you finish Meta Embedded Signup. <a href="/dashboard/whatsapp/">Connect WhatsApp</a></div>';
+      el('home-status').innerHTML =
+        '<div class="dma-grid-2" style="margin-bottom:16px">' +
+          '<div class="dma-banner ' + (connected ? 'ok' : 'warn') + '">WhatsApp ' + (connected ? 'connected' : 'not connected') +
+            (wa.phoneNumber ? ' · ' + esc(wa.phoneNumber) : '') +
+            (connected ? ' · <a href="/dashboard/messages/">Inbox</a>' : ' · <a href="/dashboard/whatsapp/">Connect</a>') + '</div>' +
+          '<div class="dma-banner ' + (published ? 'ok' : 'warn') + '">AI receptionist ' +
+            (published ? 'published' : 'draft only') +
+            ' · <a href="/dashboard/ai/">Train AI</a></div>' +
+        '</div>';
 
       var kpis = [
-        { label: 'Appointments', val: (ov.appointments && ov.appointments.value) != null ? ov.appointments.value : appts.length, sub: 'this month', bg: '#DBEAFE', c: '#2563EB', icon: ICONS.cal },
-        { label: 'Patients', val: ov.totalPatients != null ? ov.totalPatients : '—', sub: 'active', bg: '#EDE9FE', c: '#7C3AED', icon: ICONS.users },
-        { label: 'Needs reply', val: ms.needsManualReply != null ? ms.needsManualReply : '—', sub: 'inbox', bg: '#FFEDD5', c: '#EA580C', icon: ICONS.msg },
-        { label: 'Revenue', val: ov.revenue ? A().money(ov.revenue.value) : '—', sub: 'this month', bg: '#DCFCE7', c: '#16A34A', icon: ICONS.bill },
+        { label: 'Today', val: appts.length, sub: 'appointments', bg: '#DBEAFE', c: '#2563EB', icon: ICONS.cal },
+        { label: 'Unread', val: ms.needsManualReply != null ? ms.needsManualReply : (ms.unread != null ? ms.unread : '—'), sub: 'conversations', bg: '#FFEDD5', c: '#EA580C', icon: ICONS.msg },
+        { label: 'New leads', val: leadList.filter(function (l) { return String(l.status || 'NEW').toUpperCase() === 'NEW'; }).length, sub: 'pipeline', bg: '#FFEDD5', c: '#EA580C', icon: ICONS.users },
+        { label: 'Patients', val: ov.totalPatients != null ? ov.totalPatients : '—', sub: 'active charts', bg: '#EDE9FE', c: '#7C3AED', icon: ICONS.users },
       ];
       el('home-kpis').innerHTML = kpis.map(function (k) {
         return '<div class="dma-kpi"><div class="dma-kpi-icon" style="background:' + k.bg + ';color:' + k.c + '">' + k.icon + '</div><div><label>' + k.label + '</label><strong>' + esc(k.val) + '</strong><span class="sub">' + k.sub + '</span></div></div>';
@@ -93,21 +107,22 @@
       el('home-appts').innerHTML = appts.length
         ? appts.map(function (a) {
             var p = a.patient || {};
-            return '<a class="dma-row-item" href="/dashboard/patients/detail/?id=' + esc(a.patientId || p.id) + '">' +
+            return '<a class="dma-row-item" href="/dashboard/appointments/?id=' + esc(a.id) + '">' +
               '<div class="dma-avatar">' + A().initials(p.fullName) + '</div>' +
               '<div><div class="name">' + esc(p.fullName || 'Patient') + '</div><div class="sub">' + esc(a.treatment || 'Visit') + ' · ' + A().chip(a.status) + '</div></div>' +
               '<div class="meta">' + A().fmtTime(a.dateTime) + '</div></a>';
           }).join('')
         : A().empty('No appointments today', 'Book a visit or wait for WhatsApp bookings.', '/dashboard/appointments/?action=book', 'Book now');
 
-      el('home-leads').innerHTML = leads.length
-        ? leads.map(function (l) {
-            return '<a class="dma-row-item" href="/dashboard/leads/?id=' + esc(l.id) + '">' +
-              '<div class="dma-avatar">' + A().initials(l.fullName || l.phone) + '</div>' +
-              '<div><div class="name">' + esc(l.fullName || l.phone || 'Lead') + '</div><div class="sub">' + esc(l.treatmentInterest || 'General') + '</div></div>' +
-              '<div class="meta">' + A().chip(l.leadScore || 'HOT') + '</div></a>';
-          }).join('')
-        : '<p class="dma-hint">No hot leads yet. They appear when WhatsApp conversations show booking intent.</p>';
+      var attn = [];
+      if (!connected) attn.push('<a class="dma-row-item" href="/dashboard/whatsapp/"><div><div class="name">Connect WhatsApp</div><div class="sub">Patients cannot message until Meta is live.</div></div></a>');
+      if (!published) attn.push('<a class="dma-row-item" href="/dashboard/ai/?tab=publish"><div><div class="name">Publish AI training</div><div class="sub">WhatsApp still uses the last published profile.</div></div></a>');
+      if (newLeads.length) {
+        newLeads.forEach(function (l) {
+          attn.push('<a class="dma-row-item" href="/dashboard/leads/?id=' + esc(l.id) + '"><div><div class="name">' + esc(l.fullName || l.phone || 'Lead') + '</div><div class="sub">' + esc(l.treatmentInterest || 'Follow up') + '</div></div>' + A().chip(l.leadScore || 'NEW') + '</a>');
+        });
+      }
+      el('home-attn').innerHTML = attn.length ? attn.join('') : '<p class="dma-hint">Nothing needs attention right now.</p>';
 
       el('home-notes').innerHTML = notes.length
         ? notes.map(function (n) {
@@ -124,60 +139,105 @@
     bill: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></svg>',
   };
 
+  function openApptDrawer(a, onChanged) {
+    var p = a.patient || {};
+    var pid = a.patientId || p.id || '';
+    var d = drawer({
+      title: p.fullName || 'Appointment',
+      subtitle: (a.treatment || 'Visit') + ' · ' + A().fmtDate(a.dateTime) + ' ' + A().fmtTime(a.dateTime),
+      html: (global.DmaUI ? DmaUI.kv([
+        ['Patient', p.fullName],
+        ['Phone', p.phone || '—'],
+        ['Treatment', a.treatment || 'Visit'],
+        ['When', A().fmtDate(a.dateTime) + ' ' + A().fmtTime(a.dateTime)],
+        ['Duration', (a.durationMin || 30) + ' min'],
+        ['Status', a.status],
+        ['Notes', a.notes || '—']
+      ]) : '') +
+        '<div class="dma-field"><label>Status</label>' + statusSelect(a.status, 'id="ap-st"') + '</div>',
+      footer:
+        '<button type="button" class="dma-btn dma-btn-ghost" data-close="1">Close</button>' +
+        (pid ? '<a class="dma-btn dma-btn-ghost" href="/dashboard/patients/detail/?id=' + esc(pid) + '">Chart</a>' : '') +
+        (pid ? '<a class="dma-btn dma-btn-primary" href="/dashboard/messages/?patient=' + esc(pid) + '">Message</a>' : '')
+    });
+    var sel = document.getElementById('ap-st');
+    if (sel) sel.onchange = function () {
+      A().patch('/api/appointments/' + a.id, { status: sel.value }).then(function (r) {
+        if (r.ok) { A().toast('Appointment updated', 'ok'); if (onChanged) onChanged(); }
+        else A().toast((r.d && r.d.error) || 'Update failed', 'err');
+      });
+    };
+    return d;
+  }
+
   /* ── APPOINTMENTS ─────────────────────────────────────────────────────── */
   function appointments() {
     var root = page();
     root.innerHTML =
       '<div class="dma-head dma-head-page"><div><h1>Appointments</h1><p>Schedule, confirm, and follow up from WhatsApp or the front desk.</p></div>' +
       '<div class="dma-head-actions"><button class="dma-btn dma-btn-primary" id="btn-book">New appointment</button></div></div>' +
-      '<div class="dma-filters" id="appt-filters"></div>' +
+      '<div class="dma-tabs" id="appt-view"></div>' +
       '<section class="dma-panel"><div class="dma-panel-b" id="appt-list">' + A().spinner() + '</div></section>';
 
-    var filter = A().qs('filter', 'today');
-    var filters = [['today', 'Today'], ['tomorrow', 'Tomorrow'], ['week', 'This week'], ['month', 'This month'], ['', 'All']];
-    el('appt-filters').innerHTML = filters.map(function (f) {
-      return '<button data-f="' + f[0] + '" class="' + (filter === f[0] ? 'on' : '') + '">' + f[1] + '</button>';
-    }).join('');
-    el('appt-filters').onclick = function (e) {
+    var view = A().qs('view') || (A().qs('filter') === '' ? 'list' : 'today');
+    if (view !== 'calendar' && view !== 'list') view = 'today';
+    var views = [['today', 'Today'], ['list', 'List'], ['calendar', 'Calendar']];
+    function drawViews() {
+      el('appt-view').innerHTML = views.map(function (v) {
+        return '<button type="button" data-v="' + v[0] + '" class="' + (view === v[0] ? 'active' : '') + '">' + v[1] + '</button>';
+      }).join('');
+    }
+    drawViews();
+    el('appt-view').onclick = function (e) {
       var b = e.target.closest('button'); if (!b) return;
-      filter = b.getAttribute('data-f');
-      A().setQs({ filter: filter, action: null }, true);
-      [].forEach.call(el('appt-filters').querySelectorAll('button'), function (x) { x.classList.toggle('on', x === b); });
+      view = b.getAttribute('data-v');
+      A().setQs({ view: view, filter: null, action: null }, true);
+      drawViews();
       load();
     };
     el('btn-book').onclick = function () { openBookModal(A().qs('patient')); };
 
     function load() {
+      var filter = view === 'today' ? 'today' : view === 'calendar' ? 'week' : '';
       var q = '/api/appointments?limit=50' + (filter ? '&filter=' + encodeURIComponent(filter) : '');
       A().get(q).then(function (d) {
         var rows = d.data || [];
+        if (A().qs('id')) {
+          var wanted = rows.filter(function (a) { return a.id === A().qs('id'); })[0];
+          if (wanted) openApptDrawer(wanted, load);
+        }
         if (!rows.length) {
           el('appt-list').innerHTML = A().empty('No appointments', 'Book the first visit or wait for the AI receptionist.', '#', 'Book appointment');
           var cta = el('appt-list').querySelector('a');
           if (cta) cta.onclick = function (ev) { ev.preventDefault(); openBookModal(); };
           return;
         }
-        el('appt-list').innerHTML = rows.map(function (a) {
-          var p = a.patient || {};
-          var pid = a.patientId || p.id || '';
-          return '<div class="dma-appt">' +
-            '<div class="dma-appt-time">' + A().fmtTime(a.dateTime) + '<div class="dma-hint">' + A().fmtDate(a.dateTime) + '</div></div>' +
-            '<div style="flex:1;min-width:0">' +
-              '<div style="font-weight:800">' + esc(p.fullName || 'Patient') + ' ' + A().chip(a.status) + '</div>' +
-              '<div class="dma-hint">' + esc(a.treatment || 'Visit') + (a.durationMin ? ' · ' + a.durationMin + ' min' : '') + (p.phone ? ' · ' + esc(p.phone) : '') + '</div>' +
-            '</div>' +
-            '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
-              '<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/patients/detail/?id=' + esc(pid) + '">Chart</a>' +
-              '<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/messages/?patient=' + esc(pid) + '">Message</a>' +
-              '<select data-id="' + esc(a.id) + '" class="dma-btn dma-btn-ghost dma-btn-sm">' +
-                ['PENDING','CONFIRMED','ARRIVED','COMPLETED','NO_SHOW','CANCELLED'].map(function (s) {
-                  return '<option' + (a.status === s ? ' selected' : '') + '>' + s + '</option>';
-                }).join('') +
-              '</select>' +
-            '</div></div>';
-        }).join('');
+        if (view === 'calendar') {
+          var groups = {};
+          var order = [];
+          rows.forEach(function (a) {
+            var day = A().fmtDate(a.dateTime);
+            if (!groups[day]) { groups[day] = []; order.push(day); }
+            groups[day].push(a);
+          });
+          el('appt-list').innerHTML = order.map(function (day) {
+            return '<h3 class="dma-hint" style="margin:12px 0 8px;font-weight:800">' + esc(day) + '</h3>' +
+              groups[day].map(apptRow).join('');
+          }).join('');
+        } else {
+          el('appt-list').innerHTML = rows.map(apptRow).join('');
+        }
+        el('appt-list').querySelectorAll('[data-appt]').forEach(function (n) {
+          n.onclick = function (e) {
+            if (e.target.closest('a, select, button')) return;
+            var id = n.getAttribute('data-appt');
+            var a = rows.filter(function (x) { return x.id === id; })[0];
+            if (a) openApptDrawer(a, load);
+          };
+        });
         el('appt-list').querySelectorAll('select[data-id]').forEach(function (sel) {
-          sel.onchange = function () {
+          sel.onchange = function (e) {
+            e.stopPropagation();
             A().patch('/api/appointments/' + sel.getAttribute('data-id'), { status: sel.value }).then(function (r) {
               if (r.ok) A().toast('Appointment updated', 'ok');
               else A().toast((r.d && r.d.error) || 'Update failed', 'err');
@@ -188,6 +248,17 @@
       }).catch(function () {
         el('appt-list').innerHTML = A().empty('Could not load appointments', 'Check your connection and try again.');
       });
+    }
+
+    function apptRow(a) {
+      var p = a.patient || {};
+      var pid = a.patientId || p.id || '';
+      return '<div class="dma-appt" data-appt="' + esc(a.id) + '">' +
+        '<div class="dma-appt-time">' + A().fmtTime(a.dateTime) + '<div class="dma-hint">' + A().fmtDate(a.dateTime) + '</div></div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="font-weight:800">' + esc(p.fullName || 'Patient') + ' ' + A().chip(a.status) + '</div>' +
+          '<div class="dma-hint">' + esc(a.treatment || 'Visit') + (a.durationMin ? ' · ' + a.durationMin + ' min' : '') + (p.phone ? ' · ' + esc(p.phone) : '') + '</div>' +
+        '</div></div>';
     }
 
     load();
@@ -277,6 +348,53 @@
     };
   }
 
+  function openPatientDrawer(p) {
+    var last = (p.appointments && p.appointments[0]) || {};
+    var d = drawer({
+      title: p.fullName || 'Patient',
+      subtitle: p.phone || '',
+      tabs: [
+        { id: 'overview', label: 'Overview' },
+        { id: 'appointments', label: 'Appointments' },
+        { id: 'messages', label: 'Messages' },
+        { id: 'notes', label: 'Notes' }
+      ],
+      footer:
+        '<a class="dma-btn dma-btn-ghost" href="/dashboard/patients/detail/?id=' + esc(p.id) + '">Open full chart</a>' +
+        '<a class="dma-btn dma-btn-ghost" href="/dashboard/messages/?patient=' + esc(p.id) + '">Message</a>' +
+        '<a class="dma-btn dma-btn-primary" href="/dashboard/appointments/?action=book&patient=' + esc(p.id) + '">Book</a>',
+      onTab: function (tab, api) {
+        if (tab === 'overview') {
+          api.setBody((global.DmaUI ? DmaUI.kv([
+            ['Phone', p.phone], ['Email', p.email], ['Gender', p.gender],
+            ['Visits', (p._count && p._count.appointments) || 0],
+            ['Last visit', last.dateTime ? A().fmtDate(last.dateTime) : '—']
+          ]) : '<p>' + esc(p.phone) + '</p>'));
+          return;
+        }
+        api.setBody('<p class="dma-hint">Loading…</p>');
+        if (tab === 'appointments') {
+          A().get('/api/patients/' + p.id + '/appointments').then(function (d) {
+            var rows = Array.isArray(d) ? d : (d.data || []);
+            api.setBody(rows.length ? rows.slice(0, 12).map(function (a) {
+              return '<div class="dma-row-item"><div><div class="name">' + esc(a.treatment || 'Visit') + '</div><div class="sub">' + A().fmtDate(a.dateTime) + '</div></div>' + A().chip(a.status) + '</div>';
+            }).join('') : '<p class="dma-hint">No visits yet.</p>');
+          }).catch(function () { api.setBody('<p class="dma-hint">Could not load appointments.</p>'); });
+        } else if (tab === 'messages') {
+          A().get('/api/patients/' + p.id + '/messages').then(function (d) {
+            var rows = Array.isArray(d) ? d : (d.data || d.messages || []);
+            api.setBody(rows.length ? rows.slice(0, 10).map(function (m) {
+              return '<p class="dma-hint"><strong>' + (m.direction === 'INBOUND' ? 'Patient' : 'Clinic') + ':</strong> ' + esc((m.body || '').slice(0, 160)) + '</p>';
+            }).join('') : '<p class="dma-hint">No messages yet.</p>');
+          }).catch(function () { api.setBody('<p class="dma-hint">Could not load messages.</p>'); });
+        } else {
+          api.setBody('<p>' + esc(p.medicalNotes || 'No notes recorded.') + '</p>');
+        }
+      }
+    });
+    return d;
+  }
+
   /* ── PATIENTS ─────────────────────────────────────────────────────────── */
   function patients() {
     var root = page();
@@ -285,17 +403,18 @@
       '<div class="dma-head-actions"><input class="dma-search" id="pt-search" placeholder="Search name or phone"><button class="dma-btn dma-btn-primary" id="pt-add">Add patient</button></div></div>' +
       '<section class="dma-panel"><div class="dma-table-wrap"><table class="dma-table"><thead><tr><th>Patient</th><th>Phone</th><th>Visits</th><th>Last visit</th><th></th></tr></thead><tbody id="pt-body"><tr><td colspan="5">' + A().spinner() + '</td></tr></tbody></table></div></section>';
 
+    var rows = [];
     function load(q) {
       A().get('/api/patients?limit=50' + (q ? '&search=' + encodeURIComponent(q) : '')).then(function (d) {
-        var rows = d.data || [];
+        rows = d.data || [];
         if (!rows.length) {
           el('pt-body').innerHTML = '<tr><td colspan="5">' + A().empty('No patients yet', 'Add a chart, or they will appear from WhatsApp leads.', '#', 'Add patient') + '</td></tr>';
           return;
         }
-        el('pt-body').innerHTML = rows.map(function (p) {
+        el('pt-body').innerHTML = rows.map(function (p, i) {
           var last = (p.appointments && p.appointments[0]) || {};
-          return '<tr>' +
-            '<td><a href="/dashboard/patients/detail/?id=' + esc(p.id) + '"><strong>' + esc(p.fullName) + '</strong></a></td>' +
+          return '<tr data-i="' + i + '">' +
+            '<td><strong>' + esc(p.fullName) + '</strong></td>' +
             '<td>' + esc(p.phone) + '</td>' +
             '<td>' + esc((p._count && p._count.appointments) || 0) + '</td>' +
             '<td>' + (last.dateTime ? A().fmtDate(last.dateTime) + ' ' + A().chip(last.status) : '—') + '</td>' +
@@ -306,6 +425,12 @@
         }).join('');
       });
     }
+    el('pt-body').onclick = function (e) {
+      if (e.target.closest('a, button')) return;
+      var tr = e.target.closest('[data-i]');
+      if (!tr) return;
+      openPatientDrawer(rows[Number(tr.getAttribute('data-i'))]);
+    };
     var t;
     el('pt-search').oninput = function () {
       clearTimeout(t);
@@ -313,10 +438,10 @@
       t = setTimeout(function () { load(v); }, 250);
     };
     el('pt-add').onclick = function () {
-      openPatientModal(function (p) { A().patient(p.id); });
+      openPatientModal(function (p) { load(); if (p) openPatientDrawer(p); });
     };
     load();
-    if (A().qs('action') === 'new') openPatientModal(function (p) { A().patient(p.id); });
+    if (A().qs('action') === 'new') openPatientModal(function (p) { load(); if (p) openPatientDrawer(p); });
   }
 
   function patientDetail() {
@@ -339,31 +464,43 @@
       var p = parts[0];
       var appts = Array.isArray(parts[1]) ? parts[1] : (parts[1].data || parts[1].appointments || []);
       var msgs = Array.isArray(parts[2]) ? parts[2] : (parts[2].data || parts[2].messages || []);
-      root.innerHTML =
-        '<div class="dma-head"><div><a href="/dashboard/patients/" class="dma-hint">← Patients</a>' +
-        '<h1>' + esc(p.fullName) + '</h1><p>' + esc(p.phone || '') + (p.email ? ' · ' + esc(p.email) : '') + '</p></div>' +
-        '<div class="dma-head-actions">' +
-          '<a class="dma-btn dma-btn-ghost" href="/dashboard/messages/?patient=' + esc(p.id) + '">WhatsApp thread</a>' +
-          '<a class="dma-btn dma-btn-primary" href="/dashboard/appointments/?action=book&patient=' + esc(p.id) + '">Book visit</a>' +
-        '</div></div>' +
-        '<div class="dma-grid-2">' +
-          '<section class="dma-panel"><div class="dma-panel-h"><h2>Chart</h2></div><div class="dma-panel-b">' +
-            [['Phone', p.phone], ['Email', p.email], ['Gender', p.gender], ['Blood group', p.bloodGroup], ['Allergies', p.allergies], ['Notes', p.medicalNotes]].map(function (row) {
-              return '<div class="dma-field"><label>' + row[0] + '</label><div>' + esc(row[1] || '—') + '</div></div>';
+      var tab = 'overview';
+      function draw() {
+        root.innerHTML =
+          '<div class="dma-head"><div><a href="/dashboard/patients/" class="dma-hint">← Patients</a>' +
+          '<h1>' + esc(p.fullName) + '</h1><p>' + esc(p.phone || '') + (p.email ? ' · ' + esc(p.email) : '') + '</p></div>' +
+          '<div class="dma-head-actions">' +
+            '<a class="dma-btn dma-btn-ghost" href="/dashboard/messages/?patient=' + esc(p.id) + '">WhatsApp thread</a>' +
+            '<a class="dma-btn dma-btn-primary" href="/dashboard/appointments/?action=book&patient=' + esc(p.id) + '">Book visit</a>' +
+          '</div></div>' +
+          '<div class="dma-tabs" id="pt-tabs">' +
+            [['overview','Overview'],['appointments','Appointments'],['messages','Messages'],['notes','Notes']].map(function (t) {
+              return '<button type="button" data-t="' + t[0] + '" class="' + (tab === t[0] ? 'active' : '') + '">' + t[1] + '</button>';
             }).join('') +
-          '</div></section>' +
-          '<div class="dma-stack">' +
-            '<section class="dma-panel"><div class="dma-panel-h"><h2>Appointments</h2><a href="/dashboard/appointments/?patient=' + esc(p.id) + '">All</a></div><div class="dma-panel-b">' +
-              (appts.slice(0, 8).map(function (a) {
-                return '<div class="dma-row-item"><div><div class="name">' + esc(a.treatment || 'Visit') + '</div><div class="sub">' + A().fmtDate(a.dateTime) + ' ' + A().fmtTime(a.dateTime) + '</div></div>' + A().chip(a.status) + '</div>';
-              }).join('') || '<p class="dma-hint">No visits yet.</p>') +
-            '</div></section>' +
-            '<section class="dma-panel"><div class="dma-panel-h"><h2>Recent messages</h2><a href="/dashboard/messages/?patient=' + esc(p.id) + '">Open</a></div><div class="dma-panel-b">' +
-              (msgs.slice(0, 6).map(function (m) {
-                return '<div class="dma-hint" style="margin-bottom:8px"><strong>' + (m.direction === 'INBOUND' ? 'Patient' : 'Clinic') + ':</strong> ' + esc((m.body || '').slice(0, 140)) + '</div>';
-              }).join('') || '<p class="dma-hint">No messages yet. Connect WhatsApp to start.</p>') +
-            '</div></section>' +
-          '</div></div>';
+          '</div><div id="pt-tab-body" class="dma-panel"><div class="dma-panel-b"></div></div>';
+        var body = el('pt-tab-body').querySelector('.dma-panel-b');
+        if (tab === 'overview') {
+          body.innerHTML = [['Phone', p.phone], ['Email', p.email], ['Gender', p.gender], ['Blood group', p.bloodGroup], ['Allergies', p.allergies]].map(function (row) {
+            return '<div class="dma-field"><label>' + row[0] + '</label><div>' + esc(row[1] || '—') + '</div></div>';
+          }).join('');
+        } else if (tab === 'appointments') {
+          body.innerHTML = appts.length ? appts.map(function (a) {
+            return '<div class="dma-row-item"><div><div class="name">' + esc(a.treatment || 'Visit') + '</div><div class="sub">' + A().fmtDate(a.dateTime) + ' ' + A().fmtTime(a.dateTime) + '</div></div>' + A().chip(a.status) + '</div>';
+          }).join('') : '<p class="dma-hint">No visits yet.</p>';
+        } else if (tab === 'messages') {
+          body.innerHTML = msgs.length ? msgs.map(function (m) {
+            return '<div class="dma-hint" style="margin-bottom:8px"><strong>' + (m.direction === 'INBOUND' ? 'Patient' : 'Clinic') + ':</strong> ' + esc((m.body || '').slice(0, 140)) + '</div>';
+          }).join('') : '<p class="dma-hint">No messages yet. Connect WhatsApp to start.</p>';
+        } else {
+          body.innerHTML = '<p>' + esc(p.medicalNotes || 'No notes recorded.') + '</p>';
+        }
+        el('pt-tabs').onclick = function (e) {
+          var b = e.target.closest('button'); if (!b) return;
+          tab = b.getAttribute('data-t');
+          draw();
+        };
+      }
+      draw();
     }).catch(function () {
       root.innerHTML = A().empty('Patient not found', 'They may have been removed.', '/dashboard/patients/', 'Back to patients');
     });
@@ -403,7 +540,7 @@
       function renderList() {
         el('msg-list').innerHTML = order.map(function (pid) {
           var t = threads[pid];
-          return '<div class="dma-inbox-item' + (pid === selected ? ' on' : '') + '" data-id="' + esc(pid) + '">' +
+          return '<div class="dma-inbox-item' + (pid === selected ? ' on' : '') + (t.unread ? ' unread' : '') + '" data-id="' + esc(pid) + '">' +
             '<div class="name">' + esc((t.patient && t.patient.fullName) || 'Patient') + (t.unread ? ' <span class="dma-chip dma-chip-blue">' + t.unread + '</span>' : '') + '</div>' +
             '<div class="sub">' + esc((t.last.body || '').slice(0, 70)) + '</div>' +
             '<div class="dma-hint">' + A().ago(t.last.createdAt) + '</div></div>';
@@ -431,7 +568,7 @@
             '<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/appointments/?action=book&patient=' + esc(selected) + '">Book</a>' +
           '</div>' +
           '<div class="dma-thread-m" id="msg-bubbles">' + A().spinner() + '</div>' +
-          '<form class="dma-thread-c" id="msg-form"><input id="msg-input" placeholder="Reply on WhatsApp…" style="flex:1;height:40px;border:1.5px solid #E2E8F0;border-radius:8px;padding:0 12px"><button class="dma-btn dma-btn-primary" type="submit">Send</button></form>';
+          '<form class="dma-thread-c" id="msg-form"><input id="msg-input" placeholder="Reply on WhatsApp…" autocomplete="off"><button class="dma-btn dma-btn-primary" type="submit">Send</button></form>';
         var back = el('msg-back');
         if (back) {
           if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches) back.style.display = '';
@@ -690,10 +827,10 @@
             days.map(function (d) {
               var row = wh[d] || { open: '09:00', close: '17:00', closed: false };
               if (typeof row === 'string') row = { open: '09:00', close: '17:00', closed: false };
-              return '<div class="dma-row" style="align-items:center;margin-bottom:8px"><strong style="text-transform:capitalize">' + d + '</strong>' +
+              return '<div class="ds-hours-row"><strong>' + d + '</strong>' +
                 '<input type="time" data-d="' + d + '" data-k="open" value="' + esc(row.open || '09:00') + '">' +
                 '<input type="time" data-d="' + d + '" data-k="close" value="' + esc(row.close || '17:00') + '">' +
-                '<label style="display:flex;gap:6px;align-items:center;font-size:12px"><input type="checkbox" data-d="' + d + '" data-k="closed"' + (row.closed ? ' checked' : '') + '> Closed</label></div>';
+                '<label><input type="checkbox" data-d="' + d + '" data-k="closed"' + (row.closed ? ' checked' : '') + '> Closed</label></div>';
             }).join('') + '<button class="dma-btn dma-btn-primary" id="hrs-save">Save hours</button></div></section>';
           el('hrs-save').onclick = function () {
             var out = {};
@@ -720,7 +857,7 @@
             el('tx-list').innerHTML = (txs.length ? txs : [{ name: '', fee: '' }]).map(function (t, i) {
               var name = typeof t === 'string' ? t : (t.name || '');
               var fee = typeof t === 'object' ? (t.fee || t.price || '') : '';
-              return '<div class="dma-row" style="margin-bottom:8px"><input data-i="' + i + '" data-k="name" placeholder="Cleaning" value="' + esc(name) + '">' +
+              return '<div class="ds-tx-row"><input data-i="' + i + '" data-k="name" placeholder="Treatment name" value="' + esc(name) + '">' +
                 '<input data-i="' + i + '" data-k="fee" type="number" placeholder="Fee" value="' + esc(fee) + '">' +
                 '<button class="dma-btn dma-btn-danger dma-btn-sm" data-rm="' + i + '">Remove</button></div>';
             }).join('');
@@ -731,7 +868,7 @@
             };
             el('tx-save').onclick = function () {
               var next = [];
-              el('tx-list').querySelectorAll('.dma-row').forEach(function (row) {
+              el('tx-list').querySelectorAll('.ds-tx-row').forEach(function (row) {
                 var name = row.querySelector('[data-k="name"]').value.trim();
                 var fee = Number(row.querySelector('[data-k="fee"]').value || 0);
                 if (name) next.push({ name: name, fee: fee || undefined });

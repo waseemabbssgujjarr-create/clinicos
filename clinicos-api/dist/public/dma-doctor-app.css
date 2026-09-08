@@ -102,7 +102,7 @@ body.min-h-screen header a[class*="bg-brand"] {
   -webkit-text-fill-color: #fff !important;
   border: none !important;
   box-shadow: 0 2px 8px rgba(37,99,235,.30) !important;
-  border-radius: 8px !important;
+  border-radius: var(--ds-r-control, 5px) !important;
   font-weight: 700 !important;
   transition: opacity .15s, transform .15s, box-shadow .15s !important;
 }
@@ -236,7 +236,7 @@ body.min-h-screen main [class*="flex-col"][class*="items-center"] button[class*=
 body.min-h-screen main input[type="text"][class*="rounded"],
 body.min-h-screen main input[type="search"],
 body.min-h-screen main [class*="search"] input {
-  border-radius: 8px !important;
+  border-radius: var(--ds-r-control, 5px) !important;
   border: 1.5px solid #CBD5E1 !important;
   height: 40px !important;
   padding: 0 14px !important;
@@ -267,7 +267,7 @@ body.min-h-screen main [class*="flex"][class*="gap"] > input[type="text"] {
 body.min-h-screen main [class*="leads"] input,
 body.min-h-screen main [class*="pipeline"] input,
 body.min-h-screen main [class*="search"] input[type="text"] {
-  border-radius: 8px !important;
+  border-radius: var(--ds-r-control, 5px) !important;
   border: 1.5px solid #CBD5E1 !important;
 }
 
@@ -276,7 +276,7 @@ body.min-h-screen main select,
 body.min-h-screen main [class*="select"],
 body.min-h-screen main [role="listbox"],
 body.min-h-screen main [class*="dropdown"] {
-  border-radius: 8px !important;
+  border-radius: var(--ds-r-control, 5px) !important;
   border: 1.5px solid #CBD5E1 !important;
   height: 40px !important;
   padding: 0 36px 0 12px !important;
@@ -408,7 +408,7 @@ body.min-h-screen main [class*="border-b"]:has(> button[class*="text-"]) {
 body.min-h-screen main [class*="settings"] input,
 body.min-h-screen main [class*="clinic"] input,
 body.min-h-screen main [class*="settings"] select {
-  border-radius: 8px !important;
+  border-radius: var(--ds-r-control, 5px) !important;
   border-color: #CBD5E1 !important;
   height: 42px !important;
 }
@@ -467,7 +467,7 @@ body.min-h-screen [role="dialog"] [aria-label*="close"],
 body.min-h-screen [role="dialog"] [aria-label*="Close"] {
   width: 32px !important;
   height: 32px !important;
-  border-radius: 8px !important;
+  border-radius: var(--ds-r-control, 5px) !important;
   background: #F1F5F9 !important;
   border: none !important;
   color: #6B7280 !important;
@@ -496,7 +496,7 @@ body.min-h-screen [role="dialog"] [class*="modal-title"] {
 body.min-h-screen [role="dialog"] input,
 body.min-h-screen [role="dialog"] textarea,
 body.min-h-screen [role="dialog"] select {
-  border-radius: 8px !important;
+  border-radius: var(--ds-r-control, 5px) !important;
   border: 1.5px solid #CBD5E1 !important;
   height: 42px !important;
   padding: 0 14px !important;
@@ -530,7 +530,7 @@ body.min-h-screen [role="dialog"] label {
 /* Modal footer buttons */
 body.min-h-screen [role="dialog"] [class*="flex"][class*="justify-end"] > button,
 body.min-h-screen [role="dialog"] [class*="modal-footer"] > button {
-  border-radius: 8px !important;
+  border-radius: var(--ds-r-control, 5px) !important;
   height: 40px !important;
   padding: 0 20px !important;
   font-weight: 700 !important;
@@ -605,7 +605,7 @@ body.min-h-screen main .bc-chip.selected {
 body.min-h-screen main [class*="broadcast"] input,
 body.min-h-screen main [class*="broadcast"] textarea,
 body.min-h-screen main [class*="broadcast"] select {
-  border-radius: 8px !important;
+  border-radius: var(--ds-r-control, 5px) !important;
   border: 1.5px solid #CBD5E1 !important;
 }
 

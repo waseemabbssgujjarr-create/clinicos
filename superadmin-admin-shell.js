@@ -2,7 +2,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=8';
+    ds.href = '/dma-design-system.css?v=9';
     document.head.appendChild(ds);
   }
   var ICONS = {
@@ -16,22 +16,37 @@
     settings: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>',
     stripe: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></svg>',
     whatsapp: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+    api: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+    health: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+    audit: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>',
   };
 
-  var NAV = [
-    { href: '/superadmin/', label: 'Overview', icon: 'overview' },
-    { href: '/superadmin/clinics/', label: 'Clinics', icon: 'clinics' },
-    { href: '/superadmin/revenue/', label: 'Revenue', icon: 'revenue' },
-    { href: '/superadmin/announcements/', label: 'Announcements', icon: 'announce' },
-    { href: '/superadmin/subscriptions/', label: 'Subscriptions', icon: 'plans' },
-    { href: '/superadmin/users/', label: 'Users', icon: 'users' },
-    { href: '/superadmin/whatsapp/', label: 'WhatsApp', icon: 'whatsapp' },
-    { href: '/superadmin/integrations/', label: 'Integrations', icon: 'plug' },
-    { href: '/superadmin/health/', label: 'Health', icon: 'overview' },
-    { href: '/superadmin/audit/', label: 'Audit', icon: 'settings' },
-    { href: '/superadmin/settings/', label: 'Settings', icon: 'settings' },
-    { href: '/superadmin/stripe/', label: 'Connect Stripe', icon: 'stripe' },
+  var NAV_GROUPS = [
+    { label: 'Platform', items: [
+      { href: '/superadmin/', label: 'Overview', icon: 'overview' },
+      { href: '/superadmin/clinics/', label: 'Clinics', icon: 'clinics' },
+      { href: '/superadmin/users/', label: 'Users', icon: 'users' },
+    ]},
+    { label: 'Operations', items: [
+      { href: '/superadmin/whatsapp/', label: 'WhatsApp', icon: 'whatsapp' },
+      { href: '/superadmin/api/', label: 'WhatsApp API', icon: 'api' },
+      { href: '/superadmin/announcements/', label: 'Announcements', icon: 'announce' },
+    ]},
+    { label: 'Billing', items: [
+      { href: '/superadmin/subscriptions/', label: 'Subscriptions', icon: 'plans' },
+      { href: '/superadmin/revenue/', label: 'Revenue', icon: 'revenue' },
+      { href: '/superadmin/stripe/', label: 'Stripe', icon: 'stripe' },
+    ]},
+    { label: 'System', items: [
+      { href: '/superadmin/integrations/', label: 'Integrations', icon: 'plug' },
+      { href: '/superadmin/health/', label: 'Health', icon: 'health' },
+      { href: '/superadmin/audit/', label: 'Audit', icon: 'audit' },
+      { href: '/superadmin/settings/', label: 'Settings', icon: 'settings' },
+    ]},
   ];
+
+  var NAV = [];
+  NAV_GROUPS.forEach(function (g) { g.items.forEach(function (i) { NAV.push(i); }); });
 
   function authHeaders() {
     var h = { 'Content-Type': 'application/json' };
@@ -147,10 +162,13 @@
   function renderSidebar(container, activeHref) {
     if (!container) return;
     var email = getUserEmail();
-    var links = NAV.map(function (item) {
-      var cls = isActive(item.href, activeHref) ? ' class="active"' : '';
-      var icon = ICONS[item.icon] || '';
-      return '<a href="' + item.href + '"' + cls + '><span class="sa-nav-icon" aria-hidden="true">' + icon + '</span><span>' + item.label + '</span></a>';
+    var links = NAV_GROUPS.map(function (group) {
+      var items = group.items.map(function (item) {
+        var cls = isActive(item.href, activeHref) ? ' class="active"' : '';
+        var icon = ICONS[item.icon] || '';
+        return '<a href="' + item.href + '"' + cls + '><span class="sa-nav-icon" aria-hidden="true">' + icon + '</span><span>' + item.label + '</span></a>';
+      }).join('');
+      return '<div class="sa-nav-group"><span class="sa-nav-label">' + group.label + '</span>' + items + '</div>';
     }).join('');
 
     container.innerHTML =
@@ -222,6 +240,7 @@
 
   global.DmaAdminShell = {
     NAV: NAV,
+    NAV_GROUPS: NAV_GROUPS,
     ICONS: ICONS,
     api: api,
     renderNav: renderNav,
