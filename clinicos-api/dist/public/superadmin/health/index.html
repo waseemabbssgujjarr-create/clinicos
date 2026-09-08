@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=9" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=11" />
   <link rel="stylesheet" href="/superadmin-theme.css?v=8" />
   <style>
     .health-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem; }
@@ -24,7 +24,7 @@
     .check-item { display:flex; align-items:center; gap:1rem; padding:.875rem 1.25rem; border-bottom:1px solid var(--border); }
     .check-item:last-child { border-bottom:none; }
     .check-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-    .check-dot.ok { background:#16A34A; } .check-dot.warn { background:#D97706; } .check-dot.err { background:#DC2626; } .check-dot.loading { background:#CBD5E1; }
+    .check-dot.ok { background:#16A34A; } .check-dot.warn { background:#D97706; } .check-dot.err { background:#DC2626; } .check-dot.loading { background:#CBD5E1; } .check-dot.unknown { background:#94A3B8; }
     .check-name { flex:1; font-size:var(--f-sm); font-weight:600; color:var(--text-2); }
     .check-val { font-size:var(--f-sm); font-weight:700; color:var(--text-1); }
     .check-desc { font-size:.72rem; color:var(--muted); }
@@ -75,10 +75,18 @@
     </main>
   </div>
   <script src="/superadmin-admin-shell.js?v=9"></script>
-  <script src="/dma-ui.js?v=2"></script>
+  <script src="/dma-ui.js?v=3"></script>
   <script>
   (function () {
     if (!DmaAdminShell.initStaticPage('/superadmin/health/')) return;
+
+    function safe(val, fallback) {
+      if (window.DmaUI && typeof DmaUI.display === 'function') return DmaUI.display(val, fallback);
+      if (val == null || val === '' || val === 'undefined' || val === 'null') return fallback || 'Unavailable';
+      if (typeof val === 'number' && !isFinite(val)) return fallback || 'Unavailable';
+      if (typeof val === 'object') return fallback || 'Unavailable';
+      return String(val);
+    }
 
     function setStatus(id, text, cls) {
       var el = document.getElementById(id);
@@ -87,7 +95,7 @@
 
     function setValue(id, text) {
       var el = document.getElementById(id);
-      if (el) el.textContent = text;
+      if (el) el.textContent = safe(text, '—');
     }
 
     function addCheck(name, status, value, description) {
@@ -96,58 +104,95 @@
       div.className = 'check-item';
       div.innerHTML =
         '<span class="check-dot ' + status + '"></span>' +
-        '<span class="check-name">' + name + '<br><span class="check-desc">' + description + '</span></span>' +
-        '<span class="check-val">' + value + '</span>';
+        '<span class="check-name">' + name + '<br><span class="check-desc">' + safe(description, '') + '</span></span>' +
+        '<span class="check-val">' + safe(value, 'Unavailable') + '</span>';
       list.appendChild(div);
+    }
+
+    function clinicCountLabel(n) {
+      if (typeof n !== 'number' || !isFinite(n)) return 'Unavailable';
+      return n === 1 ? '1 clinic' : n + ' clinics';
+    }
+
+    function waClinicLabel(n) {
+      if (typeof n !== 'number' || !isFinite(n)) return 'Unavailable';
+      if (n <= 0) return 'Not connected';
+      return n === 1 ? 'Connected — 1 clinic' : 'Connected — ' + n + ' clinics';
+    }
+
+    function fieldCountLabel(configured, total) {
+      if (typeof configured !== 'number' || typeof total !== 'number') return 'Not configured';
+      return configured + '/' + total + ' fields';
     }
 
     window.runChecks = function () {
       document.getElementById('checklist').innerHTML = '';
       document.getElementById('last-checked').textContent = 'Checking…';
 
-      // API health
+      // Public same-origin API. Never call 127.0.0.1 / localhost / :3002 from the browser.
       var t0 = Date.now();
-      fetch('/health')
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
+      fetch('/api/health', { credentials: 'include', cache: 'no-store' })
+        .then(function (r) {
+          var ct = (r.headers.get('content-type') || '').toLowerCase();
+          if (ct.indexOf('application/json') === -1) throw new Error('not-json');
+          return r.json().then(function (d) { return { httpOk: r.ok, d: d || {} }; });
+        })
+        .then(function (res) {
           var ms = Date.now() - t0;
-          setValue('api-status', '✓ Online');
-          setStatus('api-ms', ms + 'ms response', 'ok');
-          addCheck('API Server', 'ok', ms + 'ms', d.service || 'Doctors My Agency API');
+          var d = res.d;
+          if (d.ok === true) {
+            setValue('api-status', '✓ Online');
+            setStatus('api-ms', ms + 'ms response', 'ok');
+            addCheck('API Server', 'ok', ms + 'ms', safe(d.service, 'Doctors My Agency API'));
+          } else if (res.httpOk) {
+            setValue('api-status', '⚠ Degraded');
+            setStatus('api-ms', ms + 'ms · unexpected payload', 'warn');
+            addCheck('API Server', 'warn', 'Degraded', 'Health payload did not report ok');
+          } else {
+            setValue('api-status', '✗ Offline');
+            setStatus('api-ms', 'Not reachable', 'err');
+            addCheck('API Server', 'err', 'Unreachable', 'Same-origin /api/health failed');
+          }
         })
         .catch(function () {
           setValue('api-status', '✗ Offline');
           setStatus('api-ms', 'Not reachable', 'err');
-          addCheck('API Server', 'err', 'Unreachable', 'Node.js process may be down');
+          addCheck('API Server', 'err', 'Unreachable', 'Same-origin /api/health is not JSON');
         });
 
-      // DB health
       DmaAdminShell.api('/api/health/db')
         .then(function (d) {
+          d = d || {};
           if (d.ok) {
+            var clinics = clinicCountLabel(d.clinic_count);
             setValue('db-status', '✓ Online');
-            setStatus('db-detail', (d.clinic_count != null ? d.clinic_count + ' clinics' : 'Connected'), 'ok');
-            addCheck('MySQL Database', 'ok', d.clinic_count + ' clinics', 'Database reachable');
+            setStatus('db-detail', clinics === 'Unavailable' ? 'Connected' : clinics, 'ok');
+            addCheck('MySQL Database', 'ok', clinics === 'Unavailable' ? 'Connected' : clinics, 'Database reachable');
           } else {
             setValue('db-status', '✗ Error');
-            setStatus('db-detail', d.code || 'Unavailable', 'err');
-            addCheck('MySQL Database', 'err', 'Unavailable', d.error || 'Connection failed');
+            setStatus('db-detail', safe(d.code, 'Unavailable'), 'err');
+            addCheck('MySQL Database', 'err', 'Unavailable', safe(d.error, 'Connection failed'));
           }
         }).catch(function () {
-          setValue('db-status', '? Unknown');
-          setStatus('db-detail', '', 'warn');
+          setValue('db-status', 'Unknown');
+          setStatus('db-detail', 'Unavailable', 'warn');
+          addCheck('MySQL Database', 'unknown', 'Unavailable', 'Secondary diagnostic failed — API may still be online');
         });
 
-      // Integrations status
       DmaAdminShell.api('/api/superadmin/integrations')
         .then(function (d) {
-          var groups = d.groups || {};
+          var groups = (d && d.groups) || {};
 
-          // Email
           var email = groups.email || {};
           if (email.status === 'ready') {
+            var smtpHost = '';
+            if (Array.isArray(email.fields)) {
+              email.fields.forEach(function (f) {
+                if (f && f.key === 'SMTP_HOST' && f.value) smtpHost = f.value;
+              });
+            }
             setValue('smtp-status', '✓ Configured');
-            setStatus('smtp-detail', email.fields ? email.fields.map(function(f){return f.key==='SMTP_HOST'?f.value:''}).filter(Boolean)[0] : '', 'ok');
+            setStatus('smtp-detail', safe(smtpHost, 'Ready'), 'ok');
             addCheck('SMTP Email', 'ok', 'Ready', 'Outbound email configured');
           } else {
             setValue('smtp-status', '⚠ Partial');
@@ -155,55 +200,62 @@
             addCheck('SMTP Email', 'warn', 'Needs configuration', 'Set SMTP credentials in Integrations');
           }
 
-          // AI
           var ai = groups.ai || {};
           if (ai.status === 'ready') {
             setValue('ai-status', '✓ Active');
-            setStatus('ai-detail', groups.ai && groups.ai.fields ? 'Provider ready' : '', 'ok');
+            setStatus('ai-detail', 'Provider ready', 'ok');
             addCheck('AI Receptionist', 'ok', 'Active', 'AI provider configured');
           } else {
-            setValue('ai-status', '⚠ Not set');
+            setValue('ai-status', 'Not configured');
             setStatus('ai-detail', 'API key missing', 'warn');
-            addCheck('AI Receptionist', 'warn', 'API key needed', 'Set DEEPSEEK_API_KEY in Integrations');
+            addCheck('AI Receptionist', 'warn', 'Not configured', 'Set DEEPSEEK_API_KEY in Integrations');
           }
 
-          // Meta/WhatsApp
           var meta = groups.meta || {};
           if (meta.status === 'ready') {
             setValue('wa-status', '✓ Configured');
             setStatus('wa-detail', 'Meta Cloud API', 'ok');
             addCheck('Meta WhatsApp API', 'ok', 'Configured', 'App ID and credentials set');
           } else {
-            setValue('wa-status', '⚠ Partial');
+            setValue('wa-status', 'Not configured');
             setStatus('wa-detail', 'Check config', 'warn');
-            addCheck('Meta WhatsApp API', 'warn', meta.configured + '/' + meta.total + ' fields', 'Configure in Integrations');
+            addCheck('Meta WhatsApp API', 'warn', fieldCountLabel(meta.configured, meta.total), 'Configure in Integrations');
           }
 
-          // Stripe
           var stripe = groups.stripe || {};
           if (stripe.status === 'ready') {
             setValue('stripe-status', '✓ Connected');
-            setStatus('stripe-detail', 'Live/test keys set', 'ok');
+            setStatus('stripe-detail', 'Keys set', 'ok');
             addCheck('Stripe Billing', 'ok', 'Connected', 'Subscription billing active');
           } else {
-            setValue('stripe-status', '— Not set');
+            setValue('stripe-status', 'Not configured');
             setStatus('stripe-detail', 'Trial only mode', 'warn');
             addCheck('Stripe Billing', 'warn', 'Not configured', 'Clinics stay on free trial without Stripe');
           }
         }).catch(function () {
           ['smtp-status','ai-status','wa-status','stripe-status'].forEach(function(id){
-            setValue(id, '? Unknown');
+            setValue(id, 'Unknown');
           });
+          setStatus('smtp-detail', 'Unavailable', 'warn');
+          setStatus('ai-detail', 'Unavailable', 'warn');
+          setStatus('wa-detail', 'Unavailable', 'warn');
+          setStatus('stripe-detail', 'Unavailable', 'warn');
+          addCheck('Integrations', 'unknown', 'Unavailable', 'Secondary diagnostic failed — does not mean the API is offline');
         });
 
-      // Webhook probe
-      fetch('/api/webhooks/meta?probe=1')
-        .then(function (r) { return r.json(); })
+      fetch('/api/webhooks/meta?probe=1', { credentials: 'include', cache: 'no-store' })
+        .then(function (r) {
+          var ct = (r.headers.get('content-type') || '').toLowerCase();
+          if (ct.indexOf('application/json') === -1) throw new Error('not-json');
+          return r.json();
+        })
         .then(function (d) {
-          addCheck('Meta Webhook', 'ok', d.connectedClinics + ' connected', 'Webhook URL reachable at /api/webhooks/meta');
+          d = d || {};
+          var label = waClinicLabel(d.connectedClinics);
+          addCheck('Meta Webhook', label === 'Unavailable' ? 'unknown' : 'ok', label, 'Webhook URL reachable at /api/webhooks/meta');
         })
         .catch(function () {
-          addCheck('Meta Webhook', 'warn', 'Not reachable', 'Webhook URL may not be registered with Meta yet');
+          addCheck('Meta Webhook', 'unknown', 'Unavailable', 'Webhook probe failed — this is not API downtime');
         });
 
       document.getElementById('last-checked').textContent = 'Last checked: ' + new Date().toLocaleTimeString();

@@ -49,9 +49,30 @@
   }
 
   function apiGet(path) {
-    return fetch(path, { headers: authHeaders(), credentials: 'include' })
-      .then(function (r) { return r.ok ? r.json() : Promise.resolve({}); })
-      .catch(function () { return {}; });
+    return fetch(path, { headers: authHeaders(), credentials: 'include', cache: 'no-store' })
+      .then(function (r) {
+        return r.json().then(function (d) {
+          var data = d && typeof d === 'object' ? d : {};
+          if (!r.ok) {
+            data._unavailable = true;
+            data._status = r.status;
+          }
+          return data;
+        }).catch(function () {
+          return { _unavailable: true, _status: r.status };
+        });
+      })
+      .catch(function () {
+        return { _unavailable: true, _status: 0 };
+      });
+  }
+
+  function isUnavailable(payload) {
+    return !payload || payload._unavailable === true;
+  }
+
+  function isSignupEnabled(config) {
+    return !!(config && config.enabled === true && !config._unavailable);
   }
 
   function apiPost(path, body) {
@@ -255,11 +276,15 @@
 
   // ── Connection panel: connected state ─────────────────────────────────────────
 
-  function renderConnectedPanel(data) {
+  function renderConnectedPanel(data, config) {
     var phoneDisplay = esc(data.phoneNumber || data.displayName || 'WhatsApp Business');
     var webhookBadge = data.webhookStatus === 'subscribed'
       ? '<span style="color:#15803d">✓ subscribed</span>'
-      : '<span style="color:#b45309">⚠ ' + esc(data.webhookStatus || 'unknown') + '</span>';
+      : '<span style="color:#b45309">⚠ ' + esc(data.webhookStatus || 'Unknown') + '</span>';
+
+    var reconnect = isSignupEnabled(config)
+      ? '<button type="button" class="dma-wa-btn dma-wa-btn--ghost" id="dma-wa-reconnect">Reconnect</button>'
+      : '';
 
     return '' +
       '<div class="dma-wa-connected-info">' +
@@ -268,14 +293,17 @@
           '<div>' +
             '<p class="dma-wa-phone-number">' + phoneDisplay + '</p>' +
             '<p class="dma-wa-phone-meta">Connected through Meta · Webhook: ' + webhookBadge + '</p>' +
+            (data.wabaId ? '<p class="dma-wa-phone-meta">WABA ' + esc(data.wabaId) + '</p>' : '') +
           '</div>' +
         '</div>' +
       '</div>' +
       '<div class="dma-wa-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">' +
         '<a href="/dashboard/messages/" class="dma-wa-btn dma-wa-btn--primary">Open WhatsApp Inbox</a>' +
         '<button type="button" class="dma-wa-btn dma-wa-btn--ghost" id="dma-wa-verify-waba">Check Webhook</button>' +
+        reconnect +
         '<button type="button" class="dma-wa-btn dma-wa-btn--ghost" id="dma-wa-disconnect">Disconnect</button>' +
       '</div>' +
+      '<p id="dma-wa-error" class="dma-wa-error" style="display:none"></p>' +
       '<div id="dma-wa-webhook-result" style="margin-top:10px;font-size:.8rem"></div>';
   }
 
@@ -284,46 +312,40 @@
   // Shows Embedded Signup button when enabled, or a clear setup message.
 
   function renderConnectPanel(config) {
-    // credentials present but something specific is missing — show actionable message
-    if (!config || config.enabled !== true) {
-      var code = (config && config.code) || '';
-      var msg  = (config && config.message) || 'Contact your platform administrator to configure WhatsApp.';
-
-      var actionLink = '';
-      if (code === 'META_CREDENTIALS_MISSING' || code === 'META_CONFIG_ID_MISSING' || code === 'EMBEDDED_SIGNUP_DISABLED') {
-        actionLink =
-          '<a href="/superadmin/integrations/" ' +
-            'style="display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:.8125rem;' +
-                   'font-weight:700;color:#2563EB;text-decoration:none;padding:8px 14px;' +
-                   'border:1.5px solid rgba(37,99,235,.4);border-radius:8px;background:#EFF6FF">' +
-            '⚙️ Superadmin → Integrations' +
-          '</a>';
-      }
-
+    if (isUnavailable(config) || (config && typeof config.enabled !== 'boolean' && !config.code)) {
       return '' +
-        '<div style="text-align:center;padding:1.75rem 1rem">' +
-          '<div style="font-size:2.25rem;margin-bottom:10px">' +
-            (code === 'META_CREDENTIALS_MISSING' || code === 'META_CONFIG_ID_MISSING' ? '⚙️' : '💬') +
-          '</div>' +
-          '<p style="font-size:.9375rem;font-weight:700;color:#111827;margin:0 0 8px">Connect with your approved Meta app</p>' +
-          '<p style="font-size:.8125rem;color:#6B7280;margin:0 auto;line-height:1.6;max-width:340px">' + esc(msg) + '</p>' +
-          actionLink +
+        '<div class="dma-wa-state">' +
+          '<p class="dma-wa-state__title">Connection status unavailable</p>' +
+          '<p class="dma-wa-state__desc">WhatsApp status could not be loaded. The connection action is still available after a retry — this is not the same as Meta being unconfigured.</p>' +
+          '<button type="button" class="dma-wa-btn dma-wa-btn--primary" id="dma-wa-retry">Retry status</button>' +
         '</div>';
     }
 
-    // All credentials present — show the Connect button
+    if (isSignupEnabled(config)) {
+      return '' +
+        '<div class="dma-wa-state">' +
+          '<p class="dma-wa-state__desc">Connect your clinic\'s WhatsApp Business account securely through Meta.</p>' +
+        '</div>' +
+        '<p id="dma-wa-error" class="dma-wa-error" style="display:none"></p>' +
+        '<div class="dma-wa-actions">' +
+          '<button type="button" class="dma-wa-btn dma-wa-btn--primary dma-wa-btn--whatsapp" id="dma-wa-connect-embedded">' +
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="flex-shrink:0">' +
+              '<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>' +
+            '</svg>' +
+            '&nbsp;Connect WhatsApp' +
+          '</button>' +
+        '</div>';
+    }
+
+    var msg = (config && config.message)
+      ? String(config.message)
+      : 'WhatsApp is not configured on this platform yet. Ask your platform administrator to complete Meta setup.';
+
     return '' +
-      '<p style="color:#374151;font-size:.9rem;margin:0 0 16px;line-height:1.6">' +
-        'Connect your clinic\'s WhatsApp Business account securely through Meta.' +
-      '</p>' +
-      '<p id="dma-wa-error" class="dma-wa-error" style="display:none"></p>' +
-      '<div class="dma-wa-actions">' +
-        '<button type="button" class="dma-wa-btn dma-wa-btn--primary dma-wa-btn--whatsapp" id="dma-wa-connect-embedded">' +
-          '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="flex-shrink:0">' +
-            '<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>' +
-          '</svg>' +
-          '&nbsp;Connect WhatsApp with Meta' +
-        '</button>' +
+      '<div class="dma-wa-state">' +
+        '<p class="dma-wa-state__title">Meta is not configured</p>' +
+        '<p class="dma-wa-state__desc">' + esc(msg) + '</p>' +
+        '<p class="dma-wa-state__desc">Clinic users cannot finish this step. A platform administrator must configure the approved Meta app first.</p>' +
       '</div>';
   }
 
@@ -377,7 +399,6 @@
     if (!host) return;
 
     var s         = data.stats || {};
-    var connected = data.connected;
     var caps      = (data.capabilities || []).map(function (c) {
       return '<li><span class="dma-wa-check">✓</span> ' + esc(c) + '</li>';
     }).join('');
@@ -397,8 +418,16 @@
       '</tr>';
     }).join('');
 
+    var hubUnavailable = isUnavailable(data);
+    var connected = data.connected === true && !hubUnavailable;
     var connPanelTitle = connected ? 'WhatsApp Connected' : 'Connect WhatsApp';
-    var connPanelContent = connected ? renderConnectedPanel(data) : renderConnectPanel(config);
+    var connPanelContent = connected ? renderConnectedPanel(data, config) : renderConnectPanel(config);
+    var heroStatusClass = hubUnavailable ? 'is-unknown' : (connected ? 'is-connected' : 'is-off');
+    var heroStatusText = hubUnavailable
+      ? 'Connection status unavailable'
+      : (connected
+        ? esc(data.phoneNumber || data.displayName || 'WhatsApp') + ' · Connected'
+        : 'Not connected');
 
     host.innerHTML =
       // Hero
@@ -408,11 +437,9 @@
           '<h1>Your clinic on WhatsApp — managed like a human receptionist</h1>' +
           '<p>Patients message your business number. AI books appointments, captures leads, and escalates when needed.</p>' +
         '</div>' +
-        '<div class="dma-wa-hero__status ' + (connected ? 'is-connected' : 'is-off') + '">' +
+        '<div class="dma-wa-hero__status ' + heroStatusClass + '">' +
           '<span class="dma-wa-hero__dot"></span>' +
-          (connected
-            ? esc(data.phoneNumber || data.displayName || 'WhatsApp') + ' · Connected'
-            : 'Not connected') +
+          heroStatusText +
         '</div>' +
       '</div>' +
 
@@ -462,7 +489,9 @@
           '<h2>Recent WhatsApp activity</h2>' +
           (logRows
             ? '<table class="dma-wa-log"><thead><tr><th></th><th>Contact</th><th>Message</th><th></th></tr></thead><tbody>' + logRows + '</tbody></table>'
-            : '<p class="dma-wa-muted">No messages yet — connect WhatsApp and send a test message from your phone.</p>') +
+            : (isUnavailable(log)
+              ? '<p class="dma-wa-muted">Activity unavailable. Retry to load recent messages.</p>'
+              : '<p class="dma-wa-muted">No messages yet — connect WhatsApp and send a test message from your phone.</p>')) +
         '</section>' +
 
       '</div>';
@@ -507,6 +536,18 @@
         runEmbeddedConnect(config, connectBtn, document.getElementById('dma-wa-error'), function () { boot(); });
       };
     }
+
+    var reconnectBtn = document.getElementById('dma-wa-reconnect');
+    if (reconnectBtn) {
+      reconnectBtn.onclick = function () {
+        runEmbeddedConnect(config, reconnectBtn, document.getElementById('dma-wa-error'), function () { boot(); });
+      };
+    }
+
+    var retryBtn = document.getElementById('dma-wa-retry');
+    if (retryBtn) {
+      retryBtn.onclick = function () { boot(); };
+    }
   }
 
   // ── Extra CSS for connected-info layout ───────────────────────────────────────
@@ -529,8 +570,10 @@
   // ── Sidebar link injection ────────────────────────────────────────────────────
 
   function injectSidebarLink() {
+    if (document.documentElement.classList.contains('doc-static')) return;
+    if (window.DmaDoctorShell) return;
     var aside = document.querySelector('aside');
-    if (!aside || aside.querySelector('a[href="/dashboard/whatsapp/"]')) return;
+    if (!aside || aside.querySelector('a[href="/dashboard/whatsapp/"], a[href="/dashboard/whatsapp"]')) return;
     var msgs = aside.querySelector('a[href="/dashboard/messages"], a[href="/dashboard/messages/"]');
     var a = document.createElement('a');
     a.href = '/dashboard/whatsapp/';
@@ -556,6 +599,7 @@
     }
 
     if (isSettingsPage) {
+      if (document.documentElement.classList.contains('doc-static')) return;
       var host = main.querySelector('div[class*="max-w"]') || main.querySelector('div') || main;
       if (!document.getElementById('dma-wa-settings-teaser')) {
         var t = document.createElement('div');
@@ -589,7 +633,7 @@
       var hubData = parts[0] || {};
       // Once we see connected = true, latch it — do NOT let a later stale
       // "connected: false" response from a retry overwrite the connected UI.
-      if (hubData.connected) _bootConnected = true;
+      if (hubData.connected === true && !hubData._unavailable) _bootConnected = true;
       if (!hubData.connected && _bootConnected) {
         // A retry returned disconnected after we already rendered connected.
         // Ignore this stale result — keep the connected UI.

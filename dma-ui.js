@@ -184,6 +184,19 @@
     return m;
   }
 
+  function display(val, fallback) {
+    if (val == null || val === "" || val === "undefined" || val === "null") {
+      return fallback == null ? "Unavailable" : String(fallback);
+    }
+    if (typeof val === "number" && !isFinite(val)) {
+      return fallback == null ? "Unavailable" : String(fallback);
+    }
+    if (typeof val === "object") {
+      return fallback == null ? "Unavailable" : String(fallback);
+    }
+    return String(val);
+  }
+
   global.DmaUI = {
     esc: esc,
     toast: toast,
@@ -193,6 +206,7 @@
     skeleton: skeleton,
     drawer: drawer,
     modal: modal,
-    confirm: confirmDlg
+    confirm: confirmDlg,
+    display: display
   };
 })(window);

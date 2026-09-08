@@ -7,11 +7,11 @@
   --doc-blue-h:     #1D4ED8;
   --doc-blue-soft:  rgba(37,99,235,.10);
   --doc-orange:     #2563EB;
-  --doc-sidebar:    #FFFFFF;
-  --doc-sidebar-border: #E2E8F0;
+  --doc-sidebar:    #1E3A8A;
+  --doc-sidebar-border: rgba(255, 255, 255, 0.12);
   --doc-sidebar-w:  240px;
   --doc-topbar-h:   60px;
-  --doc-bg:         #F4F6FA;
+  --doc-bg:         #d3d2d6;
   --doc-surface:    #FFFFFF;
   --doc-surface-2:  #F8FAFC;
   --doc-text:       #111827;
@@ -19,7 +19,7 @@
   --doc-border:     #E2E8F0;
   --doc-border-2:   #CBD5E1;
   --doc-shadow:     0 1px 3px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.06);
-  --doc-wa:         #16A34A;
+  --doc-wa:         #4ADE80;
 }
 
 html[data-theme="dark"] {
@@ -56,7 +56,7 @@ html.doc-static body {
   width: var(--doc-sidebar-w);
   flex-shrink: 0;
   background: var(--doc-sidebar);
-  color: var(--doc-muted);
+  color: var(--ds-nav-text, #fff);
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -67,12 +67,12 @@ html.doc-static body {
   border-right: 1px solid var(--doc-sidebar-border);
   overflow: hidden;
   transition: transform .22s ease;
-  box-shadow: 1px 0 0 var(--doc-border);
+  box-shadow: 4px 0 24px rgba(15, 23, 42, 0.12);
 }
 
 .doc-brand {
   padding: 16px 16px 14px;
-  border-bottom: 1px solid var(--doc-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   flex-shrink: 0;
 }
 
@@ -96,14 +96,14 @@ html.doc-static body {
   font-family: 'Montserrat', Inter, sans-serif;
   font-size: .9rem;
   font-weight: 800;
-  color: var(--doc-text);
+  color: #fff;
   letter-spacing: -.01em;
 }
 
 .doc-brand span {
   display: block;
   font-size: .72rem;
-  color: var(--doc-muted);
+  color: rgba(255, 255, 255, 0.72);
   margin-top: 2px;
 }
 
@@ -122,7 +122,7 @@ html.doc-static body {
   font-weight: 800;
   letter-spacing: .09em;
   text-transform: uppercase;
-  color: #64748B;
+  color: rgba(255, 255, 255, 0.55);
   padding: 18px 10px 8px;
   display: block;
 }
@@ -136,36 +136,36 @@ html.doc-static body {
   padding: 8px 12px;
   margin: 0 0 2px;
   border-radius: 6px;
-  color: var(--doc-muted);
+  color: rgba(255, 255, 255, 0.92);
   text-decoration: none;
   font-size: .875rem;
   font-weight: 550;
   border-left: 3px solid transparent;
-  transition: background .15s ease, color .15s ease, border-color .15s ease;
+  transition: background .15s ease, color .15s ease, border-color .15s ease, transform .15s ease;
   white-space: nowrap;
   overflow: hidden;
 }
 
 .doc-nav a:hover,
 .doc-sidebar .doc-nav a:hover {
-  background: rgba(37,99,235,.08);
-  color: var(--doc-blue);
+  background: rgba(255, 255, 255, 0.10);
+  color: #fff;
 }
 
 .doc-nav a:focus-visible {
   outline: none;
-  box-shadow: var(--ds-focus);
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.45);
 }
 
 .doc-nav a.active,
 .doc-sidebar .doc-nav a.active {
-  background: var(--doc-blue-soft);
-  border-left-color: var(--doc-blue);
-  color: var(--doc-blue);
+  background: rgba(255, 255, 255, 0.18);
+  border-left-color: #93C5FD;
+  color: #fff;
   font-weight: 750;
 }
 
-.doc-nav a.active .doc-nav-icon { color: var(--doc-blue) !important; }
+.doc-nav a.active .doc-nav-icon { color: #fff !important; }
 
 .doc-nav-icon {
   width: 18px;
@@ -211,24 +211,24 @@ html.doc-static body {
   flex-shrink: 0;
   margin: 8px 12px 14px;
   padding: 12px;
-  background: #F8FAFC;
-  border: 1px solid var(--doc-border);
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 12px;
 }
-.doc-plan-card .text-faint { font-size: 11px; color: var(--doc-muted); }
-.doc-plan-card strong { display: block; font-size: 13px; font-weight: 800; color: var(--doc-blue); margin: 2px 0 8px; }
+.doc-plan-card .text-faint { font-size: 11px; color: rgba(255, 255, 255, 0.68); }
+.doc-plan-card strong { display: block; font-size: 13px; font-weight: 800; color: #fff; margin: 2px 0 8px; }
 .doc-plan-card a {
   display: block;
   text-align: center;
   font-size: 12px;
   font-weight: 700;
-  color: var(--doc-blue);
-  border: 1px solid var(--doc-blue);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.45);
   border-radius: 8px;
   padding: 6px 8px;
   text-decoration: none;
 }
-.doc-plan-card a:hover { background: rgba(37,99,235,.08); }
+.doc-plan-card a:hover { background: rgba(255, 255, 255, 0.12); }
 
 .doc-user-chip {
   display: flex;
@@ -293,12 +293,12 @@ html.doc-static body {
 
 .doc-sidebar-footer {
   padding: 14px 16px;
-  border-top: 1px solid var(--doc-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
-  background: var(--doc-surface-2);
+  background: rgba(0, 0, 0, 0.16);
 }
 
 .doc-sidebar-footer-avatar {
@@ -317,7 +317,7 @@ html.doc-static body {
 
 .doc-sidebar-footer-info strong {
   display: block;
-  color: var(--doc-text);
+  color: #fff;
   font-size: .8125rem;
   font-weight: 700;
   line-height: 1.2;
@@ -325,7 +325,7 @@ html.doc-static body {
 
 .doc-sidebar-footer-info span {
   display: block;
-  color: var(--doc-muted);
+  color: rgba(255, 255, 255, 0.68);
   font-size: .72rem;
 }
 
@@ -463,43 +463,43 @@ html[data-theme="dark"] .doc-main {
 }
 
 html[data-theme="dark"] .doc-sidebar {
-  background: var(--doc-sidebar) !important;
-  border-right-color: var(--doc-sidebar-border) !important;
+  background: #1E3A8A !important;
+  border-right-color: rgba(255, 255, 255, 0.12) !important;
 }
 
-html[data-theme="dark"] .doc-brand strong { color: #F9FAFB !important; }
-html[data-theme="dark"] .doc-brand span   { color: #94A3B8 !important; }
-html[data-theme="dark"] .doc-nav a { color: #94A3B8 !important; }
-html[data-theme="dark"] .doc-nav a:hover { background: rgba(37,99,235,.18) !important; color: #93C5FD !important; }
-html[data-theme="dark"] .doc-nav a.active { background: rgba(37,99,235,.22) !important; color: #93C5FD !important; }
-html[data-theme="dark"] .doc-plan-card { background: #1E293B !important; border-color: #334155 !important; }
-html[data-theme="dark"] .doc-plan-card .text-faint { color: #94A3B8 !important; }
-html[data-theme="dark"] .doc-plan-card strong { color: #93C5FD !important; }
+html[data-theme="dark"] .doc-brand strong { color: #fff !important; }
+html[data-theme="dark"] .doc-brand span   { color: rgba(255,255,255,.72) !important; }
+html[data-theme="dark"] .doc-nav a { color: rgba(255,255,255,.92) !important; }
+html[data-theme="dark"] .doc-nav a:hover { background: rgba(255,255,255,.10) !important; color: #fff !important; }
+html[data-theme="dark"] .doc-nav a.active { background: rgba(255,255,255,.18) !important; color: #fff !important; }
+html[data-theme="dark"] .doc-plan-card { background: rgba(255,255,255,.10) !important; border-color: rgba(255,255,255,.16) !important; }
+html[data-theme="dark"] .doc-plan-card .text-faint { color: rgba(255,255,255,.68) !important; }
+html[data-theme="dark"] .doc-plan-card strong { color: #fff !important; }
 html[data-theme="dark"] .doc-user-name { color: #F1F5F9 !important; }
 html[data-theme="dark"] .doc-logout { background: #1E293B; border-color: #334155; color: #94A3B8; }
 
 /* Beat dma-design-system.css generic `aside { }` rules on clinic pages */
 html.doc-static aside.doc-sidebar {
-  background: var(--doc-sidebar) !important;
-  color: var(--doc-muted) !important;
+  background: #1E3A8A !important;
+  color: #fff !important;
   width: var(--doc-sidebar-w) !important;
   min-width: var(--doc-sidebar-w) !important;
-  border-right: 1px solid var(--doc-sidebar-border) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
   overflow: hidden !important;
   display: flex !important;
   flex-direction: column !important;
 }
 html.doc-static aside.doc-sidebar .doc-brand {
   padding: 16px 16px 14px !important;
-  border-bottom: 1px solid var(--doc-border) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
   flex-shrink: 0 !important;
 }
 html.doc-static aside.doc-sidebar .doc-brand strong {
-  color: var(--doc-text) !important;
+  color: #fff !important;
   font-size: .9rem !important;
 }
 html.doc-static aside.doc-sidebar .doc-brand span {
-  color: var(--doc-muted) !important;
+  color: rgba(255, 255, 255, 0.72) !important;
 }
 html.doc-static aside.doc-sidebar .doc-nav {
   flex: 1 1 auto !important;
@@ -509,46 +509,49 @@ html.doc-static aside.doc-sidebar .doc-nav {
   padding: 8px 8px 12px !important;
 }
 html.doc-static aside.doc-sidebar .doc-nav-section {
-  color: #64748B !important;
+  color: rgba(255, 255, 255, 0.55) !important;
   padding: 14px 10px 6px !important;
 }
 html.doc-static aside.doc-sidebar .doc-nav a {
-  color: var(--doc-muted) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
   background: transparent !important;
   margin: 0 0 2px !important;
   border-left: 3px solid transparent !important;
 }
 html.doc-static aside.doc-sidebar .doc-nav a:hover {
-  background: rgba(37,99,235,.08) !important;
-  color: var(--doc-blue) !important;
+  background: rgba(255, 255, 255, 0.10) !important;
+  color: #fff !important;
 }
 html.doc-static aside.doc-sidebar .doc-nav a.active {
-  background: var(--doc-blue-soft) !important;
-  color: var(--doc-blue) !important;
-  border-left-color: var(--doc-blue) !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: #fff !important;
+  border-left-color: #93C5FD !important;
+}
+html.doc-static aside.doc-sidebar .doc-nav a:focus-visible {
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.45) !important;
 }
 html.doc-static aside.doc-sidebar .doc-plan-card,
 html.doc-static aside.doc-sidebar > div:last-child {
-  background: #F8FAFC !important;
-  border: 1px solid var(--doc-border) !important;
-  border-top: 1px solid var(--doc-border) !important;
+  background: rgba(255, 255, 255, 0.10) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.16) !important;
   padding: 12px !important;
   margin: 8px 12px 14px !important;
   border-radius: 12px !important;
 }
 html.doc-static aside.doc-sidebar .doc-plan-card .text-faint,
 html.doc-static aside.doc-sidebar .doc-plan-card span {
-  color: var(--doc-muted) !important;
+  color: rgba(255, 255, 255, 0.68) !important;
 }
 html.doc-static aside.doc-sidebar .doc-plan-card strong {
-  color: var(--doc-blue) !important;
+  color: #fff !important;
 }
 html.doc-static aside.doc-sidebar .doc-plan-card a {
   display: block !important;
   text-align: center !important;
-  color: var(--doc-blue) !important;
+  color: #fff !important;
   background: transparent !important;
-  border: 1px solid var(--doc-blue) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
   margin: 0 !important;
 }
 

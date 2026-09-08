@@ -28,6 +28,7 @@
   --ds-info:    #1D4ED8;
 
   --ds-bg:         #F4F6F9;
+  --ds-bg-clinic:  #d3d2d6;
   --ds-bg-2:       #E8EEF6;
   --ds-surface:    #FFFFFF;
   --ds-surface-2:  #F8FAFC;
@@ -64,6 +65,12 @@
   --ds-h-ctrl-sm: 32px;
   --ds-h-header: 56px;
   --ds-sidebar:  240px;
+  --ds-nav: #1E3A8A;
+  --ds-nav-text: #FFFFFF;
+  --ds-nav-muted: rgba(255, 255, 255, 0.78);
+  --ds-nav-faint: rgba(255, 255, 255, 0.58);
+  --ds-nav-hover: rgba(255, 255, 255, 0.10);
+  --ds-nav-active: rgba(255, 255, 255, 0.18);
   --ds-content:  1440px;
   --ds-clinic-content: 1120px;
   --ds-measure: 40rem;
@@ -229,8 +236,8 @@
   --doc-blue-h: var(--ds-primary-hover);
   --doc-blue-soft: var(--ds-primary-soft);
   --doc-orange: var(--ds-primary);
-  --doc-sidebar: var(--ds-surface);
-  --doc-sidebar-border: var(--ds-border);
+  --doc-sidebar: var(--ds-nav);
+  --doc-sidebar-border: rgba(255, 255, 255, 0.12);
   --doc-sidebar-w: var(--ds-sidebar);
   --doc-topbar-h: var(--ds-h-header);
   --doc-bg: var(--ds-bg);
@@ -298,10 +305,10 @@ img, video { max-width: 100%; height: auto; }
 
 /* Clinic static shell — token overrides */
 html.doc-static {
-  --sidebar-bg:    #FFFFFF;
-  --sidebar-text:  #64748B;
-  --sidebar-hover: rgba(37,99,235,.08);
-  --sidebar-act:   #2563EB;
+  --sidebar-bg:    var(--ds-nav);
+  --sidebar-text:  var(--ds-nav-muted);
+  --sidebar-hover: var(--ds-nav-hover);
+  --sidebar-act:   var(--ds-nav-active);
   --sidebar-w:     240px;
 }
 /* No wildcard max-width override needed — doc-static has its own layout */
@@ -1513,7 +1520,7 @@ button.dma-btn {
 .dma-btn:hover:not(:disabled),
 .sa-btn-primary:hover:not(:disabled) { transform: translateY(-1px); }
 .ds-btn:active:not(:disabled),
-.dma-btn:active:not(:disabled) { transform: translateY(0); }
+.dma-btn:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
 .ds-btn:focus-visible,
 .dma-btn:focus-visible,
 .sa-btn-primary:focus-visible,
@@ -1560,6 +1567,23 @@ button:focus-visible {
 
 .ds-btn-danger { background: var(--ds-danger); color: #fff; border-color: var(--ds-danger); }
 .ds-btn-success { background: var(--ds-success); color: #fff; border-color: var(--ds-success); }
+.ds-btn-ghost {
+  background: transparent;
+  color: var(--ds-text-2);
+  border-color: transparent;
+}
+.ds-btn-ghost:hover:not(:disabled) { background: var(--ds-primary-soft); color: var(--ds-primary-active); }
+.ds-btn-icon {
+  width: var(--ds-h-ctrl);
+  min-width: var(--ds-h-ctrl);
+  padding: 0;
+}
+.ds-btn.is-loading,
+.dma-btn.is-loading {
+  pointer-events: none;
+  opacity: 0.72;
+  position: relative;
+}
 .ds-btn-sm, .dma-btn-sm { height: var(--ds-h-ctrl-sm); padding: 0 var(--ds-space-3); font-size: 0.8125rem; }
 
 .dma-field input,
@@ -1580,6 +1604,53 @@ button:focus-visible {
   color: var(--ds-text);
   width: 100%;
   max-width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color var(--ds-ease), box-shadow var(--ds-ease), background var(--ds-ease);
+}
+.dma-field input:hover,
+.dma-field select:hover,
+.cos-input:hover,
+.ds-input:hover {
+  border-color: var(--ds-border-2);
+}
+.dma-field input:focus,
+.dma-field select:focus,
+.dma-field textarea:focus,
+.cos-input:focus,
+.ds-input:focus {
+  outline: none;
+  border-color: var(--ds-primary);
+  box-shadow: var(--ds-focus);
+}
+.dma-field input:disabled,
+.dma-field select:disabled,
+.dma-field textarea:disabled,
+.cos-input:disabled,
+.ds-input:disabled {
+  opacity: 0.55;
+  background: var(--ds-surface-section);
+  cursor: not-allowed;
+}
+.dma-field.is-error input,
+.dma-field.is-error select,
+.dma-field.is-error textarea,
+input[aria-invalid="true"],
+select[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  border-color: var(--ds-danger);
+}
+.dma-field.is-success input,
+.dma-field.is-success select,
+.dma-field.is-success textarea {
+  border-color: var(--ds-success);
+}
+.dma-field input::placeholder,
+.cos-input::placeholder,
+.ds-input::placeholder,
+textarea::placeholder {
+  color: var(--ds-faint);
+  opacity: 1;
 }
 .dma-field textarea,
 .cos-input.area { height: auto; padding: var(--ds-space-3); min-height: 96px; resize: vertical; }
@@ -1631,27 +1702,34 @@ button:focus-visible {
   gap: 4px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border-bottom: 1px solid var(--ds-border);
+  scrollbar-width: none;
   margin-bottom: var(--ds-space-4);
-  padding-bottom: 0;
+  padding: 4px;
+  background: var(--ds-surface-section);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-r-card);
 }
+.dma-tabs::-webkit-scrollbar, .ds-tabs::-webkit-scrollbar { display: none; }
 .dma-tabs button, .ds-tabs button {
   flex: 0 0 auto;
-  min-height: 40px;
+  min-height: 36px;
   padding: 0 var(--ds-space-3);
   border: 0;
   background: transparent;
   color: var(--ds-muted);
   font-weight: 600;
   font-size: 0.8125rem;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background var(--ds-ease), color var(--ds-ease), box-shadow var(--ds-ease);
 }
-.dma-tabs button:hover, .ds-tabs button:hover { color: var(--ds-text); background: var(--ds-primary-soft); }
+.dma-tabs button:hover, .ds-tabs button:hover { color: var(--ds-text); background: rgba(255,255,255,0.65); }
+.dma-tabs button:focus-visible, .ds-tabs button:focus-visible { box-shadow: var(--ds-focus); }
 .dma-tabs button.active, .ds-tabs button.active {
-  color: var(--ds-primary);
-  border-bottom-color: var(--ds-primary);
+  background: var(--ds-surface);
+  color: var(--ds-primary-active);
+  box-shadow: var(--ds-shadow-xs);
+  font-weight: 700;
 }
 
 .cos-drawer, .ds-drawer {
@@ -2217,8 +2295,11 @@ html.sa-static .ds-table tbody tr:hover td { background: var(--ds-primary-soft);
    Scoped to html.doc-static so Superadmin is unchanged.
    ═══════════════════════════════════════════════════════════ */
 html.doc-static {
-  --ds-surface-section: #EEF2F7;
-  --ds-surface-hover: #F1F5F9;
+  --ds-bg: #d3d2d6;
+  --ds-surface-section: #e8e7eb;
+  --ds-surface-hover: #eeedf1;
+  --doc-bg: #d3d2d6;
+  --doc-sidebar: var(--ds-nav);
 }
 
 html.doc-static body {

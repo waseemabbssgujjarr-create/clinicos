@@ -69,7 +69,7 @@
   if (!document.querySelector('link[href*="dma-design-system.css"]')) {
     var dsLink = document.createElement('link');
     dsLink.rel = 'stylesheet';
-    dsLink.href = '/dma-design-system.css?v=10';
+    dsLink.href = '/dma-design-system.css?v=11';
     document.head.appendChild(dsLink);
   }
   if (!isDocStatic && !isSaStatic && !document.querySelector('link[href*="dma-doctor-app.css"]')) {
@@ -389,23 +389,23 @@
     if (!document.querySelector('link[href*="dashboard-doctor-shell.css"]')) {
       var docShellCss = document.createElement('link');
       docShellCss.rel = 'stylesheet';
-      docShellCss.href = '/dashboard-doctor-shell.css?v=2';
+      docShellCss.href = '/dashboard-doctor-shell.css?v=8';
       document.head.appendChild(docShellCss);
     }
     if (!document.querySelector('script[src*="dashboard-doctor-shell.js"]')) {
       var docShellJs = document.createElement('script');
-      docShellJs.src = '/dashboard-doctor-shell.js?v=1';
+      docShellJs.src = '/dashboard-doctor-shell.js?v=8';
       (document.head || document.documentElement).appendChild(docShellJs);
     }
     if (!document.querySelector('link[href*="dashboard-whatsapp-hub.css"]')) {
       var waHubCss = document.createElement('link');
       waHubCss.rel = 'stylesheet';
-      waHubCss.href = '/dashboard-whatsapp-hub.css?v=4';
+      waHubCss.href = '/dashboard-whatsapp-hub.css?v=7';
       document.head.appendChild(waHubCss);
     }
     if (!document.querySelector('script[src*="dashboard-whatsapp-hub.js"]')) {
       var waHubJs = document.createElement('script');
-      waHubJs.src = '/dashboard-whatsapp-hub.js?v=2';
+      waHubJs.src = '/dashboard-whatsapp-hub.js?v=4';
       (document.head || document.documentElement).appendChild(waHubJs);
     }
   }
