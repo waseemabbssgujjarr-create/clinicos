@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" class="doc-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payments — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=15" />
+  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=9" />
+  <link rel="stylesheet" href="/dma-doctor-app.css?v=3" />
+  <link rel="stylesheet" href="/dma-doctor-pages.css?v=3" />
+</head>
+<body>
+  <div class="doc-layout">
+    <aside class="doc-sidebar" id="doc-sidebar" aria-label="Clinic navigation"></aside>
+    <div class="doc-main-wrap">
+      <header class="doc-topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button type="button" class="doc-menu-btn" aria-label="Open menu"><span></span><span></span><span></span></button>
+          <h1 id="doc-page-title">Payments</h1>
+        </div>
+        <div class="doc-topbar-actions"></div>
+      </header>
+      <main class="doc-main" id="doc-page" data-page="payments" data-title="Payments"></main>
+    </div>
+  </div>
+  <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
+  <script src="/dashboard-doctor-shell.js?v=12"></script>
+  <script src="/dma-doctor-app.js?v=3"></script>
+  <script src="/dma-ui.js?v=5"></script>
+  <script src="/dma-doctor-pages.js?v=9"></script>
+  <script src="/dma-clinicos-clinical.js?v=3"></script>
+  <script src="/dma-clinicos-inner.js?v=4"></script>
+  <script>
+    DmaDoctorShell.bootFromPage();
+    if (window.DmaPages) DmaPages.mount();
+  </script>
+</body>
+</html>

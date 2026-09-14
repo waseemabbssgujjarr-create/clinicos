@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" class="sa-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Security — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=15" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=10" />
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="ds-work-header">
+        <div>
+          <span class="ds-pill">Platform</span>
+          <h1 style="margin:8px 0 4px">Security</h1>
+          <p class="sa-subtitle">Authentication, audit, and integration keys — not an API-key console or impersonation tool.</p>
+        </div>
+        <a class="ds-btn ds-btn-primary" href="/superadmin/audit/">Audit logs</a>
+      </div>
+      <div class="ds-ops-grid">
+        <section class="ds-section">
+          <h2>Auth</h2>
+          <p>Clinic, staff, and superadmin JWTs. Password reset and email verification are live.</p>
+        </section>
+        <section class="ds-section">
+          <h2>Integrations</h2>
+          <p>Meta, Stripe, SMTP, and AI keys live under Integrations. No impersonate action exists.</p>
+          <a class="ds-btn ds-btn-outline ds-btn-sm" href="/superadmin/integrations/">Integrations</a>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=13"></script>
+  <script>DmaAdminShell.initStaticPage('/superadmin/security/');</script>
+</body>
+</html>

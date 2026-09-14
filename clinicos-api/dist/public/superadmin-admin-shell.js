@@ -2,7 +2,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=11';
+    ds.href = '/dma-design-system.css?v=15';
     document.head.appendChild(ds);
   }
   var ICONS = {
@@ -24,23 +24,25 @@
   var NAV_GROUPS = [
     { label: 'Platform', items: [
       { href: '/superadmin/', label: 'Overview', icon: 'overview' },
-      { href: '/superadmin/clinics/', label: 'Clinics', icon: 'clinics' },
+      { href: '/superadmin/clinics/', label: 'Organizations', icon: 'clinics' },
       { href: '/superadmin/users/', label: 'Users', icon: 'users' },
     ]},
     { label: 'Operations', items: [
       { href: '/superadmin/whatsapp/', label: 'WhatsApp', icon: 'whatsapp' },
-      { href: '/superadmin/api/', label: 'WhatsApp API', icon: 'api' },
       { href: '/superadmin/announcements/', label: 'Announcements', icon: 'announce' },
+      { href: '/superadmin/integrations/', label: 'Integrations', icon: 'plug' },
     ]},
     { label: 'Billing', items: [
-      { href: '/superadmin/subscriptions/', label: 'Subscriptions', icon: 'plans' },
-      { href: '/superadmin/revenue/', label: 'Revenue', icon: 'revenue' },
-      { href: '/superadmin/stripe/', label: 'Stripe', icon: 'stripe' },
+      { href: '/superadmin/subscriptions/', label: 'Billing', icon: 'plans' },
+      { href: '/superadmin/stripe/', label: 'Plans', icon: 'stripe' },
+      { href: '/superadmin/revenue/', label: 'Analytics', icon: 'revenue' },
     ]},
     { label: 'System', items: [
-      { href: '/superadmin/integrations/', label: 'Integrations', icon: 'plug' },
-      { href: '/superadmin/health/', label: 'Health', icon: 'health' },
-      { href: '/superadmin/audit/', label: 'Audit', icon: 'audit' },
+      { href: '/superadmin/api/', label: 'API', icon: 'api' },
+      { href: '/superadmin/health/', label: 'System Health', icon: 'health' },
+      { href: '/superadmin/audit/', label: 'Audit Logs', icon: 'audit' },
+      { href: '/superadmin/support/', label: 'Support', icon: 'announce' },
+      { href: '/superadmin/security/', label: 'Security', icon: 'settings' },
       { href: '/superadmin/settings/', label: 'Settings', icon: 'settings' },
     ]},
   ];

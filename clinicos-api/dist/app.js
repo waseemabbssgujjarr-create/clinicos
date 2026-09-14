@@ -35,6 +35,8 @@ const patient_routes_1 = __importDefault(require("./routes/patient.routes"));
 const reviews_routes_1 = __importDefault(require("./routes/reviews.routes"));
 const leads_routes_1 = __importDefault(require("./routes/leads.routes"));
 const whatsapp_routes_1 = __importDefault(require("./routes/whatsapp.routes"));
+const clinical_routes_1 = __importDefault(require("./routes/clinical.routes"));
+const domain_routes_1 = __importDefault(require("./routes/domain.routes"));
 // Webhooks
 const twilio_webhook_1 = __importDefault(require("./webhooks/twilio.webhook"));
 const meta_webhook_1 = __importDefault(require("./webhooks/meta.webhook"));
@@ -246,6 +248,8 @@ app.use('/api/patient', patient_routes_1.default);
 app.use('/api/reviews', reviews_routes_1.default);
 app.use('/api/leads', leads_routes_1.default);
 app.use('/api/whatsapp', whatsapp_routes_1.default);
+app.use('/api', clinical_routes_1.default);
+app.use('/api', domain_routes_1.default);
 app.use('/api/internal', internal_routes_1.default);
 app.use('/api/webhooks/twilio', twilio_webhook_1.default);
 // /api/webhooks/meta is registered above with raw body capture for HMAC verification

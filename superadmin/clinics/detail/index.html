@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Clinic — Doctors My Agency</title>
+  <title>Organization — Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=9" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=15" />
   <link rel="stylesheet" href="/superadmin-theme.css?v=10" />
 </head>
 <body class="superadmin-app">
@@ -15,19 +15,23 @@
     <aside class="sa-sidebar" id="sa-sidebar"></aside>
     <main class="sa-main">
       <div class="sa-main-inner">
-        <a href="/superadmin/clinics/" class="sa-back">← Clinics</a>
-        <div id="loading" class="ds-loading">Loading clinic…</div>
+        <a href="/superadmin/clinics/" class="sa-back">← Organizations</a>
+        <div id="loading" class="ds-loading">Loading organization…</div>
         <div id="error" class="ds-error" style="display:none"></div>
         <div id="content" style="display:none" class="sa-content-card">
           <div class="ds-page-header">
-            <div>
-              <h1 id="clinic-name">—</h1>
-              <p id="clinic-owner">—</p>
+            <div class="cos-profile-hero" style="margin:0;width:100%">
+              <div class="dma-avatar" id="org-avatar" aria-hidden="true">OR</div>
+              <div>
+                <span class="ds-pill">Organization</span>
+                <h1 id="clinic-name">—</h1>
+                <p id="clinic-owner">—</p>
+              </div>
             </div>
             <div class="ds-page-actions">
               <span id="status-badge" class="ds-badge sa-badge-ok">Active</span>
+              <span id="plan-badge" class="ds-badge">—</span>
               <button type="button" class="ds-btn ds-btn-outline" id="toggle-status-btn">Suspend</button>
-              <button type="button" class="ds-btn ds-btn-danger" id="delete-clinic-btn">Delete</button>
             </div>
           </div>
           <div class="ds-kpis">
@@ -41,9 +45,9 @@
       </div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=9"></script>
-  <script src="/dma-ui.js?v=3"></script>
-  <script src="/superadmin-clinic-workspace.js?v=3"></script>
+  <script src="/superadmin-admin-shell.js?v=13"></script>
+  <script src="/dma-ui.js?v=5"></script>
+  <script src="/superadmin-clinic-workspace.js?v=4"></script>
   <script>
     (function () {
       if (!DmaAdminShell.initStaticPage('/superadmin/clinics/')) return;
@@ -75,6 +79,13 @@
         clinic = c;
         document.getElementById('clinic-name').textContent = c.name || '—';
         document.getElementById('clinic-owner').textContent = (c.ownerName || '—') + (c.email ? ' · ' + c.email : '');
+        var av = document.getElementById('org-avatar');
+        if (av) {
+          var parts = String(c.name || 'OR').trim().split(/\s+/);
+          av.textContent = parts.slice(0, 2).map(function (p) { return p.charAt(0); }).join('').toUpperCase();
+        }
+        var planBadge = document.getElementById('plan-badge');
+        if (planBadge) planBadge.textContent = (c.plan || '—') + (c.planStatus ? ' · ' + c.planStatus : '');
         document.getElementById('stat-patients').textContent = (c._count && c._count.patients != null) ? c._count.patients.toLocaleString() : '0';
         document.getElementById('stat-appointments').textContent = (c._count && c._count.appointments != null) ? c._count.appointments.toLocaleString() : '0';
         document.getElementById('stat-staff').textContent = (c._count && c._count.staff != null) ? c._count.staff.toLocaleString() : '0';
@@ -88,9 +99,9 @@
         } else {
           badge.textContent = 'Suspended';
           badge.className = 'ds-badge ds-badge-danger';
-          toggleBtn.textContent = 'Activate';
+          toggleBtn.textContent = 'Reactivate';
         }
-        document.title = (c.name || 'Clinic') + ' — Platform Admin';
+        document.title = (c.name || 'Organization') + ' — Platform Admin';
       }
 
       function load() {
@@ -110,7 +121,7 @@
       document.getElementById('toggle-status-btn').onclick = function () {
         if (!clinic) return;
         var next = !clinic.isActive;
-        if (!confirm(next ? 'Activate this clinic?' : 'Suspend this clinic?')) return;
+        if (!confirm(next ? 'Reactivate this organization?' : 'Suspend this organization?')) return;
         var btn = this;
         btn.disabled = true;
         DmaAdminShell.api('/api/superadmin/clinics/' + clinicId + '/status', { method: 'PATCH', body: { isActive: next } })
@@ -119,9 +130,10 @@
           .finally(function () { btn.disabled = false; });
       };
 
-      document.getElementById('delete-clinic-btn').onclick = function () {
+      var del = document.getElementById('delete-clinic-btn');
+      if (del) del.onclick = function () {
         if (!clinic) return;
-        if (!confirm('Permanently delete "' + (clinic.name || 'this clinic') + '"?')) return;
+        if (!confirm('Permanently delete "' + (clinic.name || 'this organization') + '"?')) return;
         if (!confirm('Final confirmation: delete forever?')) return;
         var btn = this;
         btn.disabled = true;

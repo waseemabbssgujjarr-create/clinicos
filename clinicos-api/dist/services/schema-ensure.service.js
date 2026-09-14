@@ -35,23 +35,46 @@ async function exec(sql, params) {
 }
 
 async function ensureRuntimeSchema() {
-  const sqlPath = path.join(__dirname, "../../prisma/migrations/add_conversation_training.sql");
-  try {
-    if (fs.existsSync(sqlPath)) {
-      const raw = fs.readFileSync(sqlPath, "utf8");
-      const statements = raw
-        .split(/;\s*\n/)
-        .map((s) => s.trim())
-        .filter((s) => s && !s.startsWith("--"));
-      for (const stmt of statements) {
-        await exec(stmt);
+    const sqlFiles = [
+        "add_conversation_training.sql",
+        "phase5_clinical_domain.sql",
+    ];
+    for (const file of sqlFiles) {
+      const sqlPath = path.join(__dirname, "../../prisma/migrations", file);
+      try {
+        if (fs.existsSync(sqlPath)) {
+          const raw = fs.readFileSync(sqlPath, "utf8");
+          const statements = raw
+            .split(/;\s*\n/)
+            .map((s) => s
+              .split(/\r?\n/)
+              .filter((line) => !line.trim().startsWith("--"))
+              .join("\n")
+              .trim())
+            .filter((s) => s);
+          for (const stmt of statements) {
+            await exec(stmt);
+          }
+        }
+      } catch (err) {
+        logger_1.logger.warn("ensureRuntimeSchema: SQL file apply failed (non-fatal)", {
+          file,
+          err: err instanceof Error ? err.message : String(err),
+        });
       }
     }
-  } catch (err) {
-    logger_1.logger.warn("ensureRuntimeSchema: SQL file apply failed (non-fatal)", {
-      err: err instanceof Error ? err.message : String(err),
-    });
-  }
+
+    try {
+      const roster = require("./roster.service");
+      const clinics = await prisma.clinic.findMany({ select: { id: true } });
+      for (const c of clinics) {
+        await roster.ensureClinicRoster(c.id).catch(() => null);
+      }
+    } catch (err) {
+      logger_1.logger.debug("ensureClinicRoster skipped", {
+        err: err instanceof Error ? err.message : String(err),
+      });
+    }
 
   const messageAlters = [
     "ALTER TABLE `Message` ADD COLUMN `deliveryStatus` VARCHAR(32) NOT NULL DEFAULT 'sent'",

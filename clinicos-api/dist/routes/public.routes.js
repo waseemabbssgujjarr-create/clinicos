@@ -517,40 +517,10 @@ router.get('/slots/:slug', (0, asyncHandler_1.asyncHandler)(async (req, res) => 
         res.status(404).json({ error: 'Clinic not found' });
         return;
     }
-    const targetDate = (0, date_fns_1.parseISO)(date);
-    const hours = JSON.parse(clinic.workingHours ?? '{}');
-    const dayName = targetDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-    const dayConfig = hours[dayName];
-    if (!dayConfig?.isOpen) {
-        res.json({ slots: [] });
-        return;
-    }
-    const [openH, openM] = (dayConfig.open || '09:00').split(':').map(Number);
-    const [closeH, closeM] = (dayConfig.close || '17:00').split(':').map(Number);
     const durationMin = parseInt(duration);
-    const booked = await prisma_1.prisma.appointment.findMany({
-        where: {
-            clinicId: clinic.id,
-            dateTime: { gte: (0, date_fns_1.startOfDay)(targetDate), lte: (0, date_fns_1.endOfDay)(targetDate) },
-            status: { notIn: ['CANCELLED', 'NO_SHOW', 'RESCHEDULED'] },
-        },
-        select: { dateTime: true, durationMin: true },
-    });
-    const slots = [];
-    let slotTime = (0, date_fns_1.setMinutes)((0, date_fns_1.setHours)(targetDate, openH), openM);
-    const closeTime = (0, date_fns_1.setMinutes)((0, date_fns_1.setHours)(targetDate, closeH), closeM);
-    while ((0, date_fns_1.isBefore)(slotTime, closeTime)) {
-        const slotEnd = (0, date_fns_1.addMinutes)(slotTime, durationMin);
-        const isBooked = booked.some((b) => {
-            const bEnd = (0, date_fns_1.addMinutes)(b.dateTime, b.durationMin);
-            return slotTime < bEnd && slotEnd > b.dateTime;
-        });
-        if (!isBooked && (0, date_fns_1.isAfter)(slotTime, new Date())) {
-            slots.push(slotTime.toISOString());
-        }
-        slotTime = (0, date_fns_1.addMinutes)(slotTime, durationMin);
-    }
-    res.json({ slots });
+    const schedule_service_1 = require("../services/schedule.service");
+    const built = await schedule_service_1.buildDaySlots({ id: clinic.id, workingHours: clinic.workingHours }, date, durationMin, {});
+    res.json(built);
 }));
 // ─── POST /api/public/book/:slug ──────────────────────────────────────────────
 router.post('/book/:slug', (0, asyncHandler_1.asyncHandler)(async (req, res) => {

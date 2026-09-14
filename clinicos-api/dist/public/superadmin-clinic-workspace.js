@@ -6,15 +6,15 @@
 
   var TABS = [
     ["overview", "Overview"],
-    ["profile", "Profile"],
-    ["whatsapp", "WhatsApp"],
-    ["ai", "AI"],
-    ["training", "Training"],
+    ["users", "Users"],
+    ["doctors", "Doctors"],
     ["patients", "Patients"],
     ["appointments", "Appointments"],
-    ["messages", "Messages"],
-    ["subscription", "Subscription"],
-    ["activity", "Activity"]
+    ["billing", "Billing"],
+    ["usage", "Usage"],
+    ["security", "Security"],
+    ["activity", "Activity"],
+    ["audit", "Audit"]
   ];
 
   function clinicIdFromLocation() {
@@ -140,7 +140,7 @@
             .then(function () { location.reload(); })
             .catch(function (e) { alert(e.message); });
         };
-      } else if (tab === "subscription") {
+      } else if (tab === "subscription" || tab === "billing") {
         body.innerHTML = '<div class="dma-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:560px">' +
           '<div class="dma-field"><label>Plan</label><select class="cos-input" id="plan-select">' +
             ["TRIAL","STARTER","PRO","ENTERPRISE"].map(function (p) {
@@ -194,7 +194,7 @@
         loadTable("/api/superadmin/clinics/" + id + "/messages", ["When", "Dir", "Patient", "Body"], function (r) {
           return [fmt(r.createdAt), r.direction, r.patient && r.patient.fullName, String(r.body || "").slice(0, 80)];
         });
-      } else if (tab === "activity") {
+      } else if (tab === "activity" || tab === "audit") {
         body.innerHTML = "<p class='cos-hint'>Loading…</p>";
         api("/api/superadmin/clinics/" + id + "/activity").then(function (d) {
           var rows = d.data || [];
@@ -204,6 +204,28 @@
             }).join("") || "<tr><td colspan='4'>No activity</td></tr>") +
             "</tbody></table></div>";
         });
+      } else if (tab === "users") {
+        body.innerHTML = '<dl class="sa-info-list">' +
+          kv("Owner", esc(clinic.ownerName)) +
+          kv("Staff seats", String((clinic._count && clinic._count.staff) || 0)) +
+          "</dl><p class='cos-hint'>A named user directory is not a separate platform resource. Open / Suspend / Reactivate remain on this organization — impersonation is not available.</p>";
+      } else if (tab === "doctors") {
+        body.innerHTML = '<dl class="sa-info-list">' +
+          kv("Assigned clinician", esc(clinic.ownerName)) +
+          kv("Specialty", esc(clinic.specialty)) +
+          "</dl><p class='cos-hint'>This organization currently exposes one practitioner record (the clinic owner account). Additional clinicians require a roster API.</p>";
+      } else if (tab === "usage") {
+        body.innerHTML = '<dl class="sa-info-list">' +
+          kv("Patients", String((clinic._count && clinic._count.patients) || 0)) +
+          kv("Appointments", String((clinic._count && clinic._count.appointments) || 0)) +
+          kv("Staff", String((clinic._count && clinic._count.staff) || 0)) +
+          kv("Messages", String((clinic._count && clinic._count.messages) || 0)) +
+          "</dl>";
+      } else if (tab === "security") {
+        body.innerHTML = '<dl class="sa-info-list">' +
+          kv("Organization status", clinic.isActive ? "Active" : "Suspended") +
+          kv("Plan status", esc(clinic.planStatus)) +
+          "</dl><p class='cos-hint'>Platform operators can Open, Suspend, or Reactivate. Impersonation is not available.</p>";
       }
     }
 

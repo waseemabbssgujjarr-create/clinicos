@@ -6,8 +6,8 @@
   <title>Overview — Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=9" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=15" />
   <link rel="stylesheet" href="/superadmin-theme.css?v=10" />
 </head>
 <body class="superadmin-app">
@@ -17,10 +17,11 @@
       <div class="ds-work-header">
         <div>
           <h1 style="margin:0;font-size:1.25rem">Platform overview</h1>
-          <p class="sa-subtitle" style="margin:4px 0 0">Operational command center — clinics, WhatsApp, and system health.</p>
+          <p class="sa-subtitle" style="margin:4px 0 0">Is the SaaS healthy, and are clinics operating?</p>
         </div>
-        <a class="ds-btn ds-btn-primary" href="/superadmin/clinics/">Open clinics</a>
+        <a class="ds-btn ds-btn-primary" href="/superadmin/clinics/">Open organizations</a>
       </div>
+      <div id="health-chips" class="dma-quick-row" style="margin-bottom:16px"></div>
       <div id="kpis" class="ds-kpis"><div class="ds-loading">Loading metrics…</div></div>
       <div class="ds-ops-grid" style="margin-bottom:16px">
         <section class="ds-section">
@@ -48,30 +49,40 @@
       </div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=9"></script>
-  <script src="/dma-ui.js?v=3"></script>
+  <script src="/superadmin-admin-shell.js?v=13"></script>
+  <script src="/dma-ui.js?v=5"></script>
   <script>
     (function () {
       if (!DmaAdminShell.initStaticPage('/superadmin/')) return;
       var esc = DmaUI.esc;
       Promise.all([
         DmaAdminShell.api('/api/superadmin/stats'),
-        DmaAdminShell.api('/api/superadmin/health').catch(function () { return {}; }),
+        DmaAdminShell.api('/api/health').catch(function () { return null; }),
         DmaAdminShell.api('/api/superadmin/whatsapp/clinics').catch(function () { return {}; }),
         DmaAdminShell.api('/api/superadmin/audit?limit=8').catch(function () { return { data: [] }; }),
         DmaAdminShell.api('/api/superadmin/clinics?limit=10').catch(function () { return { data: [] }; })
       ]).then(function (parts) {
         var s = parts[0] || {};
-        var h = parts[1] || {};
+        var health = parts[1];
         var wa = parts[2] || {};
         var audit = parts[3].data || parts[3].logs || [];
         var clinics = parts[4].data || [];
+        var chip = function (label, state) {
+          var cls = state === 'ONLINE' ? 'ok' : state === 'DEGRADED' ? 'warn' : state === 'OFFLINE' ? 'err' : 'off';
+          return '<span class="ds-pill" data-state="' + cls + '">' + label + ' · ' + state + '</span>';
+        };
+        var apiState = 'UNKNOWN';
+        if (health && health.ok === true) apiState = 'ONLINE';
+        else if (health && health.ok === false) apiState = 'DEGRADED';
+        else if (health === null) apiState = 'OFFLINE';
+        var chipsEl = document.getElementById('health-chips');
+        if (chipsEl) chipsEl.innerHTML = chip('API', apiState) + chip('Database', health && health.database === 'unavailable' ? 'DEGRADED' : (health && health.ok ? 'ONLINE' : 'UNKNOWN'));
         var items = [
-          { l: 'Clinics', v: s.totalClinics, sub: 'all registered' },
+          { l: 'Organizations', v: s.totalClinics, sub: 'all registered' },
           { l: 'Active', v: s.activeClinics, sub: 'live plans' },
           { l: 'Patients', v: s.totalPatients, sub: 'platform-wide' },
           { l: 'Appointments', v: s.totalAppointments, sub: 'all time' },
-          { l: 'Est. MRR', v: '$' + (s.mrr || 0), sub: (s.newThisMonth || 0) + ' new this month' }
+          { l: 'Est. MRR', v: '$' + (s.mrr || 0), sub: (s.cancelled || 0) + ' cancelled' }
         ];
         document.getElementById('kpis').innerHTML = items.map(function (k) {
           return '<div class="ds-kpi"><div><label>' + k.l + '</label><strong>' + esc(k.v != null ? k.v : '—') + '</strong><span class="sub" style="color:var(--ds-muted);font-size:0.75rem">' + k.sub + '</span></div></div>';
@@ -105,9 +116,10 @@
           esc((wa.total || 0) - (wa.connected || 0)) + ' not connected</p>' +
           '<a class="ds-btn ds-btn-outline ds-btn-sm" href="/superadmin/whatsapp/">WhatsApp ops</a>';
 
-        var db = h.database === 'unavailable' ? 'Database issue' : 'Database reachable';
+        var db = health && health.database === 'unavailable' ? 'Database issue' : (apiState === 'ONLINE' ? 'Database reachable' : 'Health unknown');
         document.getElementById('health').innerHTML =
-          '<p style="margin:0 0 8px">' + esc(db) + (h.whatsappConnections != null ? '<br>' + esc(h.whatsappConnections) + ' WhatsApp connections' : '') + '</p>' +
+          '<p style="margin:0 0 8px">' + esc(apiState) + ' · ' + esc(db) +
+          (health && health.whatsappConnections != null ? '<br>' + esc(health.whatsappConnections) + ' WhatsApp connections' : '') + '</p>' +
           '<a class="ds-btn ds-btn-outline ds-btn-sm" href="/superadmin/health/">Health</a>';
 
         document.getElementById('activity').innerHTML = audit.length

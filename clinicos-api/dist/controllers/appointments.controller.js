@@ -7,6 +7,10 @@ const error_middleware_1 = require("../middleware/error.middleware");
 const appointment_schemas_1 = require("../schemas/appointment.schemas");
 const reminder_service_1 = require("../services/reminder.service");
 const notification_service_1 = require("../services/notification.service");
+const schedule_service_1 = require("../services/schedule.service");
+const roster_service_1 = require("../services/roster.service");
+const clinical_service_1 = require("../services/clinical.service");
+const audit_service_1 = require("../services/audit.service");
 const date_fns_1 = require("date-fns");
 // GET /api/appointments
 exports.listAppointments = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
@@ -44,6 +48,9 @@ exports.listAppointments = (0, asyncHandler_1.asyncHandler)(async (req, res) => 
             where,
             include: {
                 patient: { select: { id: true, fullName: true, phone: true, email: true } },
+                practitioner: { select: { id: true, name: true, specialty: true } },
+                location: { select: { id: true, name: true } },
+                room: { select: { id: true, name: true, status: true } },
             },
             orderBy: { dateTime: 'asc' },
             skip: (pageNum - 1) * limitNum,
@@ -62,15 +69,14 @@ exports.createAppointment = (0, asyncHandler_1.asyncHandler)(async (req, res) =>
     });
     if (!patient)
         throw (0, error_middleware_1.createError)('Patient not found', 404, 'PATIENT_NOT_FOUND');
-    // Check for slot conflict
+    const roster = await (0, roster_service_1.ensureClinicRoster)(clinicId);
+    const practitionerId = data.practitionerId || (roster.primaryPractitioner && roster.primaryPractitioner.id) || null;
+    const locationId = data.locationId || (roster.primaryLocation && roster.primaryLocation.id) || null;
     const start = (0, date_fns_1.parseISO)(data.dateTime);
-    const end = (0, date_fns_1.addMinutes)(start, data.durationMin);
-    const conflict = await prisma_1.prisma.appointment.findFirst({
-        where: {
-            clinicId,
-            status: { notIn: ['CANCELLED', 'NO_SHOW', 'RESCHEDULED'] },
-            dateTime: { gte: start, lt: end },
-        },
+    const conflict = await (0, schedule_service_1.findSlotConflict)(clinicId, start, data.durationMin, {
+        practitionerId,
+        locationId,
+        roomId: data.roomId,
     });
     if (conflict)
         throw (0, error_middleware_1.createError)('This time slot is already booked', 409, 'SLOT_CONFLICT');
@@ -78,6 +84,9 @@ exports.createAppointment = (0, asyncHandler_1.asyncHandler)(async (req, res) =>
         data: {
             clinicId,
             patientId: data.patientId,
+            practitionerId,
+            locationId,
+            roomId: data.roomId || null,
             treatment: data.treatment,
             dateTime: start,
             durationMin: data.durationMin,
@@ -86,7 +95,7 @@ exports.createAppointment = (0, asyncHandler_1.asyncHandler)(async (req, res) =>
             channel: data.channel,
             bookedByStaffId: req.user?.role === 'STAFF' ? req.user.id : null,
         },
-        include: { patient: true },
+        include: { patient: true, practitioner: true, location: true },
     });
     // Send WhatsApp confirmation (non-blocking)
     if (data.sendConfirmation) {
@@ -107,13 +116,22 @@ exports.getAppointment = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const appointment = await prisma_1.prisma.appointment.findUnique({
         where: { id: req.params.id },
         include: {
-            patient: { select: { id: true, fullName: true, phone: true, email: true, medicalNotes: true } },
+            patient: { select: { id: true, fullName: true, phone: true, email: true, medicalNotes: true, allergies: true, dateOfBirth: true, gender: true } },
+            practitioner: { select: { id: true, name: true, specialty: true } },
+            location: { select: { id: true, name: true } },
+            room: { select: { id: true, name: true, status: true } },
         },
     });
     if (!appointment || appointment.clinicId !== req.clinicId) {
         throw (0, error_middleware_1.createError)('Appointment not found', 404, 'NOT_FOUND');
     }
-    res.json(appointment);
+    let clinical = null;
+    try {
+        const enc = await (0, clinical_service_1.getOrCreateEncounter)(appointment, (0, audit_service_1.actorOf)(req));
+        clinical = (0, clinical_service_1.toClinicalDto)(enc, appointment);
+    }
+    catch (_) { /* tables may not exist yet */ }
+    res.json({ ...appointment, clinical });
 });
 // PATCH /api/appointments/:id
 exports.updateAppointment = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
@@ -123,18 +141,45 @@ exports.updateAppointment = (0, asyncHandler_1.asyncHandler)(async (req, res) =>
         throw (0, error_middleware_1.createError)('Appointment not found', 404, 'NOT_FOUND');
     }
     const dateChanged = !!(data.dateTime && (0, date_fns_1.parseISO)(data.dateTime).getTime() !== existing.dateTime.getTime());
+    if (data.dateTime || data.durationMin || data.practitionerId || data.roomId) {
+        const start = data.dateTime ? (0, date_fns_1.parseISO)(data.dateTime) : existing.dateTime;
+        const duration = data.durationMin || existing.durationMin;
+        const conflict = await (0, schedule_service_1.findSlotConflict)(req.clinicId, start, duration, {
+            ignoreId: existing.id,
+            practitionerId: data.practitionerId || existing.practitionerId,
+            locationId: data.locationId || existing.locationId,
+            roomId: data.roomId || existing.roomId,
+        });
+        if (conflict)
+            throw (0, error_middleware_1.createError)('This time slot is already booked', 409, 'SLOT_CONFLICT');
+    }
     const appointment = await prisma_1.prisma.appointment.update({
         where: { id: req.params.id },
         data: {
             ...(data.status && { status: data.status }),
+            ...(data.status === 'CALLED' ? { calledAt: new Date(), calledBy: req.user.id } : {}),
             ...(data.treatment && { treatment: data.treatment }),
             ...(data.dateTime && { dateTime: (0, date_fns_1.parseISO)(data.dateTime) }),
             ...(data.durationMin && { durationMin: data.durationMin }),
             ...(data.fee !== undefined && { fee: data.fee }),
             ...(data.notes !== undefined && { notes: data.notes }),
+            ...(data.practitionerId !== undefined && { practitionerId: data.practitionerId }),
+            ...(data.locationId !== undefined && { locationId: data.locationId }),
+            ...(data.roomId !== undefined && { roomId: data.roomId }),
         },
-        include: { patient: { select: { fullName: true, phone: true } } },
+        include: { patient: { select: { fullName: true, phone: true } }, practitioner: true, location: true },
     });
+    if (data.status && data.status !== existing.status) {
+        await (0, audit_service_1.writeAudit)({
+            ...(0, audit_service_1.actorOf)(req),
+            clinicId: req.clinicId,
+            action: 'appointment.status_changed',
+            entityType: 'Appointment',
+            entityId: appointment.id,
+            details: JSON.stringify({ from: existing.status, to: data.status }),
+            success: true,
+        });
+    }
     // Notify on cancellation
     if (data.status === 'CANCELLED') {
         await (0, notification_service_1.createNotification)({
@@ -171,40 +216,13 @@ exports.getAvailableSlots = (0, asyncHandler_1.asyncHandler)(async (req, res) =>
     const durationMin = parseInt(duration ?? '30');
     const clinic = await prisma_1.prisma.clinic.findUnique({
         where: { id: clinicId },
-        select: { workingHours: true },
+        select: { id: true, workingHours: true },
     });
-    const hours = JSON.parse(clinic?.workingHours ?? '{}');
-    const targetDate = (0, date_fns_1.parseISO)(date);
-    const dayName = targetDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-    const dayConfig = hours[dayName];
-    if (!dayConfig?.isOpen) {
-        res.json({ slots: [], message: 'Clinic is closed on this day' });
-        return;
-    }
-    const [openH, openM] = (dayConfig.open || '09:00').split(':').map(Number);
-    const [closeH, closeM] = (dayConfig.close || '17:00').split(':').map(Number);
-    const booked = await prisma_1.prisma.appointment.findMany({
-        where: {
-            clinicId,
-            dateTime: { gte: (0, date_fns_1.startOfDay)(targetDate), lte: (0, date_fns_1.endOfDay)(targetDate) },
-            status: { notIn: ['CANCELLED', 'NO_SHOW', 'RESCHEDULED'] },
-        },
-        select: { dateTime: true, durationMin: true },
+    const built = await (0, schedule_service_1.buildDaySlots)({ id: clinicId, workingHours: clinic?.workingHours }, date, durationMin, {
+        practitionerId: req.query.practitionerId,
+        locationId: req.query.locationId,
+        roomId: req.query.roomId,
     });
-    const slots = [];
-    let slotTime = (0, date_fns_1.setMinutes)((0, date_fns_1.setHours)(targetDate, openH), openM);
-    const closeTime = (0, date_fns_1.setMinutes)((0, date_fns_1.setHours)(targetDate, closeH), closeM);
-    while ((0, date_fns_1.isBefore)(slotTime, closeTime)) {
-        const slotEnd = (0, date_fns_1.addMinutes)(slotTime, durationMin);
-        const isBooked = booked.some((b) => {
-            const bEnd = (0, date_fns_1.addMinutes)(b.dateTime, b.durationMin);
-            return slotTime < bEnd && slotEnd > b.dateTime;
-        });
-        if (!isBooked && (0, date_fns_1.isAfter)(slotTime, new Date())) {
-            slots.push(slotTime.toISOString());
-        }
-        slotTime = (0, date_fns_1.addMinutes)(slotTime, durationMin);
-    }
-    res.json({ slots });
+    res.json(built);
 });
 //# sourceMappingURL=appointments.controller.js.map

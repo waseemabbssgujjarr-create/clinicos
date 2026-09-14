@@ -18,6 +18,7 @@
   ];
 
   function A() { return global.DmaApp; }
+  function failMsg(r, fb) { return (A().friendlyError && A().friendlyError(r, fb)) || fb || "Couldn't complete that request."; }
   function el(id) { return document.getElementById(id); }
   function esc(s) { return A() ? A().esc(s) : String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
     return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c];
@@ -95,7 +96,7 @@
       if (!draft) return Promise.resolve();
       return A().put("/api/ai/training-profile", { profile: draft }).then(function (r) {
         if (!r.ok) {
-          if (showToast !== false) A().toast((r.d && r.d.error) || "Save failed", "err");
+          if (showToast !== false) A().toast(failMsg(r, "Couldn't save the training draft."), "err");
           return r;
         }
         dirty = false;
@@ -258,7 +259,7 @@
           saveDraft(false).then(function () {
             return A().post("/api/ai/training-profile/publish", {});
           }).then(function (r) {
-            if (!r.ok) { A().toast((r.d && r.d.error) || "Publish failed", "err"); return; }
+            if (!r.ok) { A().toast(failMsg(r, "Couldn't publish the receptionist."), "err"); return; }
             meta.isPublished = true;
             meta.publishedAt = (r.d && r.d.publishedAt) || new Date().toISOString();
             setMeta();
@@ -347,7 +348,7 @@
             if (!confirm("Delete this reply?")) return;
             A().del("/api/ai/training-rules/" + btn.getAttribute("data-id")).then(function (r) {
               if (r.ok) { A().toast("Deleted", "ok"); renderCustom(body); }
-              else A().toast((r.d && r.d.error) || "Failed", "err");
+              else A().toast(failMsg(r, "Couldn't update that reply."), "err");
             });
           };
         });
@@ -379,7 +380,7 @@
           if (!payload.question || !payload.answer) { A().toast("Question and answer required", "err"); return; }
           var call = rule ? A().patch("/api/ai/training-rules/" + rule.id, payload) : A().post("/api/ai/training-rules", payload);
           call.then(function (r) {
-            if (!r.ok) { A().toast((r.d && r.d.error) || "Save failed", "err"); return; }
+            if (!r.ok) { A().toast(failMsg(r, "Couldn't save the training draft."), "err"); return; }
             A().closeModal();
             A().toast("Saved", "ok");
             renderCustom(body);

@@ -69,15 +69,15 @@
 
   function openClinicDrawer(id) {
     var d = UI.drawer({
-      title: "Clinic",
+      title: "Organization",
       subtitle: "Loading…",
       wide: true,
       tabs: [
         { id: "overview", label: "Overview" },
-        { id: "profile", label: "Profile" },
-        { id: "whatsapp", label: "WhatsApp" },
-        { id: "ai", label: "AI" },
-        { id: "subscription", label: "Subscription" },
+        { id: "users", label: "Users" },
+        { id: "patients", label: "Patients" },
+        { id: "appointments", label: "Appointments" },
+        { id: "billing", label: "Billing" },
         { id: "activity", label: "Activity" }
       ],
       footer: '<a class="ds-btn ds-btn-outline" href="/superadmin/clinics/' + encodeURIComponent(id) + '/">Open full workspace</a>',
@@ -89,6 +89,16 @@
       if (!clinic) { api.setBody(UI.skeleton(5)); return; }
       var wa = clinic.whatsapp || {};
       var st = clinicStatus(clinic);
+      if (tab === "billing") tab = "subscription";
+      if (tab === "users") {
+        api.setBody(UI.kv([
+          ["Owner", clinic.ownerName],
+          ["Staff", (clinic._count && clinic._count.staff) || 0],
+          ["Patients", (clinic._count && clinic._count.patients) || 0]
+        ]));
+        api.setFooter('<a class="ds-btn ds-btn-primary" href="/superadmin/clinics/' + encodeURIComponent(id) + '/">Open workspace</a>');
+        return;
+      }
       if (tab === "overview") {
         api.setBody(
           UI.kv([
@@ -221,7 +231,8 @@
 
   function actMenu(c) {
     return '<div class="ds-actions">' +
-      '<button type="button" class="ds-btn ds-btn-outline ds-btn-sm" data-act="open" data-id="' + esc(c.id) + '">View</button>' +
+      '<button type="button" class="ds-btn ds-btn-outline ds-btn-sm" data-act="open" data-id="' + esc(c.id) + '">Open</button>' +
+      '<button type="button" class="ds-btn ds-btn-ghost ds-btn-sm" data-act="toggle" data-id="' + esc(c.id) + '">' + (c.isActive ? 'Suspend' : 'Reactivate') + '</button>' +
       '<a class="ds-btn ds-btn-ghost ds-btn-sm" href="/superadmin/clinics/' + encodeURIComponent(c.id) + '/">Workspace</a>' +
       "</div>";
   }
@@ -322,6 +333,18 @@
       e.preventDefault();
       e.stopPropagation();
       openClinicDrawer(btn.getAttribute("data-id"));
+      return;
+    }
+    if (btn && btn.getAttribute("data-act") === "toggle") {
+      e.preventDefault();
+      e.stopPropagation();
+      var id = btn.getAttribute("data-id");
+      var row = rows.filter(function (c) { return c.id === id; })[0];
+      if (!row) return;
+      var next = !row.isActive;
+      DmaAdminShell.api("/api/superadmin/clinics/" + id + "/status", { method: "PATCH", body: { isActive: next } })
+        .then(function () { toast(next ? "Reactivated" : "Suspended", "ok"); load(); })
+        .catch(function (err) { toast(err.message || "Failed", "err"); });
       return;
     }
     if (row) openClinicDrawer(row.getAttribute("data-id"));

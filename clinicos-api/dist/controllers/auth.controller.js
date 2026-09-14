@@ -92,6 +92,10 @@ exports.register = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             trialEndsAt,
         },
     });
+    try {
+        await require("../services/roster.service").ensureClinicRoster(clinic.id);
+    }
+    catch (_) { /* roster tables may not exist until schema-ensure */ }
     if (await hasEmailVerificationColumns()) {
         const verification = await setDoctorVerification(clinic.id, clinic.email, clinic.ownerName);
         const token = (0, jwt_1.signToken)({
@@ -366,7 +370,17 @@ exports.getMe = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         if (!clinic)
             throw (0, error_middleware_1.createError)('Clinic not found', 404, 'NOT_FOUND');
         const emailVerified = await isDoctorEmailVerified(clinic.id);
-        res.json({ ...clinic, role: 'DOCTOR', emailVerified });
+        let roster = { practitioners: [], locations: [] };
+        try {
+            roster = await require("../services/roster.service").ensureClinicRoster(clinic.id);
+        } catch (_) {}
+        res.json({
+            ...clinic,
+            role: 'DOCTOR',
+            emailVerified,
+            practitioners: roster.practitioners,
+            locations: roster.locations,
+        });
     }
     else if (req.user?.role === 'STAFF') {
         const staff = await prisma_1.prisma.staffMember.findUnique({
@@ -378,7 +392,11 @@ exports.getMe = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         });
         if (!staff)
             throw (0, error_middleware_1.createError)('Staff not found', 404, 'NOT_FOUND');
-        res.json({ ...staff, role: 'STAFF' });
+        let roster = { practitioners: [], locations: [] };
+        try {
+            roster = await require("../services/roster.service").ensureClinicRoster(staff.clinicId);
+        } catch (_) {}
+        res.json({ ...staff, role: 'STAFF', practitioners: roster.practitioners, locations: roster.locations });
     }
     else {
         throw (0, error_middleware_1.createError)('Unauthorized', 401, 'UNAUTHORIZED');

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setSocketServer = setSocketServer;
 exports.createNotification = createNotification;
+exports.emitClinicEvent = emitClinicEvent;
 const prisma_1 = require("../lib/prisma");
 const logger_1 = require("../lib/logger");
 let io = null;
@@ -17,9 +18,12 @@ const typeColorMap = {
     payment: 'red',
     ai_escalate: 'amber',
 };
-/**
- * Creates a notification in the DB and emits it via Socket.io for real-time delivery.
- */
+function emitClinicEvent(clinicId, event, payload) {
+    if (!io || !clinicId) return;
+    try {
+        io.to(clinicId).emit(event, payload);
+    } catch (_) { /* non-fatal */ }
+}
 async function createNotification(input) {
     try {
         const color = input.color ?? typeColorMap[input.type] ?? 'teal';

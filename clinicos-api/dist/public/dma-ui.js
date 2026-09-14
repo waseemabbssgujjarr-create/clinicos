@@ -58,6 +58,64 @@
     return '<div class="ds-skel-wrap" aria-hidden="true">' + rows + "</div>";
   }
 
+  function focusables(container) {
+    return Array.prototype.slice.call(container.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )).filter(function (el) {
+      return !el.hasAttribute("hidden") && el.getAttribute("aria-hidden") !== "true";
+    });
+  }
+
+  function trapFocus(container, onEscape) {
+    var prev = document.activeElement;
+    function onKey(e) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        if (onEscape) onEscape();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      var list = focusables(container);
+      if (!list.length) { e.preventDefault(); return; }
+      var first = list[0];
+      var last = list[list.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+    document.addEventListener("keydown", onKey, true);
+    return function release() {
+      document.removeEventListener("keydown", onKey, true);
+      if (prev && typeof prev.focus === "function") {
+        try { prev.focus(); } catch (_) {}
+      }
+    };
+  }
+
+  function bindTablist(root) {
+    if (!root || root.dataset.tabKeys === "1") return;
+    root.dataset.tabKeys = "1";
+    if (!root.getAttribute("role")) root.setAttribute("role", "tablist");
+    root.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft" && e.key !== "Home" && e.key !== "End") return;
+      var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"], button[data-t], button[data-tab], button[data-v]'));
+      if (!tabs.length) tabs = Array.prototype.slice.call(root.querySelectorAll("button"));
+      if (!tabs.length) return;
+      var i = tabs.indexOf(document.activeElement);
+      if (i < 0) i = tabs.findIndex(function (t) { return t.classList.contains("active"); });
+      if (e.key === "Home") i = 0;
+      else if (e.key === "End") i = tabs.length - 1;
+      else i = e.key === "ArrowRight" ? (i + 1) % tabs.length : (i - 1 + tabs.length) % tabs.length;
+      e.preventDefault();
+      tabs[i].focus();
+      tabs[i].click();
+    });
+  }
+
   function closeExisting(id) {
     var existing = document.getElementById(id);
     if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
@@ -77,17 +135,22 @@
     }
     wrap.innerHTML =
       '<div class="ds-drawer-bg" data-close="1"></div>' +
-      '<aside class="ds-drawer-panel" role="dialog" aria-modal="true" aria-label="' + esc(opts.title || "Details") + '">' +
-        '<div class="ds-drawer-h"><div><strong>' + esc(opts.title || "Details") + "</strong>" +
+      '<aside class="ds-drawer-panel" role="dialog" aria-modal="true" aria-labelledby="ds-drawer-title">' +
+        '<div class="ds-drawer-h"><div><strong id="ds-drawer-title">' + esc(opts.title || "Details") + "</strong>" +
           (opts.subtitle ? '<p class="ds-drawer-sub">' + esc(opts.subtitle) + "</p>" : "") +
-        "</div><button type=\"button\" class=\"ds-btn ds-btn-outline ds-btn-sm\" data-close=\"1\" aria-label=\"Close\">Close</button></div>" +
+        "</div><button type=\"button\" class=\"ds-btn ds-btn-outline ds-btn-sm\" data-close=\"1\" aria-label=\"Close details\">Close</button></div>" +
         tabsHtml +
         '<div class="ds-drawer-b">' + (opts.html || skeleton(4)) + "</div>" +
         (opts.footer ? '<div class="ds-drawer-f">' + opts.footer + "</div>" : '<div class="ds-drawer-f" style="display:none"></div>') +
       "</aside>";
     document.body.appendChild(wrap);
     document.body.classList.add("ds-drawer-open");
-    requestAnimationFrame(function () { wrap.classList.add("open"); });
+    var release = trapFocus(wrap, close);
+    requestAnimationFrame(function () {
+      wrap.classList.add("open");
+      var focusEl = wrap.querySelector(".ds-drawer-panel button, .ds-drawer-panel a, .ds-drawer-panel input");
+      if (focusEl && focusEl.focus) focusEl.focus();
+    });
 
     var api = {
       el: wrap,
@@ -115,6 +178,7 @@
     };
 
     function close() {
+      if (release) release();
       wrap.classList.remove("open");
       document.body.classList.remove("ds-drawer-open");
       setTimeout(function () { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 180);
@@ -124,19 +188,17 @@
     wrap.addEventListener("click", function (e) {
       if (e.target.getAttribute("data-close")) close();
     });
-    function onEsc(e) {
-      if (e.key === "Escape") {
-        document.removeEventListener("keydown", onEsc);
-        close();
-      }
-    }
-    document.addEventListener("keydown", onEsc);
 
     if (opts.tabs && opts.onTab) {
-      wrap.querySelectorAll(".ds-drawer-tabs button").forEach(function (b) {
+      var tabRoot = wrap.querySelector(".ds-drawer-tabs");
+      if (tabRoot) bindTablist(tabRoot);
+      wrap.querySelectorAll(".ds-drawer-tabs button").forEach(function (b, i) {
+        b.setAttribute("role", "tab");
+        b.setAttribute("aria-selected", i === 0 ? "true" : "false");
         b.addEventListener("click", function () {
           wrap.querySelectorAll(".ds-drawer-tabs button").forEach(function (x) {
             x.classList.toggle("active", x === b);
+            x.setAttribute("aria-selected", x === b ? "true" : "false");
           });
           opts.onTab(b.getAttribute("data-tab"), api);
         });
@@ -154,18 +216,25 @@
     wrap.className = "ds-modal-wrap";
     wrap.innerHTML =
       '<div class="ds-modal-bg" data-close="1"></div>' +
-      '<div class="ds-modal" role="dialog" aria-modal="true">' +
-        '<div class="ds-drawer-h"><strong>' + esc(opts.title || "") + '</strong>' +
-        '<button type="button" class="ds-btn ds-btn-outline ds-btn-sm" data-close="1">Close</button></div>' +
+      '<div class="ds-modal" role="dialog" aria-modal="true" aria-labelledby="ds-modal-title">' +
+        '<div class="ds-drawer-h"><strong id="ds-modal-title">' + esc(opts.title || "") + '</strong>' +
+        '<button type="button" class="ds-btn ds-btn-outline ds-btn-sm" data-close="1" aria-label="Close dialog">Close</button></div>' +
         '<div class="ds-modal-b">' + (opts.html || "") + "</div>" +
         (opts.footer ? '<div class="ds-drawer-f">' + opts.footer + "</div>" : "") +
       "</div>";
     document.body.appendChild(wrap);
-    requestAnimationFrame(function () { wrap.classList.add("open"); });
+    var release;
     function close() {
+      if (release) release();
       wrap.classList.remove("open");
       setTimeout(function () { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 160);
     }
+    release = trapFocus(wrap, close);
+    requestAnimationFrame(function () {
+      wrap.classList.add("open");
+      var focusEl = wrap.querySelector(".ds-modal button, .ds-modal input, .ds-modal textarea");
+      if (focusEl && focusEl.focus) focusEl.focus();
+    });
     wrap.addEventListener("click", function (e) {
       if (e.target.getAttribute("data-close")) close();
     });
@@ -207,6 +276,13 @@
     drawer: drawer,
     modal: modal,
     confirm: confirmDlg,
-    display: display
+    display: display,
+    trapFocus: trapFocus,
+    bindTablist: bindTablist
   };
+
+  document.addEventListener("focusin", function (e) {
+    var list = e.target && e.target.closest && e.target.closest(".dma-tabs, .ds-tabs, .cos-settings-nav");
+    if (list) bindTablist(list);
+  });
 })(window);

@@ -14,49 +14,15 @@ const ai_client_1 = require("../lib/ai-client");
  */
 async function getAvailableSlots(clinicId, workingHours) {
     try {
-        const hours = JSON.parse(workingHours || '{}');
+        const schedule = require('./schedule.service');
         const slots = [];
         const now = new Date();
         for (let i = 0; i < 7; i++) {
             const date = (0, date_fns_1.addDays)(now, i);
-            const dayName = (0, date_fns_1.format)(date, 'EEEE').toLowerCase();
-            const dayConfig = hours[dayName];
-            if (!dayConfig?.isOpen)
-                continue;
-            const [openH, openM] = (dayConfig.open || '09:00').split(':').map(Number);
-            const [closeH, closeM] = (dayConfig.close || '17:00').split(':').map(Number);
-            const slotDuration = dayConfig.slotDuration || 30;
-            let slotTime = (0, date_fns_1.setMinutes)((0, date_fns_1.setHours)(date, openH), openM);
-            const closeTime = (0, date_fns_1.setMinutes)((0, date_fns_1.setHours)(date, closeH), closeM);
-            // Get booked slots for this day
-            const booked = await prisma_1.prisma.appointment.findMany({
-                where: {
-                    clinicId,
-                    dateTime: {
-                        gte: (0, date_fns_1.setHours)(date, 0),
-                        lte: (0, date_fns_1.setHours)(date, 23),
-                    },
-                    status: { notIn: ['CANCELLED', 'NO_SHOW', 'RESCHEDULED'] },
-                },
-                select: { dateTime: true, durationMin: true },
-            });
-            const daySlots = [];
-            while ((0, date_fns_1.isBefore)(slotTime, closeTime)) {
-                if ((0, date_fns_1.isAfter)(slotTime, now)) {
-                    const isBooked = booked.some((b) => {
-                        const bEnd = new Date(b.dateTime.getTime() + b.durationMin * 60000);
-                        const sEnd = new Date(slotTime.getTime() + slotDuration * 60000);
-                        return (((0, date_fns_1.isAfter)(slotTime, b.dateTime) || slotTime.getTime() === b.dateTime.getTime()) &&
-                            (0, date_fns_1.isBefore)(slotTime, bEnd)) || ((0, date_fns_1.isBefore)(b.dateTime, sEnd) && (0, date_fns_1.isAfter)(b.dateTime, slotTime));
-                    });
-                    if (!isBooked) {
-                        daySlots.push((0, date_fns_1.format)(slotTime, 'h:mm a'));
-                    }
-                }
-                slotTime = new Date(slotTime.getTime() + slotDuration * 60000);
-            }
-            if (daySlots.length > 0) {
-                slots.push(`${(0, date_fns_1.format)(date, 'EEEE, MMM d')}: ${daySlots.slice(0, 8).join(', ')}`);
+            const built = await schedule.buildDaySlots({ id: clinicId, workingHours }, date, 30, {});
+            if (built.slots && built.slots.length) {
+                const times = built.slots.slice(0, 8).map((iso) => (0, date_fns_1.format)(new Date(iso), 'h:mm a'));
+                slots.push(`${(0, date_fns_1.format)(date, 'EEEE, MMM d')}: ${times.join(', ')}`);
             }
         }
         return slots.length > 0 ? slots.join('\n') : 'No available slots in the next 7 days.';

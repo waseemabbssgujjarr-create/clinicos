@@ -216,15 +216,15 @@
   transition: box-shadow var(--ds-ease);
 }
 .dma-kpi:hover {
-  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.09), 0 12px 28px rgba(37, 99, 235, 0.07);
+  box-shadow: 0 4px 18px rgba(25, 25, 25, 0.06), 0 12px 28px rgba(20, 150, 127, 0.08);
   transform: translateY(-1px);
 }
 
 /* nth-child colored top borders */
-.dma-kpis .dma-kpi:nth-child(1) { border-top: 3px solid #2563EB; }
-.dma-kpis .dma-kpi:nth-child(2) { border-top: 3px solid #7C3AED; }
-.dma-kpis .dma-kpi:nth-child(3) { border-top: 3px solid #D97706; }
-.dma-kpis .dma-kpi:nth-child(4) { border-top: 3px solid #16A34A; }
+.dma-kpis .dma-kpi:nth-child(1) { border-top: 3px solid #14967F; }
+.dma-kpis .dma-kpi:nth-child(2) { border-top: 3px solid #0E7A68; }
+.dma-kpis .dma-kpi:nth-child(3) { border-top: 3px solid #FAD069; }
+.dma-kpis .dma-kpi:nth-child(4) { border-top: 3px solid #191919; }
 
 .dma-kpi-icon {
   width: 42px;

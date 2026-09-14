@@ -150,7 +150,7 @@ exports.getPlatformStatus = (0, asyncHandler_1.asyncHandler)(async (_req, res) =
                 note: 'Password reset, verification, welcome emails',
                 error: smtpError,
             },
-            whatsapp: { status: envReady('TWILIO_ACCOUNT_SID') ? 'configured' : 'deferred', note: 'WhatsApp messaging — coming soon' },
+            whatsapp: { status: envReady('META_APP_SECRET') || envReady('META_WEBHOOK_VERIFY_TOKEN') ? 'live' : 'deferred', note: 'Meta Cloud API inbound and outbound' },
             stripe: { status: envReady('STRIPE_SECRET_KEY') ? 'configured' : 'pending', note: 'Subscription billing — pending' },
             instagram: { status: 'planned', note: 'Meta Business API — post-launch' },
         },
@@ -171,7 +171,6 @@ exports.getPlatformStatus = (0, asyncHandler_1.asyncHandler)(async (_req, res) =
             'Stripe API keys (subscription payments)',
         ],
         optionalLater: [
-            'Twilio (WhatsApp / SMS) — coming soon',
             'Instagram DM (Meta API)',
             'Website chat widget embed',
         ],

@@ -213,6 +213,9 @@ exports.Prisma.AppointmentScalarFieldEnum = {
   id: 'id',
   clinicId: 'clinicId',
   patientId: 'patientId',
+  practitionerId: 'practitionerId',
+  locationId: 'locationId',
+  roomId: 'roomId',
   treatment: 'treatment',
   dateTime: 'dateTime',
   durationMin: 'durationMin',
@@ -226,6 +229,9 @@ exports.Prisma.AppointmentScalarFieldEnum = {
   reviewSent: 'reviewSent',
   bookedByStaffId: 'bookedByStaffId',
   bookedByAI: 'bookedByAI',
+  calledAt: 'calledAt',
+  calledBy: 'calledBy',
+  chartMigratedAt: 'chartMigratedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -247,7 +253,10 @@ exports.Prisma.MessageScalarFieldEnum = {
   intent: 'intent',
   summary: 'summary',
   twilioSid: 'twilioSid',
+  metaMessageId: 'metaMessageId',
   replyToId: 'replyToId',
+  deliveryStatus: 'deliveryStatus',
+  senderType: 'senderType',
   createdAt: 'createdAt'
 };
 
@@ -382,11 +391,385 @@ exports.Prisma.PasswordResetScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.ClinicWhatsAppConnectionScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  connectionMethod: 'connectionMethod',
+  businessPortfolioId: 'businessPortfolioId',
+  wabaId: 'wabaId',
+  phoneNumberId: 'phoneNumberId',
+  phoneNumber: 'phoneNumber',
+  displayName: 'displayName',
+  accessTokenEnc: 'accessTokenEnc',
+  connectionStatus: 'connectionStatus',
+  webhookStatus: 'webhookStatus',
+  tokenMetadata: 'tokenMetadata',
+  lastVerifiedAt: 'lastVerifiedAt',
+  lastError: 'lastError',
+  connectedAt: 'connectedAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.PlatformSettingScalarFieldEnum = {
   key: 'key',
   value: 'value',
   updatedAt: 'updatedAt',
   updatedBy: 'updatedBy'
+};
+
+exports.Prisma.AITrainingRuleScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  question: 'question',
+  answer: 'answer',
+  category: 'category',
+  isActive: 'isActive',
+  priority: 'priority',
+  matchType: 'matchType',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AITrainingProfileScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  draftJson: 'draftJson',
+  publishedJson: 'publishedJson',
+  draftUpdatedAt: 'draftUpdatedAt',
+  publishedAt: 'publishedAt',
+  publishedBy: 'publishedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ConversationStateScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  patientId: 'patientId',
+  turnCount: 'turnCount',
+  greetingSent: 'greetingSent',
+  lastIntent: 'lastIntent',
+  lastAction: 'lastAction',
+  pendingQuestion: 'pendingQuestion',
+  pendingSlot: 'pendingSlot',
+  lastOutboundBody: 'lastOutboundBody',
+  lastFallbackHash: 'lastFallbackHash',
+  memoryJson: 'memoryJson',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PractitionerScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  name: 'name',
+  specialty: 'specialty',
+  isPrimary: 'isPrimary',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LocationScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  name: 'name',
+  address: 'address',
+  isPrimary: 'isPrimary',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.RoomScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  locationId: 'locationId',
+  name: 'name',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LeaveScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  practitionerId: 'practitionerId',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  reason: 'reason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ScheduleBlockScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  practitionerId: 'practitionerId',
+  locationId: 'locationId',
+  roomId: 'roomId',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  kind: 'kind',
+  reason: 'reason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EncounterScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  appointmentId: 'appointmentId',
+  patientId: 'patientId',
+  practitionerId: 'practitionerId',
+  status: 'status',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  migratedFromNotesAt: 'migratedFromNotesAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ClinicalNoteScalarFieldEnum = {
+  id: 'id',
+  encounterId: 'encounterId',
+  complaint: 'complaint',
+  history: 'history',
+  exam: 'exam',
+  assessment: 'assessment',
+  treatment: 'treatment',
+  freeText: 'freeText',
+  draft: 'draft',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ObservationScalarFieldEnum = {
+  id: 'id',
+  encounterId: 'encounterId',
+  code: 'code',
+  display: 'display',
+  value: 'value',
+  unit: 'unit',
+  recordedAt: 'recordedAt'
+};
+
+exports.Prisma.DiagnosisScalarFieldEnum = {
+  id: 'id',
+  encounterId: 'encounterId',
+  condition: 'condition',
+  code: 'code',
+  display: 'display',
+  isPrimary: 'isPrimary',
+  recordedAt: 'recordedAt'
+};
+
+exports.Prisma.PrescriptionScalarFieldEnum = {
+  id: 'id',
+  encounterId: 'encounterId',
+  clinicId: 'clinicId',
+  status: 'status',
+  issuedAt: 'issuedAt',
+  issuedBy: 'issuedBy',
+  cancelledAt: 'cancelledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PrescriptionItemScalarFieldEnum = {
+  id: 'id',
+  prescriptionId: 'prescriptionId',
+  drug: 'drug',
+  strength: 'strength',
+  route: 'route',
+  dose: 'dose',
+  frequency: 'frequency',
+  duration: 'duration',
+  quantity: 'quantity',
+  instructions: 'instructions',
+  refills: 'refills',
+  sortOrder: 'sortOrder'
+};
+
+exports.Prisma.FollowUpScalarFieldEnum = {
+  id: 'id',
+  encounterId: 'encounterId',
+  note: 'note',
+  dueDate: 'dueDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PatientInvoiceScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  patientId: 'patientId',
+  appointmentId: 'appointmentId',
+  amount: 'amount',
+  balance: 'balance',
+  currency: 'currency',
+  status: 'status',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PatientPaymentScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  patientId: 'patientId',
+  invoiceId: 'invoiceId',
+  amount: 'amount',
+  method: 'method',
+  kind: 'kind',
+  recordedAt: 'recordedAt',
+  note: 'note'
+};
+
+exports.Prisma.PatientLedgerEntryScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  patientId: 'patientId',
+  invoiceId: 'invoiceId',
+  type: 'type',
+  amount: 'amount',
+  note: 'note',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PatientDocumentScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  patientId: 'patientId',
+  type: 'type',
+  filename: 'filename',
+  mimeType: 'mimeType',
+  size: 'size',
+  storageKey: 'storageKey',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.LabOrderScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  patientId: 'patientId',
+  appointmentId: 'appointmentId',
+  encounterId: 'encounterId',
+  status: 'status',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LabOrderItemScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  testName: 'testName',
+  code: 'code',
+  status: 'status'
+};
+
+exports.Prisma.LabResultScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  itemId: 'itemId',
+  code: 'code',
+  value: 'value',
+  unit: 'unit',
+  flag: 'flag',
+  reportedAt: 'reportedAt'
+};
+
+exports.Prisma.SkuScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  name: 'name',
+  unit: 'unit',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StockLotScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  skuId: 'skuId',
+  lotCode: 'lotCode',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.StockMovementScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  skuId: 'skuId',
+  lotId: 'lotId',
+  type: 'type',
+  quantity: 'quantity',
+  note: 'note',
+  createdAt: 'createdAt',
+  createdBy: 'createdBy'
+};
+
+exports.Prisma.DispenseScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  skuId: 'skuId',
+  lotId: 'lotId',
+  prescriptionId: 'prescriptionId',
+  prescriptionItemId: 'prescriptionItemId',
+  quantity: 'quantity',
+  createdAt: 'createdAt',
+  createdBy: 'createdBy'
+};
+
+exports.Prisma.TeleSessionScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  appointmentId: 'appointmentId',
+  provider: 'provider',
+  providerSessionId: 'providerSessionId',
+  status: 'status',
+  startedAt: 'startedAt',
+  endedAt: 'endedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CoverageScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  patientId: 'patientId',
+  payer: 'payer',
+  memberId: 'memberId',
+  isPrimary: 'isPrimary',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ClaimScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  coverageId: 'coverageId',
+  amount: 'amount',
+  status: 'status',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AuditLogScalarFieldEnum = {
+  id: 'id',
+  clinicId: 'clinicId',
+  actorId: 'actorId',
+  actorRole: 'actorRole',
+  action: 'action',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  details: 'details',
+  success: 'success',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -429,6 +812,7 @@ exports.AppointmentStatus = exports.$Enums.AppointmentStatus = {
   PENDING: 'PENDING',
   CONFIRMED: 'CONFIRMED',
   ARRIVED: 'ARRIVED',
+  CALLED: 'CALLED',
   IN_PROGRESS: 'IN_PROGRESS',
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED',
@@ -478,6 +862,42 @@ exports.LeadStatus = exports.$Enums.LeadStatus = {
   LOST: 'LOST'
 };
 
+exports.RoomStatus = exports.$Enums.RoomStatus = {
+  AVAILABLE: 'AVAILABLE',
+  RESERVED: 'RESERVED',
+  OCCUPIED: 'OCCUPIED',
+  BLOCKED: 'BLOCKED'
+};
+
+exports.EncounterStatus = exports.$Enums.EncounterStatus = {
+  DRAFT: 'DRAFT',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED'
+};
+
+exports.PrescriptionStatus = exports.$Enums.PrescriptionStatus = {
+  DRAFT: 'DRAFT',
+  ISSUED: 'ISSUED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.PatientInvoiceStatus = exports.$Enums.PatientInvoiceStatus = {
+  DRAFT: 'DRAFT',
+  OPEN: 'OPEN',
+  PARTIAL: 'PARTIAL',
+  PAID: 'PAID',
+  VOID: 'VOID',
+  REFUNDED: 'REFUNDED'
+};
+
+exports.LabOrderStatus = exports.$Enums.LabOrderStatus = {
+  ORDERED: 'ORDERED',
+  COLLECTED: 'COLLECTED',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+};
+
 exports.Prisma.ModelName = {
   SuperAdmin: 'SuperAdmin',
   Clinic: 'Clinic',
@@ -494,7 +914,38 @@ exports.Prisma.ModelName = {
   MissedCall: 'MissedCall',
   DailyBrief: 'DailyBrief',
   PasswordReset: 'PasswordReset',
-  PlatformSetting: 'PlatformSetting'
+  ClinicWhatsAppConnection: 'ClinicWhatsAppConnection',
+  PlatformSetting: 'PlatformSetting',
+  AITrainingRule: 'AITrainingRule',
+  AITrainingProfile: 'AITrainingProfile',
+  ConversationState: 'ConversationState',
+  Practitioner: 'Practitioner',
+  Location: 'Location',
+  Room: 'Room',
+  Leave: 'Leave',
+  ScheduleBlock: 'ScheduleBlock',
+  Encounter: 'Encounter',
+  ClinicalNote: 'ClinicalNote',
+  Observation: 'Observation',
+  Diagnosis: 'Diagnosis',
+  Prescription: 'Prescription',
+  PrescriptionItem: 'PrescriptionItem',
+  FollowUp: 'FollowUp',
+  PatientInvoice: 'PatientInvoice',
+  PatientPayment: 'PatientPayment',
+  PatientLedgerEntry: 'PatientLedgerEntry',
+  PatientDocument: 'PatientDocument',
+  LabOrder: 'LabOrder',
+  LabOrderItem: 'LabOrderItem',
+  LabResult: 'LabResult',
+  Sku: 'Sku',
+  StockLot: 'StockLot',
+  StockMovement: 'StockMovement',
+  Dispense: 'Dispense',
+  TeleSession: 'TeleSession',
+  Coverage: 'Coverage',
+  Claim: 'Claim',
+  AuditLog: 'AuditLog'
 };
 
 /**

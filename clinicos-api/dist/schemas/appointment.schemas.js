@@ -13,6 +13,9 @@ exports.CreateAppointmentSchema = zod_1.z.object({
         .enum(['MANUAL', 'WHATSAPP', 'SMS', 'CALL', 'EMAIL', 'ONLINE_BOOKING', 'STAFF_PORTAL'])
         .default('MANUAL'),
     sendConfirmation: zod_1.z.boolean().default(true),
+    practitionerId: zod_1.z.string().optional(),
+    locationId: zod_1.z.string().optional(),
+    roomId: zod_1.z.string().optional(),
 });
 exports.UpdateAppointmentSchema = zod_1.z.object({
     status: zod_1.z
@@ -20,6 +23,7 @@ exports.UpdateAppointmentSchema = zod_1.z.object({
         'PENDING',
         'CONFIRMED',
         'ARRIVED',
+        'CALLED',
         'IN_PROGRESS',
         'COMPLETED',
         'CANCELLED',
@@ -32,9 +36,15 @@ exports.UpdateAppointmentSchema = zod_1.z.object({
     durationMin: zod_1.z.number().int().min(15).max(120).optional(),
     fee: zod_1.z.number().positive().optional(),
     notes: zod_1.z.string().optional(),
+    practitionerId: zod_1.z.string().nullable().optional(),
+    locationId: zod_1.z.string().nullable().optional(),
+    roomId: zod_1.z.string().nullable().optional(),
 });
 exports.SlotsQuerySchema = zod_1.z.object({
     date: zod_1.z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD'),
     duration: zod_1.z.string().optional(),
+    practitionerId: zod_1.z.string().optional(),
+    locationId: zod_1.z.string().optional(),
+    roomId: zod_1.z.string().optional(),
 });
 //# sourceMappingURL=appointment.schemas.js.map

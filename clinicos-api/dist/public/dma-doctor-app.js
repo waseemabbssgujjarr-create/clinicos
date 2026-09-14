@@ -32,12 +32,28 @@
     });
   }
 
+  function loginHref() {
+    var u = user();
+    if (u.role === 'STAFF') return '/staff-login/';
+    try {
+      var t = token();
+      if (t) {
+        var p = JSON.parse(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+        if (p.role === 'STAFF' || p.staffRole) return '/staff-login/';
+      }
+    } catch (_) {}
+    return '/doctor-login/';
+  }
+
   function req(method, path, body) {
     var opts = { method: method, headers: headers(), credentials: 'include' };
     if (body !== undefined) opts.body = JSON.stringify(body);
     return fetch(path, opts).then(parse).then(function (res) {
       if (res.status === 401) {
-        logout('/doctor-login/?next=' + encodeURIComponent(location.pathname + location.search));
+        toast('Your session expired. Please sign in again.', 'err');
+        setTimeout(function () {
+          logout(loginHref() + '?next=' + encodeURIComponent(location.pathname + location.search));
+        }, 400);
         return Promise.reject(res);
       }
       return res;
@@ -51,13 +67,14 @@
   function del(path) { return req('DELETE', path); }
 
   function logout(next) {
+    var dest = next || loginHref();
     try { localStorage.removeItem('token'); localStorage.removeItem('clinicos-store'); } catch (_) {}
-    location.replace(next || '/doctor-login/');
+    location.replace(dest);
   }
 
   function requireAuth() {
     if (!token()) {
-      location.replace('/doctor-login/?next=' + encodeURIComponent(location.pathname + location.search));
+      location.replace(loginHref() + '?next=' + encodeURIComponent(location.pathname + location.search));
       return false;
     }
     return true;
@@ -157,17 +174,37 @@
     var s = String(status || '').toUpperCase();
     var map = {
       CONFIRMED: 'green', COMPLETED: 'green', BOOKED: 'green', ACTIVE: 'green', CONNECTED: 'green',
-      PENDING: 'amber', WARM: 'amber', ARRIVED: 'amber', IN_PROGRESS: 'amber', TRIAL: 'amber',
+      PENDING: 'amber', WARM: 'amber', ARRIVED: 'amber', WAITING: 'amber', CALLED: 'blue', IN_PROGRESS: 'amber', TRIAL: 'amber',
       HOT: 'red', NO_SHOW: 'red', CANCELLED: 'red', LOST: 'red', INACTIVE: 'red',
-      NEW: 'blue', CONTACTED: 'blue', WHATSAPP: 'wa',
+      NEW: 'blue', CONTACTED: 'blue', WHATSAPP: 'wa', RESCHEDULED: 'slate',
       COLD: 'slate',
     };
+    var labels = {
+      CALLED: 'Called', WAITING: 'Waiting', IN_PROGRESS: 'In consultation', ARRIVED: 'Arrived',
+      NO_SHOW: 'No show', RESCHEDULED: 'Rescheduled'
+    };
     var cls = map[s] || 'slate';
-    return '<span class="dma-chip dma-chip-' + cls + '">' + esc(s.replace(/_/g, ' ')) + '</span>';
+    return '<span class="dma-chip dma-chip-' + cls + '">' + esc(labels[s] || s.replace(/_/g, ' ')) + '</span>';
+  }
+
+  function friendlyError(res, fallback) {
+    var status = res && res.status;
+    var raw = res && res.d && (res.d.error || res.d.message);
+    if (status === 401) return 'Your session expired. Please sign in again.';
+    if (status === 403) return "You don't have permission to perform this action.";
+    if (status === 404) return "We couldn't find that record.";
+    if (status === 409) return 'That time conflicts with another visit.';
+    if (status >= 500) return fallback || "Couldn't complete that request. Please try again.";
+    var msg = raw != null ? String(raw) : '';
+    if (!msg || msg.length > 140 || /prisma|sql|exception|stack|ECONN|undefined/i.test(msg) || /[{[]/.test(msg)) {
+      return fallback || "Couldn't complete that request. Please try again.";
+    }
+    return msg;
   }
 
   function closeModal() {
     var bg = document.getElementById('dma-modal-bg');
+    if (bg && bg._release) bg._release();
     if (bg) bg.remove();
   }
 
@@ -177,16 +214,28 @@
     bg.className = 'dma-modal-bg';
     bg.id = 'dma-modal-bg';
     bg.innerHTML =
-      '<div class="dma-modal" role="dialog" aria-modal="true">' +
-        '<div class="dma-modal-h"><h3>' + esc(title) + '</h3>' +
-          '<button type="button" class="dma-btn dma-btn-ghost dma-btn-sm" data-close>×</button></div>' +
+      '<div class="dma-modal" role="dialog" aria-modal="true" aria-labelledby="dma-modal-title">' +
+        '<div class="dma-modal-h"><h3 id="dma-modal-title">' + esc(title) + '</h3>' +
+          '<button type="button" class="dma-btn dma-btn-ghost dma-btn-sm" data-close aria-label="Close dialog">Close</button></div>' +
         '<div class="dma-modal-b">' + bodyHtml + '</div>' +
         (footerHtml ? '<div class="dma-modal-f">' + footerHtml + '</div>' : '') +
       '</div>';
+    function close() { closeModal(); }
     bg.addEventListener('click', function (e) {
-      if (e.target === bg || e.target.getAttribute('data-close') !== null) closeModal();
+      if (e.target === bg || e.target.getAttribute('data-close') !== null) close();
     });
     document.body.appendChild(bg);
+    if (global.DmaUI && DmaUI.trapFocus) {
+      bg._release = DmaUI.trapFocus(bg, close);
+    } else {
+      function onEsc(e) {
+        if (e.key === 'Escape') { document.removeEventListener('keydown', onEsc); close(); }
+      }
+      document.addEventListener('keydown', onEsc);
+      bg._release = function () { document.removeEventListener('keydown', onEsc); };
+    }
+    var focusEl = bg.querySelector('input, textarea, select, button');
+    if (focusEl && focusEl.focus) focusEl.focus();
     return bg;
   }
 
@@ -223,6 +272,7 @@
     qs: qs,
     setQs: setQs,
     toast: toast,
+    friendlyError: friendlyError,
     empty: empty,
     spinner: spinner,
     chip: chip,

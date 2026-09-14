@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const clinical_controller_1 = require("../controllers/clinical.controller");
+const auth_middleware_1 = require("../middleware/auth.middleware");
+const router = (0, express_1.Router)();
+router.use(auth_middleware_1.authMiddleware, auth_middleware_1.doctorOrStaff);
+router.get("/encounters/by-appointment/:appointmentId", clinical_controller_1.getByAppointment);
+router.put("/encounters/by-appointment/:appointmentId", auth_middleware_1.requireChart, clinical_controller_1.saveByAppointment);
+router.post("/prescriptions/:id/issue", auth_middleware_1.requirePrescribe, clinical_controller_1.issueRx);
+router.post("/prescriptions/:id/cancel", auth_middleware_1.requirePrescribe, clinical_controller_1.cancelRx);
+exports.default = router;

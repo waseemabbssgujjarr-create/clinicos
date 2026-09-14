@@ -96,7 +96,7 @@
           throw new Error(data.error || data.message || 'Sign in failed — check email and password');
         }
         if (data.token && data.user) syncClinicosStore(data.user, data.token);
-        window.location.href = '/staff/';
+        window.location.href = '/dashboard/';
       } catch (ex) {
         err.textContent = ex.message;
         err.style.display = 'block';

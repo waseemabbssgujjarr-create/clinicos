@@ -157,8 +157,31 @@ exports.getPatientAppointments = (0, asyncHandler_1.asyncHandler)(async (req, re
     const appointments = await prisma_1.prisma.appointment.findMany({
         where: { patientId: req.params.id, clinicId },
         orderBy: { dateTime: 'desc' },
+        include: {
+            practitioner: { select: { id: true, name: true } },
+            location: { select: { id: true, name: true } },
+            encounter: {
+                include: {
+                    note: true,
+                    observations: true,
+                    diagnoses: true,
+                    prescriptions: { include: { items: true } },
+                    followUp: true,
+                    labOrders: { include: { items: true } },
+                    practitioner: { select: { id: true, name: true } },
+                },
+            },
+        },
     });
-    res.json(appointments);
+    const clinical_1 = require("../services/clinical.service");
+    const data = appointments.map((a) => {
+        const out = { ...a };
+        if (a.encounter) {
+            try { out.clinical = clinical_1.toClinicalDto(a.encounter, a); } catch (_) {}
+        }
+        return out;
+    });
+    res.json(data);
 });
 // GET /api/patients/:id/messages
 exports.getPatientMessages = (0, asyncHandler_1.asyncHandler)(async (req, res) => {

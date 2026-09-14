@@ -37,9 +37,15 @@ beforeAll(async () => {
     patientId = pat.body.id;
 });
 afterAll(async () => {
-    await prisma_1.prisma.appointment.deleteMany({ where: { clinicId } });
-    await prisma_1.prisma.patient.deleteMany({ where: { clinicId } });
-    await prisma_1.prisma.clinic.deleteMany({ where: { email: 'jest-appts@test.clinicos.ai' } });
+    if (clinicId) {
+        await prisma_1.prisma.encounter.deleteMany({ where: { clinicId } }).catch(() => null);
+        await prisma_1.prisma.leave.deleteMany({ where: { clinicId } }).catch(() => null);
+        await prisma_1.prisma.appointment.deleteMany({ where: { clinicId } });
+        await prisma_1.prisma.patient.deleteMany({ where: { clinicId } });
+        await prisma_1.prisma.practitioner.deleteMany({ where: { clinicId } }).catch(() => null);
+        await prisma_1.prisma.location.deleteMany({ where: { clinicId } }).catch(() => null);
+        await prisma_1.prisma.clinic.deleteMany({ where: { email: 'jest-appts@test.clinicos.ai' } });
+    }
     await prisma_1.prisma.$disconnect();
 });
 const nextMonday = () => {
