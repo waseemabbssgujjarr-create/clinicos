@@ -98,15 +98,16 @@
 
   function footerHtml() {
     return '<div class="dma-pub-foot-wrap">' +
-      '<footer class="dma-pub-wrap dma-pub-foot">' +
-      '<div class="dma-pub-foot-brand"><a class="dma-pub-logo" href="/"><span class="mark">C</span><span>Clinicos</span></a>' +
+      '<div class="dma-pub-wrap">' +
+      '<footer class="dma-pub-foot">' +
+      '<div class="dma-pub-foot-brand"><a class="dma-pub-logo" href="/"><span class="mark">C</span><span class="dma-pub-wordmark">Clinicos</span></a>' +
         "<p>The operating system for modern clinics.</p></div>" +
-      '<div><strong>Platform</strong><a href="/platform/">Overview</a><a href="/ai-receptionist/">AI Receptionist</a><a href="/clinic-crm/">Clinic CRM</a><a href="/clinical/">Clinical</a><a href="/pricing/">Pricing</a></div>' +
-      '<div><strong>For</strong><a href="/platform/">Clinics</a><a href="/clinical/">Doctors</a><a href="/patient-experience/">Patients</a><a href="/solutions/">Solutions</a></div>' +
-      '<div><strong>Company</strong><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/faqs/">FAQs</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/security/">Security</a></div>' +
+      '<div class="dma-pub-foot-col"><strong>Platform</strong><a href="/platform/">Overview</a><a href="/ai-receptionist/">AI Receptionist</a><a href="/clinic-crm/">Clinic CRM</a><a href="/clinical/">Clinical</a><a href="/pricing/">Pricing</a></div>' +
+      '<div class="dma-pub-foot-col"><strong>For</strong><a href="/platform/">Clinics</a><a href="/clinical/">Doctors</a><a href="/patient-experience/">Patients</a><a href="/solutions/">Solutions</a></div>' +
+      '<div class="dma-pub-foot-col"><strong>Company</strong><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/faqs/">FAQs</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/security/">Security</a></div>' +
       "</footer>" +
       '<p class="dma-pub-copy">© Clinicos · Doctors My Agency · 2026</p>' +
-      "</div>";
+      "</div></div>";
   }
 
   function bootPublic() {
@@ -168,17 +169,23 @@
         if (b) b.setAttribute("aria-expanded", "false");
       });
     });
+    function setFaqOpen(btn, open) {
+      var item = btn.closest(".dma-faq");
+      var panelId = btn.getAttribute("aria-controls");
+      var panel = panelId ? document.getElementById(panelId) : null;
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      if (item) item.classList.toggle("is-open", !!open);
+      if (panel) {
+        if (open) panel.removeAttribute("hidden");
+        else panel.setAttribute("hidden", "");
+      }
+    }
     document.querySelectorAll(".dma-faq-q").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        var item = btn.closest(".dma-faq");
-        var panel = document.getElementById(btn.getAttribute("aria-controls"));
-        var open = btn.getAttribute("aria-expanded") === "true";
-        btn.setAttribute("aria-expanded", open ? "false" : "true");
-        if (item) item.classList.toggle("is-open", !open);
-        if (panel) {
-          if (open) panel.setAttribute("hidden", "");
-          else panel.removeAttribute("hidden");
-        }
+        var willOpen = btn.getAttribute("aria-expanded") !== "true";
+        document.querySelectorAll(".dma-faq-q").forEach(function (other) {
+          setFaqOpen(other, willOpen && other === btn);
+        });
       });
     });
     if (isHome() && location.hash) {
