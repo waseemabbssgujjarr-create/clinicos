@@ -3,37 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Staff sign in — Doctors My Agency</title>
+  <title>Staff sign in — Clinicos</title>
   <link rel="icon" href="/favicon.svg" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=20" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=36" />
 </head>
 <body>
   <div class="dma-auth">
     <aside class="dma-auth-visual">
-      <a class="dma-pub-logo" href="/" style="color:#fff"><span class="mark">DM</span> Clinicos</a>
+      <a class="dma-pub-logo" href="/"><span class="mark">C</span> Clinicos</a>
       <div>
         <h1>Your clinic, connected.</h1>
-        <p style="opacity:.85">Front desk, waiting room and inbox — according to your role.</p>
+        <p>Front desk, waiting room and inbox — according to your role.</p>
       </div>
-      <div class="dma-auth-preview"><strong>Staff portal</strong><p style="margin:8px 0 0;opacity:.85;font-size:.875rem">Reception · Nurse · Assistant · Manager</p></div>
+      <div class="dma-auth-preview"><strong>Staff portal</strong><p>Reception · Nurse · Assistant · Manager</p></div>
     </aside>
     <main class="dma-auth-form">
       <h2>Staff sign in</h2>
-      <div class="dma-pub-actions" style="margin:12px 0 20px">
+      <div class="dma-auth-roles">
         <a class="dma-chip" href="/doctor-login/">Doctor</a>
-        <span class="dma-chip">Staff</span>
+        <span class="dma-chip is-active">Staff</span>
       </div>
       <div id="error" class="dma-alert" style="display:none;margin-bottom:12px"></div>
       <form id="form">
         <div class="dma-field"><label>Work email</label><input type="email" name="email" required autocomplete="email"></div>
         <div class="dma-field"><label>Password</label><input type="password" name="password" required autocomplete="current-password"></div>
         <p style="text-align:right"><a href="/forgot-password/">Forgot password?</a></p>
-        <button type="submit" class="dma-btn dma-btn-primary" style="width:100%;margin-top:8px">Sign In</button>
+        <button type="submit" class="dma-btn dma-btn-primary">Sign In</button>
       </form>
       <p class="dma-hint" style="margin-top:20px">Invite only. <a href="/accept-invite/">Accept invite</a></p>
     </main>
   </div>
-  <script src="/portal.js"></script>
+  <script src="/portal.js?v=8"></script>
   <script>
     document.getElementById('form').onsubmit = async (e) => {
       e.preventDefault();

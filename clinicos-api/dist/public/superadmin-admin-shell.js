@@ -2,7 +2,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=20';
+    ds.href = '/dma-design-system.css?v=24';
     document.head.appendChild(ds);
   }
   var ICONS = {
@@ -30,18 +30,18 @@
     { label: 'Operations', items: [
       { href: '/superadmin/whatsapp/', label: 'WhatsApp', icon: 'whatsapp' },
       { href: '/superadmin/announcements/', label: 'Announcements', icon: 'announce' },
-      { href: '/superadmin/integrations/', label: 'Integrations', icon: 'plug' },
+      { href: '/superadmin/support/', label: 'Support', icon: 'announce' },
     ]},
-    { label: 'Billing', items: [
+    { label: 'Business', items: [
       { href: '/superadmin/subscriptions/', label: 'Billing', icon: 'plans' },
       { href: '/superadmin/stripe/', label: 'Plans', icon: 'stripe' },
       { href: '/superadmin/revenue/', label: 'Analytics', icon: 'revenue' },
     ]},
     { label: 'System', items: [
+      { href: '/superadmin/integrations/', label: 'Integrations', icon: 'plug' },
       { href: '/superadmin/api/', label: 'WhatsApp API', icon: 'api' },
       { href: '/superadmin/health/', label: 'System Health', icon: 'health' },
       { href: '/superadmin/audit/', label: 'Audit Logs', icon: 'audit' },
-      { href: '/superadmin/support/', label: 'Support', icon: 'announce' },
       { href: '/superadmin/security/', label: 'Security', icon: 'settings' },
       { href: '/superadmin/settings/', label: 'Settings', icon: 'settings' },
     ]},

@@ -231,31 +231,16 @@
     var clinic = u.name || u.clinicName || 'Your clinic';
     root.innerHTML =
       pageHead(greeting() + ', ' + esc(firstName()),
-        new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }) + ' — today’s clinic overview.',
-        '',
-        'Overview') +
-      '<div class="cos-quick-actions">' +
-        '<a class="dma-btn dma-btn-primary" href="/dashboard/appointments/?action=book">New appointment<svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>' +
-        '<a class="dma-btn dma-btn-ghost" href="/dashboard/patients/?action=new">Add patient</a>' +
-        '<a class="dma-btn dma-btn-ghost" href="/dashboard/clinical/">Start consultation</a>' +
-        '<a class="dma-btn dma-btn-ghost" href="/dashboard/payments/">Record payment</a>' +
-      '</div>' +
+        "Here's what needs attention today.",
+        '<a class="dma-btn dma-btn-primary" href="/dashboard/appointments/?action=book">New appointment</a>') +
       '<div id="home-clinic">' + A().spinner() + '</div>';
 
     Promise.all([
       A().get('/api/appointments?filter=today&limit=80').catch(function () { return { _fail: true, data: [] }; }),
-      A().get('/api/appointments?filter=month&limit=200').catch(function () { return { data: [] }; }),
-      A().get('/api/analytics/overview').catch(function () { return {}; }),
-      A().get('/api/analytics/weekly-appointments').catch(function () { return []; }),
-      A().get('/api/staff').catch(function () { return []; }),
+      A().get('/api/patients?limit=50').catch(function () { return { data: [] }; }),
       A().waStatus().catch(function () { return { unavailable: true }; }),
       A().get('/api/ai/training-profile').catch(function () { return {}; }),
-      A().get('/api/leads?limit=20').catch(function () { return { leads: [] }; }),
-      A().get('/api/settings').catch(function () { return {}; }),
-      A().get('/api/patients?limit=50').catch(function () { return { data: [] }; }),
-      A().getFull ? A().getFull('/api/lab-orders') : Promise.resolve({ ok: false, d: {} }),
-      A().getFull ? A().getFull('/api/inventory/skus') : Promise.resolve({ ok: false, d: {} }),
-      A().get('/api/notifications/unread-count').catch(function () { return { unavailable: true }; }),
+      A().get('/api/leads?limit=20').catch(function () { return { leads: [] }; })
     ]).then(function (p) {
       var todayPack = p[0] || {};
       if (todayPack._fail) {
@@ -264,106 +249,72 @@
         return;
       }
       var today = apptList(todayPack);
-      var month = apptList(p[1]);
-      var ov = p[2] || {};
-      var week = Array.isArray(p[3]) ? p[3] : [];
-      var team = Array.isArray(p[4]) ? p[4] : [];
-      var wa = p[5] || {};
-      var train = p[6] || {};
-      var leads = p[7].leads || [];
-      var settings = p[8] || {};
-      var patients = (p[9] && p[9].data) || [];
-      var labRes = p[10] || {};
-      var invRes = p[11] || {};
-      var unreadRes = p[12] || {};
+      var patients = (p[1] && p[1].data) || [];
+      var wa = p[2] || {};
+      var train = p[3] || {};
+      var leads = (p[4] && p[4].leads) || [];
       var rates = todayRates(today);
-      var arrived = today.filter(function (a) { return statusOf(a) === 'ARRIVED'; }).length;
-      var waitingNow = today.filter(function (a) { return visitOf(a).code === 'WAITING'; }).length;
-      var inConsult = today.filter(function (a) { return statusOf(a) === 'IN_PROGRESS'; }).length;
+      var waitingRows = today.filter(function (a) {
+        var v = visitOf(a);
+        return v.code === 'WAITING' || v.code === 'CALLED' || statusOf(a) === 'ARRIVED';
+      });
+      var feeToday = today.reduce(function (s, a) { return s + feeOf(a); }, 0);
       var connected = !!(wa.connected || wa.status === 'connected' || wa.status === 'CONNECTED');
       var published = !!(train.isPublished || train.publishedAt);
       var startToday = new Date(); startToday.setHours(0, 0, 0, 0);
       var newPts = patients.filter(function (pt) { return pt.createdAt && new Date(pt.createdAt) >= startToday; }).length;
-      var follow = today.filter(function (a) {
-        var enc = global.DmaClinical && DmaClinical.fromAppointment(a);
-        return enc && enc.followUp && enc.followUp.note;
-      }).length;
-      var hours = A().parseJson(settings.workingHours, {}) || {};
-      var cap = todayCapacity(hours, today);
-      var rev30 = todayRates(month.filter(function (a) { return statusOf(a) === 'COMPLETED'; })).revenue;
+      var recent = patients.slice(0, 6);
 
       var alerts = [];
-      if (wa.unavailable) alerts.push('WhatsApp connection status unavailable.');
-      else if (!connected) alerts.push('WhatsApp hasn’t been configured for this clinic.');
-      if (!published && !wa.unavailable) alerts.push('AI receptionist is draft only — publish training to go live.');
+      if (wa.unavailable) alerts.push('WhatsApp connection status is unavailable.');
+      else if (!connected) alerts.push('WhatsApp is not connected yet.');
+      if (!published && !wa.unavailable) alerts.push('Publish the AI receptionist when you are ready for it to answer patients.');
       today.filter(function (a) { return statusOf(a) === 'PENDING' && new Date(a.dateTime) < new Date(); }).forEach(function (a) {
         alerts.push((a.patient && a.patient.fullName ? a.patient.fullName : 'A visit') + ' is still pending after start time.');
       });
       leads.filter(function (l) { return String(l.leadScore || '').toUpperCase() === 'HOT'; }).slice(0, 2).forEach(function (l) {
-        alerts.push('Hot lead: ' + (l.fullName || l.phone || 'follow up'));
+        alerts.push('Follow up: ' + (l.fullName || l.phone || 'a new enquiry'));
       });
 
-      var weekHtml = week.length
-        ? week.map(function (d) {
-            var c = d.count || 0;
-            var max = Math.max.apply(null, week.map(function (x) { return x.count || 0; }).concat([1]));
-            return '<div class="dma-comp-row"><span style="width:40px">' + esc(d.date) + '</span><div class="dma-comp-bar"><i style="width:' + Math.round((c / max) * 100) + '%"></i></div><strong>' + c + '</strong></div>';
+      var waitHtml = waitingRows.length
+        ? waitingRows.map(function (a, i) {
+            var pt = a.patient || {};
+            var mins = Math.max(0, Math.round((Date.now() - new Date(a.updatedAt || a.dateTime).getTime()) / 60000));
+            return '<a class="cos-queue-row" href="/dashboard/waiting/"><span class="cos-queue-num">' + String(i + 1).padStart(2, '0') + '</span><span><strong>' + esc(pt.fullName || 'Patient') + '</strong><span class="dma-hint">Waiting ' + mins + ' min</span></span>' + A().chip(visitOf(a).label) + '</a>';
           }).join('')
-        : '<p class="dma-hint">Not enough history yet.</p>';
+        : '<p class="dma-hint">No one is waiting. Check in a confirmed visit when a patient arrives.</p>';
+
+      var recentHtml = recent.length
+        ? recent.map(function (pt) {
+            return '<a class="dma-row-item" href="/dashboard/patients/detail/?id=' + esc(pt.id) + '"><div class="name">' + esc(pt.fullName || 'Patient') + '</div><div class="sub">' + esc(pt.phone || '') + '</div></a>';
+          }).join('')
+        : '<p class="dma-hint">No patients on file yet.</p>';
 
       el('home-clinic').innerHTML =
-        '<div class="ds-command">' +
-        '<div class="ds-status-strip" role="status">' +
-          '<span class="ds-status-chip' + (wa.unavailable ? '' : (connected ? ' is-on' : ' is-off')) + '">WhatsApp · ' + (wa.unavailable ? 'Unavailable' : (connected ? 'Connected' : 'Not connected')) + '</span>' +
-          '<span class="ds-status-chip' + (published ? ' is-on' : '') + '">AI · ' + (published ? 'Published' : 'Draft') + '</span>' +
-          '<span class="ds-status-chip">' + esc(clinic) + '</span>' +
+        '<div class="cos-kpi-row">' +
+          '<a class="cos-card cos-card--kpi" href="/dashboard/appointments/?view=today"><span>Today\'s appointments</span><strong>' + today.length + '</strong></a>' +
+          '<a class="cos-card cos-card--kpi" href="/dashboard/waiting/"><span>Waiting patients</span><strong>' + waitingRows.length + '</strong></a>' +
+          '<a class="cos-card cos-card--kpi" href="/dashboard/waiting/"><span>Completed today</span><strong>' + rates.completed + '</strong></a>' +
+          (feeToday > 0
+            ? '<div class="cos-card cos-card--kpi"><span>Visit fees today</span><strong>' + money(feeToday) + '</strong></div>'
+            : '<a class="cos-card cos-card--kpi" href="/dashboard/patients/"><span>New patients</span><strong>' + newPts + '</strong></a>') +
         '</div>' +
-        '<div class="ds-work-grid">' +
-          '<a class="ds-work-tile" href="/dashboard/appointments/?view=today"><span>Appointments today</span><strong>' + today.length + '</strong></a>' +
-          '<a class="ds-work-tile ds-work-tile--called" href="/dashboard/waiting/"><span>Waiting</span><strong>' + waitingNow + '</strong></a>' +
-          '<a class="ds-work-tile" href="/dashboard/waiting/"><span>In consultation</span><strong>' + inConsult + '</strong></a>' +
-          (unreadRes.unavailable || unreadRes.error
-            ? '<div class="ds-work-tile"><span>Unread updates</span><strong>Unavailable</strong></div>'
-            : '<a class="ds-work-tile" href="/dashboard/notifications/"><span>Unread updates</span><strong>' + Number(unreadRes.count || unreadRes.unread || 0) + '</strong></a>') +
+        '<div class="dma-grid-2 ds-dash-split">' +
+          sectionBlock("Today's schedule", timelineHtml(today)) +
+          sectionBlock('Waiting room', waitHtml + (waitingRows.length ? '<p class="dma-hint"><a href="/dashboard/waiting/">Open waiting room</a></p>' : '')) +
         '</div>' +
-        '<div class="cos-card cos-card--feature cos-ops-hero"><span class="ds-pill">Today\'s operations</span>' +
-          '<h2>' + esc(clinic) + '</h2>' +
-          '<p>' + esc(cap.label) + '</p>' +
-          '<div class="cos-ops-metrics">' +
-            '<div><span>Appointments</span><strong>' + today.length + '</strong></div>' +
-            '<div><span>Arrived</span><strong>' + arrived + '</strong></div>' +
-            '<div><span>In consultation</span><strong>' + inConsult + '</strong></div>' +
-            '<div><span>Completed</span><strong>' + rates.completed + '</strong></div>' +
-          '</div></div>' +
-        sectionBlock("Today's work", timelineHtml(today)) +
-        sectionBlock('Attention', (function () {
-          var bits = [];
-          if (alerts.length) bits.push('<div class="dma-alert-list">' + alerts.map(function (t) { return '<div class="cos-card cos-card--alert">' + esc(t) + '</div>'; }).join('') + '</div>');
-          bits.push('<div class="ds-attn-row">Patients waiting <strong>' + waitingNow + '</strong></div>');
-          if (!labRes.ok) bits.push('<div class="ds-attn-row">Laboratory <strong>Unavailable</strong></div>');
-          else {
-            var labs = (labRes.d && labRes.d.data) || [];
-            var pendingLab = labs.filter(function (r) { return r.status === 'ORDERED' || r.status === 'COLLECTED' || r.status === 'PROCESSING'; }).length;
-            bits.push('<div class="ds-attn-row">Pending lab orders <strong>' + pendingLab + '</strong></div>');
-          }
-          if (!invRes.ok) bits.push('<div class="ds-attn-row">Inventory <strong>Unavailable</strong></div>');
-          else {
-            var skus = (invRes.d && invRes.d.data) || [];
-            bits.push(skus.length ? '<div class="ds-attn-row">Inventory items <strong>' + skus.length + '</strong></div>' : '<div class="ds-attn-row">Inventory <span class="dma-hint">No items yet</span></div>');
-          }
-          return bits.join('') || '<p class="dma-hint">Nothing needs attention.</p>';
-        })()) +
         '<div class="dma-grid-2">' +
-          sectionBlock('Recent activity', weekHtml + (ov.totalPatients != null ? '<p class="dma-hint">' + esc(ov.totalPatients) + ' patient charts.</p>' : '')) +
-          sectionBlock('Visit-fee trend',
-            '<p class="dma-hint">Completed visit fees — not software subscription revenue.</p>' +
-            '<strong class="ds-metric">' + money(rev30) + '</strong><span class="dma-hint"> this month</span>') +
+          sectionBlock('Recent patients', recentHtml) +
+          sectionBlock('Quick actions',
+            '<div class="cos-quick-actions">' +
+              '<a class="dma-btn dma-btn-ghost" href="/dashboard/appointments/?action=book">New appointment</a>' +
+              '<a class="dma-btn dma-btn-ghost" href="/dashboard/patients/?action=new">Add patient</a>' +
+              '<a class="dma-btn dma-btn-ghost" href="/dashboard/waiting/">Open waiting room</a>' +
+              '<a class="dma-btn dma-btn-ghost" href="/dashboard/messages/">Open inbox</a>' +
+            '</div>') +
         '</div>' +
-        (team.length ? sectionBlock('Team', '<div class="dma-staff-grid">' + team.map(function (s) {
-          var booked = today.filter(function (a) { return a.bookedByStaffId === s.id; }).length;
-          return personCard(s.name, s.role, booked, 'Booked today');
-        }).join('') + '</div>') : '') +
-        '</div>';
+        (alerts.length ? sectionBlock('Clinic activity', '<div class="dma-alert-list">' + alerts.map(function (t) { return '<div class="cos-card cos-card--alert">' + esc(t) + '</div>'; }).join('') + '</div>') : '') +
+        '<p class="dma-hint">' + esc(clinic) + ' · WhatsApp ' + (wa.unavailable ? 'unavailable' : (connected ? 'connected' : 'not connected')) + ' · AI receptionist ' + (published ? 'published' : 'draft') + '</p>';
 
       bindTimeline(el('home-clinic'), today, home);
     });
@@ -798,12 +749,9 @@
       subtitle: p.phone || '',
       tabs: [
         { id: 'overview', label: 'Overview' },
-        { id: 'appointments', label: 'Appointments' },
-        { id: 'messages', label: 'Messages' },
-        { id: 'clinical', label: 'Clinical' },
-        { id: 'documents', label: 'Documents' },
-        { id: 'notes', label: 'Notes' },
-        { id: 'activity', label: 'Activity' }
+        { id: 'appointments', label: 'Visits' },
+        { id: 'clinical', label: 'Prescriptions' },
+        { id: 'documents', label: 'Documents' }
       ],
       footer:
         '<a class="dma-btn dma-btn-ghost" href="/dashboard/patients/detail/?id=' + esc(p.id) + '">Open full chart</a>' +
@@ -814,7 +762,8 @@
           api.setBody((global.DmaUI ? DmaUI.kv([
             ['Phone', p.phone], ['Email', p.email], ['Gender', p.gender],
             ['Visits', (p._count && p._count.appointments) || 0],
-            ['Last visit', last.dateTime ? A().fmtDate(last.dateTime) : '—']
+            ['Last visit', last.dateTime && new Date(last.dateTime).getTime() < Date.now() ? A().fmtDate(last.dateTime) : '—'],
+            ['Next appointment', last.dateTime && new Date(last.dateTime).getTime() >= Date.now() ? A().fmtDate(last.dateTime) : '—']
           ]) : '<p>' + esc(p.phone) + '</p>'));
           return;
         }
@@ -836,9 +785,9 @@
         } else if (tab === 'clinical') {
           var lastId = last.id;
           api.setBody(
-            '<p class="dma-prose">Clinical visits stay on the appointment encounter. This drawer does not invent a second chart.</p>' +
+            '<p class="dma-prose">Prescriptions are written on a visit. This drawer does not keep a separate medication list.</p>' +
             (lastId
-              ? '<a class="dma-btn dma-btn-primary" href="/dashboard/clinical/?id=' + esc(lastId) + '">Open last consultation</a>'
+              ? '<a class="dma-btn dma-btn-primary" href="/dashboard/prescriptions/?id=' + esc(lastId) + '">Open last prescription</a>'
               : '<p class="dma-hint">No visit yet. Book an appointment first.</p>')
           );
         } else if (tab === 'documents') {
@@ -864,43 +813,83 @@
   /* ── PATIENTS ─────────────────────────────────────────────────────────── */
   function patients() {
     var root = page();
+    var filter = 'all';
     root.innerHTML =
-      pageHead('Patients', 'Manage patient records, appointments and conversations.',
-        '<input class="dma-search" id="pt-search" placeholder="Search name or phone" aria-label="Search patients">' +
-        '<button class="dma-btn dma-btn-primary" id="pt-add">Add patient</button>', 'Records') +
-      '<section class="dma-section"><div class="dma-table-wrap"><table class="dma-table dma-table--patients"><thead><tr><th>Patient</th><th>Phone</th><th>Visits</th><th>Last visit</th><th></th></tr></thead><tbody id="pt-body"><tr><td colspan="5">' + A().spinner() + '</td></tr></tbody></table></div><div class="ds-card-list" id="pt-cards" hidden></div></section>';
+      pageHead('Patients', "Search and manage your clinic's patient records.",
+        '<button class="dma-btn dma-btn-primary" id="pt-add">+ New patient</button>') +
+      '<div class="cos-pt-toolbar"><input class="dma-search" id="pt-search" placeholder="Search patients..." aria-label="Search patients">' +
+      '<div class="dma-tabs" id="pt-filters" role="tablist">' +
+        '<button type="button" data-f="all" class="active">All</button>' +
+        '<button type="button" data-f="active">Active</button>' +
+        '<button type="button" data-f="recent">Recent</button>' +
+      '</div></div>' +
+      '<section class="dma-section"><div class="dma-table-wrap"><table class="dma-table dma-table--patients"><thead><tr><th>Patient</th><th>Contact</th><th>Last visit</th><th>Next appointment</th><th></th></tr></thead><tbody id="pt-body"><tr><td colspan="5">' + A().spinner() + '</td></tr></tbody></table></div><div class="ds-card-list" id="pt-cards" hidden></div></section>';
 
     var rows = [];
+    function visible() {
+      var now = Date.now();
+      return rows.filter(function (p) {
+        if (filter === 'active') return p.isActive !== false;
+        if (filter === 'recent') {
+          var last = (p.appointments && p.appointments[0]) || {};
+          return last.dateTime && (now - new Date(last.dateTime).getTime()) < 30 * 24 * 60 * 60 * 1000;
+        }
+        return true;
+      });
+    }
+    function paint() {
+      var list = visible();
+      if (!rows.length) {
+        el('pt-body').innerHTML = '<tr><td colspan="5">' + A().empty('No patients yet', 'Add a patient, or they will appear from WhatsApp.', '#', 'Add patient') + '</td></tr>';
+        if (el('pt-cards')) el('pt-cards').innerHTML = '';
+        var c = el('pt-body').querySelector('a'); if (c) c.onclick = function (e) { e.preventDefault(); el('pt-add').click(); };
+        return;
+      }
+      if (!list.length) {
+        el('pt-body').innerHTML = '<tr><td colspan="5"><p class="dma-hint">No patients match this filter.</p></td></tr>';
+        if (el('pt-cards')) el('pt-cards').innerHTML = '';
+        return;
+      }
+      el('pt-body').innerHTML = list.map(function (p) {
+        var i = rows.indexOf(p);
+        var last = (p.appointments && p.appointments[0]) || {};
+        var when = last.dateTime ? new Date(last.dateTime).getTime() : 0;
+        var lastLabel = when && when < Date.now() ? A().fmtDate(last.dateTime) : '—';
+        var nextLabel = when && when >= Date.now() ? A().fmtDate(last.dateTime) : '—';
+        return '<tr data-i="' + i + '">' +
+          '<td><div class="dma-pt-identity"><div class="dma-avatar" aria-hidden="true">' + A().initials(p.fullName) + '</div><div><strong>' + esc(p.fullName) + '</strong></div></div></td>' +
+          '<td>' + esc(p.phone || p.email || '—') + '</td>' +
+          '<td>' + lastLabel + '</td>' +
+          '<td>' + nextLabel + '</td>' +
+          '<td style="white-space:nowrap">' +
+            '<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/messages/?patient=' + esc(p.id) + '">Message</a> ' +
+            '<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/appointments/?action=book&patient=' + esc(p.id) + '">Book</a>' +
+          '</td></tr>';
+      }).join('');
+      if (el('pt-cards')) {
+        el('pt-cards').innerHTML = list.map(function (p) {
+          var i = rows.indexOf(p);
+          var last = (p.appointments && p.appointments[0]) || {};
+          return '<button type="button" class="ds-entity-card" data-i="' + i + '">' +
+            '<div class="dma-avatar" aria-hidden="true">' + A().initials(p.fullName) + '</div>' +
+            '<div><strong>' + esc(p.fullName) + '</strong><div class="dma-hint">' + esc(p.phone || '') + '</div>' +
+            '<div class="dma-hint">' + (last.dateTime ? A().fmtDate(last.dateTime) : 'No visits yet') + '</div></div></button>';
+        }).join('');
+      }
+    }
     function load(q) {
       A().get('/api/patients?limit=50' + (q ? '&search=' + encodeURIComponent(q) : '')).then(function (d) {
         rows = d.data || [];
-        if (!rows.length) {
-          el('pt-body').innerHTML = '<tr><td colspan="5">' + A().empty('No patients yet', 'Add a chart, or they will appear from WhatsApp leads.', '#', 'Add patient') + '</td></tr>';
-          if (el('pt-cards')) el('pt-cards').innerHTML = '';
-          return;
-        }
-        el('pt-body').innerHTML = rows.map(function (p, i) {
-          var last = (p.appointments && p.appointments[0]) || {};
-          return '<tr data-i="' + i + '">' +
-            '<td><div class="dma-pt-identity"><div class="dma-avatar" aria-hidden="true">' + A().initials(p.fullName) + '</div><div><strong>' + esc(p.fullName) + '</strong></div></div></td>' +
-            '<td>' + esc(p.phone) + '</td>' +
-            '<td>' + esc((p._count && p._count.appointments) || 0) + '</td>' +
-            '<td>' + (last.dateTime ? A().fmtDate(last.dateTime) + ' ' + A().chip(last.status) : '—') + '</td>' +
-            '<td style="white-space:nowrap">' +
-              '<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/messages/?patient=' + esc(p.id) + '">Message</a> ' +
-              '<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/appointments/?action=book&patient=' + esc(p.id) + '">Book</a>' +
-            '</td></tr>';
-        }).join('');
-        if (el('pt-cards')) {
-          el('pt-cards').innerHTML = rows.map(function (p, i) {
-            var last = (p.appointments && p.appointments[0]) || {};
-            return '<button type="button" class="ds-entity-card" data-i="' + i + '">' +
-              '<div class="dma-avatar" aria-hidden="true">' + A().initials(p.fullName) + '</div>' +
-              '<div><strong>' + esc(p.fullName) + '</strong><div class="dma-hint">' + esc(p.phone || '') + '</div>' +
-              '<div class="dma-hint">' + (last.dateTime ? A().fmtDate(last.dateTime) : 'No visits yet') + '</div></div></button>';
-          }).join('');
-        }
+        paint();
       });
+    }
+    if (el('pt-filters')) {
+      el('pt-filters').onclick = function (e) {
+        var b = e.target.closest('[data-f]'); if (!b) return;
+        filter = b.getAttribute('data-f');
+        el('pt-filters').querySelectorAll('button').forEach(function (x) { x.classList.toggle('active', x === b); });
+        paint();
+      };
     }
     el('pt-body').onclick = function (e) {
       if (e.target.closest('a, button')) return;
@@ -993,9 +982,9 @@
     var root = page();
     var owner = identity() === 'OWNER';
     root.innerHTML =
-      pageHead('Messages', 'Clinic WhatsApp inbox — separate from connection setup. Reply, escalate, or open the patient chart.',
-        owner ? '<a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">Connection</a><a class="dma-btn dma-btn-primary" href="/dashboard/broadcasts/">Broadcast</a>' : '',
-        'Inbox') +
+      pageHead('Inbox', 'Patient conversations. Reply, escalate, or open the chart.',
+        owner ? '<a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">WhatsApp</a><a class="dma-btn dma-btn-primary" href="/dashboard/broadcasts/">New broadcast</a>' : '',
+        '') +
       '<div id="msg-wa"></div>' +
       '<div class="dma-inbox" id="msg-inbox"><div class="dma-inbox-list" id="msg-list">' + A().spinner() + '</div><div class="dma-thread" id="msg-thread"></div><aside class="dma-inbox-ctx" id="msg-ctx"></aside></div>';
 
@@ -1125,12 +1114,12 @@
     if (tab === 'overview' || tab === 'appointments') tab = 'clinical';
     if (tab === 'messages') tab = 'operational';
     root.innerHTML =
-      pageHead('Analytics', 'Clinical, operational, and visit-fee metrics this clinic has recorded — not SaaS MRR.',
-        '', 'Reports') +
+      pageHead('Analytics', 'Know how your clinic is performing — from records it actually captured.',
+        '<a class="dma-btn dma-btn-ghost" href="/dashboard/reviews/">Reviews</a>') +
       '<div class="dma-tabs" id="an-tabs"></div>' +
       '<div class="dma-kpis" id="an-kpis">' + A().spinner() + '</div>' +
       '<div id="an-body"></div>';
-    var tabs = [['clinical', 'Clinical'], ['operational', 'Operational'], ['financial', 'Financial']];
+      var tabs = [['clinical', 'Clinical'], ['operational', 'Operational'], ['financial', 'Financial']];
     function drawTabs() {
       el('an-tabs').innerHTML = tabs.map(function (t) {
         return '<button type="button" data-t="' + t[0] + '" class="' + (tab === t[0] ? 'active' : '') + '">' + t[1] + '</button>';
@@ -1188,10 +1177,14 @@
       if (tab === 'operational') {
         el('an-body').innerHTML = sectionBlock('Messages by channel', chHtml) + sectionBlock('Appointments (7 days)', weekHtml);
       } else if (tab === 'financial') {
-        el('an-body').innerHTML = sectionBlock('Visit fees by month', '<p class="dma-hint">Completed appointment fees — not software subscription revenue.</p>' + revHtml);
+        el('an-body').innerHTML = sectionBlock('Visit fees by month', '<p class="dma-hint">Fees recorded on completed visits.</p>' + revHtml);
       } else {
         el('an-body').innerHTML =
-          '<div class="dma-grid-2">' + sectionBlock('Appointments (7 days)', weekHtml) + sectionBlock('Top treatments', txHtml) + '</div>';
+          '<div class="dma-grid-2">' + sectionBlock('Appointments over time', weekHtml) + sectionBlock('Top services', txHtml) + '</div>' +
+          '<div class="dma-grid-2">' +
+            '<div class="cos-card cos-card--kpi"><span>No-show rate</span><strong>' + (ov.noShowRate && ov.noShowRate.value != null ? ov.noShowRate.value + '%' : 'Unavailable') + '</strong><em>Share of visits marked no-show this month.</em></div>' +
+            '<div class="cos-card cos-card--kpi"><span>Patient return rate</span><strong>' + (ov.returnRate && ov.returnRate.value != null ? ov.returnRate.value + '%' : 'Unavailable') + '</strong><em>Completed patients who booked again.</em></div>' +
+          '</div>';
       }
     }
     Promise.all([
@@ -1220,7 +1213,7 @@
   function reviews() {
     var root = page();
     root.innerHTML =
-      pageHead('Reviews', 'Request Google reviews from completed visits over WhatsApp.',
+      pageHead('Reviews', 'See patient feedback and request reviews after completed visits.',
         '<button class="dma-btn dma-btn-primary" id="rv-req">Request reviews</button>', 'Reputation') +
       '<div id="rv-body">' + A().spinner() + '</div>';
     A().getFull('/api/reviews').then(function (r) {
@@ -1274,8 +1267,9 @@
   function staff() {
     var root = page();
     root.innerHTML =
-      pageHead('Team', 'Invite reception and clinic staff. This is a directory, not a multi-doctor EMR.',
-        '<button class="dma-btn dma-btn-primary" id="st-add">Invite staff</button>', 'People') +
+      pageHead('Team', 'Manage the people who help run your clinic.',
+        '<button class="dma-btn dma-btn-primary" id="st-add">+ Invite team member</button>') +
+      '<div class="dma-tabs" id="st-tabs" role="tablist"><button type="button" data-g="all" class="active">All</button><button type="button" data-g="doctors">Doctors</button><button type="button" data-g="staff">Staff</button></div>' +
       '<div id="st-body">' + A().spinner() + '</div>';
     function openStaff(s, load) {
       var d = drawer({
@@ -1291,7 +1285,7 @@
         onTab: function (tab, api) {
           if (tab === 'profile') {
             api.setBody((global.DmaUI ? DmaUI.kv([['Email', s.email], ['Role', s.role], ['Status', s.status], ['Joined', s.createdAt ? A().fmtDate(s.createdAt) : '—']]) : '') +
-              '<p class="dma-hint">Directory details from /api/staff. Extra fields are not invented.</p>');
+              '<p class="dma-hint">Details from the staff directory.</p>');
             api.setFooter('<button type="button" class="dma-btn dma-btn-ghost" data-close="1">Close</button>');
             return;
           }
@@ -1322,18 +1316,23 @@
         }
       });
     }
-    function load() {
-      A().get('/api/staff').then(function (rows) {
-        if (rows && (rows.error || rows.code)) {
-          el('st-body').innerHTML = '<div class="cos-unavail"><span class="ds-pill">Owner only</span><h2>Team directory</h2><p>Staff invite and edits are owner APIs. Ask the clinic owner to manage seats.</p></div>';
-          return;
-        }
-        var list = Array.isArray(rows) ? rows : [];
-        if (!list.length) {
-          el('st-body').innerHTML = A().empty('No staff yet', 'Invite a receptionist to share the inbox.');
-          return;
-        }
-        el('st-body').innerHTML = '<div class="dma-staff-grid">' + list.map(function (s, i) {
+    var group = 'all';
+    var staffList = [];
+    var doctors = [];
+    function paintTeam() {
+      var showDocs = group !== 'staff';
+      var showStaff = group !== 'doctors';
+      var html = '';
+      if (showDocs) {
+        html += doctors.map(function (pr, i) {
+          return '<div class="dma-person-card">' +
+            '<div class="dma-avatar">' + A().initials(pr.name) + '</div>' +
+            '<strong>' + esc(pr.name) + '</strong><div class="dma-hint">' + esc(pr.specialty || 'Doctor') + '</div>' +
+            '<div style="margin:8px 0">' + A().chip('Doctor') + '</div></div>';
+        }).join('');
+      }
+      if (showStaff) {
+        html += staffList.map(function (s, i) {
           return '<div class="dma-person-card" data-i="' + i + '">' +
             '<div class="dma-avatar">' + A().initials(s.name) + '</div>' +
             '<strong>' + esc(s.name) + '</strong><div class="dma-hint">' + esc(s.role) + '</div>' +
@@ -1343,22 +1342,53 @@
               '<button type="button" class="dma-btn dma-btn-ghost dma-btn-sm" data-edit="' + i + '">Edit</button>' +
               '<button type="button" class="dma-btn dma-btn-danger dma-btn-sm" data-id="' + esc(s.id) + '">Deactivate</button>' +
             '</div></div>';
-        }).join('') + '</div>';
-        el('st-body').querySelectorAll('[data-view], [data-edit]').forEach(function (b) {
-          b.onclick = function () {
-            var s = list[Number(b.getAttribute('data-view') || b.getAttribute('data-edit'))];
-            if (s) openStaff(s, load);
-          };
-        });
-        el('st-body').querySelectorAll('button[data-id]').forEach(function (b) {
-          b.onclick = function () {
-            A().del('/api/staff/' + b.getAttribute('data-id')).then(function (r) {
-              if (r.ok) { A().toast('Staff updated', 'ok'); load(); }
-              else A().toast(failMsg(r, "Couldn't update that team member."), 'err');
-            });
-          };
-        });
+        }).join('');
+      }
+      if (!html) {
+        el('st-body').innerHTML = A().empty(
+          group === 'doctors' ? 'No doctors listed' : 'No staff yet',
+          group === 'doctors' ? 'Clinicians appear from the clinic roster.' : 'Invite a receptionist to share the inbox.'
+        );
+        return;
+      }
+      el('st-body').innerHTML = '<div class="dma-staff-grid">' + html + '</div>';
+      el('st-body').querySelectorAll('[data-view], [data-edit]').forEach(function (b) {
+        b.onclick = function () {
+          var s = staffList[Number(b.getAttribute('data-view') || b.getAttribute('data-edit'))];
+          if (s) openStaff(s, load);
+        };
       });
+      el('st-body').querySelectorAll('button[data-id]').forEach(function (b) {
+        b.onclick = function () {
+          A().del('/api/staff/' + b.getAttribute('data-id')).then(function (r) {
+            if (r.ok) { A().toast('Staff updated', 'ok'); load(); }
+            else A().toast(failMsg(r, "Couldn't update that team member."), 'err');
+          });
+        };
+      });
+    }
+    function load() {
+      Promise.all([
+        A().get('/api/staff'),
+        A().get('/api/roster').catch(function () { return { practitioners: [] }; })
+      ]).then(function (p) {
+        var rows = p[0];
+        if (rows && (rows.error || rows.code)) {
+          el('st-body').innerHTML = '<div class="cos-unavail"><h2>Team directory</h2><p>Staff invites are managed by the clinic owner.</p></div>';
+          return;
+        }
+        staffList = Array.isArray(rows) ? rows : [];
+        doctors = (p[1] && p[1].practitioners) || [];
+        paintTeam();
+      });
+    }
+    if (el('st-tabs')) {
+      el('st-tabs').onclick = function (e) {
+        var b = e.target.closest('[data-g]'); if (!b) return;
+        group = b.getAttribute('data-g');
+        el('st-tabs').querySelectorAll('button').forEach(function (x) { x.classList.toggle('active', x === b); });
+        paintTeam();
+      };
     }
     load();
     el('st-add').onclick = function () {
@@ -1381,7 +1411,7 @@
   function billing() {
     var root = page();
     root.innerHTML =
-      pageHead('Billing', 'Current plan, usage, and invoices for this clinic. Payment is managed in Stripe — technical IDs stay hidden.', '', 'Account') +
+      pageHead('Billing', 'Your current plan, usage and invoices.') +
       '<div id="bl-body">' + A().spinner() + '</div>';
     Promise.all([A().get('/api/billing/subscription'), A().get('/api/billing/invoices').catch(function () { return []; })]).then(function (p) {
       var s = p[0] || {};
@@ -1420,25 +1450,18 @@
   /* ── SETTINGS ─────────────────────────────────────────────────────────── */
   function settings() {
     var root = page();
-    var tab = A().qs('tab') || (window.matchMedia('(max-width: 900px)').matches ? '' : 'clinic');
-    var mobile = window.matchMedia('(max-width: 900px)').matches;
+    var tab = A().qs('tab') || 'clinic';
     root.innerHTML =
-      pageHead('Settings', 'Clinic profile, hours, treatments — everything the receptionist and booking page use.', '', 'Configuration') +
-      '<div class="cos-settings' + (mobile && tab ? ' is-pane' : (mobile ? ' is-list' : '')) + '" id="st-wrap">' +
-        '<button type="button" class="dma-btn dma-btn-ghost cos-settings-back" id="st-back">All categories</button>' +
+      pageHead('Settings', 'Manage your clinic configuration.') +
+      '<div class="cos-settings" id="st-wrap">' +
         '<nav class="cos-settings-nav" id="st-tabs" role="tablist" aria-label="Settings"></nav>' +
         '<div class="cos-settings-body" id="st-body"></div>' +
       '</div>';
-    var tabs = [['clinic', 'Organization'], ['hours', 'Working hours'], ['treatments', 'Treatments'], ['booking', 'Appointments'], ['notify', 'Notifications'], ['templates', 'Templates'], ['integrations', 'Integrations'], ['roles', 'Roles'], ['security', 'Security'], ['privacy', 'Data & privacy'], ['profile', 'Profile']];
+    var tabs = [['clinic', 'Clinic'], ['hours', 'Hours'], ['treatments', 'Services'], ['booking', 'Scheduling'], ['notify', 'Notifications'], ['templates', 'Templates'], ['integrations', 'Integrations'], ['roles', 'Team & roles'], ['security', 'Security'], ['privacy', 'Privacy'], ['profile', 'Profile']];
     function draw() {
       el('st-tabs').innerHTML = tabs.map(function (t) {
         return '<button type="button" role="tab" aria-selected="' + (tab === t[0] ? 'true' : 'false') + '" data-t="' + t[0] + '" class="' + (tab === t[0] ? 'active' : '') + '">' + t[1] + '</button>';
       }).join('');
-      var wrap = el('st-wrap');
-      if (wrap && window.matchMedia('(max-width: 900px)').matches) {
-        wrap.classList.toggle('is-pane', !!tab);
-        wrap.classList.toggle('is-list', !tab);
-      }
     }
     draw();
     if (global.DmaUI && DmaUI.bindTablist) DmaUI.bindTablist(el('st-tabs'));
@@ -1446,23 +1469,20 @@
       var b = e.target.closest('button'); if (!b) return;
       tab = b.getAttribute('data-t'); A().setQs({ tab: tab }, true); draw(); render();
     };
-    if (el('st-back')) el('st-back').onclick = function () {
-      tab = ''; A().setQs({ tab: '' }, true); draw();
-    };
     function render() {
       if (!tab) { if (el('st-body')) el('st-body').innerHTML = ''; return; }
       A().get('/api/settings').catch(function () { return {}; }).then(function (s) {
         if (tab === 'clinic') {
           el('st-body').innerHTML =
-            '<div class="dma-notice">WhatsApp uses this profile in greetings. <a href="/dashboard/whatsapp/">Manage connection</a> · <a href="/dashboard/ai/">Train AI</a></div>' +
-            '<section class="dma-section dma-section-muted"><header class="dma-section-h"><h2>Clinic identity</h2></header><div class="dma-section-b">' +
+            '<div class="dma-notice">Used in booking and WhatsApp greetings. <a href="/dashboard/whatsapp/">WhatsApp</a> · <a href="/dashboard/ai/">AI receptionist</a></div>' +
+            '<section class="dma-section"><header class="dma-section-h"><h2>Clinic information</h2></header><div class="dma-section-b">' +
             '<div class="dma-row"><div class="dma-field"><label>Clinic name</label><input id="s-name" value="' + esc(s.name || '') + '"></div>' +
             '<div class="dma-field"><label>Specialty</label><input id="s-spec" value="' + esc(s.specialty || '') + '"></div></div>' +
             '<div class="dma-row"><div class="dma-field"><label>Phone</label><input id="s-phone" value="' + esc(s.phone || '') + '"></div>' +
             '<div class="dma-field"><label>Email</label><input id="s-email" value="' + esc(s.email || '') + '"></div></div>' +
             '<div class="dma-field"><label>Address</label><input id="s-addr" value="' + esc(s.address || '') + '"></div>' +
             '<div class="dma-field"><label>Google Place ID</label><input id="s-place" value="' + esc(s.googlePlaceId || '') + '"><p class="dma-hint">Used on the Reviews page.</p></div>' +
-            '<button class="dma-btn dma-btn-primary" id="s-save">Save clinic</button></div></section>';
+            '<button class="dma-btn dma-btn-primary" id="s-save">Save changes</button></div></section>';
           el('s-save').onclick = function () {
             A().patch('/api/settings/clinic', {
               name: el('s-name').value, phone: el('s-phone').value,
@@ -1477,15 +1497,30 @@
           var days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
           var wh = A().parseJson(s.workingHours, {}) || {};
           if (typeof wh !== 'object' || Array.isArray(wh)) wh = {};
-          el('st-body').innerHTML = '<section class="dma-section dma-section-muted"><header class="dma-section-h"><h2>Working hours</h2><p>Each day is a compact row. Closed days are skipped by booking.</p></header><div class="dma-section-b" id="hrs">' +
+          el('st-body').innerHTML = '<section class="dma-section"><header class="dma-section-h"><h2>Working hours</h2></header><div class="dma-section-b" id="hrs">' +
             days.map(function (d) {
               var row = wh[d] || { open: '09:00', close: '17:00', closed: false };
               if (typeof row === 'string') row = { open: '09:00', close: '17:00', closed: false };
-              return '<div class="ds-hours-row"><strong>' + d + '</strong>' +
-                '<input type="time" aria-label="' + d + ' open" data-d="' + d + '" data-k="open" value="' + esc(row.open || '09:00') + '">' +
-                '<input type="time" aria-label="' + d + ' close" data-d="' + d + '" data-k="close" value="' + esc(row.close || '17:00') + '">' +
+              var label = d.charAt(0).toUpperCase() + d.slice(1);
+              return '<div class="ds-hours-row' + (row.closed ? ' is-closed' : '') + '"><strong>' + label + '</strong>' +
+                '<span class="ds-hours-state">' + (row.closed ? 'Closed' : 'Open') + '</span>' +
+                '<input type="time" aria-label="' + label + ' open" data-d="' + d + '" data-k="open" value="' + esc(row.open || '09:00') + '"' + (row.closed ? ' disabled' : '') + '>' +
+                '<span class="dma-hint">—</span>' +
+                '<input type="time" aria-label="' + label + ' close" data-d="' + d + '" data-k="close" value="' + esc(row.close || '17:00') + '"' + (row.closed ? ' disabled' : '') + '>' +
                 '<label><input type="checkbox" data-d="' + d + '" data-k="closed"' + (row.closed ? ' checked' : '') + '> Closed</label></div>';
-            }).join('') + '<button class="dma-btn dma-btn-primary" id="hrs-save">Save hours</button></div></section>';
+            }).join('') + '<button class="dma-btn dma-btn-primary" id="hrs-save">Save changes</button></div></section>';
+          document.querySelectorAll('#hrs input[data-k="closed"]').forEach(function (cb) {
+            cb.onchange = function () {
+              var row = cb.closest('.ds-hours-row');
+              var on = cb.checked;
+              if (row) {
+                row.classList.toggle('is-closed', on);
+                var state = row.querySelector('.ds-hours-state');
+                if (state) state.textContent = on ? 'Closed' : 'Open';
+                row.querySelectorAll('input[type="time"]').forEach(function (inp) { inp.disabled = on; });
+              }
+            };
+          });
           el('hrs-save').onclick = function () {
             var out = {};
             days.forEach(function (d) {
@@ -1506,9 +1541,9 @@
           var txs = A().parseJson(s.treatments, []) || [];
           if (!Array.isArray(txs)) txs = [];
           function drawTx() {
-            el('st-body').innerHTML = '<section class="dma-section dma-section-muted"><header class="dma-section-h"><h2>Treatments</h2><p>These treatments appear in booking, WhatsApp, broadcasts, and Train AI.</p></header><div class="dma-section-b">' +
-              '<div id="tx-list"></div><button class="dma-btn dma-btn-ghost" id="tx-add">Add treatment</button> ' +
-              '<button class="dma-btn dma-btn-primary" id="tx-save">Save treatments</button></div></section>';
+            el('st-body').innerHTML = '<section class="dma-section"><header class="dma-section-h"><h2>Services</h2><p>These appear in booking, WhatsApp and the AI receptionist.</p></header><div class="dma-section-b">' +
+              '<div id="tx-list"></div><button class="dma-btn dma-btn-ghost" id="tx-add">Add service</button> ' +
+              '<button class="dma-btn dma-btn-primary" id="tx-save">Save changes</button></div></section>';
             el('tx-list').innerHTML = (txs.length ? txs : [{ name: '', fee: '' }]).map(function (t, i) {
               var name = typeof t === 'string' ? t : (t.name || '');
               var fee = typeof t === 'object' ? (t.fee || t.price || '') : '';
@@ -1587,17 +1622,17 @@
         } else if (tab === 'integrations') {
           el('st-body').innerHTML =
             '<div class="dma-grid-2">' +
-            '<section class="dma-section"><header class="dma-section-h"><h2>WhatsApp</h2></header><div class="dma-section-b"><p class="dma-prose">Meta Cloud API connection for this clinic.</p><a class="dma-btn dma-btn-primary" href="/dashboard/whatsapp/">Open WhatsApp</a></div></section>' +
-            '<section class="dma-section"><header class="dma-section-h"><h2>AI receptionist</h2></header><div class="dma-section-b"><p class="dma-prose">Train and publish the clinic profile.</p><a class="dma-btn dma-btn-primary" href="/dashboard/ai/">Train AI</a></div></section>' +
-            '<section class="dma-section"><header class="dma-section-h"><h2>Stripe</h2></header><div class="dma-section-b"><p class="dma-prose">SaaS subscription — not patient invoicing.</p><a class="dma-btn dma-btn-primary" href="/dashboard/billing/">Billing</a></div></section>' +
+            '<section class="dma-section"><header class="dma-section-h"><h2>WhatsApp</h2></header><div class="dma-section-b"><p class="dma-prose">Connect your clinic WhatsApp so patients can message you.</p><a class="dma-btn dma-btn-primary" href="/dashboard/whatsapp/">Open WhatsApp</a></div></section>' +
+            '<section class="dma-section"><header class="dma-section-h"><h2>AI receptionist</h2></header><div class="dma-section-b"><p class="dma-prose">Configure how your receptionist communicates with patients.</p><a class="dma-btn dma-btn-primary" href="/dashboard/ai/">Open AI receptionist</a></div></section>' +
+            '<section class="dma-section"><header class="dma-section-h"><h2>Billing</h2></header><div class="dma-section-b"><p class="dma-prose">Manage your Clinicos subscription.</p><a class="dma-btn dma-btn-primary" href="/dashboard/billing/">Open billing</a></div></section>' +
             '</div>';
         } else if (tab === 'roles') {
           el('st-body').innerHTML =
-            '<section class="dma-section"><header class="dma-section-h"><h2>Roles</h2></header><div class="dma-section-b"><p class="dma-prose">Live staff roles: Receptionist, Nurse, Assistant, Manager. Permissions follow the owner/staff API split — staff cannot change billing, AI, or clinic settings.</p><a class="dma-btn dma-btn-primary" href="/dashboard/staff/">Open staff directory</a></div></section>';
+            '<section class="dma-section"><header class="dma-section-h"><h2>Roles</h2></header><div class="dma-section-b"><p class="dma-prose">Staff roles: Receptionist, Nurse, Assistant and Manager. Staff cannot change billing, AI or clinic settings.</p><a class="dma-btn dma-btn-primary" href="/dashboard/staff/">Open staff directory</a></div></section>';
         } else if (tab === 'security' || tab === 'privacy') {
           el('st-body').innerHTML =
             '<section class="dma-section"><header class="dma-section-h"><h2>' + (tab === 'security' ? 'Security' : 'Data & privacy') + '</h2></header><div class="dma-section-b">' +
-            '<p class="dma-prose">Passwords are hashed. Sessions use clinic JWTs. There is no separate API-key console or impersonation. Patient charts can be deactivated by the owner. Magic links exist for the patient portal.</p>' +
+            '<p class="dma-prose">Passwords are hashed and sessions use clinic sign-in. Patient charts can be deactivated by the owner.</p>' +
             '<a class="dma-btn dma-btn-ghost" href="/dashboard/patients/">Patient records</a></div></section>';
         } else {
           var slug2 = s.bookingSlug || '';
@@ -1685,5 +1720,6 @@
     billing: billing,
     settings: settings,
     notifications: notifications,
+    openPatientDrawer: openPatientDrawer,
   };
 })(window);

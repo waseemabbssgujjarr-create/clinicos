@@ -1,10 +1,24 @@
 /** Sync token + user into Zustand persist store used by Next.js dashboard */
+function isClinicosPublicWorld() {
+  try {
+    var c = document.documentElement.classList;
+    return c.contains('dma-world-auth') || c.contains('dma-world-public');
+  } catch (_) {
+    return false;
+  }
+}
+
 (function applySavedThemeEarly() {
   try {
+    var root = document.documentElement;
+    if (isClinicosPublicWorld()) {
+      root.setAttribute('data-theme', 'light');
+      return;
+    }
     if (localStorage.getItem('dma-theme') === 'light') {
-      document.documentElement.setAttribute('data-theme', 'light');
+      root.setAttribute('data-theme', 'light');
     } else {
-      document.documentElement.setAttribute('data-theme', 'dark');
+      root.setAttribute('data-theme', 'dark');
     }
   } catch (_) {}
 })();
@@ -76,6 +90,10 @@ function ensureThemeToggleInNav() {
 
 /** Theme toggle (dark default, light = white base) */
 function initThemeToggle() {
+  if (isClinicosPublicWorld()) {
+    document.documentElement.setAttribute('data-theme', 'light');
+    return;
+  }
   const KEY = 'dma-theme';
   const saved = localStorage.getItem(KEY);
   if (saved === 'light' || saved === 'dark') {
@@ -216,6 +234,7 @@ if (document.readyState === 'loading') {
 }
 
 function injectPlatformHovers() {
+  if (isClinicosPublicWorld()) return;
   if (document.querySelector('link[href="/platform-hovers.css"]')) return;
   const l = document.createElement('link');
   l.rel = 'stylesheet';

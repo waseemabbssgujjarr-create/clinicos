@@ -4,17 +4,14 @@
  */
 (function (global) {
   var TABS = [
-    ["personality", "Personality"],
-    ["knowledge", "Clinic knowledge"],
+    ["personality", "Identity"],
+    ["knowledge", "Knowledge"],
     ["services", "Services"],
-    ["rules", "Business rules"],
-    ["booking", "Booking rules"],
-    ["custom", "Custom replies"],
-    ["handling", "Customer handling"],
+    ["booking", "Booking"],
+    ["custom", "Replies"],
+    ["handling", "Patient handling"],
     ["human", "Human-like"],
-    ["test", "Test chat"],
-    ["publish", "Publish"],
-    ["activity", "Activity"]
+    ["test", "Test"]
   ];
 
   function A() { return global.DmaApp; }
@@ -56,6 +53,7 @@
   function mount(root) {
     if (!root) return;
     var tab = (A() && A().qs("tab", "personality")) || "personality";
+    if (tab === "rules") tab = "booking";
     var draft = null;
     var meta = {};
     var clinic = {};
@@ -65,11 +63,12 @@
     root.innerHTML =
       '<div class="dma-head dma-head-page ds-page-enter"><div>' +
       '<div class="dma-head-kicker"><span class="ds-pill">Intelligence</span></div>' +
-      '<h1>AI Training</h1>' +
-      '<p class="dma-prose">Train the receptionist the conversation engine actually uses. Draft, test, then publish to WhatsApp.</p></div>' +
+      '<h1>AI Receptionist</h1>' +
+      '<p class="dma-prose">Teach your AI receptionist how your clinic works.</p></div>' +
       '<div class="dma-head-actions">' +
         '<a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">WhatsApp</a>' +
-        '<button type="button" class="dma-btn dma-btn-primary" id="ai-save-top">Save draft</button>' +
+        '<button type="button" class="dma-btn dma-btn-ghost" id="ai-save-top">Save draft</button>' +
+        '<button type="button" class="dma-btn dma-btn-primary" id="ai-publish-top">Publish changes</button>' +
       "</div></div>" +
       '<div class="ds-status-strip dma-status-bar" id="ai-meta">Loading training…</div>' +
       '<div class="dma-tabs" id="ai-tabs" role="tablist" aria-label="AI training"></div>' +
@@ -87,11 +86,12 @@
       var bar = el("ai-meta");
       if (!bar) return;
       bar.innerHTML =
-        '<span class="dma-chip ' + (dirty ? 'dma-chip-amber' : 'dma-chip-slate') + '">' + (dirty ? 'Unsaved changes' : 'Draft') + '</span>' +
-        '<span class="dma-chip ' + (meta.isPublished ? 'dma-chip-green' : 'dma-chip-amber') + '">' + (meta.isPublished ? 'Published' : 'Not published') + '</span>' +
-        '<span>Draft updated ' + esc(d) + '</span>' +
+        '<span class="dma-chip ' + (dirty ? 'dma-chip-amber' : 'dma-chip-slate') + '">' + (dirty ? 'Unsaved changes' : 'Draft saved') + '</span>' +
+        '<span class="dma-chip ' + (meta.isPublished ? 'dma-chip-green' : 'dma-chip-amber') + '">' + (meta.isPublished ? 'Published' : 'Draft') + '</span>' +
+        '<span>Updated ' + esc(d) + '</span>' +
         '<span>Last published ' + esc(p) + '</span>' +
-        (meta.isPublished ? '' : '<span>WhatsApp uses the latest draft until you publish</span>');
+        (meta.isPublished ? '' : '<span>WhatsApp uses the latest draft until you publish</span>') +
+        '<button type="button" class="dma-btn dma-btn-ghost dma-btn-sm" id="ai-activity">Activity</button>';
     }
 
     function saveDraft(showToast) {
@@ -125,19 +125,22 @@
       } else if (tab === "services") {
         draft.services.notes = el("sv-notes") && el("sv-notes").value;
         draft.services.highlight = el("sv-hi") && el("sv-hi").value;
-      } else if (tab === "rules") {
-        draft.businessRules.policies = el("br-pol") && el("br-pol").value;
-        draft.businessRules.cancellation = el("br-can") && el("br-can").value;
-        draft.businessRules.payment = el("br-pay") && el("br-pay").value;
-        draft.businessRules.emergency = el("br-em") && el("br-em").value;
-        draft.businessRules.whatNotToSay = el("br-no") && el("br-no").value;
-      } else if (tab === "booking") {
-        draft.appointmentRules.autoConfirm = el("bk-auto") && el("bk-auto").value === "true";
-        draft.appointmentRules.requireTreatmentFirst = el("bk-tx") && el("bk-tx").checked;
-        draft.appointmentRules.collectName = el("bk-name") && el("bk-name").checked;
-        draft.appointmentRules.confirmationStyle = el("bk-style") && el("bk-style").value;
-        draft.appointmentRules.bookingLeadHours = Number(el("bk-lead") && el("bk-lead").value || 2);
-        draft.appointmentRules.maxAdvanceDays = Number(el("bk-adv") && el("bk-adv").value || 30);
+      } else if (tab === "rules" || tab === "booking") {
+        if (el("br-pol")) {
+          draft.businessRules.policies = el("br-pol").value;
+          draft.businessRules.cancellation = el("br-can") && el("br-can").value;
+          draft.businessRules.payment = el("br-pay") && el("br-pay").value;
+          draft.businessRules.emergency = el("br-em") && el("br-em").value;
+          draft.businessRules.whatNotToSay = el("br-no") && el("br-no").value;
+        }
+        if (el("bk-auto")) {
+          draft.appointmentRules.autoConfirm = el("bk-auto").value === "true";
+          draft.appointmentRules.requireTreatmentFirst = el("bk-tx") && el("bk-tx").checked;
+          draft.appointmentRules.collectName = el("bk-name") && el("bk-name").checked;
+          draft.appointmentRules.confirmationStyle = el("bk-style") && el("bk-style").value;
+          draft.appointmentRules.bookingLeadHours = Number(el("bk-lead") && el("bk-lead").value || 2);
+          draft.appointmentRules.maxAdvanceDays = Number(el("bk-adv") && el("bk-adv").value || 30);
+        }
       } else if (tab === "handling") {
         draft.customerHandling.skipRepeatGreeting = el("ch-skip") && el("ch-skip").checked;
         draft.customerHandling.askOneQuestion = el("ch-one") && el("ch-one").checked;
@@ -170,7 +173,7 @@
       if (tab === "personality") {
         body.innerHTML =
           '<section class="dma-section dma-section-muted"><header class="dma-section-h"><h2>Receptionist identity</h2></header><div class="dma-section-b">' +
-          '<div class="dma-row"><label class="dma-switch">Enabled ' + toggle("ai-on", p.enabled !== false) + '</label></div>' +
+          '<div class="dma-row"><label class="dma-switch">AI receptionist ' + toggle("ai-on", p.enabled !== false) + '</label></div>' +
           '<div class="dma-row">' +
             field("ai-name", "Receptionist name", "Optional. Used if a patient asks who they are speaking with.", input("ai-name", p.receptionistName, "e.g. Sara")) +
             field("ai-lang", "Language", "", select("ai-lang", [["english","English"],["urdu","Urdu"],["arabic","Arabic"],["hindi","Hindi"]], p.language)) +
@@ -179,23 +182,23 @@
             field("ai-emoji", "Emoji", "", select("ai-emoji", [["none","None"],["minimal","Minimal"],["natural","Natural"]], p.emojiPolicy || "minimal")) +
           "</div></div></section>" +
           '<section class="dma-section"><header class="dma-section-h"><h2>First-contact behavior</h2></header><div class="dma-section-b">' +
-          field("ai-intro", "First-contact intro", "Used only on a true first turn — not repeated every message.", area("ai-intro", p.introMessage, "Hello, thanks for contacting our clinic…")) +
-          '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save section</button></div>' +
+          field("ai-intro", "First-contact greeting", "Used on a first turn — not repeated every message.", area("ai-intro", p.introMessage, "Hello, thanks for contacting our clinic…")) +
+          '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save changes</button></div>' +
           "</div></section>";
       } else if (tab === "knowledge") {
         var txs = [];
         try { txs = A().parseJson(clinic.treatments, []) || []; } catch (_) {}
-        body.innerHTML = '<p class="dma-prose">Facts the engine injects on every turn. Treatments and hours still live in Settings so booking slots stay accurate.</p>' +
+        body.innerHTML = '<p class="dma-prose">Facts used when patients ask about the clinic. Treatments and hours still live in Settings so booking stays accurate.</p>' +
           '<section class="dma-section dma-section-muted"><header class="dma-section-h"><h2>Clinic facts</h2></header><div class="dma-section-b">' +
           field("kn-about", "About the clinic", "Identity, doctors, neighbourhood — anything patients ask that is not a treatment name.", area("kn-about", k.about)) +
           field("kn-park", "Parking / arrival", "", area("kn-park", k.parking, "", 3)) +
           field("kn-ins", "Insurance / payment notes", "", area("kn-ins", k.insurance, "", 3)) +
-          '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save section</button></div></div></section>';
+          '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save changes</button></div></div></section>';
       } else if (tab === "services") {
         var list = [];
         try { list = A().parseJson(clinic.treatments, []) || []; } catch (_) {}
         if (!Array.isArray(list)) list = [];
-        body.innerHTML = '<p class="cos-hint">Bookable treatments come from Settings. Extra notes here are sent to the conversation engine.</p>' +
+        body.innerHTML = '<p class="dma-prose">Treatments come from Settings. Add notes here so the receptionist can describe what you offer.</p>' +
           '<section class="dma-section"><div class="dma-section-h"><h2>Treatments in Settings</h2><a href="/dashboard/settings/?tab=treatments">Edit treatments</a></div><div class="dma-section-b">' +
           (list.map(function (t) {
             var name = typeof t === "string" ? t : (t.name || "");
@@ -206,27 +209,26 @@
           '<section class="dma-section" style="margin-top:16px"><div class="dma-section-h"><h2>Service notes for the receptionist</h2></div><div class="dma-section-b">' +
           field("sv-hi", "Highlight", "One thing the receptionist should mention when asked “what do you offer?”", input("sv-hi", s.highlight, "e.g. Same-day cleaning when slots allow")) +
           field("sv-notes", "Additional service notes", "", area("sv-notes", s.notes)) +
-          '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save section</button></div></div></section>';
-      } else if (tab === "rules") {
-        body.innerHTML = '<section class="dma-section"><div class="dma-section-h"><h2>Business rules</h2></div><div class="dma-section-b">' +
-          '<p class="cos-hint">Policies the engine must not invent around. Empty fields are omitted from the prompt.</p>' +
-          field("br-pol", "Clinic policies", "", area("br-pol", b.policies)) +
-          field("br-can", "Cancellation / no-show", "", area("br-can", b.cancellation, "", 3)) +
-          field("br-pay", "Payment", "", area("br-pay", b.payment, "", 3)) +
-          field("br-em", "Emergency handling", "", area("br-em", b.emergency, "", 3)) +
-          field("br-no", "What not to say", "Never diagnose, never invent prices, never mention other clinics.", area("br-no", b.whatNotToSay, "", 3)) +
-          '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save section</button></div></div></section>';
-      } else if (tab === "booking") {
-        body.innerHTML = '<section class="dma-section"><div class="dma-section-h"><h2>Appointment & booking rules</h2></div><div class="dma-section-b">' +
-          field("bk-auto", "Auto-confirm", "Yes writes CONFIRMED appointments. No leaves them PENDING for the doctor.", select("bk-auto", [["true","Yes — AI confirms"],["false","No — doctor confirms"]], a.autoConfirm !== false)) +
-          field("bk-style", "Confirmation style", "", select("bk-style", [["confirm_then_book","Confirm details, then book"],["book_when_clear","Book as soon as slot is clear"]], a.confirmationStyle || "confirm_then_book")) +
+          '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save changes</button></div></div></section>';
+      } else if (tab === "rules" || tab === "booking") {
+        body.innerHTML = '<p class="dma-prose">How the receptionist books visits, and the clinic policies it must not invent.</p>' +
+          '<section class="dma-section"><div class="dma-section-h"><h2>Booking</h2></div><div class="dma-section-b">' +
+          field("bk-auto", "Auto-confirm", "Yes writes confirmed appointments. No leaves them pending for the doctor.", select("bk-auto", [["true","Yes — confirm automatically"],["false","No — doctor confirms"]], a.autoConfirm !== false)) +
+          field("bk-style", "Confirmation style", "", select("bk-style", [["confirm_then_book","Confirm details, then book"],["book_when_clear","Book as soon as the slot is clear"]], a.confirmationStyle || "confirm_then_book")) +
           '<div class="dma-row">' +
             field("bk-lead", "Minimum notice (hours)", "", input("bk-lead", a.bookingLeadHours || 2)) +
             field("bk-adv", "Max days ahead", "", input("bk-adv", a.maxAdvanceDays || 30)) +
           "</div>" +
           '<div class="dma-row"><label class="dma-switch">Require treatment first ' + toggle("bk-tx", a.requireTreatmentFirst !== false) + "</label>" +
           '<label class="dma-switch">Ask for name if unknown ' + toggle("bk-name", a.collectName !== false) + "</label></div>" +
-          '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save section</button></div></div></section>';
+          "</div></section>" +
+          '<section class="dma-section" style="margin-top:16px"><div class="dma-section-h"><h2>Clinic policies</h2></div><div class="dma-section-b">' +
+          field("br-pol", "Policies", "Empty fields are omitted. Do not invent rules here that Settings already owns.", area("br-pol", b.policies)) +
+          field("br-can", "Cancellation / no-show", "", area("br-can", b.cancellation, "", 3)) +
+          field("br-pay", "Payment", "", area("br-pay", b.payment, "", 3)) +
+          field("br-em", "Emergency handling", "", area("br-em", b.emergency, "", 3)) +
+          field("br-no", "What not to say", "Never diagnose, never invent prices, never mention other clinics.", area("br-no", b.whatNotToSay, "", 3)) +
+          '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save changes</button></div></div></section>';
       } else if (tab === "handling") {
         body.innerHTML = '<section class="dma-section"><div class="dma-section-h"><h2>Customer handling</h2></div><div class="dma-section-b">' +
           '<p class="cos-hint">Follow-ups like “yes”, “tomorrow”, or “good” are interpreted against the previous question when this is on.</p>' +
@@ -236,7 +238,7 @@
           field("ch-esc", "Escalate keywords", "Comma-separated. Matching messages skip the LLM and notify staff.", input("ch-esc", h.escalateKeywords, "speak to doctor, human, manager")) +
           field("ch-unk", "Unknown questions", "", select("ch-unk", [["ask_clarify_then_escalate","Clarify once, then escalate"],["escalate","Escalate immediately"]], h.unknownPolicy || "ask_clarify_then_escalate")) +
           field("ch-mem", "Memory notes for this clinic", "Standing reminders the receptionist should keep in mind.", area("ch-mem", h.memoryNotes, "", 3)) +
-          '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save section</button></div></div></section>';
+          '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save changes</button></div></div></section>';
       } else if (tab === "human") {
         body.innerHTML = '<section class="dma-section"><div class="dma-section-h"><h2>Human-like behaviour</h2></div><div class="dma-section-b">' +
           '<p class="cos-hint">Typing uses Meta’s official typing indicator on the inbound message — not a fake “…” text. Delay scales with reply length.</p>' +
@@ -245,7 +247,7 @@
           "<label>Avoid repeating the same fallback " + toggle("hl-rep", u.avoidRepeatFallback !== false) + "</label>" +
           "<label>Follow-up awareness " + toggle("hl-fu", u.followUpAwareness !== false) + "</label>" +
           field("hl-wpm", "Typing speed (WPM)", "Used only to size the delay. Default 280.", input("hl-wpm", u.wpm || 280)) +
-          '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save section</button></div></div></section>';
+          '<div class="cos-savebar"><button type="button" class="dma-btn dma-btn-primary" id="sec-save">Save changes</button></div></div></section>';
       } else if (tab === "test") {
         renderTest(body);
         return;
@@ -295,7 +297,7 @@
     }
 
     function renderTest(body) {
-      body.innerHTML = '<section class="dma-section"><header class="dma-section-h"><h2>Test chat</h2><p>Uses the draft, not live WhatsApp. History stays on this tab so follow-ups like “yes” work.</p></header><div class="dma-section-b">' +
+      body.innerHTML = '<section class="dma-section"><header class="dma-section-h"><h2>Test the receptionist</h2><p>This uses your draft, not live WhatsApp. History stays on this tab so follow-ups like “yes” work.</p></header><div class="dma-section-b">' +
         '<div id="ai-chat" class="dma-ai-chat dma-thread-m"></div>' +
         '<form id="ai-form" class="dma-thread-c" style="margin-top:10px"><input id="ai-q" class="cos-input" placeholder="e.g. Do you do teeth whitening tomorrow?" style="flex:1">' +
         '<button class="dma-btn dma-btn-primary" type="submit">Send</button></form></div></section>';
@@ -401,6 +403,27 @@
       renderTab();
     };
     el("ai-save-top").onclick = function () { collectCurrentTab(); saveDraft(true); };
+    el("ai-publish-top").onclick = function () {
+      collectCurrentTab();
+      saveDraft(false).then(function () {
+        return A().post("/api/ai/training-profile/publish", {});
+      }).then(function (r) {
+        if (!r.ok) { A().toast(failMsg(r, "Couldn't publish the receptionist."), "err"); return; }
+        meta.isPublished = true;
+        meta.publishedAt = (r.d && r.d.publishedAt) || new Date().toISOString();
+        dirty = false;
+        setMeta();
+        A().toast("Published to WhatsApp receptionist", "ok");
+      });
+    };
+    el("ai-meta").onclick = function (e) {
+      if (!e.target.closest("#ai-activity")) return;
+      collectCurrentTab();
+      tab = "activity";
+      if (A().setQs) A().setQs({ tab: tab }, true);
+      drawTabs();
+      renderTab();
+    };
 
     drawTabs();
     A().get("/api/ai/training-profile").then(function (d) {

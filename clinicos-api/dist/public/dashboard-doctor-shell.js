@@ -5,19 +5,19 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=20';
+    ds.href = '/dma-design-system.css?v=24';
     document.head.appendChild(ds);
   }
 
   var ALL_ITEMS = {
-    home: { id: 'home', href: '/dashboard/', label: 'Overview', icon: 'home' },
-    appointments: { id: 'appointments', href: '/dashboard/appointments/', label: 'Appointments', icon: 'cal' },
+    home: { id: 'home', href: '/dashboard/', label: 'Dashboard', icon: 'home' },
+    appointments: { id: 'appointments', href: '/dashboard/appointments/', label: 'Schedule', icon: 'cal' },
     calendar: { id: 'calendar', href: '/dashboard/calendar/', label: 'Calendar', icon: 'cal' },
     waiting: { id: 'waiting', href: '/dashboard/waiting/', label: 'Waiting Room', icon: 'wait' },
     patients: { id: 'patients', href: '/dashboard/patients/', label: 'Patients', icon: 'users' },
     doctors: { id: 'doctors', href: '/dashboard/doctors/', label: 'Doctors', icon: 'doctor' },
-    staff: { id: 'staff', href: '/dashboard/staff/', label: 'Staff', icon: 'staff' },
-    rooms: { id: 'rooms', href: '/dashboard/rooms/', label: 'Rooms', icon: 'room' },
+    staff: { id: 'staff', href: '/dashboard/staff/', label: 'Team', icon: 'staff' },
+    rooms: { id: 'rooms', href: '/dashboard/rooms/', label: 'Operations', icon: 'ops' },
     clinical: { id: 'clinical', href: '/dashboard/clinical/', label: 'Consultations', icon: 'clinical' },
     vitals: { id: 'vitals', href: '/dashboard/vitals/', label: 'Vitals', icon: 'vitals' },
     prescriptions: { id: 'prescriptions', href: '/dashboard/prescriptions/', label: 'Prescriptions', icon: 'rx' },
@@ -25,9 +25,9 @@
     telemedicine: { id: 'telemedicine', href: '/dashboard/telemedicine/', label: 'Telemedicine', icon: 'video' },
     leads: { id: 'leads', href: '/dashboard/leads/', label: 'Leads', icon: 'leads' },
     whatsapp: { id: 'whatsapp', href: '/dashboard/whatsapp/', label: 'WhatsApp', icon: 'wa' },
-    messages: { id: 'messages', href: '/dashboard/messages/', label: 'Messages', icon: 'msg' },
+    messages: { id: 'messages', href: '/dashboard/messages/', label: 'Inbox', icon: 'msg' },
     broadcasts: { id: 'broadcasts', href: '/dashboard/broadcasts/', label: 'Broadcasts', icon: 'broadcast' },
-    ai: { id: 'ai', href: '/dashboard/ai/', label: 'Train AI', icon: 'bot' },
+    ai: { id: 'ai', href: '/dashboard/ai/', label: 'AI Receptionist', icon: 'bot' },
     analytics: { id: 'analytics', href: '/dashboard/analytics/', label: 'Analytics', icon: 'chart' },
     reports: { id: 'reports', href: '/dashboard/reports/', label: 'Reports', icon: 'chart' },
     reviews: { id: 'reviews', href: '/dashboard/reviews/', label: 'Reviews', icon: 'star' },
@@ -109,12 +109,12 @@
     var keys;
     if (!role) {
       keys = [
-        ['Clinic', ['home', 'patients', 'appointments', 'calendar', 'staff', 'locations']],
-        ['Communication', ['whatsapp', 'messages', 'broadcasts']],
-        ['Clinical', ['waiting', 'clinical', 'prescriptions', 'documents', 'laboratory']],
-        ['Operations', ['rooms', 'inventory', 'leave', 'telemedicine']],
-        ['Intelligence', ['ai', 'analytics', 'reviews']],
-        ['Administration', ['settings', 'billing', 'updates']],
+        ['Clinic', ['home', 'patients', 'appointments', 'staff', 'locations']],
+        ['Communication', ['messages']],
+        ['Care', ['waiting', 'clinical', 'prescriptions', 'documents', 'laboratory']],
+        ['Operations', ['rooms']],
+        ['Intelligence', ['ai', 'analytics']],
+        ['Configuration', ['settings', 'billing']],
       ];
     } else if (role === 'NURSE') {
       keys = [
@@ -169,7 +169,75 @@
     var target = href.replace(/\/+$/, '') || '/';
     if (target === '/dashboard') return path === '/dashboard';
     if (target === '/dashboard/patients' && /\/dashboard\/patients\/detail/.test(path)) return true;
+    if (target === '/dashboard/appointments') {
+      return path === '/dashboard/appointments' || path.indexOf('/dashboard/calendar') === 0;
+    }
+    if (target === '/dashboard/messages') {
+      return path.indexOf('/dashboard/messages') === 0 || path.indexOf('/dashboard/whatsapp') === 0 || path.indexOf('/dashboard/broadcasts') === 0 || path.indexOf('/dashboard/communication') === 0;
+    }
+    if (target === '/dashboard/rooms') {
+      return path.indexOf('/dashboard/rooms') === 0 || path.indexOf('/dashboard/inventory') === 0 || path.indexOf('/dashboard/leave') === 0 || path.indexOf('/dashboard/telemedicine') === 0 || path.indexOf('/dashboard/operations') === 0;
+    }
     return path.indexOf(target) === 0;
+  }
+
+  var WORKSPACES = [
+    {
+      label: 'Schedule',
+      match: ['/dashboard/appointments', '/dashboard/calendar'],
+      tabs: [
+        { href: '/dashboard/calendar/', label: 'Calendar' },
+        { href: '/dashboard/appointments/', label: 'Appointments' }
+      ]
+    },
+    {
+      label: 'Communication',
+      match: ['/dashboard/messages', '/dashboard/whatsapp', '/dashboard/broadcasts', '/dashboard/communication'],
+      tabs: [
+        { href: '/dashboard/messages/', label: 'Inbox' },
+        { href: '/dashboard/whatsapp/', label: 'WhatsApp' },
+        { href: '/dashboard/broadcasts/', label: 'Broadcasts' }
+      ]
+    },
+    {
+      label: 'Operations',
+      match: ['/dashboard/rooms', '/dashboard/inventory', '/dashboard/leave', '/dashboard/telemedicine', '/dashboard/operations'],
+      tabs: [
+        { href: '/dashboard/rooms/', label: 'Rooms' },
+        { href: '/dashboard/inventory/', label: 'Inventory' },
+        { href: '/dashboard/leave/', label: 'Leave' },
+        { href: '/dashboard/telemedicine/', label: 'Telemedicine' }
+      ]
+    }
+  ];
+
+  function renderWorkspaceTabs() {
+    if (document.querySelector('.ds-workspace-tabs')) return;
+    var path = location.pathname.replace(/\/+$/, '') || '/';
+    var ws = null;
+    WORKSPACES.forEach(function (w) {
+      if (w.match.some(function (m) { return path === m || path.indexOf(m) === 0; })) ws = w;
+    });
+    if (!ws) return;
+    var tabs = ws.tabs.slice();
+    if (!isOwner()) {
+      tabs = tabs.filter(function (t) {
+        return t.href.indexOf('/whatsapp') < 0 && t.href.indexOf('/broadcasts') < 0;
+      });
+      if (tabs.length < 2) return;
+    }
+    var wrap = document.querySelector('.doc-main-wrap');
+    var main = document.querySelector('.doc-main');
+    if (!wrap || !main) return;
+    var nav = document.createElement('nav');
+    nav.className = 'ds-workspace-tabs';
+    nav.setAttribute('aria-label', ws.label);
+    nav.innerHTML = tabs.map(function (t) {
+      var target = t.href.replace(/\/+$/, '');
+      var on = path === target || path.indexOf(target) === 0;
+      return '<a href="' + t.href + '" class="' + (on ? 'on' : '') + '"' + (on ? ' aria-current="page"' : '') + '>' + t.label + '</a>';
+    }).join('');
+    wrap.insertBefore(nav, main);
   }
 
   function planLabel(u) {
@@ -329,7 +397,11 @@
         ? ['home', 'waiting', 'patients', 'vitals']
         : ['home', 'appointments', 'patients', 'messages']);
     var map = {};
-    items.forEach(function (i) { map[i.id] = i; });
+    if (isOwner()) {
+      prefer.forEach(function (k) { if (ALL_ITEMS[k]) map[k] = ALL_ITEMS[k]; });
+    } else {
+      items.forEach(function (i) { map[i.id] = i; });
+    }
     var keys = prefer.filter(function (k) { return map[k]; }).slice(0, 4);
     var nav = document.createElement('nav');
     nav.id = 'dma-bottom-nav';
@@ -337,7 +409,8 @@
     nav.setAttribute('aria-label', 'Primary');
     nav.innerHTML = keys.map(function (k) {
       var i = map[k];
-      var short = i.label.replace('Appointments', 'Appts').replace('Overview', 'Home').replace('Waiting Room', 'Waiting');
+      var shorts = { home: 'Home', appointments: 'Appts', whatsapp: 'WhatsApp', patients: 'Patients', waiting: 'Waiting', vitals: 'Vitals', messages: 'Inbox' };
+      var short = shorts[k] || i.label;
       return '<a href="' + i.href + '" class="' + (isActive(i.href) ? 'on' : '') + '">' +
         (ICONS[i.icon] || '') + '<span>' + short + '</span></a>';
     }).join('') +
@@ -391,6 +464,7 @@
     }
     renderBottomNav();
     paintHeader();
+    renderWorkspaceTabs();
   }
 
   function initStaticPage(activeHref, pageTitle) {

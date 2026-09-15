@@ -298,7 +298,8 @@
         '</div>' +
       '</div>' +
       '<div class="dma-wa-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">' +
-        '<a href="/dashboard/messages/" class="dma-wa-btn dma-wa-btn--primary">Open WhatsApp Inbox</a>' +
+        '<a href="/dashboard/messages/" class="dma-wa-btn dma-wa-btn--primary">Open Inbox</a>' +
+        '<a href="/dashboard/ai/" class="dma-wa-btn dma-wa-btn--ghost">Train AI</a>' +
         '<button type="button" class="dma-wa-btn dma-wa-btn--ghost" id="dma-wa-verify-waba">Check Webhook</button>' +
         reconnect +
         '<button type="button" class="dma-wa-btn dma-wa-btn--ghost" id="dma-wa-disconnect">Disconnect</button>' +

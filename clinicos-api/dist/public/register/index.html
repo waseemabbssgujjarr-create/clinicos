@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Set up your clinic — Doctors My Agency</title>
+  <title>Set up your clinic — Clinicos</title>
   <link rel="icon" href="/favicon.svg" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=20" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=36" />
   <link rel="stylesheet" href="/portal.css?v=5" />
   <script src="/api-shim.js"></script>
 </head>
 <body class="portal-page">
   <div class="dma-auth">
     <aside class="dma-auth-visual">
-      <a class="dma-pub-logo" href="/" style="color:#fff"><span class="mark">DM</span> Doctors My Agency</a>
+      <a class="dma-pub-logo" href="/"><span class="mark">C</span> Clinicos</a>
       <div>
         <h1>Set up your clinic in minutes.</h1>
-        <p style="opacity:.85">A private clinic workspace — not a public directory.</p>
+        <p>A private clinic workspace — not a public directory.</p>
       </div>
-      <div class="dma-auth-preview"><strong>14-day trial</strong><p style="margin:8px 0 0;opacity:.85;font-size:.875rem">No credit card. WhatsApp is optional until you’re ready.</p></div>
+      <div class="dma-auth-preview"><strong>14-day trial</strong><p>No credit card. WhatsApp is optional until you’re ready.</p></div>
     </aside>
     <main class="dma-auth-form" style="max-width:520px">
       <a href="/" class="dma-hint">← Home</a>
@@ -75,14 +75,14 @@
               </button>
             </div>
           </div>
-          <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px" id="submitBtn">Create Account &amp; Continue →</button>
+          <button type="submit" class="btn btn-primary dma-btn dma-btn-primary" style="width:100%;margin-top:8px" id="submitBtn">Create Account &amp; Continue →</button>
         </form>
 
         <p class="dma-hint" style="margin-top:20px">Already have an account? <a href="/doctor-login/">Sign in</a></p>
       </div>
     </main>
   </div>
-  <script src="/portal.js"></script>
+  <script src="/portal.js?v=8"></script>
   <script>
     document.getElementById('form').onsubmit = async (e) => {
       e.preventDefault();

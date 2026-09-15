@@ -1,136 +1,350 @@
 <!DOCTYPE html>
-<html lang="en" class="dma-world-public">
+<html lang="en" class="dma-world-public dma-pub-home">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clinicos — Run your clinic. Care for your patients.</title>
-  <meta name="description" content="Clinicos is a private clinic operating system: appointments, patients, waiting room, clinical visits, WhatsApp, AI receptionist, prescriptions, documents and analytics — not a public directory." />
+  <title>Clinicos — Run your clinic without the paperwork</title>
+  <meta name="description" content="Appointments, patients, consultations, WhatsApp, and your AI receptionist — connected in one clinic workspace." />
   <link rel="icon" href="/favicon.svg" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=20" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=39" />
 </head>
 <body>
   <div id="dma-public-header"></div>
 
-  <header class="dma-pub-wrap dma-pub-hero">
+  <div class="dma-pub-hero-band">
+    <header class="dma-pub-wrap dma-pub-hero">
+      <div>
+        <span class="eyebrow">Clinic operating system</span>
+        <h1 class="dma-h-display">Run your clinic<br>without the paperwork.</h1>
+        <p class="lede">Appointments, patients, consultations, WhatsApp, and your AI receptionist — connected in one clinic workspace.</p>
+        <div class="dma-pub-actions">
+          <a class="dma-btn dma-btn-accent" href="/register/">Start free trial</a>
+          <a class="dma-btn dma-btn-ghost dma-btn-on-dark" href="#workspace">See how it works</a>
+        </div>
+      </div>
+    </header>
+  </div>
+
+  <section class="dma-pub-wrap dma-editorial dma-pub-split dma-pub-problem">
     <div>
-      <span class="eyebrow">Trusted by modern healthcare teams</span>
-      <h1 class="dma-h-display">Run your clinic.<br />Care for your patients.<br />Everything in one place.</h1>
-      <p class="lede">Appointments, patients, clinical workflow, WhatsApp, AI receptionist, waiting room, prescriptions, documents, inventory and analytics — one private clinic workspace. Not a public marketplace.</p>
-      <div class="dma-pub-actions">
-        <a class="dma-btn dma-btn-primary" href="/register/">Start Free Trial →</a>
-        <a class="dma-btn dma-btn-ghost" href="/platform/">Explore Platform →</a>
-      </div>
+      <h2 class="dma-h-display">Your clinic shouldn't run from five different tools.</h2>
+      <p class="lede">Paper, phone, WhatsApp, calendars and spreadsheets all hold a piece of the day. Clinicos holds the whole day.</p>
     </div>
-    <div class="dma-stage" aria-hidden="true">
-      <div class="dma-product-shot">
-        <div class="dma-stage-card pos-a">
-          <h4>Clinic dashboard</h4>
-          <p>Today’s appointments · Waiting · In consultation · Completed</p>
-          <p>Next visit on the board — live clinic states, not a stock image.</p>
-        </div>
-        <div class="dma-stage-card pos-b">
-          <span class="dma-stage-pill">WhatsApp</span>
-          <h4>Patient conversation</h4>
-          <p>AI handles the conversation. Your team handles the care.</p>
-        </div>
-        <div class="dma-stage-card pos-c">
-          <h4>Consultation</h4>
-          <p>Vitals · Clinical note · Prescription · Follow-up</p>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <section class="dma-pub-wrap dma-proof">
-    <article><strong>Clinics</strong><span>Private workspaces</span></article>
-    <article><strong>Appointments</strong><span>Booked against live hours</span></article>
-    <article><strong>Patients</strong><span>Charts, not a directory</span></article>
-    <article><strong>Clinical</strong><span>Waiting → Called → Complete</span></article>
+    <figure class="dma-pub-photo">
+      <img src="/media/landing/clinic-room.jpg" alt="Calm modern clinic treatment room with a treatment chair and work area" width="1400" height="933" loading="lazy" decoding="async" />
+    </figure>
   </section>
 
-  <section class="dma-pub-wrap dma-editorial">
-    <h2 class="dma-h-display">Everything your clinic needs.</h2>
-    <div class="dma-acc">
-      <details open><summary>Clinic</summary><div class="dma-acc-body">
-        <span class="dma-chip">Dashboard</span><span class="dma-chip">Patients</span><span class="dma-chip">Appointments</span><span class="dma-chip">Calendar</span><span class="dma-chip">Staff</span><span class="dma-chip">Locations</span>
-      </div></details>
-      <details><summary>Communication</summary><div class="dma-acc-body">
-        <span class="dma-chip">WhatsApp</span><span class="dma-chip">Messages</span><span class="dma-chip">Broadcasts</span><span class="dma-chip">AI receptionist</span>
-      </div></details>
-      <details><summary>Clinical</summary><div class="dma-acc-body">
-        <span class="dma-chip">Consultation</span><span class="dma-chip">Encounters</span><span class="dma-chip">Vitals</span><span class="dma-chip">Diagnoses</span><span class="dma-chip">Prescriptions</span><span class="dma-chip">Documents</span><span class="dma-chip">Follow-ups</span>
-      </div></details>
-      <details><summary>Operations</summary><div class="dma-acc-body">
-        <span class="dma-chip">Waiting room</span><span class="dma-chip">Rooms</span><span class="dma-chip">Leave</span><span class="dma-chip">Inventory</span><span class="dma-chip">Laboratory</span><span class="dma-chip">Telemedicine</span>
-      </div></details>
-      <details><summary>Intelligence</summary><div class="dma-acc-body">
-        <span class="dma-chip">AI training</span><span class="dma-chip">Analytics</span><span class="dma-chip">Reports</span>
-      </div></details>
+  <section class="dma-pub-wrap dma-editorial" id="platform">
+    <span class="eyebrow">Platform</span>
+    <h2 class="dma-h-display">AI receptionist, clinic CRM, and clinical visits — one workspace.</h2>
+    <p class="lede">WhatsApp, web chat, bookings, waiting room, charts and follow-ups. Clinic data stays isolated. There is no public doctor directory.</p>
+    <div class="dma-pain">
+      <article><h3>Front desk</h3><p>Inbox, leads, reminders and a receptionist that books from live slots.</p></article>
+      <article><h3>Clinical</h3><p>Arrived → waiting → called → consult → vitals → prescription → complete.</p></article>
+      <article><h3>Operations</h3><p>Staff roles, practitioners, rooms, inventory and laboratory orders when you use them.</p></article>
     </div>
   </section>
 
-  <section class="dma-pub-wrap dma-editorial">
-    <h2 class="dma-h-display">From appointment to completed visit.</h2>
-    <div class="dma-flow">
-      <span>Appointment</span><i>→</i><span>Check-in</span><i>→</i><span>Waiting</span><i>→</i><span>Called</span><i>→</i><span>Consultation</span><i>→</i><span>Vitals</span><i>→</i><span>Diagnosis</span><i>→</i><span>Prescription</span><i>→</i><span>Follow-up</span><i>→</i><span>Completed</span>
+  <section class="dma-pub-wrap dma-editorial dma-pub-split" id="workspace">
+    <div>
+      <h2 class="dma-h-display">One workspace for the whole clinic.</h2>
+      <p class="lede">Calendar and the appointment list share the same visits. Book, reschedule and check in without leaving the schedule.</p>
     </div>
-    <p class="lede">CALLED is a real visit state. This is not a booking widget pretending to be a clinic.</p>
+    <figure class="dma-pub-photo">
+      <img src="/media/landing/clinic-desk.jpg" alt="Clinician speaking with a patient at a clinic desk" width="1400" height="933" loading="lazy" decoding="async" />
+    </figure>
   </section>
 
-  <section class="dma-pub-wrap dma-editorial">
-    <h2 class="dma-h-display">AI handles the conversation.<br />Your team handles the care.</h2>
-    <p class="lede">The receptionist can help with incoming questions, appointment conversations, clinic information, patient context, WhatsApp, routing and human handoff. It does not diagnose patients. It does not replace doctors.</p>
-    <div class="dma-convo">
-      <div class="dma-bubble in"><strong>Patient</strong><br>Hi, do you have any appointments tomorrow?</div>
-      <div class="dma-bubble out">Yes. There is availability at 10:30 AM and 2:00 PM. Would you like me to reserve one?</div>
-      <div class="dma-convo-meta">
-        <span class="dma-chip">Uses live calendar</span>
-        <span class="dma-chip">Can hand off to staff</span>
-      </div>
+  <section class="dma-pub-wrap dma-editorial dma-pub-split dma-pub-split--app" id="clinic-crm">
+    <figure class="dma-pub-photo">
+      <img src="/media/landing/clinic-review.jpg" alt="Clinician reviewing patient information on a tablet" width="1400" height="2100" loading="lazy" decoding="async" />
+    </figure>
+    <div>
+      <span class="eyebrow">Clinic CRM</span>
+      <h2 class="dma-h-display">Patients, leads and conversations in one private CRM.</h2>
+      <p class="lede">Not a marketplace. Each clinic’s patients, messages and visits stay on that clinic’s account. Threads land in the clinic inbox — reply, open the chart, or book from the same place.</p>
     </div>
   </section>
 
-  <section class="dma-pub-wrap dma-editorial">
-    <h2 class="dma-h-display">Meet patients where they already are.</h2>
-    <div class="dma-flow">
-      <span>Patient</span><i>→</i><span>WhatsApp</span><i>→</i><span>AI receptionist</span><i>→</i><span>Intent</span><i>→</i><span>Clinic</span><i>→</i><span>Human takeover</span>
+  <section class="dma-pub-wrap dma-editorial" id="ai-receptionist">
+    <div class="dma-pub-tint">
+      <span class="eyebrow">AI Receptionist</span>
+      <h2 class="dma-h-display">Your receptionist, even when nobody is at the desk.</h2>
+      <p class="lede">It answers hours and services, handles booking requests, and escalates to staff. It does not diagnose. It does not replace doctors. It offers real calendar availability — it does not invent openings.</p>
     </div>
-    <p class="lede">Patient communication, appointment conversations, AI-assisted replies, and staff handoff — in one conversation history.</p>
   </section>
 
-  <section class="dma-pub-wrap dma-editorial">
-    <h2 class="dma-h-display">A consultation, not another dashboard.</h2>
-    <div class="dma-flow">
-      <span>Doctor</span><i>→</i><span>Patient</span><i>→</i><span>Encounter</span><i>→</i><span>Vitals</span><i>→</i><span>Diagnosis</span><i>→</i><span>Prescription</span><i>→</i><span>Follow-up</span>
+  <section class="dma-pub-wrap dma-editorial dma-pub-split" id="clinical">
+    <div>
+      <span class="eyebrow">Clinical</span>
+      <h2 class="dma-h-display">From waiting room to completed visit.</h2>
+      <ol class="dma-stepper" aria-label="Clinical visit flow">
+        <li>Check-in</li>
+        <li>Waiting</li>
+        <li>Called</li>
+        <li>Consult</li>
+        <li>Complete</li>
+      </ol>
+      <p class="lede">Vitals, diagnoses, notes and prescriptions are stored as clinical records — not as a blob in appointment notes after migration.</p>
     </div>
-    <p class="lede">Clinical pages stay dense and calm. Marketing can be beautiful. The chart has to be fast.</p>
+    <figure class="dma-pub-photo">
+      <img src="/media/landing/clinic-consult.jpg" alt="Doctor consulting with a patient across a clinic desk" width="1400" height="788" loading="lazy" decoding="async" />
+    </figure>
   </section>
 
-  <section class="dma-pub-wrap dma-editorial">
+  <section class="dma-pub-wrap dma-editorial" id="patient-experience">
+    <span class="eyebrow">Patient experience</span>
     <h2 class="dma-h-display">Healthcare should feel simple.</h2>
-    <p class="lede">Patients never enter the clinic operating system.</p>
-    <div class="dma-omni">
-      <article><h3>Book</h3><p>Clinic → service → practitioner → time → confirm.</p></article>
-      <article><h3>Manage</h3><p>Upcoming visit, details, clinic messages.</p></article>
-      <article><h3>Visit</h3><p>Reminders, attendance, follow-up — without CRM clutter.</p></article>
-    </div>
-    <div class="dma-pub-actions" style="margin-top:24px">
-      <a class="dma-btn dma-btn-ghost" href="/book/">Booking page</a>
-      <a class="dma-btn dma-btn-ghost" href="/my-appointments/">My appointments</a>
+    <ol class="dma-stepper" aria-label="Patient visit flow">
+      <li>Book</li>
+      <li>Confirm</li>
+      <li>Visit</li>
+      <li>Follow up</li>
+    </ol>
+    <p class="lede">Patients use your clinic’s booking link or WhatsApp. They do not get a CRM login.</p>
+    <div class="dma-pub-actions">
+      <a class="dma-btn dma-btn-soft" href="/my-appointments/">My appointments</a>
     </div>
   </section>
 
-  <section class="dma-pub-wrap dma-cta-band">
-    <h2 class="dma-h-display">Build a calmer, smarter clinic.</h2>
-    <p>Start with a private workspace. Connect WhatsApp when you are ready. Clinical visits stay on the same record as the appointment.</p>
-    <div class="dma-pub-actions">
-      <a class="dma-btn dma-btn-accent" href="/register/">Start Free Trial</a>
-      <a class="dma-btn dma-btn-ghost dma-btn-on-dark" href="/contact/">Talk to Us</a>
+  <section class="dma-pub-wrap dma-editorial" id="solutions">
+    <span class="eyebrow">Solutions</span>
+    <h2 class="dma-h-display">Built for independent clinics — not a hospital ERP.</h2>
+    <p class="lede">The same operating system: private patients, live calendar, WhatsApp, waiting room and clinical visits. Specialties change the work, not the architecture.</p>
+    <div class="dma-pain">
+      <article><h3>General practice</h3><p>Bookings, follow-ups and a receptionist that answers when the desk is busy.</p></article>
+      <article><h3>Dental &amp; aesthetics</h3><p>Services, practitioners and recall — without a public directory of doctors.</p></article>
+      <article><h3>Physiotherapy &amp; specialists</h3><p>Repeat visits, waiting room, and charts that stay on the appointment.</p></article>
     </div>
   </section>
+
+  <section class="dma-pub-wrap dma-editorial" id="for-clinics">
+    <span class="eyebrow">For Clinics</span>
+    <h2 class="dma-h-display">Built for the whole clinic.</h2>
+    <p class="lede">Doctors My Agency builds Clinicos so independent clinics can run appointments, conversations and visits in one private workspace. Patients stay on that clinic’s account.</p>
+    <div class="dma-omni">
+      <article><h3>Doctor</h3><p>Consultations, prescriptions and the next patient — without leaving the visit.</p></article>
+      <article><h3>Reception</h3><p>Check-in, waiting room and the inbox in one front desk.</p></article>
+      <article><h3>Staff</h3><p>Roles that match the work: nurse, assistant, manager.</p></article>
+      <article><h3>Clinic owner</h3><p>Settings, billing and a clear view of how the day ran.</p></article>
+    </div>
+  </section>
+
+  <section class="dma-pub-wrap dma-editorial" id="for-doctors">
+    <span class="eyebrow">For Doctors</span>
+    <h2 class="dma-h-display">From check-in to consultation to prescription.</h2>
+    <p class="lede">Consultations, prescriptions and the next patient — without leaving the visit. Each visit is tied to an appointment.</p>
+    <ol class="dma-stepper" aria-label="Doctor visit flow">
+      <li>Check-in</li>
+      <li>Waiting</li>
+      <li>Called</li>
+      <li>Consult</li>
+      <li>Complete</li>
+    </ol>
+  </section>
+
+  <section class="dma-pub-wrap dma-editorial dma-pub-journey" id="for-patients">
+    <div>
+      <span class="eyebrow">For Patients</span>
+      <h2 class="dma-h-display">How it works.</h2>
+      <p class="lede">Patients use your clinic’s booking link or WhatsApp. They do not get a CRM login.</p>
+    </div>
+    <ol class="dma-stepper" aria-label="How it works">
+      <li>Book</li>
+      <li>Confirm</li>
+      <li>Arrive</li>
+      <li>Consult</li>
+      <li>Prescription</li>
+      <li>Follow-up</li>
+    </ol>
+  </section>
+
+  <section class="dma-pub-wrap dma-editorial" id="pricing">
+    <span class="eyebrow">Pricing</span>
+    <h2 class="dma-h-display">Simple pricing. 14-day trial. No card to start.</h2>
+    <div class="dma-pub-plans">
+      <article class="dma-plan dma-plan--starter">
+        <h3>Starter</h3>
+        <p class="dma-plan-price">$29/mo</p>
+        <p>Clinic dashboard, WhatsApp receptionist, booking page, 1 staff seat.</p>
+        <a class="dma-btn dma-btn-soft" href="/register/">Start trial</a>
+      </article>
+      <article class="dma-plan dma-plan--pro">
+        <h3>Pro</h3>
+        <p class="dma-plan-price">$59/mo</p>
+        <p>More patients and AI messages, analytics, reviews, 3 staff seats.</p>
+        <a class="dma-btn dma-btn-primary" href="/register/">Start trial</a>
+      </article>
+      <article class="dma-plan dma-plan--enterprise">
+        <h3>Enterprise</h3>
+        <p class="dma-plan-price">$99/mo</p>
+        <p>Higher limits, 10 staff seats, priority support. SaaS billing stays separate from visit fees.</p>
+        <a class="dma-btn dma-btn-soft" href="/register/">Start trial</a>
+      </article>
+    </div>
+  </section>
+
+  <section class="dma-pub-wrap dma-editorial dma-pub-split" id="about">
+    <div class="dma-pub-tint">
+      <span class="eyebrow">About</span>
+      <h2 class="dma-h-display">A clinic operating system — not a public directory.</h2>
+      <p class="lede">Doctors My Agency builds Clinicos so independent clinics can run appointments, conversations and visits in one private workspace. Patients stay on that clinic’s account.</p>
+      <div class="dma-pub-pills">
+        <a href="/privacy/">Privacy</a>
+        <a href="/security/">Security</a>
+        <a href="/contact/">Contact</a>
+      </div>
+    </div>
+    <figure class="dma-pub-photo">
+      <img src="/media/landing/clinic-desk.jpg" alt="Clinician speaking with a patient at a clinic desk" width="1400" height="933" loading="lazy" decoding="async" />
+    </figure>
+  </section>
+
+  <section class="dma-pub-wrap dma-editorial" id="faqs">
+    <span class="eyebrow">Resources</span>
+    <h2 class="dma-h-display">Questions clinics actually ask.</h2>
+
+    <p class="dma-faq-cat">Platform</p>
+    <div class="dma-faq-list">
+      <article class="dma-faq">
+        <button type="button" class="dma-faq-q" aria-expanded="false" aria-controls="faq-a1" id="faq-q1">
+          <span>What is Clinicos?</span>
+          <span class="dma-faq-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="dma-faq-a" id="faq-a1" role="region" aria-labelledby="faq-q1" hidden>
+          <p>Clinicos is the clinic operating system behind Doctors My Agency: appointments, patients, waiting room, clinical visits, WhatsApp, AI receptionist and operations — for one clinic’s private data. It is not a public doctor directory.</p>
+        </div>
+      </article>
+      <article class="dma-faq">
+        <button type="button" class="dma-faq-q" aria-expanded="false" aria-controls="faq-a2" id="faq-q2">
+          <span>What does it manage?</span>
+          <span class="dma-faq-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="dma-faq-a" id="faq-a2" role="region" aria-labelledby="faq-q2" hidden>
+          <p>Front desk (bookings, inbox, leads), clinical visits (waiting → called → consult → vitals → prescription → complete), and operations (staff, rooms, leave, inventory and laboratory orders when you use them).</p>
+        </div>
+      </article>
+    </div>
+
+    <p class="dma-faq-cat">Clinics</p>
+    <div class="dma-faq-list">
+      <article class="dma-faq">
+        <button type="button" class="dma-faq-q" aria-expanded="false" aria-controls="faq-a3" id="faq-q3">
+          <span>Can multiple staff use it?</span>
+          <span class="dma-faq-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="dma-faq-a" id="faq-a3" role="region" aria-labelledby="faq-q3" hidden>
+          <p>Yes. Receptionist, nurse, assistant and manager log in on the staff door. Owner-only tools (WhatsApp connection, AI publish, SaaS billing, settings) stay owner-only on the server.</p>
+        </div>
+      </article>
+      <article class="dma-faq">
+        <button type="button" class="dma-faq-q" aria-expanded="false" aria-controls="faq-a4" id="faq-q4">
+          <span>Can clinics have multiple locations?</span>
+          <span class="dma-faq-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="dma-faq-a" id="faq-a4" role="region" aria-labelledby="faq-q4" hidden>
+          <p>Yes. Locations are stored on the clinic roster. Appointments still book against working hours; rooms are optional physical spaces, not invented occupancy.</p>
+        </div>
+      </article>
+    </div>
+
+    <p class="dma-faq-cat">Clinical</p>
+    <div class="dma-faq-list">
+      <article class="dma-faq">
+        <button type="button" class="dma-faq-q" aria-expanded="false" aria-controls="faq-a5" id="faq-q5">
+          <span>How are encounters handled?</span>
+          <span class="dma-faq-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="dma-faq-a" id="faq-a5" role="region" aria-labelledby="faq-q5" hidden>
+          <p>Each visit is tied to an appointment. The chart uses a single clinical contract: patient, appointment, vitals, diagnoses, clinical note, prescriptions and follow-up. CALLED is a first-class queue state.</p>
+        </div>
+      </article>
+      <article class="dma-faq">
+        <button type="button" class="dma-faq-q" aria-expanded="false" aria-controls="faq-a6" id="faq-q6">
+          <span>Are prescriptions stored?</span>
+          <span class="dma-faq-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="dma-faq-a" id="faq-a6" role="region" aria-labelledby="faq-q6" hidden>
+          <p>Yes, on the visit chart. Clinicos does not send prescriptions to a pharmacy network unless a real integration exists.</p>
+        </div>
+      </article>
+    </div>
+
+    <p class="dma-faq-cat">Communication</p>
+    <div class="dma-faq-list">
+      <article class="dma-faq">
+        <button type="button" class="dma-faq-q" aria-expanded="false" aria-controls="faq-a7" id="faq-q7">
+          <span>Does it support WhatsApp?</span>
+          <span class="dma-faq-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="dma-faq-a" id="faq-a7" role="region" aria-labelledby="faq-q7" hidden>
+          <p>Yes, when the clinic connects a WhatsApp Business account. Until then the inbox shows that WhatsApp is not configured — it will not pretend to be connected.</p>
+        </div>
+      </article>
+      <article class="dma-faq">
+        <button type="button" class="dma-faq-q" aria-expanded="false" aria-controls="faq-a8" id="faq-q8">
+          <span>How does AI handoff work?</span>
+          <span class="dma-faq-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="dma-faq-a" id="faq-a8" role="region" aria-labelledby="faq-q8" hidden>
+          <p>The receptionist can answer from clinic knowledge and live calendar availability, then pass the conversation to staff. It does not diagnose patients or replace clinicians.</p>
+        </div>
+      </article>
+    </div>
+
+    <p class="dma-faq-cat">Security / privacy</p>
+    <div class="dma-faq-list">
+      <article class="dma-faq">
+        <button type="button" class="dma-faq-q" aria-expanded="false" aria-controls="faq-a9" id="faq-q9">
+          <span>How is patient information handled?</span>
+          <span class="dma-faq-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="dma-faq-a" id="faq-a9" role="region" aria-labelledby="faq-q9" hidden>
+          <p>Each clinic’s patients, messages and visits stay on that clinic’s account. There is no public marketplace of doctors or patients. See Privacy and Security for policy detail.</p>
+        </div>
+      </article>
+    </div>
+
+    <p class="dma-faq-cat">Billing</p>
+    <div class="dma-faq-list">
+      <article class="dma-faq">
+        <button type="button" class="dma-faq-q" aria-expanded="false" aria-controls="faq-a10" id="faq-q10">
+          <span>How does SaaS billing work?</span>
+          <span class="dma-faq-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="dma-faq-a" id="faq-a10" role="region" aria-labelledby="faq-q10" hidden>
+          <p>Stripe invoices are for the software subscription. Visit fees and patient invoices are clinic records. They are not the same ledger.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="dma-pub-wrap dma-editorial" id="contact">
+    <div class="dma-pub-tint">
+      <span class="eyebrow">Contact</span>
+      <h2 class="dma-h-display">Contact</h2>
+      <p class="lede">For clinic accounts use in-app settings. For platform questions, email support from your registered clinic address.</p>
+      <div class="dma-pub-actions">
+        <a class="dma-btn dma-btn-primary" href="/contact/">Talk to us</a>
+        <a class="dma-btn dma-btn-soft" href="/register/">Start Free Trial</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="dma-pub-wrap">
+    <section class="dma-cta-band">
+      <h2 class="dma-h-display">Your clinic. One workspace.</h2>
+      <p>Start with a private clinic workspace. Connect WhatsApp when you are ready.</p>
+      <div class="dma-pub-actions">
+        <a class="dma-btn dma-btn-accent" href="/register/">Start your free trial</a>
+        <a class="dma-btn dma-btn-ghost dma-btn-on-dark" href="/contact/">Talk to us</a>
+      </div>
+    </section>
+  </div>
 
   <div id="dma-public-footer"></div>
-  <script src="/dma-public.js?v=3"></script>
+  <script src="/dma-public.js?v=16"></script>
   <script>DmaPublic.boot();</script>
 </body>
 </html>
