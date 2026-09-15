@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Broadcasts — Doctors My Agency</title>
+  <title>Broadcasts  -  Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=15" />
-  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=9" />
-  <link rel="stylesheet" href="/dma-doctor-app.css?v=3" />
-  <link rel="stylesheet" href="/dma-doctor-pages.css?v=3" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=20" />
+  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=13" />
+  <link rel="stylesheet" href="/dma-doctor-app.css?v=6" />
+  <link rel="stylesheet" href="/dma-doctor-pages.css?v=4" />
   <style>
     .bc-audience-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-    .bc-chip { height: 32px; padding: 0 12px; border-radius: 5px; font-size: .72rem; font-weight: 700; border: 1px solid var(--ds-border-2, #CBD5E1); background: #fff; color: #64748B; cursor: pointer; }
-    .bc-chip.selected { background: var(--ds-primary, #1D4ED8); color: #fff; border-color: transparent; }
-    .bc-preview { background: var(--ds-surface-section, #EEF2F7); border: 1px solid var(--ds-border, #E2E8F0); border-radius: 5px; padding: 12px; min-height: 72px; font-size: .8125rem; white-space: pre-wrap; max-width: 40rem; }
+    .bc-chip { height: 32px; padding: 0 12px; border-radius: 10px; font-size: .72rem; font-weight: 700; border: 1px solid var(--ds-border-2, #CBD5E1); background: #fff; color: #64748B; cursor: pointer; }
+    .bc-chip.selected { background: var(--ds-primary, #14967F); color: #fff; border-color: transparent; }
+    .bc-preview { background: var(--ds-surface-section, #EEF8F5); border: 1px solid var(--ds-border, #E5E7EB); border-radius: 10px; padding: 12px; min-height: 72px; font-size: .8125rem; white-space: pre-wrap; max-width: 40rem; }
   </style>
 </head>
 <body>
@@ -37,14 +37,14 @@
         <div class="dma-head dma-head-page">
           <div>
             <h1>Broadcasts</h1>
-            <p class="dma-prose">Send WhatsApp messages to opted-in patients. Drafts and scheduling are not available yet — only send now.</p>
+            <p class="dma-prose">Send WhatsApp messages to opted-in patients. Drafts and scheduling are not available yet  -  only send now.</p>
           </div>
           <div class="dma-head-actions">
             <button type="button" class="dma-btn dma-btn-primary" id="bc-new">New broadcast</button>
           </div>
         </div>
         <div class="dma-tabs"><button type="button" class="active">Sent</button></div>
-        <p class="dma-hint" id="bc-hist-count">Loading…</p>
+        <p class="dma-hint" id="bc-hist-count">Loading...</p>
         <section class="dma-section">
           <div class="dma-section-b" id="bc-history">
             <div class="ds-empty-panel"><strong>No broadcasts sent yet</strong>Your sent history will appear here.</div>
@@ -54,10 +54,10 @@
     </div>
   </div>
   <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
-  <script src="/dashboard-doctor-shell.js?v=12"></script>
-  <script src="/dma-ui.js?v=5"></script>
-  <script src="/dma-doctor-app.js?v=3"></script>
-  <script src="/dashboard-bootstrap.js?v=4"></script>
+  <script src="/dashboard-doctor-shell.js?v=16"></script>
+  <script src="/dma-ui.js?v=8"></script>
+  <script src="/dma-doctor-app.js?v=4"></script>
+  <script src="/dashboard-bootstrap.js?v=6"></script>
   <script>
   (function () {
     if (!DmaDoctorShell.initStaticPage('/dashboard/broadcasts/', 'Broadcasts')) return;
@@ -82,7 +82,7 @@
         var n = document.getElementById('bc-char');
         var p = document.getElementById('bc-preview');
         if (n) n.textContent = ta.value.length;
-        if (p) p.textContent = ta.value || 'Your message will appear here…';
+        if (p) p.textContent = ta.value || 'Your message will appear here...';
       };
     }
 
@@ -97,9 +97,9 @@
           '<button type="button" class="bc-chip" data-v="INACTIVE">Inactive (90+ days)</button>' +
         '</div></div>' +
         '<div class="dma-field"><label>Message</label>' +
-        '<textarea id="bc-message" maxlength="4096" placeholder="Hi {{name}}, we have an update from the clinic…"></textarea>' +
+        '<textarea id="bc-message" maxlength="4096" placeholder="Hi {{name}}, we have an update from the clinic..."></textarea>' +
         '<p class="dma-hint"><span id="bc-char">0</span>/4096</p></div>' +
-        '<div class="dma-field"><label>Preview</label><div class="bc-preview" id="bc-preview">Your message will appear here…</div></div>';
+        '<div class="dma-field"><label>Preview</label><div class="bc-preview" id="bc-preview">Your message will appear here...</div></div>';
       if (window.DmaUI && DmaUI.modal) {
         composeModal = DmaUI.modal({
           title: 'New broadcast',
@@ -122,7 +122,7 @@
       var msg = (msgEl && msgEl.value || '').trim();
       if (!msg) { toast('Enter a message', 'err'); return; }
       var btn = document.getElementById('bc-send-btn');
-      if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
       fetch('/api/messages/broadcasts', {
         method: 'POST',
         headers: ah(),
@@ -132,7 +132,7 @@
       .then(function (res) {
         if (btn) { btn.disabled = false; btn.textContent = 'Send now'; }
         if (!res.ok) { toast((res.d && res.d.error) || 'Send failed', 'err'); return; }
-        toast('Broadcast sent to ' + (res.d.sentCount || '—') + ' patients', 'ok');
+        toast('Broadcast sent to ' + (res.d.sentCount || ' - ') + ' patients', 'ok');
         if (composeModal && composeModal.close) composeModal.close();
         else if (window.DmaApp) DmaApp.closeModal();
         location.reload();
@@ -152,11 +152,11 @@
         document.getElementById('bc-hist-count').textContent = list.length ? (list.length + ' sent') : 'No broadcasts yet';
         if (!list.length) return;
         document.getElementById('bc-history').innerHTML = list.slice(0, 40).map(function (b) {
-          var date = b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '—';
+          var date = b.createdAt ? new Date(b.createdAt).toLocaleDateString() : ' - ';
           var body = (b.messageBody || '').slice(0, 120);
           return '<div class="bc-history-item">' +
             '<div class="bc-history-body"><p class="bc-history-msg">' + body + '</p>' +
-            '<p class="bc-history-meta">' + date + ' · ' + (b.targetGroup || 'All patients') + '</p></div>' +
+            '<p class="bc-history-meta">' + date + ' Â· ' + (b.targetGroup || 'All patients') + '</p></div>' +
             '<div class="bc-history-stat"><strong>' + (b.sentCount || 0) + '</strong><span>sent</span></div></div>';
         }).join('');
       }).catch(function () {

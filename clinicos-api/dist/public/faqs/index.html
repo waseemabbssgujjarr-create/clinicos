@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" class="dma-world-public">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQs — Clinicos</title>
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=20" />
+</head>
+<body>
+  <div id="dma-public-header"></div>
+  <main class="dma-pub-wrap dma-editorial">
+    <h1 class="dma-h-display" style="font-size:clamp(2rem,4vw,3.2rem)">Questions clinics actually ask.</h1>
+
+    <h2 class="dma-h3">Platform</h2>
+    <div class="dma-acc">
+      <details open><summary>What is Clinicos?</summary><div class="dma-acc-body">Clinicos is the clinic operating system behind Doctors My Agency: appointments, patients, waiting room, clinical visits, WhatsApp, AI receptionist and operations — for one clinic’s private data. It is not a public doctor directory.</div></details>
+      <details><summary>What does it manage?</summary><div class="dma-acc-body">Front desk (bookings, inbox, leads), clinical visits (waiting → called → consult → vitals → prescription → complete), and operations (staff, rooms, leave, inventory and laboratory orders when you use them).</div></details>
+    </div>
+
+    <h2 class="dma-h3">Clinics</h2>
+    <div class="dma-acc">
+      <details><summary>Can multiple staff use it?</summary><div class="dma-acc-body">Yes. Receptionist, nurse, assistant and manager log in on the staff door. Owner-only tools (WhatsApp connection, AI publish, SaaS billing, settings) stay owner-only on the server.</div></details>
+      <details><summary>Can clinics have multiple locations?</summary><div class="dma-acc-body">Yes. Locations are stored on the clinic roster. Appointments still book against working hours; rooms are optional physical spaces, not invented occupancy.</div></details>
+    </div>
+
+    <h2 class="dma-h3">Clinical</h2>
+    <div class="dma-acc">
+      <details><summary>How are encounters handled?</summary><div class="dma-acc-body">Each visit is tied to an appointment. The chart uses a single clinical contract: patient, appointment, vitals, diagnoses, clinical note, prescriptions and follow-up. CALLED is a first-class queue state.</div></details>
+      <details><summary>Are prescriptions stored?</summary><div class="dma-acc-body">Yes, on the visit chart. Clinicos does not send prescriptions to a pharmacy network unless a real integration exists.</div></details>
+    </div>
+
+    <h2 class="dma-h3">Communication</h2>
+    <div class="dma-acc">
+      <details><summary>Does it support WhatsApp?</summary><div class="dma-acc-body">Yes, when the clinic connects a WhatsApp Business account. Until then the inbox shows that WhatsApp is not configured — it will not pretend to be connected.</div></details>
+      <details><summary>How does AI handoff work?</summary><div class="dma-acc-body">The receptionist can answer from clinic knowledge and live calendar availability, then pass the conversation to staff. It does not diagnose patients or replace clinicians.</div></details>
+    </div>
+
+    <h2 class="dma-h3">Security / privacy</h2>
+    <div class="dma-acc">
+      <details><summary>How is patient information handled?</summary><div class="dma-acc-body">Each clinic’s patients, messages and visits stay on that clinic’s account. There is no public marketplace of doctors or patients. See Privacy and Security for policy detail.</div></details>
+    </div>
+
+    <h2 class="dma-h3">Billing</h2>
+    <div class="dma-acc">
+      <details><summary>How does SaaS billing work?</summary><div class="dma-acc-body">Stripe invoices are for the software subscription. Visit fees and patient invoices are clinic records. They are not the same ledger.</div></details>
+    </div>
+  </main>
+  <div id="dma-public-footer"></div>
+  <script src="/dma-public.js?v=3"></script>
+  <script>DmaPublic.boot();</script>
+</body>
+</html>

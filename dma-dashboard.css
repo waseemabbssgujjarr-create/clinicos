@@ -1,12 +1,12 @@
 /**
- * Dashboard — blue brand #2563EB
+ * Dashboard — blue brand #14967F
  * Injected via dashboard-bootstrap.js on Next.js static export pages.
  */
 :root {
-  --dma-accent: #2563EB;
-  --dma-accent-hover: #1D4ED8;
+  --dma-accent: #14967F;
+  --dma-accent-hover: #0B6456;
   --dma-accent-soft: rgba(37, 99, 235, 0.12);
-  --dma-accent-readable: #1D4ED8;
+  --dma-accent-readable: #0B6456;
   --dma-sidebar: #1E293B;
   --dma-sidebar-text: #d4d4d8;
   --dma-surface: #ffffff;
@@ -104,7 +104,7 @@ a[class*="bg-green"]:not(.dma-live-badge):not(.dma-ai-status-live),
 a[class*="bg-teal"]:not(.dma-live-badge):not(.dma-ai-status-live),
 .bg-brand:not(.dma-live-badge):not(.dma-ai-status-live),
 [class*="bg-brand"]:not([class*="bg-brand-dark"]):not([class*="bg-brand-light"]):not(.dma-live-badge):not(.dma-ai-status-live) {
-  background: linear-gradient(135deg, #2563EB, #1D4ED8) !important;
+  background: linear-gradient(135deg, #14967F, #0B6456) !important;
   border-color: transparent !important;
   color: #fff !important;
 }
@@ -164,7 +164,7 @@ a[class*="bg-teal"]:not(.dma-live-badge):not(.dma-ai-status-live),
 .hover\:bg-brand-dark:hover,
 button[class*="bg-emerald"]:hover,
 button[class*="bg-green"]:hover {
-  background: linear-gradient(135deg, #1D4ED8, #1E40AF) !important;
+  background: linear-gradient(135deg, #0B6456, #0E7A68) !important;
 }
 
 .text-brand,
@@ -208,8 +208,8 @@ button[class*="bg-green"]:hover {
 [class*="to-teal"],
 [class*="from-green"],
 [class*="to-green"] {
-  --tw-gradient-from: #2563EB var(--tw-gradient-from-position) !important;
-  --tw-gradient-to: #1D4ED8 var(--tw-gradient-to-position) !important;
+  --tw-gradient-from: #14967F var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: #0B6456 var(--tw-gradient-to-position) !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 
@@ -232,7 +232,7 @@ body.min-h-screen main input:focus,
 body.min-h-screen main select:focus,
 body.min-h-screen main textarea:focus {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
-  border-color: #2563EB !important;
+  border-color: #14967F !important;
 }
 
 body.min-h-screen main p,
@@ -531,6 +531,6 @@ aside a[class*="bg-brand"][class*="rounded"],
 aside div[class*="bg-brand"][class*="rounded-lg"],
 aside [class*="w-9"][class*="bg-brand"],
 aside [class*="h-9"][class*="bg-brand"] {
-  background: linear-gradient(135deg, #2563EB, #1D4ED8) !important;
+  background: linear-gradient(135deg, #14967F, #0B6456) !important;
   color: #fff !important;
 }

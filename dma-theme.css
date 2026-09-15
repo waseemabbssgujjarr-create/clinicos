@@ -1,17 +1,17 @@
 /**
- * Doctors My Agency — Blue brand theme (#2563EB)
+ * Doctors My Agency — Blue brand theme (#14967F)
  * Load AFTER landing.css
  */
 
 :root,
 html[data-theme="dark"],
 html:not([data-theme="light"]) {
-  --accent: #2563EB;
-  --accent-dark: #1D4ED8;
-  --accent-light: #3B82F6;
-  --gold: #2563EB;
-  --gold-light: #3B82F6;
-  --gold-dark: #1D4ED8;
+  --accent: #14967F;
+  --accent-dark: #0B6456;
+  --accent-light: #14967F;
+  --gold: #14967F;
+  --gold-light: #14967F;
+  --gold-dark: #0B6456;
   --bg: #0c0c0e;
   --bg-alt: #121214;
   --bg-card: #18181b;
@@ -19,15 +19,15 @@ html:not([data-theme="light"]) {
   --text: #ffffff;
   --muted: #e4e4e7;
   --text-secondary: #d4d4d8;
-  --purple: #2563EB;
-  --gradient: linear-gradient(135deg, #3B82F6 0%, #2563EB 50%, #1D4ED8 100%);
-  --gradient-btn: linear-gradient(135deg, #2563EB, #1D4ED8);
+  --purple: #14967F;
+  --gradient: linear-gradient(135deg, #14967F 0%, #14967F 50%, #0B6456 100%);
+  --gradient-btn: linear-gradient(135deg, #14967F, #0B6456);
   --shadow-glow: 0 12px 40px rgba(37, 99, 235, 0.28);
   --nav-bg: rgba(12, 12, 14, 0.92);
   --nav-border: rgba(255, 255, 255, 0.08);
   --border-subtle: rgba(255, 255, 255, 0.1);
   --accent-soft: rgba(37, 99, 235, 0.12);
-  --accent-text: #3B82F6;
+  --accent-text: #14967F;
   --wa-out: #005c4b;
   --wa-bg: #0b141a;
 }
@@ -40,7 +40,7 @@ html[data-theme="light"] {
   --text: #0f172a;
   --muted: #475569;
   --text-secondary: #64748b;
-  --accent-text: #1D4ED8;
+  --accent-text: #0B6456;
   --accent-soft: rgba(37, 99, 235, 0.1);
   --nav-bg: rgba(255, 255, 255, 0.96);
   --nav-border: rgba(15, 23, 42, 0.08);
@@ -139,8 +139,8 @@ html[data-theme="light"] .channel {
 }
 
 /* Blue accent glow orbs */
-.glow-purple { background: #2563EB !important; opacity: 0.18; }
-.glow-blue { background: #3B82F6 !important; opacity: 0.12; }
+.glow-purple { background: #14967F !important; opacity: 0.18; }
+.glow-blue { background: #14967F !important; opacity: 0.12; }
 .glow-teal { display: none; }
 
 .btn {
@@ -196,7 +196,7 @@ html[data-theme="light"] .channel {
 }
 .cta-banner h2 { font-size: clamp(1.5rem, 2.5vw, 2rem) !important; color: #fff !important; }
 .cta-banner p { color: rgba(255,255,255,0.92) !important; font-size: 1.0625rem !important; }
-.cta-banner .btn { background: #fff !important; color: #1D4ED8 !important; font-weight: 700 !important; }
+.cta-banner .btn { background: #fff !important; color: #0B6456 !important; font-weight: 700 !important; }
 
 .faq-question { font-size: 1rem !important; color: var(--text) !important; }
 .faq-question:hover { color: var(--accent) !important; background: var(--accent-soft) !important; }
@@ -472,7 +472,7 @@ section { padding: 80px 0 !important; }
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563EB, #1D4ED8);
+  background: linear-gradient(135deg, #14967F, #0B6456);
   display: grid;
   place-items: center;
   font-size: 1.125rem;

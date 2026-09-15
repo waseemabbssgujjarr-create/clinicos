@@ -109,7 +109,7 @@ h1, h2, h3, h4, h5, h6,
   display: flex; align-items: stretch; border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.12); background: var(--bg-elevated); overflow: hidden;
 }
-.slug-prefix-wrap:focus-within { border-color: var(--accent, #2563EB); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); }
+.slug-prefix-wrap:focus-within { border-color: var(--accent, #14967F); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); }
 .slug-prefix {
   padding: 12px 10px; font-size: 0.72rem; color: var(--muted); white-space: nowrap;
   border-right: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center;
@@ -168,7 +168,7 @@ h1, h2, h3, h4, h5, h6,
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .field input:focus, .field select:focus {
-  outline: none; border-color: var(--accent, #2563EB);
+  outline: none; border-color: var(--accent, #14967F);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
 

@@ -337,15 +337,22 @@
         '</div>';
     }
 
-    var msg = (config && config.message)
-      ? String(config.message)
-      : 'WhatsApp is not configured on this platform yet. Ask your platform administrator to complete Meta setup.';
+    if (config && config.enabled === false) {
+      var offMsg = (config.message)
+        ? String(config.message)
+        : 'WhatsApp connection is not available for this clinic yet. A platform administrator must complete setup first.';
+      return '' +
+        '<div class="dma-wa-state">' +
+          '<p class="dma-wa-state__title">Not configured</p>' +
+          '<p class="dma-wa-state__desc">' + esc(offMsg) + '</p>' +
+        '</div>';
+    }
 
     return '' +
       '<div class="dma-wa-state">' +
-        '<p class="dma-wa-state__title">Meta is not configured</p>' +
-        '<p class="dma-wa-state__desc">' + esc(msg) + '</p>' +
-        '<p class="dma-wa-state__desc">Clinic users cannot finish this step. A platform administrator must configure the approved Meta app first.</p>' +
+        '<p class="dma-wa-state__title">Ready to connect</p>' +
+        '<p class="dma-wa-state__desc">WhatsApp status loaded, but the connect action is not enabled yet. Retry status if this looks wrong.</p>' +
+        '<button type="button" class="dma-wa-btn dma-wa-btn--primary" id="dma-wa-retry">Retry status</button>' +
       '</div>';
   }
 
@@ -444,13 +451,13 @@
       '</div>' +
 
       // Stats (only meaningful when connected)
-      (connected
+      (connected && data.stats
         ? '<div class="dma-wa-stats">' +
-            statCard('Messages today',  s.inboundToday        || 0, 'inbound') +
-            statCard('AI handled',      s.aiHandledToday      || 0, 'auto-replies') +
-            statCard('Needs you',       s.needsReview         || 0, 'escalations') +
-            statCard('Booked today',    s.appointmentsBooked  || 0, 'via WhatsApp') +
-            statCard('Hot leads',       s.leadsHot            || 0, 'pipeline') +
+            statCard('Messages today',  s.inboundToday == null ? 'Unavailable' : s.inboundToday, 'inbound') +
+            statCard('AI handled',      s.aiHandledToday == null ? 'Unavailable' : s.aiHandledToday, 'auto-replies') +
+            statCard('Needs you',       s.needsReview == null ? 'Unavailable' : s.needsReview, 'escalations') +
+            statCard('Booked today',    s.appointmentsBooked == null ? 'Unavailable' : s.appointmentsBooked, 'via WhatsApp') +
+            statCard('Hot leads',       s.leadsHot == null ? 'Unavailable' : s.leadsHot, 'pipeline') +
           '</div>'
         : '') +
 

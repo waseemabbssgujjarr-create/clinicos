@@ -5,12 +5,12 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=15';
+    ds.href = '/dma-design-system.css?v=20';
     document.head.appendChild(ds);
   }
 
   var ALL_ITEMS = {
-    home: { id: 'home', href: '/dashboard/', label: 'Dashboard', icon: 'home' },
+    home: { id: 'home', href: '/dashboard/', label: 'Overview', icon: 'home' },
     appointments: { id: 'appointments', href: '/dashboard/appointments/', label: 'Appointments', icon: 'cal' },
     calendar: { id: 'calendar', href: '/dashboard/calendar/', label: 'Calendar', icon: 'cal' },
     waiting: { id: 'waiting', href: '/dashboard/waiting/', label: 'Waiting Room', icon: 'wait' },
@@ -18,17 +18,17 @@
     doctors: { id: 'doctors', href: '/dashboard/doctors/', label: 'Doctors', icon: 'doctor' },
     staff: { id: 'staff', href: '/dashboard/staff/', label: 'Staff', icon: 'staff' },
     rooms: { id: 'rooms', href: '/dashboard/rooms/', label: 'Rooms', icon: 'room' },
-    clinical: { id: 'clinical', href: '/dashboard/clinical/', label: 'Clinical', icon: 'clinical' },
+    clinical: { id: 'clinical', href: '/dashboard/clinical/', label: 'Consultations', icon: 'clinical' },
     vitals: { id: 'vitals', href: '/dashboard/vitals/', label: 'Vitals', icon: 'vitals' },
     prescriptions: { id: 'prescriptions', href: '/dashboard/prescriptions/', label: 'Prescriptions', icon: 'rx' },
     laboratory: { id: 'laboratory', href: '/dashboard/laboratory/', label: 'Laboratory', icon: 'lab' },
     telemedicine: { id: 'telemedicine', href: '/dashboard/telemedicine/', label: 'Telemedicine', icon: 'video' },
     leads: { id: 'leads', href: '/dashboard/leads/', label: 'Leads', icon: 'leads' },
     whatsapp: { id: 'whatsapp', href: '/dashboard/whatsapp/', label: 'WhatsApp', icon: 'wa' },
-    messages: { id: 'messages', href: '/dashboard/messages/', label: 'Communication', icon: 'msg' },
+    messages: { id: 'messages', href: '/dashboard/messages/', label: 'Messages', icon: 'msg' },
     broadcasts: { id: 'broadcasts', href: '/dashboard/broadcasts/', label: 'Broadcasts', icon: 'broadcast' },
     ai: { id: 'ai', href: '/dashboard/ai/', label: 'Train AI', icon: 'bot' },
-    analytics: { id: 'analytics', href: '/dashboard/analytics/', label: 'Reports', icon: 'chart' },
+    analytics: { id: 'analytics', href: '/dashboard/analytics/', label: 'Analytics', icon: 'chart' },
     reports: { id: 'reports', href: '/dashboard/reports/', label: 'Reports', icon: 'chart' },
     reviews: { id: 'reviews', href: '/dashboard/reviews/', label: 'Reviews', icon: 'star' },
     billing: { id: 'billing', href: '/dashboard/billing/', label: 'Billing', icon: 'bill' },
@@ -38,6 +38,9 @@
     operations: { id: 'operations', href: '/dashboard/operations/', label: 'Operations', icon: 'ops' },
     updates: { id: 'updates', href: '/dashboard/notifications/', label: 'Updates', icon: 'bell' },
     settings: { id: 'settings', href: '/dashboard/settings/', label: 'Settings', icon: 'gear' },
+    documents: { id: 'documents', href: '/dashboard/documents/', label: 'Documents', icon: 'task' },
+    leave: { id: 'leave', href: '/dashboard/leave/', label: 'Leave', icon: 'cal' },
+    locations: { id: 'locations', href: '/dashboard/locations/', label: 'Locations', icon: 'room' },
   };
 
   var OWNER_ONLY = ['whatsapp', 'broadcasts', 'ai', 'analytics', 'reviews', 'billing', 'settings', 'rooms', 'inventory', 'telemedicine', 'laboratory', 'prescriptions'];
@@ -106,37 +109,32 @@
     var keys;
     if (!role) {
       keys = [
-        ['Overview', ['home']],
-        ['Care', ['appointments', 'calendar', 'patients', 'clinical', 'prescriptions']],
-        ['Team', ['doctors', 'staff']],
-        ['Operations', ['waiting', 'payments', 'messages', 'tasks', 'operations']],
-        ['Insights', ['analytics']],
-        ['Configuration', ['settings']],
-        ['More', ['rooms', 'laboratory', 'telemedicine', 'inventory', 'vitals', 'leads', 'whatsapp', 'broadcasts', 'ai', 'reviews', 'billing', 'updates']],
+        ['Clinic', ['home', 'patients', 'appointments', 'calendar', 'staff', 'locations']],
+        ['Communication', ['whatsapp', 'messages', 'broadcasts']],
+        ['Clinical', ['waiting', 'clinical', 'prescriptions', 'documents', 'laboratory']],
+        ['Operations', ['rooms', 'inventory', 'leave', 'telemedicine']],
+        ['Intelligence', ['ai', 'analytics', 'reviews']],
+        ['Administration', ['settings', 'billing', 'updates']],
       ];
     } else if (role === 'NURSE') {
       keys = [
-        ['Overview', ['home']],
-        ['Care', ['patients', 'waiting', 'vitals', 'clinical', 'appointments']],
+        ['Care', ['home', 'patients', 'waiting', 'vitals', 'clinical', 'appointments']],
       ];
     } else if (role === 'MANAGER') {
       keys = [
-        ['Overview', ['home']],
-        ['Care', ['appointments', 'patients']],
+        ['Care', ['home', 'appointments', 'patients']],
         ['Team', ['doctors', 'staff']],
         ['Operations', ['operations']],
         ['Insights', ['reports']],
       ];
     } else if (role === 'ASSISTANT') {
       keys = [
-        ['Overview', ['home']],
-        ['Care', ['appointments', 'patients']],
+        ['Care', ['home', 'appointments', 'patients']],
         ['Operations', ['tasks', 'messages']],
       ];
     } else {
       keys = [
-        ['Overview', ['home']],
-        ['Care', ['appointments', 'calendar', 'patients']],
+        ['Care', ['home', 'appointments', 'calendar', 'patients']],
         ['Operations', ['waiting', 'payments', 'messages']],
       ];
     }
@@ -209,8 +207,8 @@
     var clinic = u.clinicName || u.name || 'Your clinic';
     var groups = navFor(u);
     var html = '<button type="button" class="doc-nav-close" id="doc-sidebar-close" aria-label="Close menu">Close</button><div class="doc-brand">' +
-      '<div class="doc-brand-icon">DM</div>' +
-      '<strong>Doctors My Agency</strong>' +
+      '<div class="doc-brand-icon" aria-hidden="true">C</div>' +
+      '<strong>Clinicos</strong>' +
       '<span>' + clinic + '</span></div>' +
       '<nav class="doc-nav" aria-label="Clinic">';
 
@@ -262,6 +260,9 @@
       );
     }
     bits.push(
+      '<input class="doc-topbar-search" type="search" readonly placeholder="Search (Ctrl+K)" aria-label="Open search" id="doc-cmd-open">'
+    );
+    bits.push(
       '<a class="doc-chip-note" href="/dashboard/notifications/" title="Updates">' +
         'Updates<span class="doc-nav-badge" id="doc-upd-badge-top" hidden></span></a>'
     );
@@ -275,6 +276,16 @@
     );
     actions.innerHTML = bits.join('');
     bindLogout(document.getElementById('doc-logout'));
+    var cmd = document.getElementById('doc-cmd-open');
+    if (cmd) {
+      cmd.addEventListener('click', function () {
+        if (global.DmaUI && typeof global.DmaUI.openCommand === 'function') global.DmaUI.openCommand();
+      });
+      cmd.addEventListener('focus', function () {
+        cmd.blur();
+        if (global.DmaUI && typeof global.DmaUI.openCommand === 'function') global.DmaUI.openCommand();
+      });
+    }
     refreshBadges();
   }
 
@@ -313,7 +324,7 @@
     if (document.getElementById('dma-bottom-nav')) return;
     var items = flatNav();
     var prefer = isOwner()
-      ? ['home', 'calendar', 'patients', 'messages']
+      ? ['home', 'appointments', 'whatsapp', 'patients']
       : (staffRoleOf() === 'NURSE'
         ? ['home', 'waiting', 'patients', 'vitals']
         : ['home', 'appointments', 'patients', 'messages']);
@@ -326,7 +337,7 @@
     nav.setAttribute('aria-label', 'Primary');
     nav.innerHTML = keys.map(function (k) {
       var i = map[k];
-      var short = i.label.replace('Appointments', 'Appts').replace('Communication', 'Inbox');
+      var short = i.label.replace('Appointments', 'Appts').replace('Overview', 'Home').replace('Waiting Room', 'Waiting');
       return '<a href="' + i.href + '" class="' + (isActive(i.href) ? 'on' : '') + '">' +
         (ICONS[i.icon] || '') + '<span>' + short + '</span></a>';
     }).join('') +

@@ -35,7 +35,7 @@
   line-height: 1.5;
 }
 .inner-chat-msg--user .inner-chat-bubble {
-  background: linear-gradient(135deg, #2563EB, #1D4ED8);
+  background: linear-gradient(135deg, #14967F, #0B6456);
   color: #fff;
   border-bottom-right-radius: 4px;
 }
@@ -69,7 +69,7 @@
 }
 .inner-chat-input:focus {
   outline: none;
-  border-color: #2563EB;
+  border-color: #14967F;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 .inner-chat-send {
@@ -79,7 +79,7 @@
   font-weight: 600;
   font-size: 0.8125rem;
   cursor: pointer;
-  background: linear-gradient(135deg, #2563EB, #1D4ED8);
+  background: linear-gradient(135deg, #14967F, #0B6456);
   color: #fff;
 }
 .inner-chat-send:disabled { opacity: 0.6; cursor: not-allowed; }

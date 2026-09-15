@@ -60,6 +60,7 @@
     });
   }
 
+  function getFull(path) { return req('GET', path); }
   function get(path) { return req('GET', path).then(function (r) { return r.d; }); }
   function post(path, body) { return req('POST', path, body); }
   function put(path, body) { return req('PUT', path, body); }
@@ -246,7 +247,9 @@
       _waCache = d || {};
       document.dispatchEvent(new CustomEvent('dma:wa', { detail: _waCache }));
       return _waCache;
-    }).catch(function () { return _waCache || {}; });
+    }).catch(function () {
+      return { unavailable: true };
+    });
   }
 
   function goto(path) { location.href = path; }
@@ -256,6 +259,7 @@
     user: user,
     headers: headers,
     get: get,
+    getFull: getFull,
     post: post,
     put: put,
     patch: patch,

@@ -69,20 +69,20 @@
   if (!document.querySelector('link[href*="dma-design-system.css"]')) {
     var dsLink = document.createElement('link');
     dsLink.rel = 'stylesheet';
-    dsLink.href = '/dma-design-system.css?v=15';
+    dsLink.href = '/dma-design-system.css?v=20';
     document.head.appendChild(dsLink);
   }
   if (!isDocStatic && !isSaStatic && !document.querySelector('link[href*="dma-doctor-app.css"]')) {
     var appCss = document.createElement('link');
     appCss.rel = 'stylesheet';
-    appCss.href = '/dma-doctor-app.css?v=4';
+    appCss.href = '/dma-doctor-app.css?v=6';
     document.head.appendChild(appCss);
   }
 
   if (!isSaStatic && !document.querySelector('link[href*="dma-doctor-pages.css"]')) {
     var pagesCss = document.createElement('link');
     pagesCss.rel = 'stylesheet';
-    pagesCss.href = '/dma-doctor-pages.css?v=3';
+    pagesCss.href = '/dma-doctor-pages.css?v=4';
     document.head.appendChild(pagesCss);
   }
 
@@ -205,19 +205,19 @@
     if (!document.querySelector('link[href*="superadmin-theme.css"]')) {
       var saCss = document.createElement('link');
       saCss.rel = 'stylesheet';
-      saCss.href = '/superadmin-theme.css?v=10';
+      saCss.href = '/superadmin-theme.css?v=11';
       document.head.appendChild(saCss);
     }
     if (!document.getElementById('dma-sa-critical-style')) {
       var saCrit = document.createElement('style');
       saCrit.id = 'dma-sa-critical-style';
       saCrit.textContent =
-        '.bg-sidebar{background:#1E293B!important;background-image:linear-gradient(180deg,#1E293B,#0F172A)!important}' +
-        '.nav-item{color:#CBD5E1!important}.nav-item:hover{background:rgba(37,99,235,.12)!important;color:#fff!important}' +
-        '.nav-item-active{background:rgba(37,99,235,.22)!important;border-left-color:#2563EB!important;color:#fff!important}' +
-        '.bg-brand:not(.dma-live-badge):not(.dma-ai-status-live){background:#2563EB!important}' +
-        '.text-brand:not(.dma-live-label){color:#2563EB!important}' +
-        '.border-brand,.border-l-brand{border-color:#2563EB!important}' +
+        '.bg-sidebar{background:#0B6456!important;background-image:linear-gradient(180deg,#0B6456,#084D43)!important}' +
+        '.nav-item{color:#CBD5E1!important}.nav-item:hover{background:rgba(20,150,127,.12)!important;color:#fff!important}' +
+        '.nav-item-active{background:rgba(20,150,127,.22)!important;border-left-color:#14967F!important;color:#fff!important}' +
+        '.bg-brand:not(.dma-live-badge):not(.dma-ai-status-live){background:#14967F!important}' +
+        '.text-brand:not(.dma-live-label){color:#14967F!important}' +
+        '.border-brand,.border-l-brand{border-color:#14967F!important}' +
         'main.flex-1,main.flex-1 .text-primary,main.flex-1 h1,main.flex-1 h2{color:#0f172a!important}' +
         'aside .text-white{color:#fff!important}aside .text-slate-400{color:#CBD5E1!important}';
       document.head.appendChild(saCrit);
@@ -389,23 +389,23 @@
     if (!document.querySelector('link[href*="dashboard-doctor-shell.css"]')) {
       var docShellCss = document.createElement('link');
       docShellCss.rel = 'stylesheet';
-      docShellCss.href = '/dashboard-doctor-shell.css?v=9';
+      docShellCss.href = '/dashboard-doctor-shell.css?v=13';
       document.head.appendChild(docShellCss);
     }
     if (!document.querySelector('script[src*="dashboard-doctor-shell.js"]')) {
       var docShellJs = document.createElement('script');
-      docShellJs.src = '/dashboard-doctor-shell.js?v=10';
+      docShellJs.src = '/dashboard-doctor-shell.js?v=16';
       (document.head || document.documentElement).appendChild(docShellJs);
     }
     if (!document.querySelector('link[href*="dashboard-whatsapp-hub.css"]')) {
       var waHubCss = document.createElement('link');
       waHubCss.rel = 'stylesheet';
-      waHubCss.href = '/dashboard-whatsapp-hub.css?v=7';
+      waHubCss.href = '/dashboard-whatsapp-hub.css?v=8';
       document.head.appendChild(waHubCss);
     }
     if (!document.querySelector('script[src*="dashboard-whatsapp-hub.js"]')) {
       var waHubJs = document.createElement('script');
-      waHubJs.src = '/dashboard-whatsapp-hub.js?v=4';
+      waHubJs.src = '/dashboard-whatsapp-hub.js?v=5';
       (document.head || document.documentElement).appendChild(waHubJs);
     }
   }
@@ -565,23 +565,22 @@
     s.id = 'dma-login-blue';
     s.textContent =
       /* DM logo icon box */
-      '[class*="bg-brand"],[class*="rounded"][class*="bg-brand"]{background:linear-gradient(135deg,#2563EB,#1D4ED8)!important;color:#fff!important}' +
-      '[class*="text-brand"]{color:#2563EB!important;-webkit-text-fill-color:#2563EB!important}' +
-      '[class*="border-brand"]{border-color:#2563EB!important}' +
+      '[class*="bg-brand"],[class*="rounded"][class*="bg-brand"]{background:linear-gradient(135deg,#14967F,#0B6456)!important;color:#fff!important}' +
+      '[class*="text-brand"]{color:#14967F!important;-webkit-text-fill-color:#14967F!important}' +
+      '[class*="border-brand"]{border-color:#14967F!important}' +
       /* Primary button */
-      'button[class*="bg-brand"],a[class*="bg-brand"]{background:linear-gradient(135deg,#2563EB,#1D4ED8)!important;box-shadow:0 4px 14px rgba(37,99,235,.35)!important;border-radius:10px!important;font-weight:700!important}' +
+      'button[class*="bg-brand"],a[class*="bg-brand"]{background:linear-gradient(135deg,#14967F,#0B6456)!important;box-shadow:0 4px 14px rgba(20,150,127,.35)!important;border-radius:10px!important;font-weight:700!important}' +
       /* Input focus */
-      'input:focus,select:focus{border-color:#2563EB!important;box-shadow:0 0 0 3px rgba(37,99,235,.14)!important;outline:none!important}' +
+      'input:focus,select:focus{border-color:#14967F!important;box-shadow:0 0 0 3px rgba(20,150,127,.14)!important;outline:none!important}' +
       /* Focus ring */
-      '*:focus{outline-color:#2563EB!important}' +
+      '*:focus{outline-color:#14967F!important}' +
       /* Orange anywhere */
-      '[class*="bg-orange-"]{background-color:#2563EB!important}' +
-      '[class*="text-orange-"]{color:#2563EB!important;-webkit-text-fill-color:#2563EB!important}' +
-      '[class*="border-orange-"]{border-color:#2563EB!important}' +
+      '[class*="bg-orange-"]{background-color:#14967F!important}' +
+      '[class*="text-orange-"]{color:#14967F!important;-webkit-text-fill-color:#14967F!important}' +
+      '[class*="border-orange-"]{border-color:#14967F!important}' +
       /* Page bg light */
-      'body,html{background:#f4f6fb!important}' +
-      /* Card panel */
-      '.min-h-screen{background:linear-gradient(135deg,#EFF6FF 0%,#F0F4FF 50%,#EFF6FF 100%)!important}';
+      'body,html{background:#F4F4F5!important}' +
+      '.min-h-screen{background:linear-gradient(135deg,#F2FBFA 0%,#EEF8F5 50%,#F4F4F5 100%)!important}';
     document.head.appendChild(s);
   }
 })();

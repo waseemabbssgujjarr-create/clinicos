@@ -1,49 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dma-world-auth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Register Clinic — Doctors My Agency</title>
+  <title>Set up your clinic — Doctors My Agency</title>
   <link rel="icon" href="/favicon.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/landing.css" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=20" />
   <link rel="stylesheet" href="/portal.css?v=5" />
-  <link rel="stylesheet" href="/platform-hovers.css" />
-  <link rel="stylesheet" href="/dma-theme.css" />
-  <script>
-    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light');}catch(_){document.documentElement.setAttribute('data-theme','light');}})();
-  </script>
   <script src="/api-shim.js"></script>
 </head>
 <body class="portal-page">
-  <div class="glow glow-purple"></div>
-  <nav>
-    <div class="container nav-inner">
-      <a href="/" class="logo" style="text-decoration:none;color:inherit"><div class="logo-icon">DM</div> Doctors My Agency</a>
-    </div>
-  </nav>
-  <main class="portal-main">
-    <div class="container">
-      <a href="/start/" class="back-link">← Back to portal</a>
-      <div class="form-card wide">
-        <div style="text-align:center;margin-bottom:20px">
-          <div class="logo-icon" style="margin:0 auto 12px;width:48px;height:48px;font-size:1.1rem">DM</div>
-        </div>
-
-        <div class="step-dots" aria-hidden="true">
-          <span class="step-dot active">1</span>
-          <span class="step-line"></span>
-          <span class="step-dot">2</span>
-          <span class="step-line"></span>
-          <span class="step-dot">3</span>
-          <span class="step-line"></span>
-          <span class="step-dot">4</span>
-        </div>
-
-        <h1>Create your account</h1>
-        <p class="subtitle">14-day free trial — no credit card needed</p>
+  <div class="dma-auth">
+    <aside class="dma-auth-visual">
+      <a class="dma-pub-logo" href="/" style="color:#fff"><span class="mark">DM</span> Doctors My Agency</a>
+      <div>
+        <h1>Set up your clinic in minutes.</h1>
+        <p style="opacity:.85">A private clinic workspace — not a public directory.</p>
+      </div>
+      <div class="dma-auth-preview"><strong>14-day trial</strong><p style="margin:8px 0 0;opacity:.85;font-size:.875rem">No credit card. WhatsApp is optional until you’re ready.</p></div>
+    </aside>
+    <main class="dma-auth-form" style="max-width:520px">
+      <a href="/" class="dma-hint">← Home</a>
+      <p class="dma-steps"><b>1 Clinic</b> → 2 Practice → 3 Hours → 4 Launch</p>
+      <h2>Create your account</h2>
+      <p class="dma-hint">14-day free trial — no credit card needed</p>
+      <div class="form-card wide" style="padding:0;border:0;box-shadow:none;background:transparent">
 
         <div id="error" class="alert alert-error" style="display:none"></div>
         <div id="success" class="alert" style="display:none;background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46"></div>
@@ -97,12 +78,10 @@
           <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px" id="submitBtn">Create Account &amp; Continue →</button>
         </form>
 
-        <p style="text-align:center;margin-top:20px;font-size:0.88rem;color:var(--muted)">
-          Already have an account? <a href="/doctor-login/" style="color:#F97316;font-weight:700">Sign in</a>
-        </p>
+        <p class="dma-hint" style="margin-top:20px">Already have an account? <a href="/doctor-login/">Sign in</a></p>
       </div>
-    </div>
-  </main>
+    </main>
+  </div>
   <script src="/portal.js"></script>
   <script>
     document.getElementById('form').onsubmit = async (e) => {

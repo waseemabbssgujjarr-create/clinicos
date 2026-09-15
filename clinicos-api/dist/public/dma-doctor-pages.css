@@ -113,14 +113,14 @@
 
 /* Primary */
 .dma-btn-primary {
-  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  background: linear-gradient(135deg, #14967F 0%, #0B6456 100%);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.30);
+  box-shadow: 0 2px 8px rgba(20, 150, 127, 0.30);
 }
 .dma-btn-primary:hover:not(:disabled) {
   opacity: 0.92;
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.42);
+  box-shadow: 0 4px 16px rgba(20, 150, 127, 0.42);
 }
 .dma-btn-primary:active:not(:disabled) {
   transform: translateY(0) scale(0.98);
@@ -130,15 +130,15 @@
 /* Ghost / outline */
 .dma-btn-ghost {
   background: var(--doc-surface, #fff);
-  color: #2563EB;
-  border: 1.5px solid rgba(37, 99, 235, 0.35);
+  color: #14967F;
+  border: 1.5px solid rgba(20, 150, 127, 0.35);
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 }
 .dma-btn-ghost:hover:not(:disabled) {
-  background: rgba(37, 99, 235, 0.06);
-  border-color: #2563EB;
+  background: rgba(20, 150, 127, 0.06);
+  border-color: #14967F;
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 3px 10px rgba(20, 150, 127, 0.15);
 }
 
 /* Danger */
@@ -304,7 +304,7 @@
 .dma-panel-h a {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #2563EB;
+  color: #14967F;
   text-decoration: none;
   flex-shrink: 0;
 }
@@ -349,7 +349,7 @@
   min-width: 0;
 }
 .dma-row-item:last-child { border-bottom: none; }
-a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; padding-left: 6px; }
+a.dma-row-item:hover { background: rgba(20, 150, 127, 0.04); border-radius: 8px; padding-left: 6px; }
 
 .dma-row-item .name {
   font-size: 0.8125rem;
@@ -385,7 +385,7 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
   height: 34px;
   min-width: 34px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #2563EB, #1D4ED8);
+  background: linear-gradient(135deg, #14967F, #0B6456);
   color: #fff;
   font-family: 'Montserrat', Inter, sans-serif;
   font-weight: 800;
@@ -415,7 +415,7 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
 .dma-chip-green  { background: rgba(22,163,74,.12);  color: #15803D; }
 .dma-chip-amber  { background: rgba(217,119,6,.12);  color: #B45309; }
 .dma-chip-red    { background: rgba(220,38,38,.12);  color: #DC2626; }
-.dma-chip-blue   { background: rgba(37,99,235,.12);  color: #1D4ED8; }
+.dma-chip-blue   { background: rgba(20,150,127,.12);  color: #0B6456; }
 .dma-chip-wa     { background: rgba(22,163,74,.14);  color: #16A34A; }
 .dma-chip-slate  { background: rgba(100,116,139,.10); color: #64748B; }
 
@@ -428,7 +428,7 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
   line-height: 1.5;
 }
 .dma-hint a {
-  color: #2563EB;
+  color: #14967F;
   text-decoration: none;
   font-weight: 600;
 }
@@ -451,9 +451,9 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
 }
 .dma-banner.ok,
 .dma-banner:not(.warn):not(.err) {
-  background: rgba(37, 99, 235, 0.08);
-  border: 1px solid rgba(37, 99, 235, 0.20);
-  color: #1D4ED8;
+  background: rgba(20, 150, 127, 0.08);
+  border: 1px solid rgba(20, 150, 127, 0.20);
+  color: #0B6456;
 }
 .dma-banner.warn {
   background: rgba(217, 119, 6, 0.09);
@@ -555,16 +555,16 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
   flex-shrink: 0;
 }
 .dma-filters button:hover {
-  border-color: #2563EB;
-  color: #1D4ED8;
-  background: rgba(37, 99, 235, 0.05);
+  border-color: #14967F;
+  color: #0B6456;
+  background: rgba(20, 150, 127, 0.05);
 }
 .dma-filters button.on,
 .dma-filters button.active {
-  background: linear-gradient(135deg, #2563EB, #1D4ED8);
+  background: linear-gradient(135deg, #14967F, #0B6456);
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.30);
+  box-shadow: 0 2px 6px rgba(20, 150, 127, 0.30);
 }
 
 @media (max-width: 640px) {
@@ -610,10 +610,10 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
   cursor: pointer;
   transition: color 0.13s, background 0.13s, box-shadow 0.13s;
 }
-.dma-tabs button:hover { color: #1D4ED8; background: #fff; }
+.dma-tabs button:hover { color: #0B6456; background: #fff; }
 .dma-tabs button:focus-visible { outline: none; box-shadow: var(--ds-focus); }
 .dma-tabs button.active {
-  color: #1D4ED8;
+  color: #0B6456;
   background: #fff;
   font-weight: 750;
   box-shadow: var(--ds-shadow-xs);
@@ -657,12 +657,12 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
 
 .dma-table tbody td {
   padding: 12px 16px;
-  color: #1E293B;
+  color: #0B6456;
   border-bottom: 1px solid var(--doc-border, #E2E8F0);
   vertical-align: middle;
 }
 .dma-table tbody tr:last-child td { border-bottom: none; }
-.dma-table tbody tr:hover td { background: rgba(37, 99, 235, 0.03); }
+.dma-table tbody tr:hover td { background: rgba(20, 150, 127, 0.03); }
 
 /* ═══════════════════════════════════════════════════════════
    15. FORM FIELDS
@@ -718,8 +718,8 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
 .dma-field select:focus,
 .dma-search:focus,
 .dma-status-sel:focus {
-  border-color: #2563EB;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+  border-color: #14967F;
+  box-shadow: 0 0 0 3px rgba(20, 150, 127, 0.14);
 }
 
 .dma-field select,
@@ -783,7 +783,7 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
 }
 
 .dma-switch input:checked + span {
-  background: #2563EB;
+  background: #14967F;
 }
 .dma-switch input:checked + span::after {
   transform: translateX(20px);
@@ -804,7 +804,7 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
 .dma-appt-time {
   font-size: 0.8125rem;
   font-weight: 800;
-  color: #1D4ED8;
+  color: #0B6456;
   white-space: nowrap;
   min-width: 60px;
   flex-shrink: 0;
@@ -853,8 +853,8 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
   transition: background 0.12s;
 }
 .dma-inbox-item:last-child { border-bottom: none; }
-.dma-inbox-item:hover { background: rgba(37, 99, 235, 0.04); }
-.dma-inbox-item.on { background: rgba(37, 99, 235, 0.08); border-left: 3px solid #2563EB; }
+.dma-inbox-item:hover { background: rgba(20, 150, 127, 0.04); }
+.dma-inbox-item.on { background: rgba(20, 150, 127, 0.08); border-left: 3px solid #14967F; }
 
 .dma-inbox-item .name {
   font-size: 0.8125rem;
@@ -922,8 +922,8 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
   outline: none;
 }
 .dma-thread-c input:focus {
-  border-color: #2563EB;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  border-color: #14967F;
+  box-shadow: 0 0 0 3px rgba(20, 150, 127, 0.12);
 }
 
 /* Chat bubbles */
@@ -937,12 +937,12 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
 }
 .dma-bubble.in {
   background: #F1F5F9;
-  color: #1E293B;
+  color: #0B6456;
   border-bottom-left-radius: 4px;
   align-self: flex-start;
 }
 .dma-bubble.out {
-  background: linear-gradient(135deg, #2563EB, #1D4ED8);
+  background: linear-gradient(135deg, #14967F, #0B6456);
   color: #fff;
   border-bottom-right-radius: 4px;
   align-self: flex-end;
@@ -977,7 +977,7 @@ a.dma-row-item:hover { background: rgba(37, 99, 235, 0.04); border-radius: 8px; 
   font-weight: 700;
   font-family: inherit;
   box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  background: #1E293B;
+  background: #0B6456;
   color: #F1F5F9;
   animation: dma-toast-in 0.22s ease both;
   pointer-events: auto;
@@ -1154,7 +1154,7 @@ html[data-theme="dark"] .dma-table tbody td {
   border-color: #2D3748;
 }
 html[data-theme="dark"] .dma-table tbody tr:hover td {
-  background: rgba(37, 99, 235, 0.06);
+  background: rgba(20, 150, 127, 0.06);
 }
 
 html[data-theme="dark"] .dma-filters button {
@@ -1163,8 +1163,8 @@ html[data-theme="dark"] .dma-filters button {
   color: #8B98AE;
 }
 html[data-theme="dark"] .dma-filters button:hover {
-  background: rgba(37, 99, 235, 0.12);
-  border-color: #2563EB;
+  background: rgba(20, 150, 127, 0.12);
+  border-color: #14967F;
   color: #93C5FD;
 }
 
@@ -1183,8 +1183,8 @@ html[data-theme="dark"] .dma-tabs button.active {
 }
 
 html[data-theme="dark"] .dma-inbox-item { border-color: #2D3748; }
-html[data-theme="dark"] .dma-inbox-item:hover { background: rgba(37, 99, 235, 0.08); }
-html[data-theme="dark"] .dma-inbox-item.on { background: rgba(37, 99, 235, 0.14); border-left-color: #60A5FA; }
+html[data-theme="dark"] .dma-inbox-item:hover { background: rgba(20, 150, 127, 0.08); }
+html[data-theme="dark"] .dma-inbox-item.on { background: rgba(20, 150, 127, 0.14); border-left-color: #60A5FA; }
 
 html[data-theme="dark"] .dma-bubble.in {
   background: #21262D;
@@ -1193,11 +1193,11 @@ html[data-theme="dark"] .dma-bubble.in {
 
 html[data-theme="dark"] .dma-btn-ghost {
   background: #21262D;
-  border-color: rgba(37, 99, 235, 0.35);
+  border-color: rgba(20, 150, 127, 0.35);
   color: #60A5FA;
 }
 html[data-theme="dark"] .dma-btn-ghost:hover:not(:disabled) {
-  background: rgba(37, 99, 235, 0.14);
+  background: rgba(20, 150, 127, 0.14);
 }
 
 html[data-theme="dark"] .dma-banner.warn {
@@ -1207,8 +1207,8 @@ html[data-theme="dark"] .dma-banner.warn {
 }
 html[data-theme="dark"] .dma-banner.ok,
 html[data-theme="dark"] .dma-banner:not(.warn):not(.err) {
-  background: rgba(37, 99, 235, 0.12);
-  border-color: rgba(37, 99, 235, 0.25);
+  background: rgba(20, 150, 127, 0.12);
+  border-color: rgba(20, 150, 127, 0.25);
   color: #93C5FD;
 }
 
@@ -1219,7 +1219,7 @@ html[data-theme="dark"] .dma-row-item:last-child { border-color: transparent; }
 html[data-theme="dark"] .dma-chip-green  { background: rgba(22,163,74,.18);  color: #4ADE80; }
 html[data-theme="dark"] .dma-chip-amber  { background: rgba(217,119,6,.18);  color: #FCD34D; }
 html[data-theme="dark"] .dma-chip-red    { background: rgba(220,38,38,.18);  color: #F87171; }
-html[data-theme="dark"] .dma-chip-blue   { background: rgba(37,99,235,.18);  color: #60A5FA; }
+html[data-theme="dark"] .dma-chip-blue   { background: rgba(20,150,127,.18);  color: #60A5FA; }
 html[data-theme="dark"] .dma-chip-slate  { background: rgba(100,116,139,.15); color: #94A3B8; }
 
 html[data-theme="dark"] .dma-skel {

@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Leads — Doctors My Agency</title>
+  <title>Leads  -  Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=15" />
-  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=9" />
-  <link rel="stylesheet" href="/dma-doctor-app.css?v=3" />
-  <link rel="stylesheet" href="/dma-doctor-pages.css?v=3" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=20" />
+  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=13" />
+  <link rel="stylesheet" href="/dma-doctor-app.css?v=6" />
+  <link rel="stylesheet" href="/dma-doctor-pages.css?v=4" />
 </head>
 <body>
   <div class="doc-layout">
@@ -41,17 +41,17 @@
         </div>
 
         <div class="dma-kpis" id="leads-stats">
-          <div class="dma-kpi"><div><label>Total</label><strong id="stat-total">—</strong><span class="sub">all time</span></div></div>
-          <div class="dma-kpi"><div><label>Hot</label><strong id="stat-hot">—</strong><span class="sub">need follow-up</span></div></div>
-          <div class="dma-kpi"><div><label>Booked</label><strong id="stat-booked">—</strong><span class="sub">this month</span></div></div>
-          <div class="dma-kpi"><div><label>Conversion</label><strong id="stat-conv">—%</strong><span class="sub">lead → booked</span></div></div>
+          <div class="dma-kpi"><div><label>Total</label><strong id="stat-total"> - </strong><span class="sub">all time</span></div></div>
+          <div class="dma-kpi"><div><label>Hot</label><strong id="stat-hot"> - </strong><span class="sub">need follow-up</span></div></div>
+          <div class="dma-kpi"><div><label>Booked</label><strong id="stat-booked"> - </strong><span class="sub">this month</span></div></div>
+          <div class="dma-kpi"><div><label>Conversion</label><strong id="stat-conv"> - %</strong><span class="sub">lead â†’ booked</span></div></div>
         </div>
 
         <div class="dma-tabs" id="leads-view">
           <button type="button" class="active" onclick="switchView('kanban', this)">Pipeline</button>
           <button type="button" onclick="switchView('list', this)">List</button>
         </div>
-        <p class="dma-hint" id="leads-count-label">Loading…</p>
+        <p class="dma-hint" id="leads-count-label">Loading...</p>
 
         <!-- Kanban view -->
         <div id="view-kanban">
@@ -61,7 +61,7 @@
                 <span class="pipeline-col-title">New</span>
                 <span class="pipeline-badge" id="badge-new">0</span>
               </div>
-              <div class="pipeline-col-body" id="col-new"><p style="text-align:center;color:var(--faint);font-size:var(--f-sm);padding:2rem 0">Loading…</p></div>
+              <div class="pipeline-col-body" id="col-new"><p style="text-align:center;color:var(--faint);font-size:var(--f-sm);padding:2rem 0">Loading...</p></div>
             </div>
             <div class="pipeline-col col-warm">
               <div class="pipeline-col-header">
@@ -72,14 +72,14 @@
             </div>
             <div class="pipeline-col col-hot">
               <div class="pipeline-col-header">
-                <span class="pipeline-col-title">Hot 🔥</span>
+                <span class="pipeline-col-title">Hot ðŸ”¥</span>
                 <span class="pipeline-badge" id="badge-hot">0</span>
               </div>
               <div class="pipeline-col-body" id="col-hot"></div>
             </div>
             <div class="pipeline-col col-booked">
               <div class="pipeline-col-header">
-                <span class="pipeline-col-title">Booked ✓</span>
+                <span class="pipeline-col-title">Booked âœ“</span>
                 <span class="pipeline-badge" id="badge-booked">0</span>
               </div>
               <div class="pipeline-col-body" id="col-booked"></div>
@@ -91,12 +91,12 @@
         <div id="view-list" style="display:none">
           <div class="leads-table-section">
             <div class="search-bar">
-              <input type="text" id="leads-search" placeholder="Search by name, phone, or treatment…" />
+              <input type="text" id="leads-search" placeholder="Search by name, phone, or treatment..." />
               <select class="filter-sel" id="leads-score-filter">
                 <option value="">All scores</option>
-                <option value="HOT">🔥 Hot</option>
-                <option value="WARM">🟡 Warm</option>
-                <option value="COLD">❄️ Cold</option>
+                <option value="HOT">ðŸ”¥ Hot</option>
+                <option value="WARM">ðŸŸ¡ Warm</option>
+                <option value="COLD">â„ï¸ Cold</option>
               </select>
               <select class="filter-sel" id="leads-status-filter">
                 <option value="">All statuses</option>
@@ -120,7 +120,7 @@
                   </tr>
                 </thead>
                 <tbody id="leads-tbody">
-                  <tr><td colspan="7" style="text-align:center;padding:3rem 1rem;color:var(--muted);font-weight:600">Loading leads…</td></tr>
+                  <tr><td colspan="7" style="text-align:center;padding:3rem 1rem;color:var(--muted);font-weight:600">Loading leads...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -132,10 +132,10 @@
   </div>
   <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
 
-  <script src="/dashboard-doctor-shell.js?v=12"></script>
-  <script src="/dma-ui.js?v=5"></script>
-  <script src="/dma-doctor-app.js?v=3"></script>
-  <script src="/dashboard-bootstrap.js?v=4"></script>
+  <script src="/dashboard-doctor-shell.js?v=16"></script>
+  <script src="/dma-ui.js?v=8"></script>
+  <script src="/dma-doctor-app.js?v=4"></script>
+  <script src="/dashboard-bootstrap.js?v=6"></script>
   <script>
   (function () {
     if (!DmaDoctorShell.initStaticPage('/dashboard/leads/', 'Leads & Pipeline')) return;
@@ -148,7 +148,7 @@
     function ah() { return { Authorization: 'Bearer ' + (token || ''), 'Content-Type': 'application/json' }; }
     function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
     function ago(d) {
-      if (!d) return '—';
+      if (!d) return ' - ';
       var diff = (Date.now() - new Date(d)) / 1000;
       if (diff < 60) return 'just now';
       if (diff < 3600) return Math.floor(diff/60) + 'm ago';
@@ -168,14 +168,14 @@
       if (window.DmaUI && DmaUI.drawer) {
         DmaUI.drawer({
           title: l.fullName || l.phone || 'Lead',
-          subtitle: (l.leadScore || '') + (l.status ? ' · ' + l.status : ''),
+          subtitle: (l.leadScore || '') + (l.status ? ' Â· ' + l.status : ''),
           html: (window.DmaUI ? DmaUI.kv([
-            ['Phone', l.phone || '—'],
-            ['Email', l.email || '—'],
-            ['Score', l.leadScore || '—'],
-            ['Status', l.status || '—'],
-            ['Treatment', l.treatmentInterest || l.intent || '—'],
-            ['Source', l.source || '—'],
+            ['Phone', l.phone || ' - '],
+            ['Email', l.email || ' - '],
+            ['Score', l.leadScore || ' - '],
+            ['Status', l.status || ' - '],
+            ['Treatment', l.treatmentInterest || l.intent || ' - '],
+            ['Source', l.source || ' - '],
             ['Updated', ago(l.updatedAt || l.createdAt)]
           ]) : ''),
           tabs: [
@@ -286,19 +286,19 @@
         return;
       }
       var scoreColors = { HOT: '#DC2626', WARM: '#D97706', COLD: '#94A3B8' };
-      var scoreLabels = { HOT: '🔥 Hot', WARM: '🟡 Warm', COLD: '❄️ Cold' };
+      var scoreLabels = { HOT: 'ðŸ”¥ Hot', WARM: 'ðŸŸ¡ Warm', COLD: 'â„ï¸ Cold' };
       tbody.innerHTML = filtered.slice(0, 50).map(function (l) {
         var score = (l.leadScore || 'COLD').toUpperCase();
         var status = l.status || 'NEW';
-        var srcIcon = l.source === 'WHATSAPP' ? '📱' : l.source === 'EMAIL' ? '✉️' : '🌐';
+        var srcIcon = l.source === 'WHATSAPP' ? 'ðŸ“±' : l.source === 'EMAIL' ? 'âœ‰ï¸' : 'ðŸŒ';
         return '<tr data-id="' + esc(l.id) + '">' +
-          '<td data-label="Patient"><strong>' + esc(l.fullName || '—') + '</strong><br><span style="color:var(--muted);font-size:.72rem">' + esc(l.phone || '') + '</span></td>' +
-          '<td data-label="Treatment">' + esc(l.treatmentInterest || l.intent || '—') + '</td>' +
+          '<td data-label="Patient"><strong>' + esc(l.fullName || ' - ') + '</strong><br><span style="color:var(--muted);font-size:.72rem">' + esc(l.phone || '') + '</span></td>' +
+          '<td data-label="Treatment">' + esc(l.treatmentInterest || l.intent || ' - ') + '</td>' +
           '<td data-label="Score"><span style="display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;color:' + (scoreColors[score] || '#94A3B8') + '">' +
             '<span style="width:8px;height:8px;border-radius:50%;background:' + (scoreColors[score] || '#94A3B8') + ';flex-shrink:0;display:inline-block"></span>' +
             (scoreLabels[score] || score) + '</span></td>' +
-          '<td data-label="Status"><span style="font-size:.67rem;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(37,99,235,.1);color:#2563EB">' + esc(status) + '</span></td>' +
-          '<td data-label="Source">' + srcIcon + ' ' + esc(l.source || '—') + '</td>' +
+          '<td data-label="Status"><span style="font-size:.67rem;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(20,150,127,.1);color:#14967F">' + esc(status) + '</span></td>' +
+          '<td data-label="Source">' + srcIcon + ' ' + esc(l.source || ' - ') + '</td>' +
           '<td data-label="Activity">' + ago(l.updatedAt || l.createdAt) + '</td>' +
           '<td data-label="Actions" style="white-space:nowrap">' +
             '<a href="/dashboard/messages/' + (l.patientId ? '?patient=' + encodeURIComponent(l.patientId) : '') + '" style="font-size:.72rem;font-weight:700;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--c-blue);text-decoration:none;margin-right:4px">Message</a>' +

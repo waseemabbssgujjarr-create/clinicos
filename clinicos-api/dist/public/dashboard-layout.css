@@ -220,7 +220,7 @@ body.min-h-screen main [class*="lg:grid-cols-4"] > div[class*="border-l"] {
 body.min-h-screen main [class*="border-l-4"][class*="border-l-brand"],
 body.min-h-screen main [class*="border-l-brand"] {
   border-left-width: 4px !important;
-  border-left-color: #2563EB !important;
+  border-left-color: #14967F !important;
 }
 
 /* ── Filter pill rows ────────────────────────────────────────────────────── */
@@ -424,8 +424,8 @@ body.min-h-screen main .dma-quick-actions-card .card-body button[class*="flex-co
   box-sizing: content-box !important;
   border-radius: 12px !important;
   background: rgba(37, 99, 235, 0.1) !important;
-  color: #1D4ED8 !important;
-  stroke: #1D4ED8 !important;
+  color: #0B6456 !important;
+  stroke: #0B6456 !important;
 }
 
 body.min-h-screen main .dma-quick-actions button span,
@@ -440,9 +440,9 @@ body.min-h-screen main .dma-quick-actions-card .card-body button[class*="flex-co
   body.min-h-screen main .dma-quick-actions button:hover,
   body.min-h-screen main .dma-quick-actions-card .card-body button[class*="flex-col"]:hover {
     background: #EFF6FF !important;
-    border-color: #2563EB !important;
-    color: #1E40AF !important;
-    -webkit-text-fill-color: #1E40AF !important;
+    border-color: #14967F !important;
+    color: #0E7A68 !important;
+    -webkit-text-fill-color: #0E7A68 !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 6px 18px rgba(37, 99, 235, 0.16) !important;
   }
@@ -450,8 +450,8 @@ body.min-h-screen main .dma-quick-actions-card .card-body button[class*="flex-co
   body.min-h-screen main .dma-quick-actions button:hover svg,
   body.min-h-screen main .dma-quick-actions-card .card-body button[class*="flex-col"]:hover svg {
     background: rgba(37, 99, 235, 0.18) !important;
-    color: #1E40AF !important;
-    stroke: #1E40AF !important;
+    color: #0E7A68 !important;
+    stroke: #0E7A68 !important;
   }
 }
 
@@ -504,9 +504,9 @@ body.min-h-screen main .dma-settings-tabs button {
 body.min-h-screen main [class*="border-b"] button[class*="text-brand"],
 body.min-h-screen main [class*="border-b"] button[class*="border-brand"],
 body.min-h-screen main .dma-settings-tabs button.dma-tab-active {
-  color: #1D4ED8 !important;
+  color: #0B6456 !important;
   background: rgba(37, 99, 235, 0.08) !important;
-  border-bottom-color: #2563EB !important;
+  border-bottom-color: #14967F !important;
 }
 
 /* Personality / toggle button groups */
@@ -660,7 +660,7 @@ body.min-h-screen main h1::after {
   height: 3px !important;
   margin-top: 0.5rem !important;
   border-radius: 2px !important;
-  background: linear-gradient(90deg, #2563EB, #1D4ED8) !important;
+  background: linear-gradient(90deg, #14967F, #0B6456) !important;
 }
 
 body.min-h-screen main .card,
@@ -707,10 +707,10 @@ body.min-h-screen main .dma-settings-tabs button {
 
 body.min-h-screen main .dma-settings-tabs button.dma-tab-active,
 body.min-h-screen main .dma-settings-tabs button[class*="text-brand"] {
-  color: #1E40AF !important;
-  -webkit-text-fill-color: #1E40AF !important;
+  color: #0E7A68 !important;
+  -webkit-text-fill-color: #0E7A68 !important;
   background: rgba(37, 99, 235, 0.1) !important;
-  border-bottom: 2px solid #2563EB !important;
+  border-bottom: 2px solid #14967F !important;
 }
 
 body.min-h-screen main .dma-filter-row {

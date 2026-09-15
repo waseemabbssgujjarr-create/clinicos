@@ -57,8 +57,8 @@ body.min-h-screen main .dma-settings-tabs button.dma-tab-active,
 body.min-h-screen main .dma-settings-tabs button[aria-selected="true"],
 body.min-h-screen main [class*="border-b"] > button[class*="text-brand"],
 body.min-h-screen main [class*="border-b"] > button[class*="border-brand"] {
-  color: #1E40AF !important;
-  -webkit-text-fill-color: #1E40AF !important;
+  color: #0E7A68 !important;
+  -webkit-text-fill-color: #0E7A68 !important;
   background: rgba(37, 99, 235, 0.12) !important;
   border-color: rgba(37, 99, 235, 0.45) !important;
 }
@@ -101,8 +101,8 @@ body.min-h-screen main button[role="switch"][aria-checked="true"],
 body.min-h-screen main button[aria-checked="true"],
 body.min-h-screen main button.relative[class*="inline-flex"][class*="rounded-full"][class*="bg-brand"],
 body.min-h-screen main button[class*="rounded-full"][class*="bg-brand"]:not([class*="px-"]) {
-  background: #2563EB !important;
-  border-color: #1D4ED8 !important;
+  background: #14967F !important;
+  border-color: #0B6456 !important;
 }
 
 body.min-h-screen main button[role="switch"] > span,
@@ -202,8 +202,8 @@ body.min-h-screen main .dma-filter-row button {
 body.min-h-screen main .dma-filter-row button[class*="bg-brand"],
 body.min-h-screen main .dma-filter-row button[class*="text-brand"] {
   background: rgba(37, 99, 235, 0.15) !important;
-  color: #1E40AF !important;
-  -webkit-text-fill-color: #1E40AF !important;
+  color: #0E7A68 !important;
+  -webkit-text-fill-color: #0E7A68 !important;
   border-color: rgba(37, 99, 235, 0.4) !important;
 }
 
@@ -244,8 +244,8 @@ body.min-h-screen main .dma-wa-quicklinks a {
   border-radius: 10px !important;
   background: #fff !important;
   border: 1px solid #e2e8f0 !important;
-  color: #1E40AF !important;
-  -webkit-text-fill-color: #1E40AF !important;
+  color: #0E7A68 !important;
+  -webkit-text-fill-color: #0E7A68 !important;
   text-decoration: none !important;
 }
 

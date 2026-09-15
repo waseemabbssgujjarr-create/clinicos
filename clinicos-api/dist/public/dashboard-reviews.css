@@ -124,9 +124,9 @@ body.dma-reviews-page main .card button.dma-reply-btn {
   flex: 0 0 auto !important;
   border-radius: 10px !important;
   background: #fff !important;
-  border: 2px solid #2563EB !important;
-  color: #1E40AF !important;
-  -webkit-text-fill-color: #1E40AF !important;
+  border: 2px solid #14967F !important;
+  color: #0E7A68 !important;
+  -webkit-text-fill-color: #0E7A68 !important;
   font-weight: 700 !important;
   font-size: 0.8125rem !important;
   white-space: nowrap !important;
@@ -138,9 +138,9 @@ body.dma-reviews-page main .card button.dma-reply-btn {
 @media (hover: hover) {
   body.dma-reviews-page main button.dma-reply-btn:hover {
     background: #EFF6FF !important;
-    border-color: #1D4ED8 !important;
-    color: #1E3A8A !important;
-    -webkit-text-fill-color: #1E3A8A !important;
+    border-color: #0B6456 !important;
+    color: #0B6456 !important;
+    -webkit-text-fill-color: #0B6456 !important;
     box-shadow: 0 2px 10px rgba(37, 99, 235, 0.2) !important;
   }
 }
@@ -161,7 +161,7 @@ body.dma-reviews-page main [class*="border-l-4"][class*="border-brand"],
 body.dma-reviews-page main .card [class*="bg-brand-light"] {
   margin-top: 0.875rem !important;
   padding: 0.75rem 0.875rem !important;
-  border-left: 4px solid #2563EB !important;
+  border-left: 4px solid #14967F !important;
   border-radius: 0 10px 10px 0 !important;
   background: linear-gradient(90deg, rgba(37, 99, 235, 0.08), #fff 70%) !important;
   border-top: none !important;
@@ -176,7 +176,7 @@ body.dma-reviews-page main [class*="bg-brand-light"] p.font-bold:first-child {
   font-weight: 800 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.05em !important;
-  color: #1E40AF !important;
+  color: #0E7A68 !important;
   margin-bottom: 0.35rem !important;
 }
 
@@ -191,7 +191,7 @@ body.dma-reviews-page main .dma-reviews-summary input {
 }
 
 body.dma-reviews-page main .dma-reviews-summary input:focus {
-  border-color: #2563EB !important;
+  border-color: #14967F !important;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
   outline: none !important;
 }

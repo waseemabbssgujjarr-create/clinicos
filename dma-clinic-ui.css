@@ -2,7 +2,7 @@
  * Doctors My Agency — Complete Clinic UI v1.0
  * ============================================
  * IQPigeon-inspired light design for doctors.
- * Blue brand (#2563EB). Light default. Dark optional.
+ * Blue brand (#14967F). Light default. Dark optional.
  *
  * Loaded via dashboard-bootstrap.js on ALL /dashboard/* pages.
  *
@@ -14,8 +14,8 @@
    TOKENS
    ════════════════════════════════════════════════════════════ */
 :root {
-  --dma-blue:        #2563EB;
-  --dma-blue-dark:   #1D4ED8;
+  --dma-blue:        #14967F;
+  --dma-blue-dark:   #0B6456;
   --dma-blue-light:  #EFF6FF;
   --dma-blue-mid:    rgba(37,99,235,.12);
   --dma-blue-border: rgba(37,99,235,.28);

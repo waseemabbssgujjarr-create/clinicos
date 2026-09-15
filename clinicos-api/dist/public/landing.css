@@ -4,13 +4,13 @@
   --bg-elevated: #1a1d28;
   --text: #f8fafc;
   --muted: #94a3b8;
-  --purple: #2563EB;
+  --purple: #14967F;
   --blue: #3b82f6;
   --teal: #14b8a6;
   --green: #22c55e;
   --red: #ef4444;
-  --gradient: linear-gradient(135deg, #2563EB 0%, #3B82F6 60%, #60A5FA 100%);
-  --gradient-btn: linear-gradient(135deg, #2563EB, #1D4ED8);
+  --gradient: linear-gradient(135deg, #14967F 0%, #0E7A68 60%, #FAD069 100%);
+  --gradient-btn: linear-gradient(135deg, #14967F, #0B6456);
   --radius: 16px;
   --max: 1200px;
   --shadow-sm: 0 2px 8px rgba(0,0,0,0.25);
@@ -51,7 +51,7 @@ html[data-theme="light"] .chat-out { background: #059669; }
 html[data-theme="light"] .cta-banner .btn { background: #fff; color: #1e1b4b; }
 html[data-theme="light"] .badge {
   background: rgba(37,99,235,0.10);
-  color: #1D4ED8;
+  color: #0B6456;
   border-color: rgba(37,99,235,0.20);
 }
 
@@ -95,7 +95,7 @@ body > script {
   opacity: 0.35;
   z-index: 0;
 }
-.glow-purple { background: #2563EB; width: 400px; height: 400px; top: -100px; left: -100px; }
+.glow-purple { background: #14967F; width: 400px; height: 400px; top: -100px; left: -100px; }
 .glow-blue { background: #2563eb; width: 350px; height: 350px; top: 200px; right: -80px; }
 .glow-teal { background: #0d9488; width: 300px; height: 300px; bottom: 0; left: 30%; }
 
@@ -113,7 +113,7 @@ nav {
 .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 0.95rem; }
 .logo-icon {
   width: 32px; height: 32px; border-radius: 8px;
-  background: linear-gradient(135deg, #2563EB, #1D4ED8);
+  background: linear-gradient(135deg, #14967F, #0B6456);
   display: grid; place-items: center; font-size: 0.75rem;
 }
 .nav-links { display: flex; gap: 24px; list-style: none; }
@@ -169,7 +169,7 @@ nav {
 
 .badge {
   display: inline-block; padding: 5px 12px; border-radius: 6px;
-  background: rgba(37,99,235,0.15); color: #93C5FD; font-size: 0.6875rem; font-weight: 600;
+  background: rgba(20,150,127,0.15); color: #0B6456; font-size: 0.6875rem; font-weight: 600;
   border: 1px solid rgba(37,99,235,0.25); margin-bottom: 16px; letter-spacing: 0.02em;
 }
 
@@ -179,7 +179,7 @@ nav {
   font-size: clamp(1.65rem, 3.5vw, 2.25rem); font-weight: 700; line-height: 1.15;
   letter-spacing: -0.02em; margin-bottom: 14px;
 }
-.hero h1 span { background: linear-gradient(135deg, #2563EB 0%, #3B82F6 60%, #60A5FA 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero h1 span { background: linear-gradient(135deg, #14967F 0%, #0E7A68 60%, #FAD069 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .hero p { color: var(--muted); font-size: 0.875rem; max-width: 480px; margin-bottom: 24px; line-height: 1.6; }
 .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
@@ -330,13 +330,13 @@ section { padding: 64px 0; }
   font-family: Montserrat, Inter, system-ui, sans-serif;
   transition: color 0.15s, background 0.15s;
 }
-.faq-question:hover { color: #93C5FD; background: rgba(37,99,235,0.06); }
+.faq-question:hover { color: #0B6456; background: rgba(20,150,127,0.06); }
 .faq-icon {
   flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
-  background: rgba(37,99,235,0.15); display: grid; place-items: center;
-  font-size: 1.1rem; color: #93C5FD; transition: transform 0.25s, background 0.2s;
+  background: rgba(20,150,127,0.15); display: grid; place-items: center;
+  font-size: 1.1rem; color: #0B6456; transition: transform 0.25s, background 0.2s;
 }
-.faq-item.is-open .faq-icon { transform: rotate(45deg); background: rgba(37,99,235,0.30); }
+.faq-item.is-open .faq-icon { transform: rotate(45deg); background: rgba(20,150,127,0.30); }
 .faq-answer {
   max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease;
   padding: 0 24px;

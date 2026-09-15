@@ -2,7 +2,7 @@
  * Doctors My Agency — Admin UI v1.0
  * ==================================
  * IQPigeon admin-inspired design for superadmin.
- * Blue brand (#2563EB) replaces orange.
+ * Blue brand (#14967F) replaces orange.
  * Light theme default, dark optional.
  *
  * Applied to ALL /superadmin/* pages.
@@ -12,8 +12,8 @@
    TOKENS
    ═══════════════════════════════════════ */
 :root {
-  --adm-blue:        #2563EB;
-  --adm-blue-dark:   #1D4ED8;
+  --adm-blue:        #14967F;
+  --adm-blue-dark:   #0B6456;
   --adm-blue-light:  #EFF6FF;
   --adm-blue-mid:    rgba(37,99,235,.12);
   --adm-blue-border: rgba(37,99,235,.3);
@@ -24,7 +24,7 @@
   --adm-border:      #E2E8F0;
   --adm-border-2:    #CBD5E1;
 
-  --adm-sidebar-bg:  #1E293B;
+  --adm-sidebar-bg:  #0B6456;
   --adm-sidebar-w:   240px;
 
   --adm-text:        #111827;
@@ -351,7 +351,7 @@ body.min-h-screen.bg-app main span[class*="rounded-full"][class*="text-xs"] {
   border-radius: var(--adm-radius-sm) !important;
   padding: 12px 16px !important;
   font-size: .8125rem !important;
-  color: #1E40AF !important;
+  color: #0E7A68 !important;
   margin-bottom: 16px !important;
 }
 

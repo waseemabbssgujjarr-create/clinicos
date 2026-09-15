@@ -74,10 +74,10 @@
       wide: true,
       tabs: [
         { id: "overview", label: "Overview" },
-        { id: "users", label: "Users" },
-        { id: "patients", label: "Patients" },
-        { id: "appointments", label: "Appointments" },
-        { id: "billing", label: "Billing" },
+        { id: "profile", label: "Profile" },
+        { id: "whatsapp", label: "WhatsApp" },
+        { id: "ai", label: "AI" },
+        { id: "subscription", label: "Subscription" },
         { id: "activity", label: "Activity" }
       ],
       footer: '<a class="ds-btn ds-btn-outline" href="/superadmin/clinics/' + encodeURIComponent(id) + '/">Open full workspace</a>',

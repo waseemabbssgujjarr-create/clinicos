@@ -2,7 +2,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=15';
+    ds.href = '/dma-design-system.css?v=20';
     document.head.appendChild(ds);
   }
   var ICONS = {
@@ -24,7 +24,7 @@
   var NAV_GROUPS = [
     { label: 'Platform', items: [
       { href: '/superadmin/', label: 'Overview', icon: 'overview' },
-      { href: '/superadmin/clinics/', label: 'Organizations', icon: 'clinics' },
+      { href: '/superadmin/clinics/', label: 'Clinics', icon: 'clinics' },
       { href: '/superadmin/users/', label: 'Users', icon: 'users' },
     ]},
     { label: 'Operations', items: [
@@ -38,7 +38,7 @@
       { href: '/superadmin/revenue/', label: 'Analytics', icon: 'revenue' },
     ]},
     { label: 'System', items: [
-      { href: '/superadmin/api/', label: 'API', icon: 'api' },
+      { href: '/superadmin/api/', label: 'WhatsApp API', icon: 'api' },
       { href: '/superadmin/health/', label: 'System Health', icon: 'health' },
       { href: '/superadmin/audit/', label: 'Audit Logs', icon: 'audit' },
       { href: '/superadmin/support/', label: 'Support', icon: 'announce' },
@@ -145,7 +145,7 @@
         '<button type="button" class="sa-menu-btn" aria-label="Open menu" aria-expanded="false">' +
           '<span></span><span></span><span></span>' +
         '</button>' +
-        '<div class="sa-mobile-brand"><strong>Doctors My Agency</strong><span>Platform Admin</span></div>';
+        '<div class="sa-mobile-brand"><strong>Doctors My Agency</strong><span>Control Center</span></div>';
       document.body.appendChild(bar);
       bar.querySelector('.sa-menu-btn').onclick = function () {
         var open = !document.body.classList.contains('sa-nav-open');
@@ -176,7 +176,7 @@
     container.innerHTML =
       '<div class="sa-brand">' +
         '<div class="sa-brand-icon">DM</div>' +
-        '<div class="sa-brand-text"><strong>Doctors My Agency</strong><span>Platform Admin</span></div>' +
+        '<div class="sa-brand-text"><strong>Doctors My Agency</strong><span>Control Center</span></div>' +
       '</div>' +
       '<nav>' + links + '</nav>' +
       '<div class="sa-sidebar-footer">' +

@@ -31,7 +31,7 @@
   }
 
   function pageHead(title, desc, actionsHtml, kicker) {
-    return '<div class="dma-head dma-head-page"><div>' +
+    return '<div class="dma-head dma-head-page ds-page-enter"><div>' +
       (kicker ? '<div class="dma-head-kicker"><span class="ds-pill">' + kicker + '</span></div>' : '') +
       '<h1>' + title + '</h1>' +
       (desc ? '<p class="dma-prose">' + desc + '</p>' : '') +
@@ -139,8 +139,12 @@
     opts = opts || {};
     if (!rows.length) return A().empty('No appointments today', 'Book a visit or wait for WhatsApp bookings.', '/dashboard/appointments/?action=book', 'Book now');
     var u = A().user();
-      var pract = (global.DmaClinical && DmaClinical.assignedClinician(a).name) || (u.ownerName || u.name || 'Clinic');
     return '<div class="dma-timeline">' + rows.map(function (a) {
+      var pract = (u.ownerName || u.name || 'Clinic');
+      if (global.DmaClinical && DmaClinical.assignedClinician) {
+        var c = DmaClinical.assignedClinician(a);
+        if (c && c.name) pract = c.name;
+      }
       var p = a.patient || {};
       var action = '';
       if (opts.checkIn && statusOf(a) === 'CONFIRMED') {
@@ -227,7 +231,7 @@
     var clinic = u.name || u.clinicName || 'Your clinic';
     root.innerHTML =
       pageHead(greeting() + ', ' + esc(firstName()),
-        "Today's clinic overview.",
+        new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }) + ' — today’s clinic overview.',
         '',
         'Overview') +
       '<div class="cos-quick-actions">' +
@@ -239,18 +243,27 @@
       '<div id="home-clinic">' + A().spinner() + '</div>';
 
     Promise.all([
-      A().get('/api/appointments?filter=today&limit=80').catch(function () { return { data: [] }; }),
+      A().get('/api/appointments?filter=today&limit=80').catch(function () { return { _fail: true, data: [] }; }),
       A().get('/api/appointments?filter=month&limit=200').catch(function () { return { data: [] }; }),
       A().get('/api/analytics/overview').catch(function () { return {}; }),
       A().get('/api/analytics/weekly-appointments').catch(function () { return []; }),
       A().get('/api/staff').catch(function () { return []; }),
-      A().waStatus().catch(function () { return {}; }),
+      A().waStatus().catch(function () { return { unavailable: true }; }),
       A().get('/api/ai/training-profile').catch(function () { return {}; }),
       A().get('/api/leads?limit=20').catch(function () { return { leads: [] }; }),
       A().get('/api/settings').catch(function () { return {}; }),
       A().get('/api/patients?limit=50').catch(function () { return { data: [] }; }),
+      A().getFull ? A().getFull('/api/lab-orders') : Promise.resolve({ ok: false, d: {} }),
+      A().getFull ? A().getFull('/api/inventory/skus') : Promise.resolve({ ok: false, d: {} }),
+      A().get('/api/notifications/unread-count').catch(function () { return { unavailable: true }; }),
     ]).then(function (p) {
-      var today = apptList(p[0]);
+      var todayPack = p[0] || {};
+      if (todayPack._fail) {
+        el('home-clinic').innerHTML = '<div class="ds-empty"><h2>We couldn’t load today’s schedule.</h2><p>Try again in a moment.</p><button type="button" class="dma-btn dma-btn-primary" id="home-retry">Try again</button></div>';
+        if (el('home-retry')) el('home-retry').onclick = home;
+        return;
+      }
+      var today = apptList(todayPack);
       var month = apptList(p[1]);
       var ov = p[2] || {};
       var week = Array.isArray(p[3]) ? p[3] : [];
@@ -260,6 +273,9 @@
       var leads = p[7].leads || [];
       var settings = p[8] || {};
       var patients = (p[9] && p[9].data) || [];
+      var labRes = p[10] || {};
+      var invRes = p[11] || {};
+      var unreadRes = p[12] || {};
       var rates = todayRates(today);
       var arrived = today.filter(function (a) { return statusOf(a) === 'ARRIVED'; }).length;
       var waitingNow = today.filter(function (a) { return visitOf(a).code === 'WAITING'; }).length;
@@ -277,8 +293,9 @@
       var rev30 = todayRates(month.filter(function (a) { return statusOf(a) === 'COMPLETED'; })).revenue;
 
       var alerts = [];
-      if (!connected) alerts.push('WhatsApp is not connected — patients cannot message the clinic.');
-      if (!published) alerts.push('AI receptionist is draft only — publish training to go live.');
+      if (wa.unavailable) alerts.push('WhatsApp connection status unavailable.');
+      else if (!connected) alerts.push('WhatsApp hasn’t been configured for this clinic.');
+      if (!published && !wa.unavailable) alerts.push('AI receptionist is draft only — publish training to go live.');
       today.filter(function (a) { return statusOf(a) === 'PENDING' && new Date(a.dateTime) < new Date(); }).forEach(function (a) {
         alerts.push((a.patient && a.patient.fullName ? a.patient.fullName : 'A visit') + ' is still pending after start time.');
       });
@@ -295,6 +312,20 @@
         : '<p class="dma-hint">Not enough history yet.</p>';
 
       el('home-clinic').innerHTML =
+        '<div class="ds-command">' +
+        '<div class="ds-status-strip" role="status">' +
+          '<span class="ds-status-chip' + (wa.unavailable ? '' : (connected ? ' is-on' : ' is-off')) + '">WhatsApp · ' + (wa.unavailable ? 'Unavailable' : (connected ? 'Connected' : 'Not connected')) + '</span>' +
+          '<span class="ds-status-chip' + (published ? ' is-on' : '') + '">AI · ' + (published ? 'Published' : 'Draft') + '</span>' +
+          '<span class="ds-status-chip">' + esc(clinic) + '</span>' +
+        '</div>' +
+        '<div class="ds-work-grid">' +
+          '<a class="ds-work-tile" href="/dashboard/appointments/?view=today"><span>Appointments today</span><strong>' + today.length + '</strong></a>' +
+          '<a class="ds-work-tile ds-work-tile--called" href="/dashboard/waiting/"><span>Waiting</span><strong>' + waitingNow + '</strong></a>' +
+          '<a class="ds-work-tile" href="/dashboard/waiting/"><span>In consultation</span><strong>' + inConsult + '</strong></a>' +
+          (unreadRes.unavailable || unreadRes.error
+            ? '<div class="ds-work-tile"><span>Unread updates</span><strong>Unavailable</strong></div>'
+            : '<a class="ds-work-tile" href="/dashboard/notifications/"><span>Unread updates</span><strong>' + Number(unreadRes.count || unreadRes.unread || 0) + '</strong></a>') +
+        '</div>' +
         '<div class="cos-card cos-card--feature cos-ops-hero"><span class="ds-pill">Today\'s operations</span>' +
           '<h2>' + esc(clinic) + '</h2>' +
           '<p>' + esc(cap.label) + '</p>' +
@@ -304,24 +335,35 @@
             '<div><span>In consultation</span><strong>' + inConsult + '</strong></div>' +
             '<div><span>Completed</span><strong>' + rates.completed + '</strong></div>' +
           '</div></div>' +
-        '<div class="cos-kpi-row">' +
-          '<div class="cos-card cos-card--kpi"><span>Visit fees</span><strong>' + money(rates.revenue) + '</strong><em>completed today</em></div>' +
-          '<div class="cos-card cos-card--kpi"><span>Patients</span><strong>' + rates.uniquePatients + '</strong><em>' + newPts + ' new charts today</em></div>' +
-          '<div class="cos-card cos-card--kpi"><span>Waiting</span><strong>' + waitingNow + '</strong><em>ready to call</em></div>' +
-          '<div class="cos-card cos-card--kpi"><span>Follow-ups</span><strong>' + follow + '</strong><em>noted on today\'s visits</em></div>' +
-        '</div>' +
-        sectionBlock("Today's schedule", timelineHtml(today)) +
+        sectionBlock("Today's work", timelineHtml(today)) +
+        sectionBlock('Attention', (function () {
+          var bits = [];
+          if (alerts.length) bits.push('<div class="dma-alert-list">' + alerts.map(function (t) { return '<div class="cos-card cos-card--alert">' + esc(t) + '</div>'; }).join('') + '</div>');
+          bits.push('<div class="ds-attn-row">Patients waiting <strong>' + waitingNow + '</strong></div>');
+          if (!labRes.ok) bits.push('<div class="ds-attn-row">Laboratory <strong>Unavailable</strong></div>');
+          else {
+            var labs = (labRes.d && labRes.d.data) || [];
+            var pendingLab = labs.filter(function (r) { return r.status === 'ORDERED' || r.status === 'COLLECTED' || r.status === 'PROCESSING'; }).length;
+            bits.push('<div class="ds-attn-row">Pending lab orders <strong>' + pendingLab + '</strong></div>');
+          }
+          if (!invRes.ok) bits.push('<div class="ds-attn-row">Inventory <strong>Unavailable</strong></div>');
+          else {
+            var skus = (invRes.d && invRes.d.data) || [];
+            bits.push(skus.length ? '<div class="ds-attn-row">Inventory items <strong>' + skus.length + '</strong></div>' : '<div class="ds-attn-row">Inventory <span class="dma-hint">No items yet</span></div>');
+          }
+          return bits.join('') || '<p class="dma-hint">Nothing needs attention.</p>';
+        })()) +
         '<div class="dma-grid-2">' +
-          sectionBlock('Clinic activity', weekHtml + (ov.totalPatients != null ? '<p class="dma-hint">' + esc(ov.totalPatients) + ' patient charts.</p>' : '')) +
+          sectionBlock('Recent activity', weekHtml + (ov.totalPatients != null ? '<p class="dma-hint">' + esc(ov.totalPatients) + ' patient charts.</p>' : '')) +
           sectionBlock('Visit-fee trend',
             '<p class="dma-hint">Completed visit fees — not software subscription revenue.</p>' +
-            '<strong style="font-size:1.5rem">' + money(rev30) + '</strong><span class="dma-hint"> this month</span>') +
+            '<strong class="ds-metric">' + money(rev30) + '</strong><span class="dma-hint"> this month</span>') +
         '</div>' +
-        sectionBlock('Alerts', alerts.length ? '<div class="dma-alert-list">' + alerts.map(function (t) { return '<div class="cos-card cos-card--alert">' + esc(t) + '</div>'; }).join('') + '</div>' : '<p class="dma-hint">Nothing needs attention.</p>') +
         (team.length ? sectionBlock('Team', '<div class="dma-staff-grid">' + team.map(function (s) {
           var booked = today.filter(function (a) { return a.bookedByStaffId === s.id; }).length;
           return personCard(s.name, s.role, booked, 'Booked today');
-        }).join('') + '</div>') : '');
+        }).join('') + '</div>') : '') +
+        '</div>';
 
       bindTimeline(el('home-clinic'), today, home);
     });
@@ -388,7 +430,7 @@
         b.onclick = function () {
           if (global.DmaClinical && DmaClinical.markCalled) {
             DmaClinical.markCalled(b.getAttribute('data-call'));
-            A().toast('Patient called on this board. This isn’t stored on the server yet.', 'ok');
+            A().toast('Patient called.', 'ok');
             home();
           }
         };
@@ -758,6 +800,8 @@
         { id: 'overview', label: 'Overview' },
         { id: 'appointments', label: 'Appointments' },
         { id: 'messages', label: 'Messages' },
+        { id: 'clinical', label: 'Clinical' },
+        { id: 'documents', label: 'Documents' },
         { id: 'notes', label: 'Notes' },
         { id: 'activity', label: 'Activity' }
       ],
@@ -789,6 +833,19 @@
               return '<p class="dma-hint"><strong>' + (m.direction === 'INBOUND' ? 'Patient' : 'Clinic') + ':</strong> ' + esc((m.body || '').slice(0, 160)) + '</p>';
             }).join('') : '<p class="dma-hint">No messages yet.</p>');
           }).catch(function () { api.setBody('<p class="dma-hint">Could not load messages.</p>'); });
+        } else if (tab === 'clinical') {
+          var lastId = last.id;
+          api.setBody(
+            '<p class="dma-prose">Clinical visits stay on the appointment encounter. This drawer does not invent a second chart.</p>' +
+            (lastId
+              ? '<a class="dma-btn dma-btn-primary" href="/dashboard/clinical/?id=' + esc(lastId) + '">Open last consultation</a>'
+              : '<p class="dma-hint">No visit yet. Book an appointment first.</p>')
+          );
+        } else if (tab === 'documents') {
+          api.setBody(
+            '<p class="dma-prose">Documents are stored on authenticated clinic endpoints. Open the documents workspace to download files.</p>' +
+            '<a class="dma-btn dma-btn-primary" href="/dashboard/documents/">Open documents</a>'
+          );
         } else if (tab === 'activity') {
           A().get('/api/patients/' + p.id + '/appointments').then(function (d) {
             var rows = Array.isArray(d) ? d : (d.data || []);
@@ -811,7 +868,7 @@
       pageHead('Patients', 'Manage patient records, appointments and conversations.',
         '<input class="dma-search" id="pt-search" placeholder="Search name or phone" aria-label="Search patients">' +
         '<button class="dma-btn dma-btn-primary" id="pt-add">Add patient</button>', 'Records') +
-      '<section class="dma-section"><div class="dma-table-wrap"><table class="dma-table"><thead><tr><th>Patient</th><th>Phone</th><th>Visits</th><th>Last visit</th><th></th></tr></thead><tbody id="pt-body"><tr><td colspan="5">' + A().spinner() + '</td></tr></tbody></table></div></section>';
+      '<section class="dma-section"><div class="dma-table-wrap"><table class="dma-table dma-table--patients"><thead><tr><th>Patient</th><th>Phone</th><th>Visits</th><th>Last visit</th><th></th></tr></thead><tbody id="pt-body"><tr><td colspan="5">' + A().spinner() + '</td></tr></tbody></table></div><div class="ds-card-list" id="pt-cards" hidden></div></section>';
 
     var rows = [];
     function load(q) {
@@ -819,6 +876,7 @@
         rows = d.data || [];
         if (!rows.length) {
           el('pt-body').innerHTML = '<tr><td colspan="5">' + A().empty('No patients yet', 'Add a chart, or they will appear from WhatsApp leads.', '#', 'Add patient') + '</td></tr>';
+          if (el('pt-cards')) el('pt-cards').innerHTML = '';
           return;
         }
         el('pt-body').innerHTML = rows.map(function (p, i) {
@@ -833,6 +891,15 @@
               '<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/appointments/?action=book&patient=' + esc(p.id) + '">Book</a>' +
             '</td></tr>';
         }).join('');
+        if (el('pt-cards')) {
+          el('pt-cards').innerHTML = rows.map(function (p, i) {
+            var last = (p.appointments && p.appointments[0]) || {};
+            return '<button type="button" class="ds-entity-card" data-i="' + i + '">' +
+              '<div class="dma-avatar" aria-hidden="true">' + A().initials(p.fullName) + '</div>' +
+              '<div><strong>' + esc(p.fullName) + '</strong><div class="dma-hint">' + esc(p.phone || '') + '</div>' +
+              '<div class="dma-hint">' + (last.dateTime ? A().fmtDate(last.dateTime) : 'No visits yet') + '</div></div></button>';
+          }).join('');
+        }
       });
     }
     el('pt-body').onclick = function (e) {
@@ -841,6 +908,13 @@
       if (!tr) return;
       openPatientDrawer(rows[Number(tr.getAttribute('data-i'))]);
     };
+    if (el('pt-cards')) {
+      el('pt-cards').onclick = function (e) {
+        var card = e.target.closest('[data-i]');
+        if (!card) return;
+        openPatientDrawer(rows[Number(card.getAttribute('data-i'))]);
+      };
+    }
     var t;
     el('pt-search').oninput = function () {
       clearTimeout(t);
@@ -1074,35 +1148,43 @@
     function paint() {
       if (!cache) return;
       var ov = cache[0] || {};
-      var week = Array.isArray(cache[1]) ? cache[1] : [];
-      var txs = Array.isArray(cache[2]) ? cache[2] : (cache[2].data || []);
-      var ch = Array.isArray(cache[3]) ? cache[3] : [];
-      var rev = Array.isArray(cache[4]) ? cache[4] : [];
+      var weekFail = !!(cache[1] && cache[1]._fail);
+      var txsFail = !!(cache[2] && cache[2]._fail);
+      var chFail = !!(cache[3] && cache[3]._fail);
+      var revFail = !!(cache[4] && cache[4]._fail);
+      var week = weekFail ? [] : (Array.isArray(cache[1]) ? cache[1] : []);
+      var txs = txsFail ? [] : (Array.isArray(cache[2]) ? cache[2] : (cache[2] && cache[2].data) || []);
+      var ch = chFail ? [] : (Array.isArray(cache[3]) ? cache[3] : []);
+      var rev = revFail ? [] : (Array.isArray(cache[4]) ? cache[4] : []);
       el('an-kpis').innerHTML =
-        kpi('Visit fees', ov.revenue && ov.revenue.value != null ? A().money(ov.revenue.value) : '—', ov.revenue && ((ov.revenue.change >= 0 ? 'up ' : 'down ') + ov.revenue.change + '% vs last month')) +
-        kpi('Appointments', ov.appointments && ov.appointments.value != null ? ov.appointments.value : '—', ov.appointments ? ov.appointments.change + '% vs last month' : '') +
-        kpi('Return rate', ov.returnRate && ov.returnRate.value != null ? ov.returnRate.value + '%' : '—', 'completed patients returning') +
-        kpi('No-show rate', ov.noShowRate && ov.noShowRate.value != null ? ov.noShowRate.value + '%' : '—', 'this month');
+        kpi('Visit fees', ov.revenue && ov.revenue.value != null ? A().money(ov.revenue.value) : 'Unavailable', ov.revenue && ov.revenue.change != null ? ((ov.revenue.change >= 0 ? 'up ' : 'down ') + ov.revenue.change + '% vs last month') : '') +
+        kpi('Appointments', ov.appointments && ov.appointments.value != null ? ov.appointments.value : 'Unavailable', ov.appointments && ov.appointments.change != null ? ov.appointments.change + '% vs last month' : '') +
+        kpi('Return rate', ov.returnRate && ov.returnRate.value != null ? ov.returnRate.value + '%' : 'Unavailable', 'completed patients returning') +
+        kpi('No-show rate', ov.noShowRate && ov.noShowRate.value != null ? ov.noShowRate.value + '%' : 'Unavailable', 'this month');
       var max = Math.max.apply(null, week.map(function (d) { return d.count || 0; }).concat([1]));
-      var weekHtml = week.length
+      var weekHtml = weekFail
+        ? '<p class="dma-hint">Unavailable</p>'
+        : (week.length
         ? week.map(function (d) {
             var c = d.count || 0;
             return '<div class="dma-comp-row"><span style="width:48px">' + esc(d.date) + '</span><div class="dma-comp-bar"><i style="width:' + Math.round((c / max) * 100) + '%"></i></div><strong>' + c + '</strong></div>';
           }).join('')
-        : '<p class="dma-hint">No appointments in the last 7 days.</p>';
-      var txHtml = txs.length ? txs.map(function (t) {
+        : '<p class="dma-hint">No appointments in the last 7 days.</p>');
+      var txHtml = txsFail ? '<p class="dma-hint">Unavailable</p>' : (txs.length ? txs.map(function (t) {
         return '<div class="dma-row-item"><div class="name">' + esc(t.treatment || t.name) + '</div><div class="meta">' + esc(t.count || t._count || 0) + '</div></div>';
-      }).join('') : '<p class="dma-hint">No completed treatments yet.</p>';
-      var chHtml = ch.length ? ch.map(function (c) {
+      }).join('') : '<p class="dma-hint">No completed treatments yet.</p>');
+      var chHtml = chFail ? '<p class="dma-hint">Unavailable</p>' : (ch.length ? ch.map(function (c) {
         return '<div class="dma-row-item"><div class="name">' + esc(c.channel || c.name) + '</div><div class="meta">' + esc(c.count || 0) + '</div></div>';
-      }).join('') : '<p class="dma-hint">No messages yet. <a href="/dashboard/whatsapp/">Connect WhatsApp</a>.</p>';
-      var revHtml = rev.length
+      }).join('') : '<p class="dma-hint">No messages yet. <a href="/dashboard/whatsapp/">Connect WhatsApp</a>.</p>');
+      var revHtml = revFail
+        ? '<p class="dma-hint">Unavailable</p>'
+        : (rev.length
         ? rev.map(function (r) {
             var mx = Math.max.apply(null, rev.map(function (x) { return Number(x.revenue) || 0; }).concat([1]));
             var v = Number(r.revenue) || 0;
             return '<div class="dma-comp-row"><span style="width:88px">' + esc(r.month) + '</span><div class="dma-comp-bar"><i style="width:' + Math.round((v / mx) * 100) + '%"></i></div><strong>' + money(v) + '</strong></div>';
           }).join('')
-        : '<p class="dma-hint">No completed visit fees yet.</p>';
+        : '<p class="dma-hint">No completed visit fees yet.</p>');
       if (tab === 'operational') {
         el('an-body').innerHTML = sectionBlock('Messages by channel', chHtml) + sectionBlock('Appointments (7 days)', weekHtml);
       } else if (tab === 'financial') {
@@ -1113,17 +1195,24 @@
       }
     }
     Promise.all([
-      A().get('/api/analytics/overview'),
-      A().get('/api/analytics/weekly-appointments'),
-      A().get('/api/analytics/top-treatments'),
-      A().get('/api/analytics/messages-by-channel'),
-      A().get('/api/analytics/monthly-revenue').catch(function () { return []; }),
+      A().getFull('/api/analytics/overview'),
+      A().getFull('/api/analytics/weekly-appointments'),
+      A().getFull('/api/analytics/top-treatments'),
+      A().getFull('/api/analytics/messages-by-channel'),
+      A().getFull('/api/analytics/monthly-revenue'),
     ]).then(function (p) {
-      cache = p;
+      if (!p[0] || !p[0].ok) {
+        el('an-kpis').innerHTML = '';
+        el('an-body').innerHTML = A().empty('Analytics unavailable', 'The analytics API could not be reached. Try again.');
+        return;
+      }
+      cache = p.map(function (r) {
+        return r && r.ok ? (r.d || []) : { _fail: true };
+      });
       paint();
     }).catch(function () {
       el('an-kpis').innerHTML = '';
-      el('an-body').innerHTML = A().empty('Could not load analytics', 'Check your connection and try again.');
+      el('an-body').innerHTML = A().empty('Analytics unavailable', 'Check your connection and try again.');
     });
   }
 
@@ -1134,7 +1223,12 @@
       pageHead('Reviews', 'Request Google reviews from completed visits over WhatsApp.',
         '<button class="dma-btn dma-btn-primary" id="rv-req">Request reviews</button>', 'Reputation') +
       '<div id="rv-body">' + A().spinner() + '</div>';
-    A().get('/api/reviews').then(function (d) {
+    A().getFull('/api/reviews').then(function (r) {
+      if (!r.ok) {
+        el('rv-body').innerHTML = A().empty('Reviews unavailable', 'Could not load reviews. Try again.');
+        return;
+      }
+      var d = r.d || {};
       if (!d.configured) {
         el('rv-body').innerHTML = A().empty('Google reviews not connected', 'Add a Place ID in Settings, then request reviews after completed appointments.', '/dashboard/settings/?tab=clinic', 'Open settings');
         return;
@@ -1160,6 +1254,8 @@
           });
         };
       });
+    }).catch(function () {
+      el('rv-body').innerHTML = A().empty('Reviews unavailable', 'Could not load reviews. Try again.');
     });
     el('rv-req').onclick = function () {
       A().get('/api/appointments?filter=month&limit=50').then(function (d) {
@@ -1185,21 +1281,46 @@
       var d = drawer({
         title: s.name,
         subtitle: s.role,
-        html: (global.DmaUI ? DmaUI.kv([['Email', s.email], ['Role', s.role], ['Status', s.status], ['Joined', s.createdAt ? A().fmtDate(s.createdAt) : '—']]) : '') +
-          '<div class="dma-field" style="margin-top:12px"><label>Role</label><select id="st-edit-role">' +
-          ['RECEPTIONIST', 'NURSE', 'ASSISTANT', 'MANAGER'].map(function (r) {
-            return '<option value="' + r + '"' + (s.role === r ? ' selected' : '') + '>' + r + '</option>';
-          }).join('') + '</select></div>',
-        footer: '<button type="button" class="dma-btn dma-btn-ghost" data-close="1">Close</button>' +
-          '<button type="button" class="dma-btn dma-btn-primary" id="st-save-role">Save</button>'
+        wide: true,
+        tabs: [
+          { id: 'profile', label: 'Profile' },
+          { id: 'permissions', label: 'Permissions' },
+          { id: 'activity', label: 'Activity' }
+        ],
+        footer: '<button type="button" class="dma-btn dma-btn-ghost" data-close="1">Close</button>',
+        onTab: function (tab, api) {
+          if (tab === 'profile') {
+            api.setBody((global.DmaUI ? DmaUI.kv([['Email', s.email], ['Role', s.role], ['Status', s.status], ['Joined', s.createdAt ? A().fmtDate(s.createdAt) : '—']]) : '') +
+              '<p class="dma-hint">Directory details from /api/staff. Extra fields are not invented.</p>');
+            api.setFooter('<button type="button" class="dma-btn dma-btn-ghost" data-close="1">Close</button>');
+            return;
+          }
+          if (tab === 'permissions') {
+            api.setBody(
+              '<div class="dma-field"><label for="st-edit-role">Role</label><select id="st-edit-role">' +
+              ['RECEPTIONIST', 'NURSE', 'ASSISTANT', 'MANAGER'].map(function (r) {
+                return '<option value="' + r + '"' + (s.role === r ? ' selected' : '') + '>' + r + '</option>';
+              }).join('') + '</select></div>' +
+              '<p class="dma-hint">Role is the live permission control for this member.</p>'
+            );
+            api.setFooter(
+              '<button type="button" class="dma-btn dma-btn-ghost" data-close="1">Close</button>' +
+              '<button type="button" class="dma-btn dma-btn-primary" id="st-save-role">Save</button>'
+            );
+            var save = document.getElementById('st-save-role');
+            if (save) save.onclick = function () {
+              var sel = document.getElementById('st-edit-role');
+              A().patch('/api/staff/' + s.id, { role: sel ? sel.value : s.role }).then(function (r) {
+                if (r.ok) { A().toast('Staff updated', 'ok'); if (d && d.close) d.close(); else A().closeModal(); load(); }
+                else A().toast(failMsg(r, "Couldn't update this team member."), 'err');
+              });
+            };
+            return;
+          }
+          api.setBody('<div class="ds-empty-panel"><strong>No activity log yet</strong>This clinic does not expose a staff activity API. Nothing is invented here.</div>');
+          api.setFooter('<button type="button" class="dma-btn dma-btn-ghost" data-close="1">Close</button>');
+        }
       });
-      var save = document.getElementById('st-save-role');
-      if (save) save.onclick = function () {
-        A().patch('/api/staff/' + s.id, { role: el('st-edit-role').value }).then(function (r) {
-          if (r.ok) { A().toast('Staff updated', 'ok'); if (d && d.close) d.close(); else A().closeModal(); load(); }
-          else A().toast(failMsg(r, "Couldn't update this visit."), 'err');
-        });
-      };
     }
     function load() {
       A().get('/api/staff').then(function (rows) {
@@ -1510,11 +1631,19 @@
       A().get('/api/notifications').then(function (rows) {
         var list = Array.isArray(rows) ? rows : [];
         el('n-list').innerHTML = list.length ? list.map(function (n) {
-          var href = /whatsapp|message/i.test(n.type || n.title || '') ? '/dashboard/messages/'
+          var cat = /whatsapp|message|inbox/i.test(n.type || n.title || '') ? 'Messages'
+            : /lead/i.test(n.type || n.title || '') ? 'Patients'
+            : /appoint/i.test(n.type || n.title || '') ? 'Appointments'
+            : /clinical|vital|prescription|lab/i.test(n.type || n.title || '') ? 'Clinical'
+            : /ai|train/i.test(n.type || n.title || '') ? 'AI'
+            : /security|login/i.test(n.type || n.title || '') ? 'Security'
+            : 'System';
+          var href = cat === 'Messages' ? '/dashboard/messages/'
             : /lead/i.test(n.type || n.title || '') ? '/dashboard/leads/'
-            : /appoint/i.test(n.type || n.title || '') ? '/dashboard/appointments/'
+            : cat === 'Appointments' ? '/dashboard/appointments/'
+            : cat === 'Clinical' ? '/dashboard/clinical/'
             : '/dashboard/';
-          return '<a class="dma-row-item' + (n.isRead ? '' : ' unread') + '" href="' + href + '"><div><div class="name">' + esc(n.title || 'Update') + '</div><div class="sub">' + esc(n.body || '') + '</div></div><div class="meta">' + A().ago(n.createdAt) + (n.isRead ? '' : ' · new') + '</div></a>';
+          return '<a class="dma-row-item' + (n.isRead ? '' : ' unread') + '" href="' + href + '"><div><div class="name">' + esc(n.title || 'Update') + '</div><div class="sub">' + esc(cat) + ' · ' + esc(n.body || '') + '</div></div><div class="meta">' + A().ago(n.createdAt) + (n.isRead ? '' : ' · new') + '</div></a>';
         }).join('') : A().empty('No updates', 'New bookings and WhatsApp alerts will land here.');
       });
     }

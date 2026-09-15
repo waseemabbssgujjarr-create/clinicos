@@ -11,7 +11,7 @@
 
   function toast(msg, kind) {
     var el = document.createElement("div");
-    el.className = "ds-toast" + (kind === "ok" ? " ok" : kind === "err" ? " err" : "");
+    el.className = "ds-toast" + (kind === "ok" ? " ok" : kind === "err" ? " err" : kind === "warn" ? " warn" : "");
     el.setAttribute("role", "status");
     el.textContent = msg;
     document.body.appendChild(el);
@@ -278,8 +278,93 @@
     confirm: confirmDlg,
     display: display,
     trapFocus: trapFocus,
-    bindTablist: bindTablist
+    bindTablist: bindTablist,
+    emptyState: function (title, body, href, cta) {
+      return '<div class="ds-empty"><h2>' + esc(title) + "</h2><p>" + esc(body) + "</p>" +
+        (href ? '<a class="dma-btn dma-btn-primary" href="' + esc(href) + '">' + esc(cta || "Continue") + "</a>" : "") +
+        "</div>";
+    },
+    openCommand: openCommand
   };
+
+  function openCommand() {
+    var existing = document.getElementById("ds-cmd");
+    if (existing) {
+      existing.classList.add("open");
+      var inp = existing.querySelector("input");
+      if (inp) inp.focus();
+      return;
+    }
+    var wrap = document.createElement("div");
+    wrap.id = "ds-cmd";
+    wrap.className = "ds-cmd open";
+    wrap.innerHTML = '<div class="ds-cmd-bg" data-close="1"></div><div class="ds-cmd-panel" role="dialog" aria-label="Search">' +
+      '<input id="ds-cmd-q" placeholder="Search patients, appointments, pages…" autocomplete="off">' +
+      '<div class="ds-cmd-list" id="ds-cmd-list"></div></div>';
+    document.body.appendChild(wrap);
+    function close() { wrap.classList.remove("open"); }
+    wrap.addEventListener("click", function (e) { if (e.target.getAttribute("data-close")) close(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+    var q = document.getElementById("ds-cmd-q");
+    var list = document.getElementById("ds-cmd-list");
+    var pages = [
+      ["/dashboard/", "Dashboard"],
+      ["/dashboard/appointments/", "Appointments"],
+      ["/dashboard/waiting/", "Waiting room"],
+      ["/dashboard/calendar/", "Calendar"],
+      ["/dashboard/patients/", "Patients"],
+      ["/dashboard/clinical/", "Clinical"],
+      ["/dashboard/prescriptions/", "Prescriptions"],
+      ["/dashboard/laboratory/", "Laboratory"],
+      ["/dashboard/documents/", "Documents"],
+      ["/dashboard/messages/", "Inbox"],
+      ["/dashboard/whatsapp/", "WhatsApp"],
+      ["/dashboard/ai/", "AI receptionist"],
+      ["/dashboard/rooms/", "Rooms"],
+      ["/dashboard/inventory/", "Inventory"],
+      ["/dashboard/leave/", "Leave"],
+      ["/dashboard/locations/", "Locations"],
+      ["/dashboard/staff/", "Staff"],
+      ["/dashboard/analytics/", "Analytics"],
+      ["/dashboard/settings/", "Settings"]
+    ];
+    var commands = [
+      ["/dashboard/appointments/?action=book", "Create appointment"],
+      ["/dashboard/patients/?action=new", "Add patient"],
+      ["/dashboard/waiting/", "Open waiting room"],
+      ["/dashboard/clinical/", "Start consultation"],
+      ["/dashboard/messages/", "Open inbox"]
+    ];
+    function paint(term) {
+      term = String(term || "").toLowerCase();
+      var items = commands.concat(pages).filter(function (p) { return !term || p[1].toLowerCase().indexOf(term) >= 0; });
+      var html = items.map(function (p) {
+        return '<a href="' + p[0] + '"><span>' + esc(p[1]) + "</span></a>";
+      }).join("");
+      list.innerHTML = html || '<p class="dma-hint" style="padding:12px">No matching pages.</p>';
+    }
+    paint("");
+    q.oninput = function () {
+      paint(q.value);
+      if (!global.DmaApp || q.value.length < 2) return;
+      global.DmaApp.get("/api/patients?search=" + encodeURIComponent(q.value) + "&limit=6").then(function (d) {
+        var rows = (d && d.data) || [];
+        if (!rows.length) return;
+        list.innerHTML = rows.map(function (p) {
+          return '<a href="/dashboard/patients/detail/?id=' + esc(p.id) + '"><span>' + esc(p.fullName) + "</span><span class=\"dma-hint\">Patient</span></a>";
+        }).join("") + list.innerHTML;
+      }).catch(function () {});
+    };
+    q.focus();
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if ((e.metaKey || e.ctrlKey) && String(e.key).toLowerCase() === "k") {
+      if (!document.querySelector(".doc-layout, .superadmin-app")) return;
+      e.preventDefault();
+      openCommand();
+    }
+  });
 
   document.addEventListener("focusin", function (e) {
     var list = e.target && e.target.closest && e.target.closest(".dma-tabs, .ds-tabs, .cos-settings-nav");

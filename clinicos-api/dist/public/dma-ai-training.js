@@ -63,14 +63,16 @@
     var testHistory = [];
 
     root.innerHTML =
-      '<div class="dma-head dma-head-page"><div><h1>Train AI receptionist</h1>' +
-      '<p class="dma-prose">Structured training the conversation engine actually uses — draft, test, then publish to WhatsApp.</p></div>' +
+      '<div class="dma-head dma-head-page ds-page-enter"><div>' +
+      '<div class="dma-head-kicker"><span class="ds-pill">Intelligence</span></div>' +
+      '<h1>AI Training</h1>' +
+      '<p class="dma-prose">Train the receptionist the conversation engine actually uses. Draft, test, then publish to WhatsApp.</p></div>' +
       '<div class="dma-head-actions">' +
         '<a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">WhatsApp</a>' +
         '<button type="button" class="dma-btn dma-btn-primary" id="ai-save-top">Save draft</button>' +
       "</div></div>" +
-      '<div class="dma-status-bar" id="ai-meta">Loading training…</div>' +
-      '<div class="dma-tabs" id="ai-tabs"></div>' +
+      '<div class="ds-status-strip dma-status-bar" id="ai-meta">Loading training…</div>' +
+      '<div class="dma-tabs" id="ai-tabs" role="tablist" aria-label="AI training"></div>' +
       '<div id="ai-body">' + (A() ? A().spinner() : "Loading…") + "</div>";
 
     function drawTabs() {

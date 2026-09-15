@@ -1,14 +1,14 @@
 /**
  * Doctors My Agency — Super Admin design system
- * BRAND: Blue (#2563EB) — replaces orange
+ * BRAND: Teal (#14967F)
  * Desktop: fixed sidebar + capped content
  * Mobile: top app bar + off-canvas drawer + stacked cards
  */
 :root {
-  --sa-orange: var(--ds-primary, #1D4ED8);
-  --sa-orange-dark: var(--ds-primary-hover, #1E40AF);
-  --sa-orange-soft: var(--ds-primary-soft, rgba(29, 78, 216, 0.10));
-  --sa-orange-border: rgba(29, 78, 216, 0.25);
+  --sa-orange: var(--ds-primary, #14967F);
+  --sa-orange-dark: var(--ds-primary-hover, #0E7A68);
+  --sa-orange-soft: var(--ds-primary-soft, rgba(20, 150, 127, 0.10));
+  --sa-orange-border: rgba(20, 150, 127, 0.25);
   --sa-sidebar-w: var(--ds-sidebar, 240px);
   --sa-content-max: var(--ds-content, 1440px);
   --sa-topbar-h: var(--ds-h-header, 56px);
@@ -18,10 +18,10 @@
   --sa-space-4: 16px;
   --sa-space-5: 24px;
   --sa-space-6: 32px;
-  --sa-sidebar-bg: #1E293B;
-  --sa-sidebar-border: rgba(29, 78, 216, 0.18);
+  --sa-sidebar-bg: #0B6456;
+  --sa-sidebar-border: rgba(20, 150, 127, 0.22);
   --sa-sidebar-text: #ffffff;
-  --sa-sidebar-muted: #CBD5E1;
+  --sa-sidebar-muted: rgba(255,255,255,.72);
   --sa-main-bg: var(--ds-bg, #F4F6F9);
   --sa-card-bg: var(--ds-surface, #ffffff);
   --sa-input-bg: var(--ds-surface-2, #f8fafc);
@@ -37,8 +37,8 @@
 
 /* Old hardcoded brown sidebar — replaced by blue */
 .bg-sidebar {
-  background-color: #1E293B !important;
-  background: #1E293B !important;
+  background-color: #0B6456 !important;
+  background: #0B6456 !important;
 }
 
 aside.bg-sidebar,
@@ -51,17 +51,17 @@ aside[class*="bg-sidebar"] {
 }
 
 .nav-item:hover {
-  background-color: rgba(37, 99, 235, 0.12) !important;
-  color: #93C5FD !important;
+  background-color: rgba(20, 150, 127, 0.12) !important;
+  color: #C8EDE6 !important;
 }
 
 .nav-item-active,
 a.nav-item.nav-item-active,
 aside a.nav-item-active {
-  background-color: rgba(37, 99, 235, 0.22) !important;
+  background-color: rgba(20, 150, 127, 0.28) !important;
   border-left-color: var(--sa-orange) !important;
   border-left-width: 2px !important;
-  color: #93C5FD !important;
+  color: #fff !important;
 }
 
 .bg-brand:not(.dma-live-badge):not(.dma-ai-status-live) {
@@ -110,7 +110,7 @@ main.flex-1 .font-extrabold {
 aside.bg-sidebar,
 aside[class*="w-[220px]"],
 aside[class*="w-\[220px\]"] {
-  background: #1E293B !important;
+  background: #0B6456 !important;
   border-right: 1px solid var(--sa-sidebar-border) !important;
   width: var(--sa-sidebar-w) !important;
   max-width: var(--sa-sidebar-w) !important;
@@ -135,8 +135,8 @@ aside[class*="w-\[220px\]"] a {
 
 aside.bg-sidebar a:hover,
 aside[class*="w-[220px]"] a:hover {
-  background: rgba(37, 99, 235, 0.14) !important;
-  color: #93C5FD !important;
+  background: rgba(20, 150, 127, 0.14) !important;
+  color: #E7F6F2 !important;
 }
 
 aside.bg-sidebar a svg,
@@ -153,8 +153,8 @@ aside a[class*="bg-green"],
 aside a[class*="text-emerald"],
 aside a[class*="text-green"],
 aside a[class*="text-teal"] {
-  background: rgba(37, 99, 235, 0.20) !important;
-  color: #93C5FD !important;
+  background: rgba(20, 150, 127, 0.20) !important;
+  color: #C8EDE6 !important;
   border-left: 2px solid var(--sa-orange) !important;
 }
 
@@ -256,7 +256,7 @@ body.superadmin-app select:focus,
   outline: none !important;
   border-color: var(--sa-orange) !important;
   background: #fff !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16), inset 0 1px 2px rgba(15, 23, 42, 0.03) !important;
+  box-shadow: 0 0 0 3px rgba(20, 150, 127, 0.16), inset 0 1px 2px rgba(15, 23, 42, 0.03) !important;
 }
 
 body.min-h-screen.bg-app main input[readonly],
@@ -365,13 +365,13 @@ body.min-h-screen.bg-app main [class*="border-b-4"] {
 }
 
 tbody tr:hover {
-  background: rgba(37, 99, 235, 0.03) !important;
+  background: rgba(20, 150, 127, 0.03) !important;
 }
 
 [class*="bg-brand-light"],
 span[class*="rounded-full"][class*="bg-"] {
-  background: rgba(37, 99, 235, 0.10) !important;
-  color: #1D4ED8 !important;
+  background: rgba(20, 150, 127, 0.10) !important;
+  color: #0B6456 !important;
 }
 
 button[class*="bg-brand"],
@@ -503,7 +503,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
 
 .sa-sidebar {
   width: var(--sa-sidebar-w);
-  background: var(--adm-sidebar-bg, #1E293B);
+  background: var(--adm-sidebar-bg, #0B6456);
   border-right: 1px solid var(--sa-sidebar-border);
   padding: 20px 14px;
   display: flex;
@@ -627,7 +627,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
 
 .sa-sidebar-footer button:hover,
 .sa-sidebar-footer a.sa-logout:hover {
-  background: rgba(37, 99, 235, 0.12);
+  background: rgba(20, 150, 127, 0.12);
 }
 
 .sa-main {
@@ -830,7 +830,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
   border: none;
   background: linear-gradient(135deg, var(--sa-orange), var(--sa-orange-dark));
   color: #fff;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.30);
+  box-shadow: 0 4px 14px rgba(20, 150, 127, 0.30);
 }
 
 .sa-btn-secondary,
@@ -914,7 +914,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
   height: 44px;
   border: none;
   border-radius: var(--sa-radius-sm);
-  background: rgba(37, 99, 235, 0.15);
+  background: rgba(20, 150, 127, 0.15);
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -972,7 +972,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
     height: var(--sa-topbar-h);
     z-index: 90;
     padding: 0 14px;
-    background: #1E293B;
+    background: #0B6456;
     border-bottom: 1px solid var(--sa-sidebar-border);
     box-sizing: border-box;
   }
@@ -1096,7 +1096,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
   button[class*="bg-brand"]:not(.dma-live-badge):hover,
   a[class*="bg-brand"]:hover {
     filter: brightness(1.06);
-    box-shadow: 0 6px 22px rgba(37, 99, 235, 0.35) !important;
+    box-shadow: 0 6px 22px rgba(20, 150, 127, 0.35) !important;
     transform: translateY(-2px);
   }
 

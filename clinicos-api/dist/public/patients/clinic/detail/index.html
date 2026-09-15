@@ -27,11 +27,14 @@
       </div>
     </div>
   </nav>
+
   <main class="portal-main marketplace-main">
     <div class="clinic-detail-wrap">
       <a href="/" class="back-link">← Home</a>
+
       <div id="loading" style="text-align:center;padding:48px;color:var(--muted)">Loading clinic…</div>
       <div id="error" style="display:none;text-align:center;padding:48px;color:#fca5a5"></div>
+
       <div id="content" style="display:none">
         <header class="clinic-detail-header">
           <div class="clinic-detail-logo" id="logo">C</div>
@@ -44,12 +47,14 @@
             </div>
           </div>
         </header>
+
         <div class="clinic-detail-layout">
           <section class="clinic-doctors-panel">
             <h2 id="doctors-title">Doctors &amp; availability</h2>
             <div id="doctors-list"></div>
             <table class="hours-table" id="hours-table"></table>
           </section>
+
           <section class="clinic-chat-panel">
             <div id="chat"></div>
           </section>
@@ -57,6 +62,7 @@
       </div>
     </div>
   </main>
+
   <script src="/inner-chat.js"></script>
   <script>
     (function () {
@@ -66,7 +72,13 @@
         if (last === 'detail') return parts[parts.length - 2] || null;
         return /^[a-zA-Z0-9_-]+$/.test(last) ? last : null;
       }
-      function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+      function esc(s) {
+        var d = document.createElement('div');
+        d.textContent = s || '';
+        return d.innerHTML;
+      }
+
       var slug = slugFromPath();
       if (!slug) {
         document.getElementById('loading').style.display = 'none';
@@ -74,6 +86,7 @@
         document.getElementById('error').textContent = 'Invalid clinic link.';
         return;
       }
+
       fetch('/api/public/clinics/' + encodeURIComponent(slug))
         .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
         .then(function (res) {
@@ -86,32 +99,57 @@
           var c = res.data;
           document.title = c.name + ' — Doctors My Agency';
           document.getElementById('content').style.display = 'block';
+
+          var initial = (c.name || 'C').charAt(0).toUpperCase();
           var logoEl = document.getElementById('logo');
-          if (c.logoUrl) logoEl.innerHTML = '<img src="' + esc(c.logoUrl) + '" alt="" />';
-          else logoEl.textContent = (c.name || 'C').charAt(0).toUpperCase();
+          if (c.logoUrl) {
+            logoEl.innerHTML = '<img src="' + esc(c.logoUrl) + '" alt="" />';
+          } else {
+            logoEl.textContent = initial;
+          }
+
           document.getElementById('clinic-name').textContent = c.name;
           var info = [];
           if (c.specialty) info.push('<strong>Specialty:</strong> ' + esc(c.specialty));
           if (c.address) info.push('<strong>Address:</strong> ' + esc(c.address));
           if (c.phone) info.push('<strong>Phone:</strong> ' + esc(c.phone));
-          if (c.availability && c.availability.label) info.push('<strong>Today:</strong> ' + esc(c.availability.label));
+          if (c.availability && c.availability.label) {
+            info.push('<strong>Today:</strong> ' + esc(c.availability.label));
+          }
           document.getElementById('clinic-info').innerHTML = info.join('<br />');
+
           document.getElementById('book-link').href = '/book/' + encodeURIComponent(c.bookingSlug || slug) + '/';
           if (c.phone) {
             var pl = document.getElementById('phone-link');
             pl.href = 'tel:' + c.phone.replace(/\s/g, '');
             pl.style.display = '';
           }
-          document.getElementById('doctors-title').textContent = c.isMultiProvider ? 'Doctors & specialists' : 'Doctor & availability';
+
+          var doctorsTitle = c.isMultiProvider ? 'Doctors & specialists' : 'Doctor & availability';
+          document.getElementById('doctors-title').textContent = doctorsTitle;
+
           var doctors = c.doctors || [];
-          document.getElementById('doctors-list').innerHTML = doctors.length ? doctors.map(function (d) {
-            var di = (d.name || '?').charAt(0).toUpperCase();
-            var wait = d.availabilityStatus !== 'available_today';
-            return '<div class="doctor-row"><div class="doctor-avatar">' + di + '</div><div class="doctor-info"><h4>' + esc(d.name) + (d.isPrimary ? ' <span style="color:#fb923c;font-size:0.7rem">Lead</span>' : '') + '</h4><p>' + esc(d.role) + (d.specialty ? ' · ' + esc(d.specialty) : '') + '</p><p style="font-size:0.72rem;margin-top:2px">' + esc(d.hoursToday || '') + '</p><div class="doctor-avail' + (wait ? ' is-wait' : '') + '">' + esc(d.availability || '') + '</div></div></div>';
-          }).join('') : '<p style="color:var(--muted);font-size:0.875rem">Contact the clinic for provider details.</p>';
-          document.getElementById('hours-table').innerHTML = (c.hoursSummary || []).map(function (h) {
+          document.getElementById('doctors-list').innerHTML = doctors.length
+            ? doctors.map(function (d) {
+                var di = (d.name || '?').charAt(0).toUpperCase();
+                var wait = d.availabilityStatus !== 'available_today';
+                return '<div class="doctor-row">' +
+                  '<div class="doctor-avatar">' + esc(di) + '</div>' +
+                  '<div class="doctor-info">' +
+                    '<h4>' + esc(d.name) + (d.isPrimary ? ' <span style="color:#fb923c;font-size:0.7rem">Lead</span>' : '') + '</h4>' +
+                    '<p>' + esc(d.role) + (d.specialty ? ' · ' + esc(d.specialty) : '') + '</p>' +
+                    '<p style="font-size:0.72rem;margin-top:2px">' + esc(d.hoursToday || '') + '</p>' +
+                    '<div class="doctor-avail' + (wait ? ' is-wait' : '') + '">' + esc(d.availability || '') + '</div>' +
+                  '</div>' +
+                '</div>';
+              }).join('')
+            : '<p style="color:var(--muted);font-size:0.875rem">Contact the clinic for provider details.</p>';
+
+          var hours = c.hoursSummary || [];
+          document.getElementById('hours-table').innerHTML = hours.map(function (h) {
             return '<tr><td>' + esc(h.label) + '</td><td>' + esc(h.hours) + '</td></tr>';
           }).join('');
+
           var intro = c.customIntroMsg || ('Hi! Welcome to ' + c.name + '. Ask about hours, treatments, doctor availability, or booking.');
           new DmaInnerChat('#chat', {
             title: c.name,

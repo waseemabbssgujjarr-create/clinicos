@@ -1,108 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dma-world-auth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Doctor Sign In — Doctors My Agency</title>
+  <title>Sign in — Doctors My Agency</title>
   <link rel="icon" href="/favicon.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/landing.css" />
-  <link rel="stylesheet" href="/portal.css?v=5" />
-  <link rel="stylesheet" href="/platform-hovers.css" />
-  <link rel="stylesheet" href="/dma-theme.css" />
-  <script>
-    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light');}catch(_){document.documentElement.setAttribute('data-theme','light');}})();
-  </script>
+  <link rel="stylesheet" href="/dma-design-system.css?v=20" />
 </head>
-<body class="portal-page">
-  <div class="glow glow-purple"></div>
-  <nav>
-    <div class="container nav-inner">
-      <a href="/" class="logo" style="text-decoration:none;color:inherit"><div class="logo-icon">DM</div> Doctors My Agency</a>
-      <div class="nav-cta"></div>
-    </div>
-  </nav>
-  <main class="portal-main">
-    <div class="container">
-      <a href="/start/" class="back-link">← Back to portal</a>
-      <div class="form-card">
-        <div style="text-align:center;margin-bottom:20px">
-          <div class="logo-icon" style="margin:0 auto 12px;width:48px;height:48px;font-size:1.1rem">DM</div>
-        </div>
-        <h1>Doctor Sign In</h1>
-        <p class="subtitle">Access your clinic dashboard</p>
-
-        <div class="role-tabs">
-          <span class="role-tab active">🩺 Doctor</span>
-          <a href="/staff-login/" class="role-tab">👥 Staff</a>
-        </div>
-
-        <div id="error" class="alert alert-error" style="display:none"></div>
-
-        <form id="form">
-          <div class="field">
-            <label>Email</label>
-            <input type="email" name="email" required placeholder="support@clinicos.aderalabs.com" autocomplete="email" />
-          </div>
-          <div class="field">
-            <div class="field-row">
-              <label>Password</label>
-              <a href="/forgot-password/" class="forgot-link">Forgot password?</a>
-            </div>
-            <div class="password-wrap">
-              <input type="password" name="password" required placeholder="Your password" autocomplete="current-password" />
-              <button type="button" class="password-toggle" data-password-toggle aria-label="Show password" title="Show password">
-                <svg class="icon-show" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
-                <svg class="icon-hide" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-              </button>
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px">Sign In to Dashboard →</button>
-        </form>
-
-        <p style="text-align:center;margin-top:20px;font-size:0.88rem;color:var(--muted)">
-          New clinic? <a href="/register/" style="color:#F97316;font-weight:700">Start free trial</a>
-        </p>
+<body>
+  <div class="dma-auth">
+    <aside class="dma-auth-visual">
+      <a class="dma-pub-logo" href="/" style="color:#fff"><span class="mark">DM</span> Clinicos</a>
+      <div>
+        <h1>Your clinic, connected.</h1>
+        <p style="opacity:.85;max-width:28rem">Appointments, waiting room, conversations and visits — without a public marketplace.</p>
       </div>
-    </div>
-  </main>
+      <div class="dma-auth-preview">
+        <strong>Clinicos</strong>
+        <p style="margin:8px 0 0;opacity:.85;font-size:.875rem">Private clinic workspace. WhatsApp when you connect it.</p>
+      </div>
+    </aside>
+    <main class="dma-auth-form">
+      <h2>Welcome back</h2>
+      <p class="dma-hint">Clinic owner sign in.</p>
+      <div class="dma-pub-actions" style="margin:12px 0 20px">
+        <span class="dma-chip">Doctor</span>
+        <a class="dma-chip" href="/staff-login/">Staff</a>
+      </div>
+      <div id="error" class="dma-alert" style="display:none;margin-bottom:12px"></div>
+      <form id="form">
+        <div class="dma-field"><label for="email">Email</label><input id="email" type="email" name="email" required autocomplete="email"></div>
+        <div class="dma-field"><label for="password">Password</label><input id="password" type="password" name="password" required autocomplete="current-password"></div>
+        <div class="dma-field" style="flex-direction:row;align-items:center;justify-content:space-between;gap:12px">
+          <label style="display:flex;align-items:center;gap:8px;font-weight:600"><input type="checkbox" id="remember"> Remember me</label>
+          <a href="/forgot-password/">Forgot password?</a>
+        </div>
+        <button type="submit" class="dma-btn dma-btn-primary" style="width:100%;height:48px;margin-top:8px">Log in</button>
+      </form>
+      <p class="dma-hint" style="margin-top:20px;text-align:center">────────</p>
+      <p class="dma-hint" style="text-align:center"><a href="/staff-login/">Staff login</a></p>
+      <p class="dma-hint" style="text-align:center">Don’t have a clinic account? <a href="/register/">Start free</a></p>
+    </main>
+  </div>
   <script src="/portal.js"></script>
   <script>
-    document.getElementById('form').onsubmit = async (e) => {
-      e.preventDefault();
-      const err = document.getElementById('error');
-      const btn = e.target.querySelector('[type="submit"]');
-      err.style.display = 'none';
-      setBtnLoading(btn, true, 'Signing in…');
-      const fd = new FormData(e.target);
+    (function () {
+      var emailEl = document.getElementById('email');
+      var rememberEl = document.getElementById('remember');
       try {
-        const r = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ email: fd.get('email'), password: fd.get('password') }),
-        });
-        const data = await r.json().catch(() => ({}));
-        if (!r.ok) {
-          if (data.code === 'EMAIL_NOT_VERIFIED') {
-            const email = fd.get('email');
-            err.innerHTML = data.error + ' <a href="/verify-email/?email=' + encodeURIComponent(email) + '">Verify email or resend link →</a>';
-            err.style.display = 'block';
-            setBtnLoading(btn, false);
-            return;
+        var saved = localStorage.getItem('clinicos-remember-email');
+        if (saved && emailEl) { emailEl.value = saved; if (rememberEl) rememberEl.checked = true; }
+      } catch (_) {}
+      document.getElementById('form').onsubmit = async (e) => {
+        e.preventDefault();
+        const err = document.getElementById('error');
+        const btn = e.target.querySelector('[type="submit"]');
+        err.style.display = 'none';
+        if (typeof setBtnLoading === 'function') setBtnLoading(btn, true, 'Signing in…');
+        else { btn.disabled = true; btn.textContent = 'Signing in…'; }
+        const fd = new FormData(e.target);
+        try {
+          if (rememberEl && rememberEl.checked) localStorage.setItem('clinicos-remember-email', fd.get('email') || '');
+          else localStorage.removeItem('clinicos-remember-email');
+        } catch (_) {}
+        try {
+          const r = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ email: fd.get('email'), password: fd.get('password') }),
+          });
+          const data = await r.json().catch(() => ({}));
+          if (!r.ok) {
+            if (data.code === 'EMAIL_NOT_VERIFIED') {
+              err.innerHTML = (data.error || 'Verify your email.') + ' <a href="/verify-email/?email=' + encodeURIComponent(fd.get('email')) + '">Resend link</a>';
+              err.style.display = 'block';
+              if (typeof setBtnLoading === 'function') setBtnLoading(btn, false); else { btn.disabled = false; btn.textContent = 'Log in'; }
+              return;
+            }
+            throw new Error(data.error || data.message || 'Sign in failed — check email and password');
           }
-          throw new Error(data.error || data.message || 'Sign in failed — check email and password');
+          if (data.token && data.user && typeof syncClinicosStore === 'function') syncClinicosStore(data.user, data.token);
+          window.location.href = '/dashboard/';
+        } catch (ex) {
+          err.textContent = ex.message;
+          err.style.display = 'block';
+          if (typeof setBtnLoading === 'function') setBtnLoading(btn, false); else { btn.disabled = false; btn.textContent = 'Log in'; }
         }
-        if (data.token && data.user) syncClinicosStore(data.user, data.token);
-        window.location.href = '/dashboard/';
-      } catch (ex) {
-        err.textContent = ex.message;
-        err.style.display = 'block';
-        setBtnLoading(btn, false);
-      }
-    };
+      };
+    })();
   </script>
 </body>
 </html>

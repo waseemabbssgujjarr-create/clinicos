@@ -10,7 +10,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px 24px;
-  background: var(--ds-nav, #1E3A8A);
+  background: var(--ds-nav, #0B6456);
   color: #fff;
   border-radius: var(--ds-r-card, 8px);
   padding: 20px 22px;
@@ -131,7 +131,7 @@
   border-radius: var(--ds-r-card, 8px);
   padding: 16px 14px;
   box-shadow: var(--ds-shadow-xs);
-  border-top: 3px solid #2563EB;
+  border-top: 3px solid #14967F;
   min-height: 88px;
   display: flex;
   flex-direction: column;
@@ -217,7 +217,7 @@
 }
 
 .dma-wa-muted a {
-  color: #1D4ED8;
+  color: #0B6456;
   font-weight: 700;
   text-decoration: none;
 }
@@ -257,12 +257,12 @@
 }
 
 .dma-wa-quick__item:hover {
-  border-color: #2563EB !important;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.12) !important;
+  border-color: #14967F !important;
+  box-shadow: 0 4px 14px rgba(20, 150, 127, 0.12) !important;
 }
 
 .dma-wa-quick__item--adv {
-  border-color: rgba(37, 99, 235, 0.35) !important;
+  border-color: rgba(20, 150, 127, 0.35) !important;
   background: linear-gradient(135deg, #EFF6FF, #fff) !important;
 }
 
@@ -315,8 +315,8 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(37, 99, 235, 0.12);
-  color: #1D4ED8;
+  background: rgba(20, 150, 127, 0.12);
+  color: #0B6456;
   font-weight: 800;
   font-size: 0.75rem;
   display: flex;
@@ -343,7 +343,7 @@
 .dma-wa-caps li:last-child { border-bottom: none; }
 
 .dma-wa-check {
-  color: #2563EB;
+  color: #14967F;
   font-weight: 800;
   flex-shrink: 0;
 }
@@ -442,17 +442,17 @@
   text-transform: uppercase;
 }
 
-.dma-wa-pill--ai { background: #ffedd5; color: #1E3A8A; }
+.dma-wa-pill--ai { background: #ffedd5; color: #0B6456; }
 .dma-wa-pill--warn { background: #fef3c7; color: #92400e; }
 
 .dma-wa-settings-teaser {
   background: linear-gradient(90deg, #EFF6FF, #fff);
-  border: 1px solid rgba(37, 99, 235, 0.35);
+  border: 1px solid rgba(20, 150, 127, 0.35);
   border-radius: 14px;
   padding: 14px 18px;
   margin-bottom: 20px;
   font-size: 0.9rem;
-  color: #1E3A8A;
+  color: #0B6456;
 }
 
 .dma-wa-connected-info { margin-bottom: 4px; }

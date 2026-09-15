@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Announcements — Doctors My Agency</title>
+  <title>Announcements â€” Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=15" />
-  <link rel="stylesheet" href="/superadmin-theme.css?v=10" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=20" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=11" />
 </head>
 <body class="superadmin-app">
   <div class="sa-layout">
@@ -30,8 +30,8 @@
       <div id="body" class="ds-section"></div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=13"></script>
-  <script src="/dma-ui.js?v=5"></script>
+  <script src="/superadmin-admin-shell.js?v=15"></script>
+  <script src="/dma-ui.js?v=8"></script>
   <script>
     (function () {
       if (!DmaAdminShell.initStaticPage('/superadmin/announcements/')) return;
@@ -86,7 +86,7 @@
           body.innerHTML =
             '<article class="int-card"><strong>' + DmaUI.esc(lastSend.subject) + '</strong>' +
             '<p class="cos-hint">Sent ' + DmaUI.esc(lastSend.sent) + ' of ' + DmaUI.esc(lastSend.total) +
-            ' · ' + DmaUI.esc(new Date(lastSend.at).toLocaleString()) + '</p></article>';
+            ' Â· ' + DmaUI.esc(new Date(lastSend.at).toLocaleString()) + '</p></article>';
         }
       }
 
