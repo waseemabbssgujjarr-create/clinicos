@@ -1,34 +1,81 @@
 <!DOCTYPE html>
-<html lang="en" class="dma-world-public">
+<html lang="en" class="dma-world-public dma-pub-home dma-pub-page">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About — Clinicos</title>
   <meta name="description" content="Clinicos by Doctors My Agency is a private clinic operating system with WhatsApp Business and an AI receptionist. Isolated clinic data. No public marketplace." />
-  <link rel="icon" href="/favicon.svg" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=48" />
+  <link rel="icon" href="/media/landing/dma-insignia.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=51" />
 </head>
 <body>
   <div id="dma-public-header"></div>
-  <main class="dma-pub-wrap dma-editorial">
-    <span class="eyebrow" style="color:var(--ds-primary);font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:.72rem">About</span>
-    <h1 class="dma-h-display" style="font-size:clamp(2rem,4vw,3.2rem)">A clinic operating system — not a public directory.</h1>
-    <p class="lede">Doctors My Agency builds Clinicos so independent clinics can run appointments, conversations and visits in one private workspace. Patients stay on that clinic’s account.</p>
-    <div class="dma-pain">
-      <article><h3>Front desk</h3><p>WhatsApp, bookings and an AI receptionist that uses live calendar availability.</p></article>
-      <article><h3>Clinical</h3><p>Waiting, called, consultation, vitals, prescription and follow-up on the same visit.</p></article>
-      <article><h3>Trust</h3><p>Owner-only controls stay owner-only. SaaS billing is not mixed with visit fees.</p></article>
-    </div>
-    <h2 class="dma-h3">WhatsApp Business</h2>
-    <p class="lede">Clinics connect their own WhatsApp Business account through Meta Embedded Signup when they are ready. Until then, the product shows that WhatsApp is not configured — it does not pretend to be live.</p>
-    <p class="lede"><a href="/privacy/">Privacy</a> · <a href="/security/">Security</a> · <a href="/contact/">Contact</a></p>
-    <div class="dma-pub-actions" style="margin-top:24px">
-      <a class="dma-btn dma-btn-primary" href="/register/">Start Free Trial</a>
-      <a class="dma-btn dma-btn-ghost" href="/platform/">Explore platform</a>
-    </div>
+  <main class="dma-pub-page-main">
+    <section class="dma-pub-wrap dma-editorial dma-lp-section dma-pub-in">
+      <div class="dma-lp-split">
+        <div class="dma-lp-card dma-lp-pad">
+          <span class="dma-lp-pill">About</span>
+          <h1 class="dma-h-display">A clinic operating system — not a public directory.</h1>
+          <p class="lede">Doctors My Agency builds Clinicos so independent clinics can run appointments, conversations and visits in one private workspace. Patients stay on that clinic’s account.</p>
+          <div class="dma-pub-pills">
+            <a href="/privacy/">Privacy</a>
+            <a href="/security/">Security</a>
+            <a href="/contact/">Contact</a>
+          </div>
+        </div>
+        <figure class="dma-pub-photo">
+          <img src="/media/landing/clinic-desk.jpg" alt="Clinician speaking with a patient at a clinic desk" width="1400" height="933" />
+        </figure>
+      </div>
+    </section>
+    <section class="dma-pub-wrap dma-editorial dma-lp-section dma-pub-in">
+      <div class="dma-lp-split">
+        <figure class="dma-pub-photo">
+          <img src="/media/landing/clinic-room.jpg" alt="Clinic treatment room" width="1400" height="933" />
+        </figure>
+        <div class="dma-lp-card dma-lp-pad">
+          <span class="dma-lp-pill">Workspace</span>
+          <h2 class="dma-h-display">Front desk, clinical visits, and owner-only controls.</h2>
+          <p class="lede">WhatsApp, bookings and an AI receptionist that uses live calendar availability. Waiting, called, consultation, vitals, prescription and follow-up on the same visit. Owner-only controls stay owner-only. SaaS billing is not mixed with visit fees.</p>
+        </div>
+      </div>
+      <div class="dma-pain">
+        <article>
+          <h3>Front desk</h3>
+          <p>WhatsApp, bookings and an AI receptionist that uses live calendar availability.</p>
+        </article>
+        <article>
+          <h3>Clinical</h3>
+          <p>Waiting, called, consultation, vitals, prescription and follow-up on the same visit.</p>
+        </article>
+        <article>
+          <h3>Trust</h3>
+          <p>Owner-only controls stay owner-only. SaaS billing is not mixed with visit fees.</p>
+        </article>
+      </div>
+    </section>
+    <section class="dma-pub-wrap dma-editorial dma-lp-section dma-pub-in">
+      <div class="dma-lp-split">
+        <div class="dma-lp-card dma-lp-pad">
+          <span class="dma-lp-pill">WhatsApp Business</span>
+          <h2 class="dma-h-display">Connect when the clinic is ready.</h2>
+          <p class="lede">Clinics connect their own WhatsApp Business account through Meta Embedded Signup when they are ready. Until then, the product shows that WhatsApp is not configured — it does not pretend to be live.</p>
+          <div class="dma-pub-actions">
+            <a class="dma-btn dma-btn-primary dma-lp-glow" href="/register/">Start Free Trial</a>
+            <a class="dma-btn dma-btn-ghost dma-btn-on-dark" href="/#platform">Explore platform</a>
+          </div>
+        </div>
+        <figure class="dma-pub-photo">
+          <img src="/media/landing/clinic-consult.jpg" alt="Consultation in a clinic" width="1400" height="933" />
+        </figure>
+      </div>
+    </section>
   </main>
   <div id="dma-public-footer"></div>
-  <script src="/dma-public.js?v=20"></script>
+  <script src="/dma-public.js?v=22"></script>
   <script>DmaPublic.boot();</script>
 </body>
 </html>

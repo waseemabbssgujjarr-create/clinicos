@@ -21,22 +21,38 @@
     {
       label: "Resources",
       children: [
-        { href: "/faqs/", hash: "#faqs", label: "FAQs" },
-        { href: "/contact/", hash: "#contact", label: "Contact" },
-        { href: "/about/", hash: "#about", label: "About" }
+        { href: "/faqs/", keepRoute: true, label: "FAQs" },
+        { href: "/contact/", keepRoute: true, label: "Contact" },
+        { href: "/about/", keepRoute: true, label: "About" }
       ]
     },
     { href: "/pricing/", hash: "#pricing", label: "Pricing" }
   ];
 
-  function isHome() {
+  var PRODUCT_HASH = {
+    "/pricing": "#pricing",
+    "/platform": "#platform",
+    "/solutions": "#solutions",
+    "/clinical": "#clinical",
+    "/clinic-crm": "#clinic-crm",
+    "/ai-receptionist": "#ai-receptionist",
+    "/patient-experience": "#patient-experience"
+  };
+
+  function cleanPath() {
     var path = String(location.pathname || "/").replace(/\/index\.html$/i, "");
     if (path.length > 1) path = path.replace(/\/+$/, "");
+    return path || "/";
+  }
+
+  function isHome() {
+    var path = cleanPath();
     return path === "" || path === "/";
   }
 
   function itemHref(item) {
-    if (item.hash && isHome()) return item.hash;
+    if (item.keepRoute) return item.href;
+    if (item.hash) return isHome() ? item.hash : "/" + item.hash;
     return item.href;
   }
 
@@ -69,7 +85,7 @@
       { href: "/platform/", hash: "#platform", label: "Platform", d: '<rect x="4" y="4" width="7" height="7" rx="1.4"/><rect x="13" y="4" width="7" height="7" rx="1.4"/><rect x="4" y="13" width="7" height="7" rx="1.4"/><rect x="13" y="13" width="7" height="7" rx="1.4"/>' },
       { href: "/solutions/", hash: "#solutions", label: "Solutions", d: '<circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M3 12h2M19 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>' },
       { href: "/pricing/", hash: "#pricing", label: "Pricing", d: '<path d="M6 8h9a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h9"/><path d="M12 4v16"/>' },
-      { href: "/contact/", hash: "#contact", label: "Contact", d: '<path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v8A2.5 2.5 0 0 1 17.5 17H9l-5 3v-13.5z"/>' }
+      { href: "/contact/", keepRoute: true, label: "Contact", d: '<path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v8A2.5 2.5 0 0 1 17.5 17H9l-5 3v-13.5z"/>' }
     ];
     return '<nav class="dma-pub-dock" aria-label="Primary">' +
       items.map(function (it) {
@@ -79,7 +95,9 @@
   }
 
   function navHtml() {
-    var brand = '<a class="dma-pub-logo" href="/"><span class="mark">C</span><span>Clinicos</span></a>';
+    var brand = '<a class="dma-pub-logo dma-pub-logo--img" href="/" aria-label="Doctors My Agency">' +
+      '<img class="dma-logo-white" src="/media/landing/dma-logo-white.png" alt="Doctors My Agency" width="220" height="64" />' +
+      "</a>";
     return '<div class="dma-pub-wrap"><nav class="dma-pub-nav" id="dma-pub-nav">' +
       brand +
       '<button type="button" class="dma-pub-menu" id="dma-pub-toggle" aria-expanded="false" aria-controls="dma-pub-links" aria-label="Open menu">' +
@@ -100,7 +118,9 @@
     return '<div class="dma-pub-foot-wrap">' +
       '<div class="dma-pub-wrap">' +
       '<footer class="dma-pub-foot">' +
-      '<div class="dma-pub-foot-brand"><a class="dma-pub-logo" href="/"><span class="mark">C</span><span class="dma-pub-wordmark">Clinicos</span></a>' +
+      '<div class="dma-pub-foot-brand"><a class="dma-pub-logo dma-pub-logo--img" href="/" aria-label="Doctors My Agency">' +
+        '<img class="dma-logo-white" src="/media/landing/dma-logo-white.png" alt="Doctors My Agency" width="220" height="64" />' +
+      "</a>" +
         '<p class="dma-pub-foot-tag">The operating system for modern clinics.</p>' +
         '<p class="dma-pub-foot-blurb">Run your clinic without the paperwork. Appointments, patients, consultations, WhatsApp, and your AI receptionist — connected in one clinic workspace.</p>' +
         '<ul class="dma-pub-foot-facts">' +
@@ -108,8 +128,8 @@
           "<li>There is no public doctor directory.</li>" +
           "<li>It does not diagnose. It does not replace doctors.</li>" +
         "</ul></div>" +
-      '<div class="dma-pub-foot-col"><strong>Platform</strong><a href="/platform/">Overview</a><a href="/ai-receptionist/">AI Receptionist</a><a href="/clinic-crm/">Clinic CRM</a><a href="/clinical/">Clinical</a><a href="/pricing/">Pricing</a></div>' +
-      '<div class="dma-pub-foot-col"><strong>For</strong><a href="/platform/">Clinics</a><a href="/clinical/">Doctors</a><a href="/patient-experience/">Patients</a><a href="/solutions/">Solutions</a></div>' +
+      '<div class="dma-pub-foot-col"><strong>Platform</strong><a href="/#platform">Overview</a><a href="/#ai-receptionist">AI Receptionist</a><a href="/#clinic-crm">Clinic CRM</a><a href="/#clinical">Clinical</a><a href="/#pricing">Pricing</a></div>' +
+      '<div class="dma-pub-foot-col"><strong>For</strong><a href="/#for-clinics">Clinics</a><a href="/#for-doctors">Doctors</a><a href="/#for-patients">Patients</a><a href="/#solutions">Solutions</a></div>' +
       '<div class="dma-pub-foot-col"><strong>Company</strong><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/faqs/">FAQs</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/security/">Security</a></div>' +
       "</footer>" +
       '<p class="dma-pub-copy">© Clinicos · Doctors My Agency · 2026</p>' +
@@ -117,7 +137,13 @@
   }
 
   function bootPublic() {
-    document.documentElement.classList.add("dma-world-public");
+    var path = cleanPath();
+    if (PRODUCT_HASH[path]) {
+      location.replace("/" + PRODUCT_HASH[path]);
+      return;
+    }
+    document.documentElement.classList.add("dma-world-public", "dma-pub-home");
+    if (!isHome()) document.documentElement.classList.add("dma-pub-page");
     var header = document.getElementById("dma-public-header");
     var footer = document.getElementById("dma-public-footer");
     if (header) {

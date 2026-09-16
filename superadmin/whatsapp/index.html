@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="sa-static">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>WhatsApp â€” Doctors My Agency</title>
+  <title>WhatsApp Ã¢â‚¬â€ Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=48" />
-  <link rel="stylesheet" href="/superadmin-theme.css?v=12" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=49" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=13" />
 </head>
 <body class="superadmin-app">
   <div class="sa-layout">
@@ -25,12 +25,12 @@
         Meta webhook: <code id="wa-hook"></code>
         <button type="button" class="ds-btn ds-btn-outline ds-btn-sm" id="copy-hook">Copy</button>
       </div>
-      <div class="ds-kpis" id="kpis"><div class="ds-loading">Loadingâ€¦</div></div>
+      <div class="ds-kpis" id="kpis"><div class="ds-loading">LoadingÃ¢â‚¬Â¦</div></div>
       <div id="err" class="ds-error" style="display:none"></div>
-      <div id="wrap"><p class="ds-loading">Loading clinicsâ€¦</p></div>
+      <div id="wrap"><p class="ds-loading">Loading clinicsÃ¢â‚¬Â¦</p></div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=17"></script>
+  <script src="/superadmin-admin-shell.js?v=18"></script>
   <script src="/dma-ui.js?v=8"></script>
   <script>
     (function () {
@@ -52,14 +52,14 @@
             '<a class="ds-btn ds-btn-primary" href="/superadmin/clinics/' + encodeURIComponent(c.id) + '/">View clinic</a>'
         });
         d.setBody(DmaUI.kv([
-          ['Owner', c.ownerName || 'â€”'],
-          ['Email', c.email || 'â€”'],
+          ['Owner', c.ownerName || 'Ã¢â‚¬â€'],
+          ['Email', c.email || 'Ã¢â‚¬â€'],
           ['Status', c.connected ? 'Connected' : 'Not connected'],
-          ['Phone', c.displayPhoneNumber || c.phoneNumber || 'â€”'],
-          ['WABA', c.wabaId || c.whatsappBusinessAccountId || 'â€”'],
-          ['Plan', (c.plan || 'â€”') + ' / ' + (c.planStatus || 'â€”')],
-          ['Messages', String(c.whatsappMessages != null ? c.whatsappMessages : 'â€”')],
-          ['Last activity', c.lastActivity || c.updatedAt || 'â€”']
+          ['Phone', c.displayPhoneNumber || c.phoneNumber || 'Ã¢â‚¬â€'],
+          ['WABA', c.wabaId || c.whatsappBusinessAccountId || 'Ã¢â‚¬â€'],
+          ['Plan', (c.plan || 'Ã¢â‚¬â€') + ' / ' + (c.planStatus || 'Ã¢â‚¬â€')],
+          ['Messages', String(c.whatsappMessages != null ? c.whatsappMessages : 'Ã¢â‚¬â€')],
+          ['Last activity', c.lastActivity || c.updatedAt || 'Ã¢â‚¬â€']
         ]));
         var rev = d.el.querySelector('#wa-rev');
         if (rev) rev.onclick = function () {

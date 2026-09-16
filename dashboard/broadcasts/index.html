@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="doc-static">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>Broadcasts — Clinicos</title>
+          <title>Broadcasts â€” Clinicos</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=48" />
-  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=16" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=49" />
+  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=17" />
   <link rel="stylesheet" href="/dma-doctor-app.css?v=6" />
   <link rel="stylesheet" href="/dma-doctor-pages.css?v=4" />
   <style>
@@ -44,7 +44,7 @@
           </div>
         </div>
         <div class="dma-tabs" id="bc-tabs" role="tablist"><button type="button" class="active">Sent</button></div>
-        <p class="dma-hint" id="bc-hist-count">Loading…</p>
+        <p class="dma-hint" id="bc-hist-count">Loadingâ€¦</p>
         <div id="bc-history">
           <div class="ds-empty-panel"><strong>No broadcasts yet</strong><p>Send your first patient update when you're ready.</p><p style="margin-top:12px"><button type="button" class="dma-btn dma-btn-primary" id="bc-empty-new">New broadcast</button></p></div>
         </div>
@@ -52,7 +52,7 @@
     </div>
   </div>
   <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
-  <script src="/dashboard-doctor-shell.js?v=19"></script>
+  <script src="/dashboard-doctor-shell.js?v=20"></script>
   <script src="/dma-ui.js?v=8"></script>
   <script src="/dma-doctor-app.js?v=4"></script>
   <script src="/dashboard-bootstrap.js?v=7"></script>
@@ -156,7 +156,7 @@
           var body = (b.messageBody || '').slice(0, 120);
           return '<div class="bc-history-item">' +
             '<div class="bc-history-body"><p class="bc-history-msg">' + body + '</p>' +
-            '<p class="bc-history-meta">' + date + ' · ' + (b.targetGroup || 'All patients') + '</p></div>' +
+            '<p class="bc-history-meta">' + date + ' Â· ' + (b.targetGroup || 'All patients') + '</p></div>' +
             '<div class="bc-history-stat"><strong>' + (b.sentCount || 0) + '</strong><span>sent</span></div></div>';
         }).join('');
       }).catch(function () {

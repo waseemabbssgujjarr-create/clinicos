@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="sa-static">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Subscriptions â€” Doctors My Agency</title>
+  <title>Subscriptions Ã¢â‚¬â€ Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=48" />
-  <link rel="stylesheet" href="/superadmin-theme.css?v=12" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=49" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=13" />
 </head>
 <body class="superadmin-app">
   <div class="sa-layout">
@@ -20,7 +20,7 @@
           <p class="sa-subtitle" style="margin:4px 0 0">Clinic plans across the platform. Click a row for details.</p>
         </div>
       </div>
-      <div class="ds-kpis" id="kpis"><div class="ds-loading">Loadingâ€¦</div></div>
+      <div class="ds-kpis" id="kpis"><div class="ds-loading">LoadingÃ¢â‚¬Â¦</div></div>
       <div class="ds-filters" id="filters">
         <button type="button" class="active" data-f="all">All</button>
         <button type="button" data-f="trial">Trial</button>
@@ -28,7 +28,7 @@
         <button type="button" data-f="past">Past due</button>
         <button type="button" data-f="cancelled">Cancelled</button>
       </div>
-      <div id="state" class="ds-loading">Loading clinicsâ€¦</div>
+      <div id="state" class="ds-loading">Loading clinicsÃ¢â‚¬Â¦</div>
       <div class="ds-table-wrap ds-desktop-table">
         <table class="ds-table" id="table" style="display:none">
           <thead><tr><th>Clinic</th><th>Owner</th><th>Plan</th><th>Status</th></tr></thead>
@@ -38,7 +38,7 @@
       <div class="ds-clinic-cards" id="cards"></div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=17"></script>
+  <script src="/superadmin-admin-shell.js?v=18"></script>
   <script src="/dma-ui.js?v=8"></script>
   <script>
     (function () {
@@ -60,12 +60,12 @@
       function openSub(c) {
         DmaUI.drawer({
           title: c.name || 'Clinic',
-          subtitle: (c.plan || 'TRIAL') + ' Â· ' + (c.planStatus || 'â€”'),
+          subtitle: (c.plan || 'TRIAL') + ' Ã‚Â· ' + (c.planStatus || 'Ã¢â‚¬â€'),
           html: DmaUI.kv([
             ['Owner', c.ownerName || c.email],
             ['Email', c.email],
             ['Plan', c.plan || 'TRIAL'],
-            ['Status', c.planStatus || 'â€”'],
+            ['Status', c.planStatus || 'Ã¢â‚¬â€'],
             ['Clinic status', c.isActive ? 'Active' : 'Suspended']
           ]),
           footer:
@@ -94,10 +94,10 @@
         document.getElementById('table').style.display = '';
         document.getElementById('tbody').innerHTML = list.map(function (c, i) {
           return '<tr data-i="' + i + '"><td><strong>' + esc(c.name) + '</strong></td><td>' + esc(c.ownerName || c.email) +
-            '</td><td>' + DmaUI.badge(c.plan || 'TRIAL') + '</td><td>' + DmaUI.badge(c.planStatus || 'â€”', /active/i.test(c.planStatus || '') ? 'ok' : /cancel|past/i.test(c.planStatus || '') ? 'warn' : 'off') + '</td></tr>';
+            '</td><td>' + DmaUI.badge(c.plan || 'TRIAL') + '</td><td>' + DmaUI.badge(c.planStatus || 'Ã¢â‚¬â€', /active/i.test(c.planStatus || '') ? 'ok' : /cancel|past/i.test(c.planStatus || '') ? 'warn' : 'off') + '</td></tr>';
         }).join('');
         document.getElementById('cards').innerHTML = list.map(function (c, i) {
-          return '<article class="ds-clinic-card" data-i="' + i + '"><h3>' + esc(c.name) + '</h3><div class="ds-clinic-meta">' + esc(c.plan) + ' Â· ' + esc(c.planStatus) + '</div></article>';
+          return '<article class="ds-clinic-card" data-i="' + i + '"><h3>' + esc(c.name) + '</h3><div class="ds-clinic-meta">' + esc(c.plan) + ' Ã‚Â· ' + esc(c.planStatus) + '</div></article>';
         }).join('');
       }
 

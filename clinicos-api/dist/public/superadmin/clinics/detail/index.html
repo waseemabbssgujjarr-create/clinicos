@@ -1,22 +1,22 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="sa-static">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Organization â€” Doctors My Agency</title>
+  <title>Organization Ã¢â‚¬â€ Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=48" />
-  <link rel="stylesheet" href="/superadmin-theme.css?v=12" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=49" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=13" />
 </head>
 <body class="superadmin-app">
   <div class="sa-layout">
     <aside class="sa-sidebar" id="sa-sidebar"></aside>
     <main class="sa-main">
       <div class="sa-main-inner">
-        <a href="/superadmin/clinics/" class="sa-back">â† Organizations</a>
-        <div id="loading" class="ds-loading">Loading organizationâ€¦</div>
+        <a href="/superadmin/clinics/" class="sa-back">Ã¢â€ Â Organizations</a>
+        <div id="loading" class="ds-loading">Loading organizationÃ¢â‚¬Â¦</div>
         <div id="error" class="ds-error" style="display:none"></div>
         <div id="content" style="display:none" class="sa-content-card">
           <div class="ds-page-header">
@@ -24,28 +24,28 @@
               <div class="dma-avatar" id="org-avatar" aria-hidden="true">OR</div>
               <div>
                 <span class="ds-pill">Organization</span>
-                <h1 id="clinic-name">â€”</h1>
-                <p id="clinic-owner">â€”</p>
+                <h1 id="clinic-name">Ã¢â‚¬â€</h1>
+                <p id="clinic-owner">Ã¢â‚¬â€</p>
               </div>
             </div>
             <div class="ds-page-actions">
               <span id="status-badge" class="ds-badge sa-badge-ok">Active</span>
-              <span id="plan-badge" class="ds-badge">â€”</span>
+              <span id="plan-badge" class="ds-badge">Ã¢â‚¬â€</span>
               <button type="button" class="ds-btn ds-btn-outline" id="toggle-status-btn">Suspend</button>
             </div>
           </div>
           <div class="ds-kpis">
-            <div class="ds-kpi"><div><label>Patients</label><strong id="stat-patients">â€”</strong></div></div>
-            <div class="ds-kpi"><div><label>Appointments</label><strong id="stat-appointments">â€”</strong></div></div>
-            <div class="ds-kpi"><div><label>Staff</label><strong id="stat-staff">â€”</strong></div></div>
-            <div class="ds-kpi"><div><label>Messages</label><strong id="stat-messages">â€”</strong></div></div>
+            <div class="ds-kpi"><div><label>Patients</label><strong id="stat-patients">Ã¢â‚¬â€</strong></div></div>
+            <div class="ds-kpi"><div><label>Appointments</label><strong id="stat-appointments">Ã¢â‚¬â€</strong></div></div>
+            <div class="ds-kpi"><div><label>Staff</label><strong id="stat-staff">Ã¢â‚¬â€</strong></div></div>
+            <div class="ds-kpi"><div><label>Messages</label><strong id="stat-messages">Ã¢â‚¬â€</strong></div></div>
           </div>
           <div id="cos-workspace"></div>
         </div>
       </div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=17"></script>
+  <script src="/superadmin-admin-shell.js?v=18"></script>
   <script src="/dma-ui.js?v=8"></script>
   <script src="/superadmin-clinic-workspace.js?v=4"></script>
   <script>
@@ -77,15 +77,15 @@
 
       function render(c) {
         clinic = c;
-        document.getElementById('clinic-name').textContent = c.name || 'â€”';
-        document.getElementById('clinic-owner').textContent = (c.ownerName || 'â€”') + (c.email ? ' Â· ' + c.email : '');
+        document.getElementById('clinic-name').textContent = c.name || 'Ã¢â‚¬â€';
+        document.getElementById('clinic-owner').textContent = (c.ownerName || 'Ã¢â‚¬â€') + (c.email ? ' Ã‚Â· ' + c.email : '');
         var av = document.getElementById('org-avatar');
         if (av) {
           var parts = String(c.name || 'OR').trim().split(/\s+/);
           av.textContent = parts.slice(0, 2).map(function (p) { return p.charAt(0); }).join('').toUpperCase();
         }
         var planBadge = document.getElementById('plan-badge');
-        if (planBadge) planBadge.textContent = (c.plan || 'â€”') + (c.planStatus ? ' Â· ' + c.planStatus : '');
+        if (planBadge) planBadge.textContent = (c.plan || 'Ã¢â‚¬â€') + (c.planStatus ? ' Ã‚Â· ' + c.planStatus : '');
         document.getElementById('stat-patients').textContent = (c._count && c._count.patients != null) ? c._count.patients.toLocaleString() : '0';
         document.getElementById('stat-appointments').textContent = (c._count && c._count.appointments != null) ? c._count.appointments.toLocaleString() : '0';
         document.getElementById('stat-staff').textContent = (c._count && c._count.staff != null) ? c._count.staff.toLocaleString() : '0';
@@ -101,7 +101,7 @@
           badge.className = 'ds-badge ds-badge-danger';
           toggleBtn.textContent = 'Reactivate';
         }
-        document.title = (c.name || 'Organization') + ' â€” Platform Admin';
+        document.title = (c.name || 'Organization') + ' Ã¢â‚¬â€ Platform Admin';
       }
 
       function load() {

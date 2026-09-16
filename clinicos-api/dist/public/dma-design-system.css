@@ -2320,12 +2320,9 @@ html.sa-static .ds-table tbody tr:hover td { background: var(--ds-primary-soft);
    Scoped to html.doc-static so Superadmin is unchanged.
    ═══════════════════════════════════════════════════════════ */
 html.doc-static {
-  --ds-bg: #F7F8FA;
-  --ds-bg-clinic: #F7F8FA;
-  --ds-surface-section: #EEF0F3;
-  --ds-surface-hover: #F3F4F6;
-  --doc-bg: #F7F8FA;
-  --doc-sidebar: #0B6456;
+  --ds-surface-section: var(--ds-surface-2, #141A2A);
+  --ds-surface-hover: rgba(255, 255, 255, 0.06);
+  --doc-sidebar: #080B14;
 }
 
 html.doc-static body {
@@ -3565,18 +3562,15 @@ html.doc-static textarea:focus-visible {
    ═══════════════════════════════════════════════════════════ */
 
 html.dma-world-public {
-  --ds-bg: var(--ds-aqua);
+  --ds-bg: #080B14;
   --ds-nav: transparent;
-  background: var(--ds-aqua);
+  background: #080B14;
 }
 html.dma-world-public body {
   margin: 0;
   font-family: var(--ds-font);
-  color: var(--ds-text);
-  background:
-    radial-gradient(1100px 520px at 50% -12%, rgba(20, 150, 127, 0.18), transparent 58%),
-    radial-gradient(820px 400px at 100% 0%, rgba(250, 208, 105, 0.14), transparent 52%),
-    linear-gradient(180deg, #F3FBFA 0%, #F8F5EC 38%, #F2FBFA 100%);
+  color: #E2E8F0;
+  background: #080B14;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -4690,9 +4684,9 @@ html.dma-world-public {
 }
 #dma-public-header {
   position: sticky; top: 0; z-index: 60;
-  background: rgba(242, 251, 250, 0.94);
+  background: rgba(8, 11, 20, 0.94);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(20, 150, 127, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 html.dma-world-public .dma-pub-wrap,
 html.dma-world-public #dma-public-header .dma-pub-wrap,
@@ -5040,7 +5034,7 @@ html.dma-world-public .dma-ui-bars i { border-radius: 10px 10px 0 0; }
 
 .dma-pub-foot-wrap {
   margin-top: 28px;
-  background: #0B6456;
+  background: #05070A;
   color: rgba(255,255,255,.82);
   padding: 36px 0 28px;
 }
@@ -5394,7 +5388,7 @@ html.dma-world-public .dma-pub-plans .dma-btn { align-self: flex-start; margin-t
 html.dma-world-public .dma-editorial .dma-pub-actions { margin-top: 24px; }
 html.dma-world-public .dma-editorial .dma-flow { margin-top: 20px; }
 
-/* Landing-only DMA AI visual language. Other public pages stay light. */
+/* Public DMA OS — landing and helping pages share this dark chrome. */
 html.dma-world-public.dma-pub-home {
   --dma-lp-bg: #080B14;
   --dma-lp-card: rgba(255, 255, 255, 0.05);
@@ -5516,9 +5510,9 @@ html.dma-world-public.dma-pub-home .dma-lp-pill i {
 }
 html.dma-world-public.dma-pub-home .dma-lp-hero {
   position: relative;
-  min-height: calc(100vh - 72px);
+  min-height: 0;
   display: flex; align-items: center;
-  padding: 56px 0 72px;
+  padding: 40px 0 56px;
   overflow: hidden;
 }
 html.dma-world-public.dma-pub-home .dma-lp-hero-blobs {
@@ -6972,14 +6966,18 @@ html.dma-world-public.dma-pub-home .dma-faq {
 html.dma-world-public.dma-pub-home .dma-faq-a { padding: 0 2px 14px; }
 html.dma-world-public.dma-pub-home .dma-faq-a p { color: var(--dma-lp-muted); font-size: 0.875rem; }
 
-/* Hero floating product cards */
+/* Hero floating product cards — clustered overlap, not a scatter */
 html.dma-world-public.dma-pub-home .dma-lp-hero-stage {
   position: relative;
-  min-height: 460px;
+  width: 100%;
+  max-width: 520px;
+  margin-left: auto;
+  height: 500px;
+  min-height: 500px;
 }
 html.dma-world-public.dma-pub-home .dma-lp-float {
   position: absolute;
-  background: rgba(12, 18, 32, 0.78);
+  background: rgba(12, 18, 32, 0.82);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 18px;
   backdrop-filter: blur(16px);
@@ -6987,9 +6985,10 @@ html.dma-world-public.dma-pub-home .dma-lp-float {
   color: #E8EEF8;
 }
 html.dma-world-public.dma-pub-home .dma-lp-float-chat {
-  right: 0; top: 8px; width: min(100%, 340px);
+  right: 8px; top: 22px; width: min(100%, 328px);
   padding: 14px 14px 16px;
   z-index: 3;
+  animation: dma-lp-float-y 5.4s ease-in-out infinite alternate;
 }
 html.dma-world-public.dma-pub-home .dma-lp-chat-toast {
   display: inline-flex; align-items: center; gap: 6px;
@@ -7030,10 +7029,11 @@ html.dma-world-public.dma-pub-home .dma-lp-msg-out {
   color: #fff;
 }
 html.dma-world-public.dma-pub-home .dma-lp-float-wa {
-  left: 0; top: 46%;
+  left: 0; top: 42%;
   display: flex; align-items: center; gap: 10px;
-  padding: 12px 14px; width: min(240px, 70%);
+  padding: 12px 14px; width: min(248px, 72%);
   z-index: 4;
+  animation: dma-lp-float-y 6.2s ease-in-out infinite alternate-reverse;
 }
 html.dma-world-public.dma-pub-home .dma-lp-wa-ico {
   width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0;
@@ -7046,8 +7046,9 @@ html.dma-world-public.dma-pub-home .dma-lp-float-wa p {
   margin: 2px 0 0; font-size: 0.72rem; color: #7A899F; line-height: 1.35;
 }
 html.dma-world-public.dma-pub-home .dma-lp-float-appt {
-  left: 8%; bottom: 0; width: min(260px, 78%);
+  left: 28px; bottom: 10px; width: min(268px, 78%);
   padding: 14px 16px; z-index: 2;
+  animation: dma-lp-float-y 7s ease-in-out infinite alternate;
 }
 html.dma-world-public.dma-pub-home .dma-lp-float-appt > span {
   display: block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
@@ -7099,6 +7100,10 @@ html.dma-world-public.dma-pub-home .dma-lp-contact-grid .dma-lp-card {
   from { transform: translate(0, 0); }
   to { transform: translate(-24px, -36px); }
 }
+@keyframes dma-lp-float-y {
+  from { transform: translateY(0); }
+  to { transform: translateY(-10px); }
+}
 
 @media (max-width: 960px) {
   html.dma-world-public.dma-pub-home { --dma-pub-gutter: 20px; }
@@ -7129,6 +7134,7 @@ html.dma-world-public.dma-pub-home .dma-lp-contact-grid .dma-lp-card {
     gap: 10px;
     min-height: 0 !important;
     height: auto;
+    max-width: none;
     margin: 8px 0 0;
     width: 100%;
   }
@@ -7167,13 +7173,516 @@ html.dma-world-public.dma-pub-home .dma-lp-contact-grid .dma-lp-card {
 }
 @media (prefers-reduced-motion: reduce) {
   html.dma-world-public.dma-pub-home .dma-lp-grad,
-  html.dma-world-public.dma-pub-home .dma-lp-blob {
+  html.dma-world-public.dma-pub-home .dma-lp-blob,
+  html.dma-world-public.dma-pub-home .dma-lp-float {
     animation: none !important;
   }
   html.dma-world-public.dma-pub-home .dma-lp-grad {
     background-size: 100% auto;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   CLINIC + ADMIN INNER OS — dark glass surfaces
+   Chrome is already navy. This forces leftover light cards,
+   tables, calendar, inbox, modals, analytics, settings, and
+   WhatsApp panels onto the same dark family as landing/auth.
+   ═══════════════════════════════════════════════════════════ */
+html.doc-static .dma-section,
+html.doc-static .dma-section-muted,
+html.doc-static .ds-section-muted,
+html.doc-static .dma-panel,
+html.doc-static .dma-kpi,
+html.doc-static .cos-card,
+html.doc-static .cos-card--kpi,
+html.doc-static .cos-card--feature,
+html.doc-static .cos-card--data,
+html.doc-static .cos-card--action,
+html.doc-static .cos-card--status,
+html.doc-static .cos-card--appt,
+html.doc-static .cos-card--profile,
+html.doc-static .dma-hero-panel,
+html.doc-static .dma-next-card,
+html.doc-static .dma-person-card,
+html.doc-static .dma-alert,
+html.doc-static .cos-card--alert,
+html.doc-static .cos-unavail,
+html.doc-static .cos-appt-card,
+html.doc-static .cos-cal-day,
+html.doc-static .cos-cal-day.is-out,
+html.doc-static .cos-week-col,
+html.doc-static .cos-wait-row,
+html.doc-static .cos-queue-row,
+html.doc-static .cos-profile-hero,
+html.doc-static .cos-ops-metrics div,
+html.doc-static .dma-inbox-list,
+html.doc-static .dma-inbox .dma-thread,
+html.doc-static .dma-inbox-ctx,
+html.doc-static .dma-thread,
+html.doc-static .dma-thread-h,
+html.doc-static .dma-thread-c,
+html.doc-static .dma-row-item,
+html.doc-static button.dma-row-item,
+html.doc-static a.dma-row-item,
+html.doc-static .dma-modal,
+html.doc-static .dma-modal-f,
+html.doc-static .ds-modal,
+html.doc-static .ds-modal-f,
+html.doc-static .ds-drawer-panel,
+html.doc-static .dma-ui-drawer,
+html.doc-static .cos-pick-item,
+html.doc-static .cos-slot,
+html.doc-static .cos-filter-hint,
+html.doc-static .cos-filterbar .dma-search,
+html.doc-static .dma-wait-col,
+html.doc-static .dma-convo,
+html.doc-static .dma-omni article,
+html.doc-static .ds-hours-row,
+html.doc-static .cos-settings-body .dma-section,
+html.doc-static .cos-consult-bar,
+html.doc-static .dma-ui-bars,
+html.doc-static .dma-home-wa {
+  background: #101522 !important;
+  background-image: none !important;
+  color: #F0F6FF !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+}
+
+html.doc-static .cos-card--kpi span,
+html.doc-static .cos-card--kpi em,
+html.doc-static .dma-kpi span,
+html.doc-static .dma-kpi label,
+html.doc-static .dma-kpi em,
+html.doc-static .dma-kpi .sub,
+html.doc-static .dma-section-h h2,
+html.doc-static .ds-section-h h2,
+html.doc-static .dma-section-h p,
+html.doc-static .dma-hint,
+html.doc-static .cos-hint,
+html.doc-static .dma-prose,
+html.doc-static .cos-appt-card .meta,
+html.doc-static .dma-row-item .sub,
+html.doc-static .dma-row-item .meta,
+html.doc-static .dma-inbox-item .sub,
+html.doc-static .cos-pick-copy span,
+html.doc-static .cos-filter-hint,
+html.doc-static .cos-week-col,
+html.doc-static .cos-cal-day h4,
+html.doc-static .dma-person-card .dma-hint,
+html.doc-static .dma-thread-h,
+html.doc-static .cos-stepper-meta,
+html.doc-static .dma-modal-h,
+html.doc-static .cos-label,
+html.doc-static .dma-field label,
+html.doc-static .cos-drawer-sec h3 {
+  color: #C5D1E8 !important;
+  -webkit-text-fill-color: #C5D1E8 !important;
+  opacity: 1 !important;
+}
+
+html.doc-static .cos-card--kpi strong,
+html.doc-static .dma-kpi strong,
+html.doc-static .dma-row-item .name,
+html.doc-static .dma-inbox-item .name,
+html.doc-static .cos-pick-copy strong,
+html.doc-static .dma-person-card strong,
+html.doc-static .cos-appt-card .who,
+html.doc-static .cos-appt-card .when,
+html.doc-static .dma-modal-h h3,
+html.doc-static .cos-week-col,
+html.doc-static .cos-cal-day,
+html.doc-static .dma-home-wa strong {
+  color: #F0F6FF !important;
+  -webkit-text-fill-color: #F0F6FF !important;
+  opacity: 1 !important;
+}
+
+html.doc-static .cos-card--alert,
+html.doc-static .dma-alert {
+  background: rgba(250, 208, 105, 0.10) !important;
+  border-color: rgba(250, 208, 105, 0.28) !important;
+  color: #F0F6FF !important;
+}
+
+html.doc-static .cos-skel,
+html.doc-static .dma-ui-bars {
+  background: linear-gradient(90deg, #141A2A 0%, #1A2236 50%, #141A2A 100%) !important;
+  background-size: 200% 100% !important;
+}
+
+html.doc-static .cos-cal-day.is-today {
+  background: rgba(37, 99, 235, 0.16) !important;
+  border-color: #2563EB !important;
+}
+
+html.doc-static .dma-inbox-item,
+html.doc-static .dma-inbox-item .name,
+html.doc-static .dma-inbox-item .sub {
+  color: #E2E8F0 !important;
+}
+html.doc-static .dma-inbox-item:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+html.doc-static .dma-inbox-item.on {
+  background: rgba(37, 99, 235, 0.16) !important;
+  border-left-color: #2563EB !important;
+}
+
+html.doc-static .dma-bubble.in {
+  background: #1A2236 !important;
+  color: #F0F6FF !important;
+}
+html.doc-static .dma-bubble.out {
+  background: linear-gradient(135deg, #14967F, #0B6456) !important;
+  color: #fff !important;
+}
+
+html.doc-static .dma-modal-bg,
+html.doc-static .ds-modal-wrap {
+  background: rgba(8, 11, 20, 0.72) !important;
+}
+html.doc-static .dma-modal,
+html.doc-static .dma-modal--wizard,
+html.doc-static .ds-modal {
+  background: #101522 !important;
+  color: #F0F6FF !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+}
+html.doc-static .cos-pick-item {
+  background: #141A2A !important;
+  color: #F0F6FF !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+}
+html.doc-static .cos-pick-item .cos-pick-copy strong,
+html.doc-static .cos-pick-item .cos-pick-copy span {
+  color: #E2E8F0 !important;
+  -webkit-text-fill-color: #E2E8F0 !important;
+  opacity: 1 !important;
+}
+html.doc-static .cos-pick-item:hover,
+html.doc-static .cos-pick-item.on {
+  background: rgba(37, 99, 235, 0.18) !important;
+  border-color: #2563EB !important;
+}
+html.doc-static .cos-pick-item.on .cos-pick-copy strong,
+html.doc-static .cos-pick-item.on .cos-pick-copy span {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+}
+html.doc-static .cos-stepper-meta,
+html.doc-static .dma-modal-h button,
+html.doc-static .dma-modal-h .dma-btn-ghost {
+  color: #C5D1E8 !important;
+  opacity: 1 !important;
+}
+
+html.doc-static .cos-filterbar,
+html.doc-static .cos-pt-toolbar,
+html.doc-static .dma-status-bar {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  padding: 6px 8px !important;
+  gap: 8px !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+}
+html.doc-static .cos-filter-hint {
+  background: #141A2A !important;
+  color: #C5D1E8 !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  height: 40px !important;
+}
+
+html.doc-static .cos-settings-nav {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+html.doc-static .cos-settings-nav button {
+  color: #E2E8F0 !important;
+}
+html.doc-static .cos-settings-nav button.active {
+  background: linear-gradient(90deg, #276AFC, #2563EB) !important;
+  color: #FFFFFF !important;
+}
+
+html.doc-static .dma-view-toggle {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+html.doc-static .dma-view-toggle button.on {
+  background: #141A2A !important;
+  color: #F0F6FF !important;
+}
+
+html.doc-static .dma-panel-h,
+html.doc-static .dma-section-muted,
+html.doc-static .ds-section-muted {
+  background: #141A2A !important;
+}
+
+html.doc-static .dma-person-card .dma-avatar,
+html.doc-static .cos-empty-mark,
+html.doc-static .cos-appt-card .cos-avatar {
+  background: rgba(20, 150, 127, 0.22) !important;
+  color: #7ACFBD !important;
+}
+
+html.doc-static a.cos-card--kpi:hover,
+html.doc-static .cos-card--kpi:hover,
+html.doc-static .dma-kpi:hover {
+  border-color: rgba(37, 99, 235, 0.45) !important;
+  background: #141A2A !important;
+}
+
+html.doc-static .dma-home-wa {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 18px;
+  margin: 0 0 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(37, 211, 102, 0.28) !important;
+  background: linear-gradient(165deg, #101522 0%, #0E1A18 100%) !important;
+}
+html.doc-static .dma-home-wa-copy {
+  min-width: 0;
+  max-width: 40rem;
+}
+html.doc-static .dma-home-wa-copy strong {
+  display: block;
+  font-family: Montserrat, var(--ds-font-display), sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #FFFFFF !important;
+  margin-bottom: 4px;
+}
+html.doc-static .dma-home-wa-copy p {
+  margin: 0;
+  color: #C5D1E8 !important;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+html.doc-static .dma-home-wa--on {
+  border-color: rgba(74, 222, 128, 0.35) !important;
+}
+html.doc-static .dma-btn-wa {
+  background: linear-gradient(135deg, #25D366, #128C7E) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  border-color: transparent !important;
+}
+
+html.doc-static .dma-wa-panel,
+html.doc-static .dma-wa-stat,
+html.doc-static .dma-wa-quick__item,
+html.doc-static .dma-wa-settings-teaser,
+html.doc-static .dma-wa-phone-badge,
+html.doc-static .dma-wa-log,
+html.doc-static .dma-wa-log th,
+html.doc-static .dma-wa-log td {
+  background: #101522 !important;
+  color: #E2E8F0 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+html.doc-static .dma-wa-panel h2,
+html.doc-static .dma-wa-stat__val,
+html.doc-static .dma-wa-quick__item strong,
+html.doc-static .dma-wa-phone-number {
+  color: #F0F6FF !important;
+  -webkit-text-fill-color: #F0F6FF !important;
+}
+html.doc-static .dma-wa-panel p,
+html.doc-static .dma-wa-stat__lbl,
+html.doc-static .dma-wa-stat__sub,
+html.doc-static .dma-wa-muted,
+html.doc-static .dma-wa-quick__item span,
+html.doc-static .dma-wa-log-preview,
+html.doc-static .dma-wa-phone-meta {
+  color: #C5D1E8 !important;
+  -webkit-text-fill-color: #C5D1E8 !important;
+}
+html.doc-static .dma-wa-quick__item {
+  background: #141A2A !important;
+}
+html.doc-static .dma-wa-btn--ghost {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #E2E8F0 !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+html.sa-static .sa-content-card,
+html.sa-static .ds-section,
+html.sa-static .ds-section-muted,
+html.sa-static .sa-table-wrap,
+html.sa-static .sa-data-table,
+html.sa-static .ds-kpis > *,
+html.sa-static .ds-kpi,
+html.sa-static table,
+html.sa-static thead th,
+html.sa-static tbody td,
+html.sa-static .int-card,
+html.sa-static .sa-main-inner {
+  background: #101522 !important;
+  color: #F0F6FF !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+}
+html.sa-static thead th {
+  background: #141A2A !important;
+  color: #C5D1E8 !important;
+}
+html.sa-static tbody tr:hover td,
+html.sa-static .sa-data-table tbody tr:hover td {
+  background: rgba(37, 99, 235, 0.12) !important;
+}
+html.sa-static .sa-subtitle,
+html.sa-static .ds-muted {
+  color: #8B98AE !important;
+}
+html.sa-static .sa-main {
+  background: #080B14 !important;
+  padding: 20px 24px 40px !important;
+}
+html.sa-static .ds-work-header {
+  gap: 12px !important;
+  margin-bottom: 16px !important;
+}
+html.sa-static .ds-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+html.sa-static .sa-clinic-btn-suspend {
+  background: transparent !important;
+  color: #FCA5A5 !important;
+  border: 1px solid rgba(248, 113, 113, 0.45) !important;
+}
+
+html.doc-static .dma-comp-bar {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+html.doc-static .dma-comp-row,
+html.doc-static .dma-comp-row strong {
+  color: #E2E8F0 !important;
+}
+
+@media (max-width: 768px) {
+  html.doc-static .dma-home-wa {
+    padding: 14px;
+  }
+  html.doc-static .cos-filterbar,
+  html.doc-static .cos-pt-toolbar {
+    flex-wrap: wrap !important;
+  }
+}
+
+/* Helping + legal public pages */
+html.dma-world-public.dma-pub-page .dma-pub-page-main {
+  padding: 8px 0 40px;
+}
+html.dma-world-public.dma-pub-page .dma-pub-page-main > .dma-editorial {
+  padding-top: 28px;
+  padding-bottom: 36px;
+}
+html.dma-world-public.dma-pub-home .dma-pain article {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--dma-lp-line);
+  color: #E8EEF8;
+}
+html.dma-world-public.dma-pub-home .dma-pain h3 { color: #fff; }
+html.dma-world-public.dma-pub-home .dma-pain p { color: var(--dma-lp-muted); }
+html.dma-world-public.dma-pub-page .legal-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px var(--dma-pub-gutter, 24px) 72px;
+}
+html.dma-world-public.dma-pub-page .legal-wrap h1 {
+  font-family: Montserrat, var(--ds-font-display);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.03em;
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+}
+html.dma-world-public.dma-pub-page .legal-wrap h2 {
+  font-family: Montserrat, var(--ds-font-display);
+  font-weight: 700;
+  color: #fff;
+}
+html.dma-world-public.dma-pub-page .legal-meta,
+html.dma-world-public.dma-pub-page .legal-section p,
+html.dma-world-public.dma-pub-page .legal-section li {
+  color: #8B9BB4;
+}
+html.dma-world-public.dma-pub-page .legal-section a,
+html.dma-world-public.dma-pub-page .legal-toc a,
+html.dma-world-public.dma-pub-page .contact-card a,
+html.dma-world-public.dma-pub-page .legal-back {
+  color: #93B4FF;
+}
+html.dma-world-public.dma-pub-page .legal-toc,
+html.dma-world-public.dma-pub-page .contact-card,
+html.dma-world-public.dma-pub-page .legal-highlight,
+html.dma-world-public.dma-pub-page .form-card,
+html.dma-world-public.dma-pub-page .step-item {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+html.dma-world-public.dma-pub-page .dma-lp-split { margin-bottom: 28px; }
+html.dma-world-public.dma-pub-page .dma-faq-shell {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: none;
+  margin: 28px 0 0;
+}
+
+/* DMA logos — white on dark, black on light, insignia as mark */
+.dma-pub-logo--img { gap: 0; }
+.dma-logo-white,
+.dma-logo-black {
+  display: block;
+  height: 34px;
+  width: auto;
+  max-width: 176px;
+  object-fit: contain;
+  object-position: left center;
+}
+.dma-logo-mark {
+  display: block;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.dma-pub-logo--lockup { gap: 10px; }
+html.dma-world-public.dma-pub-home .dma-pub-nav .dma-logo-white {
+  height: 32px;
+  max-width: 168px;
+}
+html.dma-world-public.dma-pub-home .dma-pub-foot .dma-logo-white {
+  height: 40px;
+  max-width: 210px;
+}
+html.dma-world-auth .dma-auth-visual .dma-logo-white {
+  height: 40px;
+  max-width: 220px;
+}
+html.dma-world-auth .dma-auth-simple .dma-logo-white {
+  height: 36px;
+  max-width: 190px;
+}
+@media (max-width: 1120px) {
+  html.dma-world-public .dma-pub-nav.is-open .dma-pub-menu-brand .dma-logo-white {
+    height: 30px;
+    max-width: 160px;
+  }
+}
+
 
 
 

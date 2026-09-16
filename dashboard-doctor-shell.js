@@ -5,7 +5,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=48';
+    ds.href = '/dma-design-system.css?v=51';
     document.head.appendChild(ds);
   }
 
@@ -355,8 +355,10 @@
     });
 
     html += '</nav>';
+    var existingPlan = container.querySelector('.doc-plan-card');
+    if (existingPlan) existingPlan.remove();
     if (isOwner(u)) {
-      html += '<div class="doc-plan-card">' +
+      html += '<div class="doc-plan-card" id="doc-plan-card">' +
         '<div class="text-faint">Current plan</div>' +
         '<strong>' + planLabel(u) + '</strong>' +
         '<a href="/dashboard/billing/">Manage subscription</a>' +
@@ -364,6 +366,8 @@
     }
 
     container.innerHTML = html;
+    var planCards = container.querySelectorAll('.doc-plan-card');
+    for (var pi = 1; pi < planCards.length; pi++) planCards[pi].remove();
     refreshBadges();
   }
 

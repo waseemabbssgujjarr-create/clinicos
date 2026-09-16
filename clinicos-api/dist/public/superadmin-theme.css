@@ -530,7 +530,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--sa-orange), var(--sa-orange-dark));
+  background: transparent;
   color: #fff;
   font-weight: 800;
   font-size: 0.75rem;
@@ -538,6 +538,13 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
   align-items: center;
   justify-content: center;
   font-family: Montserrat, Inter, sans-serif;
+  overflow: hidden;
+  padding: 0;
+}
+.sa-brand-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .sa-brand-text strong {
@@ -567,6 +574,16 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
   border-left: 3px solid transparent;
   transition: background 0.15s, color 0.15s;
   box-sizing: border-box;
+}
+
+.sa-nav-label {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.48);
+  padding: 14px 12px 6px;
 }
 
 .sa-sidebar nav a .sa-nav-icon {
@@ -1133,5 +1150,121 @@ html.sa-static {
   --sa-sidebar-bg: #080B14;
   --sa-input-bg: #141A2A;
   --sa-input-border: rgba(255,255,255,0.14);
+  --sa-border: rgba(255,255,255,0.08);
   --adm-sidebar-bg: #080B14;
+}
+
+html.sa-static body.superadmin-app,
+html.sa-static .sa-layout,
+html.sa-static .sa-main {
+  background: #080B14 !important;
+  color: #F0F6FF !important;
+}
+
+html.sa-static .sa-content-card,
+html.sa-static .ds-section,
+html.sa-static .ds-section-muted,
+html.sa-static .int-card,
+html.sa-static .sa-table-wrap,
+html.sa-static .sa-data-table,
+html.sa-static table,
+html.sa-static .bg-white,
+html.sa-static [class*="rounded-card"] {
+  background: #101522 !important;
+  color: #F0F6FF !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+}
+
+html.sa-static .sa-data-table th,
+html.sa-static thead th,
+html.sa-static .sa-data-table td,
+html.sa-static tbody td {
+  background: transparent !important;
+  color: #E2E8F0 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.sa-static .sa-data-table th,
+html.sa-static thead th {
+  background: #141A2A !important;
+  color: #C5D1E8 !important;
+}
+
+html.sa-static .sa-data-table tbody tr:hover td,
+html.sa-static tbody tr:hover td {
+  background: rgba(37, 99, 235, 0.12) !important;
+}
+
+html.sa-static .sa-sidebar {
+  background: #080B14 !important;
+  border-right-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.sa-static .sa-sidebar nav a {
+  color: rgba(255, 255, 255, 0.86) !important;
+}
+
+html.sa-static .sa-sidebar nav a:hover {
+  background: rgba(37, 99, 235, 0.16) !important;
+  color: #fff !important;
+}
+
+html.sa-static .sa-sidebar nav a.active {
+  background: rgba(37, 99, 235, 0.28) !important;
+  color: #fff !important;
+  border-left-color: #2563EB !important;
+}
+
+html.sa-static .sa-brand-icon {
+  background: transparent !important;
+}
+
+html.sa-static body.superadmin-app input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+html.sa-static body.superadmin-app textarea,
+html.sa-static body.superadmin-app select {
+  background: #141A2A !important;
+  color: #F0F6FF !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+html.sa-static body.superadmin-app input:hover,
+html.sa-static body.superadmin-app textarea:hover,
+html.sa-static body.superadmin-app input:focus,
+html.sa-static body.superadmin-app textarea:focus,
+html.sa-static body.superadmin-app select:focus {
+  background: #141A2A !important;
+  color: #F0F6FF !important;
+}
+
+html.sa-static .ds-btn-primary,
+html.sa-static .sa-btn-primary {
+  background: linear-gradient(90deg, #276AFC, #2563EB) !important;
+  color: #fff !important;
+}
+
+html.sa-static .sa-nav-label {
+  color: rgba(255, 255, 255, 0.48) !important;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  display: block;
+  padding: 14px 12px 6px;
+}
+
+html.sa-static .ds-work-header h1,
+html.sa-static .sa-content-card h1 {
+  font-family: Montserrat, Inter, sans-serif !important;
+  color: #FFFFFF !important;
+}
+
+html.sa-static .sa-subtitle {
+  color: #8B98AE !important;
+}
+
+html.sa-static .sa-mobile-bar {
+  background: rgba(16, 21, 34, 0.94) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #F0F6FF;
 }

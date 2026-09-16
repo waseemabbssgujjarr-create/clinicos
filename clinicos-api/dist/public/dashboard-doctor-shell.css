@@ -530,14 +530,16 @@ html.doc-static aside.doc-sidebar .doc-nav a.active {
 html.doc-static aside.doc-sidebar .doc-nav a:focus-visible {
   box-shadow: 0 0 0 3px rgba(20, 150, 127, 0.45) !important;
 }
-html.doc-static aside.doc-sidebar .doc-plan-card,
-html.doc-static aside.doc-sidebar > div:last-child {
+html.doc-static aside.doc-sidebar .doc-plan-card {
   background: rgba(255, 255, 255, 0.10) !important;
   border: 1px solid rgba(255, 255, 255, 0.16) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.16) !important;
   padding: 12px !important;
   margin: 8px 12px 14px !important;
   border-radius: 12px !important;
+}
+html.doc-static aside.doc-sidebar .doc-plan-card ~ .doc-plan-card {
+  display: none !important;
 }
 html.doc-static aside.doc-sidebar .doc-plan-card .text-faint,
 html.doc-static aside.doc-sidebar .doc-plan-card span {

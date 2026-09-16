@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="dma-world-auth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Set Up Clinic — Doctors My Agency</title>
+  <title>Set Up Clinic â€” Doctors My Agency</title>
   <link rel="icon" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=48" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=49" />
   <link rel="stylesheet" href="/portal.css?v=5" />
   <link rel="stylesheet" href="/platform-hovers.css" />
   <link rel="stylesheet" href="/dma-theme.css" />
@@ -38,21 +38,21 @@
   </nav>
   <main class="portal-main">
     <div class="container">
-      <a href="/register/" class="back-link">← Back</a>
+      <a href="/register/" class="back-link">â† Back</a>
       <div class="form-card wide">
         <div class="step-dots" aria-hidden="true">
-          <span class="step-dot done">✓</span><span class="step-line"></span>
+          <span class="step-dot done">âœ“</span><span class="step-line"></span>
           <span class="step-dot active">2</span><span class="step-line"></span>
           <span class="step-dot">3</span><span class="step-line"></span>
           <span class="step-dot">4</span>
         </div>
-        <p class="dma-steps">1 Clinic → <b>2 Practice</b> → 3 Hours → 4 Launch</p>
+        <p class="dma-steps">1 Clinic â†’ <b>2 Practice</b> â†’ 3 Hours â†’ 4 Launch</p>
         <h1>Set up your clinic</h1>
-        <p class="subtitle">Add your address and booking link — clinic details were saved in step 1</p>
+        <p class="subtitle">Add your address and booking link â€” clinic details were saved in step 1</p>
         <div id="error" class="alert alert-error" style="display:none"></div>
         <div class="clinic-summary" id="clinicSummary" style="display:none">
           <div class="clinic-summary-label">Your clinic</div>
-          <div class="clinic-summary-name" id="clinicNameDisplay">—</div>
+          <div class="clinic-summary-name" id="clinicNameDisplay">â€”</div>
           <div class="clinic-summary-meta" id="clinicSpecialtyDisplay"></div>
         </div>
         <form id="form">
@@ -66,11 +66,11 @@
               <span class="slug-prefix">clinicos.aderalabs.com/book/</span>
               <input type="text" name="bookingSlug" id="bookingSlug" required placeholder="halen-clinic" pattern="[a-z0-9-]+" />
             </div>
-            <p style="font-size:0.78rem;color:var(--muted);margin-top:6px">Auto-generated from your clinic name — you can edit if needed</p>
+            <p style="font-size:0.78rem;color:var(--muted);margin-top:6px">Auto-generated from your clinic name â€” you can edit if needed</p>
           </div>
           <div class="btn-row">
             <button type="button" class="btn btn-secondary" id="skipBtn">Skip</button>
-            <button type="submit" class="btn btn-primary" id="submitBtn">Save &amp; Continue →</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn">Save &amp; Continue â†’</button>
           </div>
         </form>
       </div>
@@ -170,7 +170,7 @@
       var err = document.getElementById('error');
       var btn = document.getElementById('submitBtn');
       err.style.display = 'none';
-      setBtnLoading(btn, true, 'Saving…');
+      setBtnLoading(btn, true, 'Savingâ€¦');
       var fd = new FormData(e.target);
       try {
         await saveClinic({

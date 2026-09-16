@@ -2,7 +2,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=48';
+    ds.href = '/dma-design-system.css?v=51';
     document.head.appendChild(ds);
   }
   var ICONS = {
@@ -131,6 +131,13 @@
 
   var SA_WORKSPACES = [
     {
+      match: ['/superadmin/clinics', '/superadmin/users'],
+      tabs: [
+        { href: '/superadmin/clinics/', label: 'Clinics' },
+        { href: '/superadmin/users/', label: 'Users' }
+      ]
+    },
+    {
       match: ['/superadmin/subscriptions', '/superadmin/stripe', '/superadmin/revenue'],
       tabs: [
         { href: '/superadmin/subscriptions/', label: 'Billing' },
@@ -227,7 +234,7 @@
 
     container.innerHTML =
       '<div class="sa-brand">' +
-        '<div class="sa-brand-icon">DM</div>' +
+        '<div class="sa-brand-icon"><img src="/media/landing/dma-insignia-white.png" alt="" width="36" height="36" /></div>' +
         '<div class="sa-brand-text"><strong>Doctors My Agency</strong><span>Control Center</span></div>' +
       '</div>' +
       '<nav>' + links + '</nav>' +
