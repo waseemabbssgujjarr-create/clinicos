@@ -11,7 +11,8 @@
     ["custom", "Replies"],
     ["handling", "Patient handling"],
     ["human", "Human-like"],
-    ["test", "Test"]
+    ["test", "Test"],
+    ["widget", "Widget"]
   ];
 
   function A() { return global.DmaApp; }
@@ -251,6 +252,9 @@
       } else if (tab === "test") {
         renderTest(body);
         return;
+      } else if (tab === "widget") {
+        renderWidget(body);
+        return;
       } else if (tab === "publish") {
         body.innerHTML = '<section class="dma-section"><div class="dma-section-h"><h2>Publish to WhatsApp</h2></div><div class="dma-section-b">' +
           '<p class="cos-hint">Draft is what you edit and test. Publish copies the draft to the live engine used by inbound WhatsApp. Until the first publish, live traffic uses the latest draft so existing clinics keep working.</p>' +
@@ -294,6 +298,66 @@
         n.addEventListener("change", markDirty);
         n.addEventListener("input", markDirty);
       });
+    }
+
+    function renderWidget(body) {
+      var ch = (draft && draft.channels) || {};
+      var on = ch.websiteWidget !== false;
+      var slug = (clinic && clinic.bookingSlug) || "";
+      var host = location.origin;
+      function snippet(s) {
+        return '<script src="' + host + '/widget.js" data-clinic="' + esc(s || "YOUR-BOOKING-SLUG") + '" async></script>';
+      }
+      body.innerHTML =
+        '<p class="dma-prose">Add this chat to your clinic website. Replies use the same published receptionist training as WhatsApp — not a second brain. It does not diagnose.</p>' +
+        '<section class="dma-section dma-section-muted"><header class="dma-section-h"><h2>Website widget</h2></header><div class="dma-section-b">' +
+        '<div class="dma-row"><label class="dma-switch">Enable on clinic websites ' + toggle("wg-on", on) + "</label></div>" +
+        '<p class="cos-hint" id="wg-slug-note">' + (slug ? "Booking slug: <strong>" + esc(slug) + "</strong>" : "Set a booking slug in Settings so the embed can reach your clinic.") + "</p>" +
+        field("wg-embed", "Embed snippet", "Paste before the closing body tag on pages where patients should chat.", 
+          '<textarea class="cos-input area" id="wg-embed" rows="3" readonly>' + esc(snippet(slug)) + "</textarea>") +
+        '<div class="cos-savebar">' +
+          '<button type="button" class="dma-btn dma-btn-ghost" id="wg-copy">Copy snippet</button>' +
+          (slug ? '<a class="dma-btn dma-btn-ghost" href="/dashboard/settings/?tab=booking">Booking URL</a>' : '<a class="dma-btn dma-btn-ghost" href="/dashboard/settings/">Set booking slug</a>') +
+        "</div></div></section>" +
+        '<section class="dma-section" style="margin-top:16px"><header class="dma-section-h"><h2>Preview</h2></header><div class="dma-section-b">' +
+        '<p class="cos-hint">This is the embeddable chat UI. Sending a message uses POST /api/public/clinics/' + esc(slug || ":slug") + "/ai-chat, which loads published training the same way inbound WhatsApp does.</p>" +
+        (slug
+          ? '<iframe title="Website chat preview" src="/widget.html?clinic=' + encodeURIComponent(slug) + '" style="width:100%;max-width:380px;height:520px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:#080B14"></iframe>'
+          : A().empty("No booking slug yet", "Save a booking URL in Settings, then return here for a live preview.", "/dashboard/settings/", "Open settings")) +
+        "</div></section>";
+
+      function persistWidget(enabled) {
+        if (!draft.channels) draft.channels = {};
+        draft.channels.websiteWidget = enabled;
+        return saveDraft(true);
+      }
+      var tog = el("wg-on");
+      if (tog) {
+        tog.onchange = function () {
+          persistWidget(!!tog.checked);
+        };
+      }
+      var copyBtn = el("wg-copy");
+      if (copyBtn) {
+        copyBtn.onclick = function () {
+          var ta = el("wg-embed");
+          var text = ta ? ta.value : snippet(slug);
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function () { A().toast("Snippet copied", "ok"); });
+          } else if (ta) {
+            ta.select();
+            document.execCommand("copy");
+            A().toast("Snippet copied", "ok");
+          }
+        };
+      }
+      if (!slug) {
+        A().get("/api/settings").then(function (s) {
+          if (!s || !s.bookingSlug) return;
+          clinic.bookingSlug = s.bookingSlug;
+          renderWidget(body);
+        }).catch(function () {});
+      }
     }
 
     function renderTest(body) {

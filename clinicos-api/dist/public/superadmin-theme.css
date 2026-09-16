@@ -1124,3 +1124,14 @@ a[class*="bg-brand"] * {
   color: inherit !important;
   -webkit-text-fill-color: inherit !important;
 }
+
+html.sa-static {
+  --sa-main-bg: #080B14;
+  --sa-card-bg: #101522;
+  --sa-text: #F0F6FF;
+  --sa-muted: #8B98AE;
+  --sa-sidebar-bg: #080B14;
+  --sa-input-bg: #141A2A;
+  --sa-input-border: rgba(255,255,255,0.14);
+  --adm-sidebar-bg: #080B14;
+}

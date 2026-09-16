@@ -205,7 +205,7 @@
     if (!document.querySelector('link[href*="superadmin-theme.css"]')) {
       var saCss = document.createElement('link');
       saCss.rel = 'stylesheet';
-      saCss.href = '/superadmin-theme.css?v=11';
+      saCss.href = '/superadmin-theme.css?v=12';
       document.head.appendChild(saCss);
     }
     if (!document.getElementById('dma-sa-critical-style')) {
@@ -389,12 +389,12 @@
     if (!document.querySelector('link[href*="dashboard-doctor-shell.css"]')) {
       var docShellCss = document.createElement('link');
       docShellCss.rel = 'stylesheet';
-      docShellCss.href = '/dashboard-doctor-shell.css?v=14';
+      docShellCss.href = '/dashboard-doctor-shell.css?v=16';
       document.head.appendChild(docShellCss);
     }
     if (!document.querySelector('script[src*="dashboard-doctor-shell.js"]')) {
       var docShellJs = document.createElement('script');
-      docShellJs.src = '/dashboard-doctor-shell.js?v=18';
+      docShellJs.src = '/dashboard-doctor-shell.js?v=19';
       (document.head || document.documentElement).appendChild(docShellJs);
     }
     if (!document.querySelector('link[href*="dashboard-whatsapp-hub.css"]')) {
@@ -459,8 +459,8 @@
 // ═══════════════════════════════════════════════════════════
 (function () {
   // ── 1. Apply stored theme immediately (before paint) ──
-  var savedTheme = 'light';
-  try { savedTheme = localStorage.getItem('dma-theme') || 'light'; } catch (_) {}
+  var savedTheme = 'dark';
+  try { savedTheme = localStorage.getItem('dma-theme') || 'dark'; } catch (_) {}
   document.documentElement.setAttribute('data-theme', savedTheme);
 
   function isDashboard() {

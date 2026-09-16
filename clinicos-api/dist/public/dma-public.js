@@ -101,7 +101,13 @@
       '<div class="dma-pub-wrap">' +
       '<footer class="dma-pub-foot">' +
       '<div class="dma-pub-foot-brand"><a class="dma-pub-logo" href="/"><span class="mark">C</span><span class="dma-pub-wordmark">Clinicos</span></a>' +
-        "<p>The operating system for modern clinics.</p></div>" +
+        '<p class="dma-pub-foot-tag">The operating system for modern clinics.</p>' +
+        '<p class="dma-pub-foot-blurb">Run your clinic without the paperwork. Appointments, patients, consultations, WhatsApp, and your AI receptionist — connected in one clinic workspace.</p>' +
+        '<ul class="dma-pub-foot-facts">' +
+          "<li>Patients stay on that clinic’s account.</li>" +
+          "<li>There is no public doctor directory.</li>" +
+          "<li>It does not diagnose. It does not replace doctors.</li>" +
+        "</ul></div>" +
       '<div class="dma-pub-foot-col"><strong>Platform</strong><a href="/platform/">Overview</a><a href="/ai-receptionist/">AI Receptionist</a><a href="/clinic-crm/">Clinic CRM</a><a href="/clinical/">Clinical</a><a href="/pricing/">Pricing</a></div>' +
       '<div class="dma-pub-foot-col"><strong>For</strong><a href="/platform/">Clinics</a><a href="/clinical/">Doctors</a><a href="/patient-experience/">Patients</a><a href="/solutions/">Solutions</a></div>' +
       '<div class="dma-pub-foot-col"><strong>Company</strong><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/faqs/">FAQs</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/security/">Security</a></div>' +
@@ -117,6 +123,26 @@
     if (header) {
       header.innerHTML = navHtml();
       header.insertAdjacentHTML("afterend", dockHtml());
+      function markDockCurrent() {
+        var hash = String(location.hash || "");
+        var here = String(location.pathname || "/").replace(/\/index\.html$/i, "");
+        if (here.length > 1) here = here.replace(/\/+$/, "");
+        document.querySelectorAll(".dma-pub-dock a").forEach(function (a) {
+          var href = a.getAttribute("href") || "";
+          var current = false;
+          if (href.charAt(0) === "#") {
+            current = isHome() && hash === href;
+          } else {
+            var path = href.replace(/\/index\.html$/i, "").replace(/\/+$/, "") || "/";
+            if (path === "/") current = isHome() && !hash;
+            else current = here === path || here.indexOf(path + "/") === 0;
+          }
+          if (current) a.setAttribute("aria-current", "page");
+          else a.removeAttribute("aria-current");
+        });
+      }
+      markDockCurrent();
+      window.addEventListener("hashchange", markDockCurrent);
     }
     if (footer) footer.innerHTML = footerHtml();
     var toggle = document.getElementById("dma-pub-toggle");
@@ -187,6 +213,28 @@
           setFaqOpen(other, willOpen && other === btn);
         });
       });
+    });
+    document.querySelectorAll("[data-dma-tabs]").forEach(function (root) {
+      var tabs = root.querySelectorAll("[data-dma-tab]");
+      var panels = root.querySelectorAll("[data-dma-panel]");
+      function show(id) {
+        tabs.forEach(function (tab) {
+          var on = tab.getAttribute("data-dma-tab") === id;
+          tab.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+        panels.forEach(function (panel) {
+          panel.hidden = panel.getAttribute("data-dma-panel") !== id;
+        });
+      }
+      tabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          show(tab.getAttribute("data-dma-tab"));
+        });
+      });
+      if (root.id === "for-clinics") {
+        if (location.hash === "#for-doctors") show("doctors");
+        if (location.hash === "#for-patients") show("patients");
+      }
     });
     if (isHome() && location.hash) {
       var target = document.getElementById(location.hash.slice(1));

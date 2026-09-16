@@ -5,7 +5,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=24';
+    ds.href = '/dma-design-system.css?v=48';
     document.head.appendChild(ds);
   }
 
@@ -109,12 +109,12 @@
     var keys;
     if (!role) {
       keys = [
-        ['Clinic', ['home', 'patients', 'appointments', 'staff', 'locations']],
-        ['Communication', ['messages']],
-        ['Care', ['waiting', 'clinical', 'prescriptions', 'documents', 'laboratory']],
-        ['Operations', ['rooms']],
-        ['Intelligence', ['ai', 'analytics']],
-        ['Configuration', ['settings', 'billing']],
+        ['Clinic', ['home', 'patients']],
+        ['Front desk', ['appointments', 'waiting', 'messages']],
+        ['Care', ['clinical']],
+        ['Practice', ['staff', 'rooms']],
+        ['Grow', ['ai', 'analytics']],
+        ['Setup', ['settings']],
       ];
     } else if (role === 'NURSE') {
       keys = [
@@ -178,6 +178,18 @@
     if (target === '/dashboard/rooms') {
       return path.indexOf('/dashboard/rooms') === 0 || path.indexOf('/dashboard/inventory') === 0 || path.indexOf('/dashboard/leave') === 0 || path.indexOf('/dashboard/telemedicine') === 0 || path.indexOf('/dashboard/operations') === 0;
     }
+    if (target === '/dashboard/clinical') {
+      return path.indexOf('/dashboard/clinical') === 0 || path.indexOf('/dashboard/consult') === 0 || path.indexOf('/dashboard/vitals') === 0 || path.indexOf('/dashboard/prescriptions') === 0 || path.indexOf('/dashboard/laboratory') === 0 || path.indexOf('/dashboard/documents') === 0;
+    }
+    if (target === '/dashboard/staff') {
+      return path.indexOf('/dashboard/staff') === 0 || path.indexOf('/dashboard/doctors') === 0;
+    }
+    if (target === '/dashboard/analytics') {
+      return path.indexOf('/dashboard/analytics') === 0 || path.indexOf('/dashboard/reports') === 0 || path.indexOf('/dashboard/reviews') === 0;
+    }
+    if (target === '/dashboard/settings') {
+      return path.indexOf('/dashboard/settings') === 0 || path.indexOf('/dashboard/billing') === 0 || path.indexOf('/dashboard/locations') === 0;
+    }
     return path.indexOf(target) === 0;
   }
 
@@ -200,6 +212,25 @@
       ]
     },
     {
+      label: 'Care',
+      match: ['/dashboard/clinical', '/dashboard/consult', '/dashboard/vitals', '/dashboard/prescriptions', '/dashboard/laboratory', '/dashboard/documents'],
+      tabs: [
+        { href: '/dashboard/clinical/', label: 'Consultations' },
+        { href: '/dashboard/vitals/', label: 'Vitals' },
+        { href: '/dashboard/prescriptions/', label: 'Prescriptions' },
+        { href: '/dashboard/laboratory/', label: 'Laboratory' },
+        { href: '/dashboard/documents/', label: 'Documents' }
+      ]
+    },
+    {
+      label: 'Team',
+      match: ['/dashboard/staff', '/dashboard/doctors'],
+      tabs: [
+        { href: '/dashboard/staff/', label: 'Team' },
+        { href: '/dashboard/doctors/', label: 'Doctors' }
+      ]
+    },
+    {
       label: 'Operations',
       match: ['/dashboard/rooms', '/dashboard/inventory', '/dashboard/leave', '/dashboard/telemedicine', '/dashboard/operations'],
       tabs: [
@@ -207,6 +238,24 @@
         { href: '/dashboard/inventory/', label: 'Inventory' },
         { href: '/dashboard/leave/', label: 'Leave' },
         { href: '/dashboard/telemedicine/', label: 'Telemedicine' }
+      ]
+    },
+    {
+      label: 'Insights',
+      match: ['/dashboard/analytics', '/dashboard/reports', '/dashboard/reviews'],
+      tabs: [
+        { href: '/dashboard/analytics/', label: 'Analytics' },
+        { href: '/dashboard/reports/', label: 'Reports' },
+        { href: '/dashboard/reviews/', label: 'Reviews' }
+      ]
+    },
+    {
+      label: 'Setup',
+      match: ['/dashboard/settings', '/dashboard/billing', '/dashboard/locations'],
+      tabs: [
+        { href: '/dashboard/settings/', label: 'Settings' },
+        { href: '/dashboard/billing/', label: 'Billing' },
+        { href: '/dashboard/locations/', label: 'Locations' }
       ]
     }
   ];
@@ -222,7 +271,11 @@
     var tabs = ws.tabs.slice();
     if (!isOwner()) {
       tabs = tabs.filter(function (t) {
-        return t.href.indexOf('/whatsapp') < 0 && t.href.indexOf('/broadcasts') < 0;
+        return !OWNER_ONLY.some(function (id) {
+          var href = ALL_ITEMS[id].href.replace(/\/+$/, '');
+          var th = t.href.replace(/\/+$/, '');
+          return th === href || th.indexOf(href + '/') === 0;
+        });
       });
       if (tabs.length < 2) return;
     }

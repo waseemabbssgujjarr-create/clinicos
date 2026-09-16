@@ -2,7 +2,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=24';
+    ds.href = '/dma-design-system.css?v=48';
     document.head.appendChild(ds);
   }
   var ICONS = {
@@ -27,22 +27,13 @@
       { href: '/superadmin/clinics/', label: 'Clinics', icon: 'clinics' },
       { href: '/superadmin/users/', label: 'Users', icon: 'users' },
     ]},
-    { label: 'Operations', items: [
-      { href: '/superadmin/whatsapp/', label: 'WhatsApp', icon: 'whatsapp' },
-      { href: '/superadmin/announcements/', label: 'Announcements', icon: 'announce' },
-      { href: '/superadmin/support/', label: 'Support', icon: 'announce' },
-    ]},
     { label: 'Business', items: [
       { href: '/superadmin/subscriptions/', label: 'Billing', icon: 'plans' },
-      { href: '/superadmin/stripe/', label: 'Plans', icon: 'stripe' },
-      { href: '/superadmin/revenue/', label: 'Analytics', icon: 'revenue' },
+    ]},
+    { label: 'Operations', items: [
+      { href: '/superadmin/whatsapp/', label: 'WhatsApp', icon: 'whatsapp' },
     ]},
     { label: 'System', items: [
-      { href: '/superadmin/integrations/', label: 'Integrations', icon: 'plug' },
-      { href: '/superadmin/api/', label: 'WhatsApp API', icon: 'api' },
-      { href: '/superadmin/health/', label: 'System Health', icon: 'health' },
-      { href: '/superadmin/audit/', label: 'Audit Logs', icon: 'audit' },
-      { href: '/superadmin/security/', label: 'Security', icon: 'settings' },
       { href: '/superadmin/settings/', label: 'Settings', icon: 'settings' },
     ]},
   ];
@@ -117,9 +108,18 @@
     var target = href.replace(/\/+$/, '') || '/';
     if (activeHref) {
       var a = String(activeHref).replace(/\/+$/, '') || '/';
-      return target === a;
+      if (target === a) return true;
     }
     if (target === '/superadmin') return path === '/superadmin';
+    if (target === '/superadmin/subscriptions') {
+      return path.indexOf('/superadmin/subscriptions') === 0 || path.indexOf('/superadmin/stripe') === 0 || path.indexOf('/superadmin/revenue') === 0;
+    }
+    if (target === '/superadmin/whatsapp') {
+      return path.indexOf('/superadmin/whatsapp') === 0 || path.indexOf('/superadmin/announcements') === 0 || path.indexOf('/superadmin/support') === 0;
+    }
+    if (target === '/superadmin/settings') {
+      return path.indexOf('/superadmin/settings') === 0 || path.indexOf('/superadmin/security') === 0 || path.indexOf('/superadmin/health') === 0 || path.indexOf('/superadmin/audit') === 0 || path.indexOf('/superadmin/integrations') === 0 || path.indexOf('/superadmin/api') === 0;
+    }
     return path.indexOf(target) === 0;
   }
 
@@ -127,6 +127,58 @@
     document.body.classList.toggle('sa-nav-open', !!open);
     var layout = document.querySelector('.sa-layout');
     if (layout) layout.classList.toggle('sa-nav-open', !!open);
+  }
+
+  var SA_WORKSPACES = [
+    {
+      match: ['/superadmin/subscriptions', '/superadmin/stripe', '/superadmin/revenue'],
+      tabs: [
+        { href: '/superadmin/subscriptions/', label: 'Billing' },
+        { href: '/superadmin/stripe/', label: 'Plans' },
+        { href: '/superadmin/revenue/', label: 'Analytics' }
+      ]
+    },
+    {
+      match: ['/superadmin/whatsapp', '/superadmin/announcements', '/superadmin/support'],
+      tabs: [
+        { href: '/superadmin/whatsapp/', label: 'WhatsApp' },
+        { href: '/superadmin/announcements/', label: 'Announcements' },
+        { href: '/superadmin/support/', label: 'Support' }
+      ]
+    },
+    {
+      match: ['/superadmin/settings', '/superadmin/security', '/superadmin/health', '/superadmin/audit', '/superadmin/integrations', '/superadmin/api'],
+      tabs: [
+        { href: '/superadmin/settings/', label: 'Settings' },
+        { href: '/superadmin/security/', label: 'Security' },
+        { href: '/superadmin/health/', label: 'Health' },
+        { href: '/superadmin/audit/', label: 'Audit' },
+        { href: '/superadmin/integrations/', label: 'Integrations' },
+        { href: '/superadmin/api/', label: 'API' }
+      ]
+    }
+  ];
+
+  function renderWorkspaceTabs() {
+    if (document.querySelector('.ds-workspace-tabs')) return;
+    var path = location.pathname.replace(/\/+$/, '') || '/';
+    var ws = null;
+    SA_WORKSPACES.forEach(function (w) {
+      if (w.match.some(function (m) { return path === m || path.indexOf(m) === 0; })) ws = w;
+    });
+    if (!ws) return;
+    var main = document.querySelector('.sa-main');
+    if (!main) return;
+    var nav = document.createElement('nav');
+    nav.className = 'ds-workspace-tabs';
+    nav.setAttribute('aria-label', 'Section');
+    nav.innerHTML = ws.tabs.map(function (t) {
+      var target = t.href.replace(/\/+$/, '');
+      var on = path === target || path.indexOf(target) === 0;
+      return '<a href="' + t.href + '" class="' + (on ? 'on' : '') + '"' + (on ? ' aria-current="page"' : '') + '>' + t.label + '</a>';
+    }).join('');
+    if (main.firstChild) main.insertBefore(nav, main.firstChild);
+    else main.appendChild(nav);
   }
 
   function wrapMainContent(main) {
@@ -215,6 +267,7 @@
     document.documentElement.classList.add('sa-static');
     var sidebar = document.getElementById('sa-sidebar');
     renderSidebar(sidebar, activeHref);
+    renderWorkspaceTabs();
     document.title = document.title.replace(/ClinicOS AI|MediCore AI|MediCore|ClinicOS/g, 'Doctors My Agency');
     var nameInput = document.getElementById('plat-name');
     if (nameInput && /ClinicOS|MediCore/i.test(nameInput.value || '')) {

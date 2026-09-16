@@ -7,8 +7,8 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=23" />
-  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=14" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=48" />
+  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=16" />
   <link rel="stylesheet" href="/dma-doctor-app.css?v=6" />
   <link rel="stylesheet" href="/dma-doctor-pages.css?v=4" />
   <style>
@@ -46,16 +46,16 @@
         <div class="dma-tabs" id="bc-tabs" role="tablist"><button type="button" class="active">Sent</button></div>
         <p class="dma-hint" id="bc-hist-count">Loading…</p>
         <div id="bc-history">
-          <div class="ds-empty-panel"><strong>No broadcasts yet</strong><p>Create your first patient update when you're ready.</p></div>
+          <div class="ds-empty-panel"><strong>No broadcasts yet</strong><p>Send your first patient update when you're ready.</p><p style="margin-top:12px"><button type="button" class="dma-btn dma-btn-primary" id="bc-empty-new">New broadcast</button></p></div>
         </div>
       </main>
     </div>
   </div>
   <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
-  <script src="/dashboard-doctor-shell.js?v=18"></script>
+  <script src="/dashboard-doctor-shell.js?v=19"></script>
   <script src="/dma-ui.js?v=8"></script>
   <script src="/dma-doctor-app.js?v=4"></script>
-  <script src="/dashboard-bootstrap.js?v=6"></script>
+  <script src="/dashboard-bootstrap.js?v=7"></script>
   <script>
   (function () {
     if (!DmaDoctorShell.initStaticPage('/dashboard/broadcasts/', 'Broadcasts')) return;
@@ -141,6 +141,8 @@
     }
 
     document.getElementById('bc-new').onclick = openCompose;
+    var emptyNew = document.getElementById('bc-empty-new');
+    if (emptyNew) emptyNew.onclick = openCompose;
 
     fetch('/api/messages/broadcasts', { headers: ah(), credentials: 'include' })
       .then(function (r) { return r.ok ? r.json() : []; })
