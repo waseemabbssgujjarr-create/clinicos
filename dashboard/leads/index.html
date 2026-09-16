@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="doc-static">
 <head>
   <meta charset="UTF-8" />
@@ -7,10 +7,10 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=49" />
-  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=17" />
-  <link rel="stylesheet" href="/dma-doctor-app.css?v=6" />
-  <link rel="stylesheet" href="/dma-doctor-pages.css?v=4" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=54" />
+  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=20" />
+  <link rel="stylesheet" href="/dma-doctor-app.css?v=7" />
+  <link rel="stylesheet" href="/dma-doctor-pages.css?v=6" />
 </head>
 <body>
   <div class="doc-layout">
@@ -44,7 +44,7 @@
           <div class="dma-kpi"><div><label>Total</label><strong id="stat-total"> - </strong><span class="sub">all time</span></div></div>
           <div class="dma-kpi"><div><label>Hot</label><strong id="stat-hot"> - </strong><span class="sub">need follow-up</span></div></div>
           <div class="dma-kpi"><div><label>Booked</label><strong id="stat-booked"> - </strong><span class="sub">this month</span></div></div>
-          <div class="dma-kpi"><div><label>Conversion</label><strong id="stat-conv"> - %</strong><span class="sub">lead Ã¢â€ â€™ booked</span></div></div>
+          <div class="dma-kpi"><div><label>Conversion</label><strong id="stat-conv"> - %</strong><span class="sub">lead → booked</span></div></div>
         </div>
 
         <div class="dma-tabs" id="leads-view">
@@ -72,14 +72,14 @@
             </div>
             <div class="pipeline-col col-hot">
               <div class="pipeline-col-header">
-                <span class="pipeline-col-title">Hot Ã°Å¸â€Â¥</span>
+                <span class="pipeline-col-title">Hot 🔥</span>
                 <span class="pipeline-badge" id="badge-hot">0</span>
               </div>
               <div class="pipeline-col-body" id="col-hot"></div>
             </div>
             <div class="pipeline-col col-booked">
               <div class="pipeline-col-header">
-                <span class="pipeline-col-title">Booked Ã¢Å“â€œ</span>
+                <span class="pipeline-col-title">Booked ✓</span>
                 <span class="pipeline-badge" id="badge-booked">0</span>
               </div>
               <div class="pipeline-col-body" id="col-booked"></div>
@@ -94,9 +94,9 @@
               <input type="text" id="leads-search" placeholder="Search by name, phone, or treatment..." />
               <select class="filter-sel" id="leads-score-filter">
                 <option value="">All scores</option>
-                <option value="HOT">Ã°Å¸â€Â¥ Hot</option>
-                <option value="WARM">Ã°Å¸Å¸Â¡ Warm</option>
-                <option value="COLD">Ã¢Ââ€žÃ¯Â¸Â Cold</option>
+                <option value="HOT">🔥 Hot</option>
+                <option value="WARM">🟡 Warm</option>
+                <option value="COLD">❄️ Cold</option>
               </select>
               <select class="filter-sel" id="leads-status-filter">
                 <option value="">All statuses</option>
@@ -132,9 +132,9 @@
   </div>
   <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
 
-  <script src="/dashboard-doctor-shell.js?v=20"></script>
+  <script src="/dashboard-doctor-shell.js?v=22"></script>
   <script src="/dma-ui.js?v=8"></script>
-  <script src="/dma-doctor-app.js?v=4"></script>
+  <script src="/dma-doctor-app.js?v=5"></script>
   <script src="/dashboard-bootstrap.js?v=7"></script>
   <script>
   (function () {
@@ -168,7 +168,7 @@
       if (window.DmaUI && DmaUI.drawer) {
         DmaUI.drawer({
           title: l.fullName || l.phone || 'Lead',
-          subtitle: (l.leadScore || '') + (l.status ? ' Ã‚Â· ' + l.status : ''),
+          subtitle: (l.leadScore || '') + (l.status ? ' · ' + l.status : ''),
           html: (window.DmaUI ? DmaUI.kv([
             ['Phone', l.phone || ' - '],
             ['Email', l.email || ' - '],
@@ -286,11 +286,11 @@
         return;
       }
       var scoreColors = { HOT: '#DC2626', WARM: '#D97706', COLD: '#94A3B8' };
-      var scoreLabels = { HOT: 'Ã°Å¸â€Â¥ Hot', WARM: 'Ã°Å¸Å¸Â¡ Warm', COLD: 'Ã¢Ââ€žÃ¯Â¸Â Cold' };
+      var scoreLabels = { HOT: '🔥 Hot', WARM: '🟡 Warm', COLD: '❄️ Cold' };
       tbody.innerHTML = filtered.slice(0, 50).map(function (l) {
         var score = (l.leadScore || 'COLD').toUpperCase();
         var status = l.status || 'NEW';
-        var srcIcon = l.source === 'WHATSAPP' ? 'Ã°Å¸â€œÂ±' : l.source === 'EMAIL' ? 'Ã¢Å“â€°Ã¯Â¸Â' : 'Ã°Å¸Å’Â';
+        var srcIcon = l.source === 'WHATSAPP' ? '📱' : l.source === 'EMAIL' ? '✉️' : '🌐';
         return '<tr data-id="' + esc(l.id) + '">' +
           '<td data-label="Patient"><strong>' + esc(l.fullName || ' - ') + '</strong><br><span style="color:var(--muted);font-size:.72rem">' + esc(l.phone || '') + '</span></td>' +
           '<td data-label="Treatment">' + esc(l.treatmentInterest || l.intent || ' - ') + '</td>' +

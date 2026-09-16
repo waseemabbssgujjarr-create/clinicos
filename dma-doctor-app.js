@@ -195,6 +195,9 @@
     if (status === 403) return "You don't have permission to perform this action.";
     if (status === 404) return "We couldn't find that record.";
     if (status === 409) return 'That time conflicts with another visit.';
+    if (res && res.d && (res.d.code === 'PROXY_ERROR' || /API server unreachable/i.test(String(res.d.error || '')))) {
+      return 'Clinic API is not running. Try again after the server is back.';
+    }
     if (status >= 500) return fallback || "Couldn't complete that request. Please try again.";
     var msg = raw != null ? String(raw) : '';
     if (!msg || msg.length > 140 || /prisma|sql|exception|stack|ECONN|undefined/i.test(msg) || /[{[]/.test(msg)) {

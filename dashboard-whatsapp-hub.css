@@ -126,8 +126,8 @@
 }
 
 .dma-wa-stat {
-  background: var(--ds-surface, #101522);
-  border: 1px solid var(--doc-border, #e2e8f0);
+  background: var(--ds-surface, #1C2638);
+  border: 1px solid var(--doc-border, #E8EEF8);
   border-radius: var(--ds-r-card, 8px);
   padding: 16px 14px;
   box-shadow: var(--ds-shadow-xs);
@@ -148,7 +148,7 @@
   font-family: Montserrat, Inter, sans-serif;
   font-size: 1.85rem;
   font-weight: 800;
-  color: var(--ds-text, #F0F6FF);
+  color: var(--ds-text, #F8FBFF);
   line-height: 1;
 }
 
@@ -156,7 +156,7 @@
   display: block;
   font-size: 0.72rem;
   font-weight: 700;
-  color: var(--ds-muted, #8B98AE);
+  color: var(--ds-muted, #B4C2D6);
   margin-top: 8px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -185,8 +185,8 @@
 }
 
 .dma-wa-panel {
-  background: var(--ds-surface, #101522);
-  border: 1px solid var(--doc-border, #e2e8f0);
+  background: var(--ds-surface, #1C2638);
+  border: 1px solid var(--doc-border, #E8EEF8);
   border-radius: var(--ds-r-card, 8px);
   padding: 20px 22px;
   box-shadow: var(--ds-shadow-xs);
@@ -201,18 +201,18 @@
   font-family: Montserrat, Inter, sans-serif;
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--ds-text, #F0F6FF);
+  color: var(--ds-text, #F8FBFF);
 }
 
 .dma-wa-panel p {
   margin: 0 0 12px;
-  color: var(--ds-muted, #8B98AE);
+  color: var(--ds-muted, #B4C2D6);
   font-size: 0.92rem;
   line-height: 1.55;
 }
 
 .dma-wa-muted {
-  color: #8B98AE !important;
+  color: #B4C2D6 !important;
   font-size: 0.88rem !important;
 }
 
@@ -236,23 +236,23 @@
   padding: 14px 16px !important;
   border: 1px solid rgba(255, 255, 255, 0.10) !important;
   border-radius: 12px !important;
-  background: #141A2A !important;
+  background: #243044 !important;
   text-decoration: none !important;
-  color: #F0F6FF !important;
-  -webkit-text-fill-color: #F0F6FF !important;
+  color: #F8FBFF !important;
+  -webkit-text-fill-color: #F8FBFF !important;
   min-height: 0 !important;
 }
 
 .dma-wa-quick__item strong {
   font-size: 0.82rem !important;
-  color: #F0F6FF !important;
-  -webkit-text-fill-color: #F0F6FF !important;
+  color: #F8FBFF !important;
+  -webkit-text-fill-color: #F8FBFF !important;
 }
 
 .dma-wa-quick__item span {
   font-size: 0.72rem !important;
-  color: #C5D1E8 !important;
-  -webkit-text-fill-color: #C5D1E8 !important;
+  color: #D0DBEC !important;
+  -webkit-text-fill-color: #D0DBEC !important;
   line-height: 1.35 !important;
 }
 
@@ -393,18 +393,19 @@
 
 .dma-wa-btn--ghost {
   background: rgba(255, 255, 255, 0.06);
-  color: #E2E8F0;
+  color: #E8EEF8;
   border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .dma-wa-error {
-  color: #b91c1c;
+  color: #FECACA !important;
+  -webkit-text-fill-color: #FECACA !important;
   font-size: 0.88rem;
   margin: 10px 0;
-  padding: 10px 12px;
-  background: #fef2f2;
-  border-radius: 8px;
-  border: 1px solid #fecaca;
+  padding: 12px 14px;
+  background: rgba(127, 29, 29, 0.72) !important;
+  border-radius: 10px;
+  border: 1px solid rgba(248, 113, 113, 0.45) !important;
 }
 
 .dma-wa-log {
@@ -417,7 +418,7 @@
   text-align: left;
   padding: 10px 12px;
   border-bottom: 2px solid rgba(255, 255, 255, 0.10);
-  color: #8B98AE;
+  color: #B4C2D6;
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -427,12 +428,12 @@
   padding: 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   vertical-align: top;
-  color: #E2E8F0;
+  color: #E8EEF8;
 }
 
 .dma-wa-log-preview {
   max-width: 320px;
-  color: #C5D1E8;
+  color: #D0DBEC;
 }
 
 .dma-wa-pill {
@@ -443,8 +444,8 @@
   text-transform: uppercase;
 }
 
-.dma-wa-pill--ai { background: #ffedd5; color: #0B6456; }
-.dma-wa-pill--warn { background: #fef3c7; color: #92400e; }
+.dma-wa-pill--ai { background: rgba(20, 150, 127, 0.22); color: #7ACFBD; }
+.dma-wa-pill--warn { background: rgba(250, 208, 105, 0.16); color: #FDE68A; }
 
 .dma-wa-settings-teaser {
   background: rgba(20, 150, 127, 0.12);
@@ -453,7 +454,7 @@
   padding: 14px 18px;
   margin-bottom: 20px;
   font-size: 0.9rem;
-  color: #E2E8F0;
+  color: #E8EEF8;
 }
 
 .dma-wa-connected-info { margin-bottom: 4px; }
@@ -467,5 +468,5 @@
   padding: 14px 16px;
 }
 .dma-wa-phone-icon { font-size: 1.5rem; flex-shrink: 0; }
-.dma-wa-phone-number { font-size: 1.05rem; font-weight: 700; color: #F0F6FF; margin: 0 0 3px; }
-.dma-wa-phone-meta { font-size: .75rem; color: #8B98AE; margin: 0; }
+.dma-wa-phone-number { font-size: 1.05rem; font-weight: 700; color: #F8FBFF; margin: 0 0 3px; }
+.dma-wa-phone-meta { font-size: .75rem; color: #B4C2D6; margin: 0; }

@@ -1,14 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="sa-static">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>System Health Ã¢â‚¬â€ Doctors My Agency</title>
+  <title>System Health — Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=49" />
-  <link rel="stylesheet" href="/superadmin-theme.css?v=13" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=54" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=15" />
   <style>
     .health-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem; }
     @media(max-width:900px){ .health-grid{grid-template-columns:1fr 1fr;} }
@@ -43,19 +43,19 @@
             <p class="sa-subtitle">Real-time status of all platform services, APIs, and infrastructure.</p>
           </div>
           <div style="display:flex;gap:.625rem;align-items:center">
-            <span id="last-checked" style="font-size:.72rem;color:var(--muted)">CheckingÃ¢â‚¬Â¦</span>
+            <span id="last-checked" style="font-size:.72rem;color:var(--muted)">Checking…</span>
             <button type="button" class="ds-btn ds-btn-primary" onclick="runChecks()">Refresh</button>
           </div>
         </div>
 
         <!-- Stat cards -->
         <div class="health-grid" id="health-stats">
-          <div class="health-card"><div class="health-icon" style="background:rgba(37,99,235,.1)">Ã°Å¸Å¡â‚¬</div><div><p class="health-label">API</p><p class="health-value" id="api-status">Ã¢â‚¬â€</p><p class="health-status" id="api-ms"></p></div></div>
-          <div class="health-card"><div class="health-icon" style="background:rgba(22,163,74,.1)">Ã°Å¸â€”â€žÃ¯Â¸Â</div><div><p class="health-label">Database</p><p class="health-value" id="db-status">Ã¢â‚¬â€</p><p class="health-status" id="db-detail"></p></div></div>
-          <div class="health-card"><div class="health-icon" style="background:rgba(217,119,6,.1)">Ã¢Å“â€°Ã¯Â¸Â</div><div><p class="health-label">Email / SMTP</p><p class="health-value" id="smtp-status">Ã¢â‚¬â€</p><p class="health-status" id="smtp-detail"></p></div></div>
-          <div class="health-card"><div class="health-icon" style="background:rgba(34,197,94,.1)">Ã°Å¸â€™Â¬</div><div><p class="health-label">WhatsApp API</p><p class="health-value" id="wa-status">Ã¢â‚¬â€</p><p class="health-status" id="wa-detail"></p></div></div>
-          <div class="health-card"><div class="health-icon" style="background:rgba(124,58,237,.1)">Ã°Å¸Â¤â€“</div><div><p class="health-label">AI Provider</p><p class="health-value" id="ai-status">Ã¢â‚¬â€</p><p class="health-status" id="ai-detail"></p></div></div>
-          <div class="health-card"><div class="health-icon" style="background:rgba(249,115,22,.1)">Ã°Å¸â€™Â³</div><div><p class="health-label">Stripe</p><p class="health-value" id="stripe-status">Ã¢â‚¬â€</p><p class="health-status" id="stripe-detail"></p></div></div>
+          <div class="health-card"><div class="health-icon" style="background:rgba(37,99,235,.1)">🚀</div><div><p class="health-label">API</p><p class="health-value" id="api-status">—</p><p class="health-status" id="api-ms"></p></div></div>
+          <div class="health-card"><div class="health-icon" style="background:rgba(22,163,74,.1)">🗄️</div><div><p class="health-label">Database</p><p class="health-value" id="db-status">—</p><p class="health-status" id="db-detail"></p></div></div>
+          <div class="health-card"><div class="health-icon" style="background:rgba(217,119,6,.1)">✉️</div><div><p class="health-label">Email / SMTP</p><p class="health-value" id="smtp-status">—</p><p class="health-status" id="smtp-detail"></p></div></div>
+          <div class="health-card"><div class="health-icon" style="background:rgba(34,197,94,.1)">💬</div><div><p class="health-label">WhatsApp API</p><p class="health-value" id="wa-status">—</p><p class="health-status" id="wa-detail"></p></div></div>
+          <div class="health-card"><div class="health-icon" style="background:rgba(124,58,237,.1)">🤖</div><div><p class="health-label">AI Provider</p><p class="health-value" id="ai-status">—</p><p class="health-status" id="ai-detail"></p></div></div>
+          <div class="health-card"><div class="health-icon" style="background:rgba(249,115,22,.1)">💳</div><div><p class="health-label">Stripe</p><p class="health-value" id="stripe-status">—</p><p class="health-status" id="stripe-detail"></p></div></div>
         </div>
 
         <!-- Checklist -->
@@ -69,12 +69,12 @@
         <!-- Recent logs -->
         <div>
           <button type="button" class="ds-btn ds-btn-outline" id="toggle-logs">View startup logs</button>
-          <div class="ds-log" id="log-wrap"><div class="log-block" id="startup-log">Loading startup logÃ¢â‚¬Â¦</div></div>
+          <div class="ds-log" id="log-wrap"><div class="log-block" id="startup-log">Loading startup log…</div></div>
         </div>
       </div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=18"></script>
+  <script src="/superadmin-admin-shell.js?v=19"></script>
   <script src="/dma-ui.js?v=8"></script>
   <script>
   (function () {
@@ -95,7 +95,7 @@
 
     function setValue(id, text) {
       var el = document.getElementById(id);
-      if (el) el.textContent = safe(text, 'Ã¢â‚¬â€');
+      if (el) el.textContent = safe(text, '—');
     }
 
     function addCheck(name, status, value, description) {
@@ -117,7 +117,7 @@
     function waClinicLabel(n) {
       if (typeof n !== 'number' || !isFinite(n)) return 'Unavailable';
       if (n <= 0) return 'Not connected';
-      return n === 1 ? 'Connected Ã¢â‚¬â€ 1 clinic' : 'Connected Ã¢â‚¬â€ ' + n + ' clinics';
+      return n === 1 ? 'Connected — 1 clinic' : 'Connected — ' + n + ' clinics';
     }
 
     function fieldCountLabel(configured, total) {
@@ -127,7 +127,7 @@
 
     window.runChecks = function () {
       document.getElementById('checklist').innerHTML = '';
-      document.getElementById('last-checked').textContent = 'CheckingÃ¢â‚¬Â¦';
+      document.getElementById('last-checked').textContent = 'Checking…';
 
       // Public same-origin API. Never call 127.0.0.1 / localhost / :3002 from the browser.
       var t0 = Date.now();
@@ -141,21 +141,21 @@
           var ms = Date.now() - t0;
           var d = res.d;
           if (d.ok === true) {
-            setValue('api-status', 'Ã¢Å“â€œ Online');
+            setValue('api-status', '✓ Online');
             setStatus('api-ms', ms + 'ms response', 'ok');
             addCheck('API Server', 'ok', ms + 'ms', safe(d.service, 'Doctors My Agency API'));
           } else if (res.httpOk) {
-            setValue('api-status', 'Ã¢Å¡Â  Degraded');
-            setStatus('api-ms', ms + 'ms Ã‚Â· unexpected payload', 'warn');
+            setValue('api-status', '⚠ Degraded');
+            setStatus('api-ms', ms + 'ms · unexpected payload', 'warn');
             addCheck('API Server', 'warn', 'Degraded', 'Health payload did not report ok');
           } else {
-            setValue('api-status', 'Ã¢Å“â€” Offline');
+            setValue('api-status', '✗ Offline');
             setStatus('api-ms', 'Not reachable', 'err');
             addCheck('API Server', 'err', 'Unreachable', 'Same-origin /api/health failed');
           }
         })
         .catch(function () {
-          setValue('api-status', 'Ã¢Å“â€” Offline');
+          setValue('api-status', '✗ Offline');
           setStatus('api-ms', 'Not reachable', 'err');
           addCheck('API Server', 'err', 'Unreachable', 'Same-origin /api/health is not JSON');
         });
@@ -165,18 +165,18 @@
           d = d || {};
           if (d.ok) {
             var clinics = clinicCountLabel(d.clinic_count);
-            setValue('db-status', 'Ã¢Å“â€œ Online');
+            setValue('db-status', '✓ Online');
             setStatus('db-detail', clinics === 'Unavailable' ? 'Connected' : clinics, 'ok');
             addCheck('MySQL Database', 'ok', clinics === 'Unavailable' ? 'Connected' : clinics, 'Database reachable');
           } else {
-            setValue('db-status', 'Ã¢Å“â€” Error');
+            setValue('db-status', '✗ Error');
             setStatus('db-detail', safe(d.code, 'Unavailable'), 'err');
             addCheck('MySQL Database', 'err', 'Unavailable', safe(d.error, 'Connection failed'));
           }
         }).catch(function () {
           setValue('db-status', 'Unknown');
           setStatus('db-detail', 'Unavailable', 'warn');
-          addCheck('MySQL Database', 'unknown', 'Unavailable', 'Secondary diagnostic failed Ã¢â‚¬â€ API may still be online');
+          addCheck('MySQL Database', 'unknown', 'Unavailable', 'Secondary diagnostic failed — API may still be online');
         });
 
       DmaAdminShell.api('/api/superadmin/integrations')
@@ -191,18 +191,18 @@
                 if (f && f.key === 'SMTP_HOST' && f.value) smtpHost = f.value;
               });
             }
-            setValue('smtp-status', 'Ã¢Å“â€œ Configured');
+            setValue('smtp-status', '✓ Configured');
             setStatus('smtp-detail', safe(smtpHost, 'Ready'), 'ok');
             addCheck('SMTP Email', 'ok', 'Ready', 'Outbound email configured');
           } else {
-            setValue('smtp-status', 'Ã¢Å¡Â  Partial');
+            setValue('smtp-status', '⚠ Partial');
             setStatus('smtp-detail', 'Check Integrations', 'warn');
             addCheck('SMTP Email', 'warn', 'Needs configuration', 'Set SMTP credentials in Integrations');
           }
 
           var ai = groups.ai || {};
           if (ai.status === 'ready') {
-            setValue('ai-status', 'Ã¢Å“â€œ Active');
+            setValue('ai-status', '✓ Active');
             setStatus('ai-detail', 'Provider ready', 'ok');
             addCheck('AI Receptionist', 'ok', 'Active', 'AI provider configured');
           } else {
@@ -213,7 +213,7 @@
 
           var meta = groups.meta || {};
           if (meta.status === 'ready') {
-            setValue('wa-status', 'Ã¢Å“â€œ Configured');
+            setValue('wa-status', '✓ Configured');
             setStatus('wa-detail', 'Meta Cloud API', 'ok');
             addCheck('Meta WhatsApp API', 'ok', 'Configured', 'App ID and credentials set');
           } else {
@@ -224,7 +224,7 @@
 
           var stripe = groups.stripe || {};
           if (stripe.status === 'ready') {
-            setValue('stripe-status', 'Ã¢Å“â€œ Connected');
+            setValue('stripe-status', '✓ Connected');
             setStatus('stripe-detail', 'Keys set', 'ok');
             addCheck('Stripe Billing', 'ok', 'Connected', 'Subscription billing active');
           } else {
@@ -240,7 +240,7 @@
           setStatus('ai-detail', 'Unavailable', 'warn');
           setStatus('wa-detail', 'Unavailable', 'warn');
           setStatus('stripe-detail', 'Unavailable', 'warn');
-          addCheck('Integrations', 'unknown', 'Unavailable', 'Secondary diagnostic failed Ã¢â‚¬â€ does not mean the API is offline');
+          addCheck('Integrations', 'unknown', 'Unavailable', 'Secondary diagnostic failed — does not mean the API is offline');
         });
 
       fetch('/api/webhooks/meta?probe=1', { credentials: 'include', cache: 'no-store' })
@@ -255,7 +255,7 @@
           addCheck('Meta Webhook', label === 'Unavailable' ? 'unknown' : 'ok', label, 'Webhook URL reachable at /api/webhooks/meta');
         })
         .catch(function () {
-          addCheck('Meta Webhook', 'unknown', 'Unavailable', 'Webhook probe failed Ã¢â‚¬â€ this is not API downtime');
+          addCheck('Meta Webhook', 'unknown', 'Unavailable', 'Webhook probe failed — this is not API downtime');
         });
 
       document.getElementById('last-checked').textContent = 'Last checked: ' + new Date().toLocaleTimeString();

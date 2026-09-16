@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Verify your email â€” Doctors My Agency</title>
+  <title>Verify your email — Doctors My Agency</title>
   <link rel="icon" href="/media/landing/dma-insignia.png" type="image/png" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=51" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=54" />
 </head>
 <body>
   <div class="dma-auth dma-auth-simple">
     <main class="dma-auth-form" style="text-align:center">
       <a class="dma-pub-logo dma-pub-logo--img" href="/" style="justify-content:center"><img class="dma-logo-white" src="/media/landing/dma-logo-white.png" alt="Doctors My Agency" width="220" height="64" /></a>
       <div class="dma-verify-mark" aria-hidden="true">âœ‰</div>
-      <h2 id="title">Verifying your emailâ€¦</h2>
+      <h2 id="title">Verifying your email…</h2>
       <p id="emailHint" class="dma-hint" style="display:none"></p>
       <p id="msg" class="dma-hint">Please wait.</p>
       <div id="actions" style="margin-top:24px;display:none;flex-wrap:wrap;gap:10px;justify-content:center"></div>
       <div id="resend" style="margin-top:20px;display:none">
-        <p class="dma-hint">Didnâ€™t get the email?</p>
+        <p class="dma-hint">Didn’t get the email?</p>
         <button type="button" class="dma-btn dma-btn-ghost" id="resendBtn">Resend email</button>
         <p class="dma-hint" style="margin-top:12px"><a href="/register/">Change email</a> by starting again, or sign in with the correct address.</p>
       </div>
@@ -41,16 +41,16 @@
     function friendlyError(errMsg) {
       var m = String(errMsg || '');
       if (/No account is registered|not registered with this email/i.test(m)) {
-        return 'We couldnâ€™t find that address. Check the email used at signup.';
+        return 'We couldn’t find that address. Check the email used at signup.';
       }
       if (/API server unreachable|PROXY_ERROR|not reachable/i.test(m)) {
-        return 'We couldnâ€™t reach the clinic service. Try again in a moment.';
+        return 'We couldn’t reach the clinic service. Try again in a moment.';
       }
       if (/Can't reach database|P1001|P1000|Access denied for user|prisma\.|Database is temporarily|DB_UNAVAILABLE/i.test(m)) {
         return 'The clinic service is temporarily unavailable. Try again shortly.';
       }
       if (/Email delivery failed|SMTP|ECONNREFUSED|Invalid login|535/i.test(m)) {
-        return 'We couldnâ€™t send email just now. Try resend in a minute.';
+        return 'We couldn’t send email just now. Try resend in a minute.';
       }
       return m || 'Something went wrong.';
     }
@@ -102,7 +102,7 @@
       if (!email) return;
       const btn = document.getElementById('resendBtn');
       btn.disabled = true;
-      btn.textContent = 'Sendingâ€¦';
+      btn.textContent = 'Sending…';
       try {
         const r = await fetch('/api/auth/resend-verification', {
           method: 'POST',

@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Staff sign in â€” Clinicos</title>
+  <title>Staff sign in — Clinicos</title>
   <link rel="icon" href="/media/landing/dma-insignia.png" type="image/png" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=51" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=54" />
 </head>
 <body>
   <div class="dma-auth">
@@ -13,9 +13,9 @@
       <a class="dma-pub-logo dma-pub-logo--lockup" href="/"><img class="dma-logo-mark" src="/media/landing/dma-insignia-white.png" alt="" width="36" height="36" /><span>Clinicos</span></a>
       <div>
         <h1>Your clinic, connected.</h1>
-        <p>Front desk, waiting room and inbox â€” according to your role.</p>
+        <p>Front desk, waiting room and inbox — according to your role.</p>
       </div>
-      <div class="dma-auth-preview"><strong>Staff portal</strong><p>Reception Â· Nurse Â· Assistant Â· Manager</p></div>
+      <div class="dma-auth-preview"><strong>Staff portal</strong><p>Reception · Nurse · Assistant · Manager</p></div>
     </aside>
     <main class="dma-auth-form">
       <h2>Staff sign in</h2>
@@ -40,7 +40,7 @@
       const err = document.getElementById('error');
       const btn = e.target.querySelector('[type="submit"]');
       err.style.display = 'none';
-      setBtnLoading(btn, true, 'Signing inâ€¦');
+      setBtnLoading(btn, true, 'Signing in…');
       const fd = new FormData(e.target);
       try {
         const r = await fetch('/api/auth/staff/login', {
@@ -57,7 +57,7 @@
             setBtnLoading(btn, false);
             return;
           }
-          throw new Error(data.error || data.message || 'Sign in failed â€” check email and password');
+          throw new Error(data.error || data.message || 'Sign in failed — check email and password');
         }
         if (data.token && data.user) syncClinicosStore(data.user, data.token);
         window.location.href = '/dashboard/';

@@ -1089,7 +1089,7 @@ a.dma-row-item:hover { background: rgba(20, 150, 127, 0.04); border-radius: 8px;
    22. DARK MODE
    ═══════════════════════════════════════════════════════════ */
 html[data-theme="dark"] .doc-main {
-  background: #0D1117;
+  background: #141C2B;
 }
 
 html[data-theme="dark"] .dma-panel,
@@ -1099,14 +1099,14 @@ html[data-theme="dark"] .dma-thread,
 html[data-theme="dark"] .dma-table-wrap,
 html[data-theme="dark"] .dma-filters,
 html[data-theme="dark"] .dma-modal {
-  background: #1C2333;
+  background: #1C2638;
   border-color: #2D3748;
 }
 
 html[data-theme="dark"] .dma-panel-h,
 html[data-theme="dark"] .dma-thread-h,
 html[data-theme="dark"] .dma-modal-f {
-  background: #21262D;
+  background: #243044;
   border-color: #2D3748;
 }
 
@@ -1117,7 +1117,7 @@ html[data-theme="dark"] .dma-row-item .name,
 html[data-theme="dark"] .dma-modal-h h3,
 html[data-theme="dark"] .dma-table tbody td,
 html[data-theme="dark"] .dma-inbox-item .name {
-  color: #F0F6FF;
+  color: #F8FBFF;
 }
 
 html[data-theme="dark"] .dma-panel-h a,
@@ -1127,7 +1127,7 @@ html[data-theme="dark"] .dma-row-item .sub,
 html[data-theme="dark"] .dma-row-item .meta,
 html[data-theme="dark"] .dma-hint,
 html[data-theme="dark"] .dma-inbox-item .sub {
-  color: #8B98AE;
+  color: #B4C2D6;
 }
 
 html[data-theme="dark"] .dma-field input,
@@ -1136,18 +1136,18 @@ html[data-theme="dark"] .dma-field select,
 html[data-theme="dark"] .dma-search,
 html[data-theme="dark"] .dma-status-sel,
 html[data-theme="dark"] .dma-thread-c input {
-  background: #21262D;
+  background: #243044;
   border-color: #3D4A60;
-  color: #F0F6FF;
+  color: #F8FBFF;
 }
 
 html[data-theme="dark"] .dma-field label {
-  color: #C5D1E8;
+  color: #D0DBEC;
 }
 
 html[data-theme="dark"] .dma-table thead th {
-  background: #21262D;
-  color: #8B98AE;
+  background: #243044;
+  color: #B4C2D6;
   border-color: #2D3748;
 }
 html[data-theme="dark"] .dma-table tbody td {
@@ -1158,9 +1158,9 @@ html[data-theme="dark"] .dma-table tbody tr:hover td {
 }
 
 html[data-theme="dark"] .dma-filters button {
-  background: #21262D;
+  background: #243044;
   border-color: #3D4A60;
-  color: #8B98AE;
+  color: #B4C2D6;
 }
 html[data-theme="dark"] .dma-filters button:hover {
   background: rgba(20, 150, 127, 0.12);
@@ -1172,7 +1172,7 @@ html[data-theme="dark"] .dma-tabs {
   border-bottom-color: #2D3748;
 }
 html[data-theme="dark"] .dma-tabs button {
-  color: #8B98AE;
+  color: #B4C2D6;
 }
 html[data-theme="dark"] .dma-tabs button:hover,
 html[data-theme="dark"] .dma-tabs button.active {
@@ -1187,12 +1187,12 @@ html[data-theme="dark"] .dma-inbox-item:hover { background: rgba(20, 150, 127, 0
 html[data-theme="dark"] .dma-inbox-item.on { background: rgba(20, 150, 127, 0.14); border-left-color: #60A5FA; }
 
 html[data-theme="dark"] .dma-bubble.in {
-  background: #21262D;
+  background: #243044;
   color: #E2EAF4;
 }
 
 html[data-theme="dark"] .dma-btn-ghost {
-  background: #21262D;
+  background: #243044;
   border-color: rgba(20, 150, 127, 0.35);
   color: #60A5FA;
 }
@@ -1223,7 +1223,7 @@ html[data-theme="dark"] .dma-chip-blue   { background: rgba(20,150,127,.18);  co
 html[data-theme="dark"] .dma-chip-slate  { background: rgba(100,116,139,.15); color: #94A3B8; }
 
 html[data-theme="dark"] .dma-skel {
-  background: linear-gradient(90deg, #21262D 25%, #2D3748 50%, #21262D 75%);
+  background: linear-gradient(90deg, #243044 25%, #2D3748 50%, #243044 75%);
   background-size: 200% 100%;
 }
 
@@ -1250,4 +1250,13 @@ html[data-theme="dark"] .dma-modal-bg {
   .dma-inbox {
     grid-template-columns: 1fr;
   }
+}
+
+html.doc-static .dma-tabs button:hover {
+  background: #243044 !important;
+  color: #F8FBFF !important;
+}
+html.doc-static .dma-modal-f {
+  background: #1C2638 !important;
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
 }

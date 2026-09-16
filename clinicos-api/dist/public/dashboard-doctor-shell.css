@@ -23,11 +23,11 @@
 }
 
 html[data-theme="dark"] {
-  --doc-bg:       #0D1117;
-  --doc-surface:  #1E293B;
-  --doc-surface-2: #263148;
-  --doc-text:     #F1F5F9;
-  --doc-muted:    #94A3B8;
+  --doc-bg:       #141C2B;
+  --doc-surface:  #1C2638;
+  --doc-surface-2: #243044;
+  --doc-text:     #F8FBFF;
+  --doc-muted:    #B4C2D6;
   --doc-border:   #2D3748;
   --doc-border-2: #3D4F69;
   --doc-sidebar:  #0B6456;
@@ -262,7 +262,7 @@ html.doc-static body {
   padding: 0 12px;
   border: 1.5px solid var(--doc-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--doc-surface, #1C2638);
   color: var(--doc-muted);
   font-size: 12px;
   font-weight: 700;
@@ -270,9 +270,9 @@ html.doc-static body {
   white-space: nowrap;
 }
 .doc-logout:hover {
-  color: #DC2626;
-  border-color: #FECACA;
-  background: #FEF2F2;
+  color: #FECACA;
+  border-color: rgba(248, 113, 113, 0.45);
+  background: rgba(127, 29, 29, 0.45);
 }
 
 .doc-nav a svg {
@@ -463,7 +463,7 @@ html[data-theme="dark"] .doc-main {
 }
 
 html[data-theme="dark"] .doc-sidebar {
-  background: #080B14 !important;
+  background: #141C2B !important;
   border-right-color: rgba(255, 255, 255, 0.12) !important;
 }
 
@@ -480,7 +480,7 @@ html[data-theme="dark"] .doc-logout { background: #1E293B; border-color: #334155
 
 /* Beat dma-design-system.css generic `aside { }` rules on clinic pages */
 html.doc-static aside.doc-sidebar {
-  background: #080B14 !important;
+  background: #141C2B !important;
   color: #fff !important;
   width: var(--doc-sidebar-w) !important;
   min-width: var(--doc-sidebar-w) !important;
@@ -600,14 +600,14 @@ html.doc-static aside.doc-sidebar .doc-plan-card a {
 }
 
 html.doc-static {
-  --doc-bg: #080B14;
-  --doc-surface: #101522;
-  --doc-surface-2: #141A2A;
-  --doc-text: #F0F6FF;
-  --doc-muted: #8B98AE;
+  --doc-bg: #141C2B;
+  --doc-surface: #1C2638;
+  --doc-surface-2: #243044;
+  --doc-text: #F8FBFF;
+  --doc-muted: #B4C2D6;
   --doc-border: rgba(255,255,255,0.08);
   --doc-border-2: rgba(255,255,255,0.14);
-  --doc-sidebar: #080B14;
+  --doc-sidebar: #141C2B;
   --doc-sidebar-border: rgba(255,255,255,0.08);
 }
 html.doc-static .doc-brand strong,

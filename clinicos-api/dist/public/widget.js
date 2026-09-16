@@ -49,7 +49,7 @@
     ".cw-fab svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.8; }" +
     ".cw-panel { width: min(360px, calc(100vw - 24px)); height: min(520px, calc(100vh - 96px));" +
     " display: none; flex-direction: column; overflow: hidden;" +
-    " background: linear-gradient(180deg, rgba(16,22,38,.96), rgba(8,11,20,.98));" +
+    " background: linear-gradient(180deg, rgba(28, 38, 56,.96), rgba(20, 28, 43,.98));" +
     " border: 1px solid rgba(255,255,255,.1); border-radius: 18px;" +
     " box-shadow: 0 24px 64px rgba(0,0,0,.45); backdrop-filter: blur(18px); }" +
     ".cw-root.is-open .cw-panel, .cw-root.cw-page .cw-panel { display: flex; }" +
@@ -66,7 +66,7 @@
     ".cw-bubble { max-width: 86%; padding: 10px 12px; border-radius: 14px; font-size: 13px; line-height: 1.45; }" +
     ".cw-in { align-self: flex-start; background: rgba(255,255,255,.07); color: #E8EEF8; }" +
     ".cw-out { align-self: flex-end; background: linear-gradient(135deg, #2565FC, #14967F); color: #fff; }" +
-    ".cw-note { font-size: 11px; color: #7A899F; padding: 0 14px 8px; line-height: 1.4; }" +
+    ".cw-note { font-size: 11px; color: #A8B6CC; padding: 0 14px 8px; line-height: 1.4; }" +
     ".cw-form { display: flex; gap: 8px; padding: 10px 12px 12px; border-top: 1px solid rgba(255,255,255,.08); }" +
     ".cw-form input { flex: 1; min-height: 40px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1);" +
     " background: rgba(255,255,255,.05); color: #fff; padding: 0 12px; font: inherit; font-size: 13px; }" +

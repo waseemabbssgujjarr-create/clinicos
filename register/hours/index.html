@@ -1,14 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="dma-world-auth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Working Hours â€” Doctors My Agency</title>
+  <title>Working Hours — Doctors My Agency</title>
   <link rel="icon" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=49" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=54" />
   <link rel="stylesheet" href="/portal.css?v=5" />
   <link rel="stylesheet" href="/platform-hovers.css" />
   <link rel="stylesheet" href="/dma-theme.css" />
@@ -34,14 +34,14 @@
           <span class="step-dot active">3</span><span class="step-line"></span>
           <span class="step-dot">4</span>
         </div>
-        <p class="dma-steps">1 Clinic â†’ 2 Practice â†’ <b>3 Hours</b> â†’ 4 Launch</p>
+        <p class="dma-steps">1 Clinic → 2 Practice → <b>3 Hours</b> → 4 Launch</p>
         <h1>Working hours</h1>
         <p class="subtitle">AI books only during open hours. You can skip and set this later.</p>
         <div id="error" class="alert alert-error" style="display:none"></div>
         <div id="hoursList" class="hours-list"></div>
         <div class="btn-row">
           <button type="button" class="btn btn-secondary" id="skipBtn">Skip</button>
-          <button type="button" class="btn btn-primary" id="saveBtn">Save &amp; Continue â†’</button>
+          <button type="button" class="btn btn-primary" id="saveBtn">Save &amp; Continue →</button>
         </div>
       </div>
     </div>
@@ -102,7 +102,7 @@
 
     function formatApiError(data, fallback) {
       if (data.details && Array.isArray(data.details)) {
-        return data.details.map((d) => d.message || d.path?.join('.')).filter(Boolean).join(' Â· ') || fallback;
+        return data.details.map((d) => d.message || d.path?.join('.')).filter(Boolean).join(' · ') || fallback;
       }
       return data.error || data.message || fallback;
     }
@@ -128,7 +128,7 @@
       const skipBtn = document.getElementById('skipBtn');
       const activeBtn = useDefaults ? skipBtn : saveBtn;
       err.style.display = 'none';
-      setBtnLoading(activeBtn, true, useDefaults ? 'Skippingâ€¦' : 'Savingâ€¦');
+      setBtnLoading(activeBtn, true, useDefaults ? 'Skipping…' : 'Saving…');
       if (saveBtn && saveBtn !== activeBtn) saveBtn.disabled = true;
       if (skipBtn && skipBtn !== activeBtn) skipBtn.disabled = true;
       try {

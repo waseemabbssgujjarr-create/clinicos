@@ -5,7 +5,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=51';
+    ds.href = '/dma-design-system.css?v=54';
     document.head.appendChild(ds);
   }
 
@@ -110,7 +110,7 @@
     if (!role) {
       keys = [
         ['Clinic', ['home', 'patients']],
-        ['Front desk', ['appointments', 'waiting', 'messages']],
+        ['Front desk', ['appointments', 'waiting', 'messages', 'whatsapp']],
         ['Care', ['clinical']],
         ['Practice', ['staff', 'rooms']],
         ['Grow', ['ai', 'analytics']],
@@ -173,7 +173,7 @@
       return path === '/dashboard/appointments' || path.indexOf('/dashboard/calendar') === 0;
     }
     if (target === '/dashboard/messages') {
-      return path.indexOf('/dashboard/messages') === 0 || path.indexOf('/dashboard/whatsapp') === 0 || path.indexOf('/dashboard/broadcasts') === 0 || path.indexOf('/dashboard/communication') === 0;
+      return path.indexOf('/dashboard/messages') === 0;
     }
     if (target === '/dashboard/rooms') {
       return path.indexOf('/dashboard/rooms') === 0 || path.indexOf('/dashboard/inventory') === 0 || path.indexOf('/dashboard/leave') === 0 || path.indexOf('/dashboard/telemedicine') === 0 || path.indexOf('/dashboard/operations') === 0;

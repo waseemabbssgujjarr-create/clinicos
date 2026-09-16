@@ -1,14 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="sa-static">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Audit Log Ã¢â‚¬â€ Doctors My Agency</title>
+  <title>Audit Log — Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=49" />
-  <link rel="stylesheet" href="/superadmin-theme.css?v=13" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=54" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=15" />
 </head>
 <body class="superadmin-app">
   <div class="sa-layout">
@@ -17,12 +17,12 @@
       <div class="ds-work-header">
         <div>
           <h1 style="margin:0;font-size:1.25rem">Audit log</h1>
-          <p class="sa-subtitle" style="margin:4px 0 0">Platform activity Ã¢â‚¬â€ logins, plan changes, WhatsApp, and admin actions.</p>
+          <p class="sa-subtitle" style="margin:4px 0 0">Platform activity — logins, plan changes, WhatsApp, and admin actions.</p>
         </div>
         <button type="button" class="ds-btn ds-btn-outline" id="refresh">Refresh</button>
       </div>
       <form class="ds-toolbar" id="filters">
-        <input class="ds-input ds-search" id="q" type="search" placeholder="Search actor, action, clinicÃ¢â‚¬Â¦" />
+        <input class="ds-input ds-search" id="q" type="search" placeholder="Search actor, action, clinic…" />
         <select class="ds-input" id="type" aria-label="Event type">
           <option value="">All events</option>
           <option value="login">Logins</option>
@@ -40,7 +40,7 @@
         </select>
         <button type="submit" class="ds-btn ds-btn-primary">Filter</button>
       </form>
-      <div id="state" class="ds-loading">Loading audit logÃ¢â‚¬Â¦</div>
+      <div id="state" class="ds-loading">Loading audit log…</div>
       <div class="ds-table-wrap">
         <table class="ds-table" id="table" style="display:none">
           <thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Clinic</th><th>Target</th><th>Result</th></tr></thead>
@@ -49,7 +49,7 @@
       </div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=18"></script>
+  <script src="/superadmin-admin-shell.js?v=19"></script>
   <script src="/dma-ui.js?v=8"></script>
   <script>
     (function () {
@@ -58,13 +58,13 @@
       var rows = [];
 
       function actor(item) {
-        return item.actorEmail || item.actor || item.userEmail || item.email || item.clinicEmail || 'Ã¢â‚¬â€';
+        return item.actorEmail || item.actor || item.userEmail || item.email || item.clinicEmail || '—';
       }
       function clinic(item) {
-        return item.clinicName || item.clinicId || 'Ã¢â‚¬â€';
+        return item.clinicName || item.clinicId || '—';
       }
       function target(item) {
-        return item.target || item.resource || item.patientId || item.details || 'Ã¢â‚¬â€';
+        return item.target || item.resource || item.patientId || item.details || '—';
       }
       function action(item) {
         return String(item.action || item.type || item.event || 'event').replace(/_/g, ' ');
@@ -81,7 +81,7 @@
             ['Actor', actor(item)],
             ['Action', action(item)],
             ['Clinic', clinic(item)],
-            ['Target', typeof target(item) === 'string' ? String(target(item)).slice(0, 240) : 'Ã¢â‚¬â€'],
+            ['Target', typeof target(item) === 'string' ? String(target(item)).slice(0, 240) : '—'],
             ['Result', ok(item) ? 'Success' : 'Failed'],
             ['Source', item.source || 'audit']
           ])
@@ -115,7 +115,7 @@
         document.getElementById('state').style.display = 'none';
         document.getElementById('table').style.display = '';
         document.getElementById('tbody').innerHTML = list.slice(0, 200).map(function (item, i) {
-          return '<tr data-i="' + i + '"><td>' + esc(item.createdAt ? new Date(item.createdAt).toLocaleString() : 'Ã¢â‚¬â€') +
+          return '<tr data-i="' + i + '"><td>' + esc(item.createdAt ? new Date(item.createdAt).toLocaleString() : '—') +
             '</td><td>' + esc(actor(item)) + '</td><td>' + esc(action(item)) + '</td><td>' + esc(clinic(item)) +
             '</td><td>' + esc(String(target(item)).slice(0, 48)) + '</td><td>' +
             DmaUI.badge(ok(item) ? 'Success' : 'Failed', ok(item) ? 'ok' : 'danger') + '</td></tr>';
@@ -130,7 +130,7 @@
       function load() {
         document.getElementById('state').style.display = 'block';
         document.getElementById('state').className = 'ds-loading';
-        document.getElementById('state').textContent = 'Loading audit logÃ¢â‚¬Â¦';
+        document.getElementById('state').textContent = 'Loading audit log…';
         DmaAdminShell.api('/api/superadmin/audit?limit=200')
           .then(function (d) {
             rows = d.data || d.logs || d.items || [];

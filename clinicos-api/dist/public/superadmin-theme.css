@@ -28,7 +28,7 @@
   --sa-input-border: var(--ds-border-2, #cbd5e1);
   --sa-text: var(--ds-text, #0f172a);
   --sa-muted: var(--ds-muted, #475569);
-  --sa-border: var(--ds-border, #E2E8F0);
+  --sa-border: var(--ds-border, #E8EEF8);
   --sa-shadow: var(--ds-shadow-sm, 0 1px 3px rgba(15, 23, 42, 0.06));
   --sa-shadow-sm: var(--ds-shadow-xs, 0 1px 2px rgba(15, 23, 42, 0.05));
   --sa-radius: var(--ds-r-card, 8px);
@@ -1143,22 +1143,22 @@ a[class*="bg-brand"] * {
 }
 
 html.sa-static {
-  --sa-main-bg: #080B14;
-  --sa-card-bg: #101522;
-  --sa-text: #F0F6FF;
-  --sa-muted: #8B98AE;
-  --sa-sidebar-bg: #080B14;
-  --sa-input-bg: #141A2A;
+  --sa-main-bg: #141C2B;
+  --sa-card-bg: #1C2638;
+  --sa-text: #F8FBFF;
+  --sa-muted: #B4C2D6;
+  --sa-sidebar-bg: #141C2B;
+  --sa-input-bg: #243044;
   --sa-input-border: rgba(255,255,255,0.14);
   --sa-border: rgba(255,255,255,0.08);
-  --adm-sidebar-bg: #080B14;
+  --adm-sidebar-bg: #141C2B;
 }
 
 html.sa-static body.superadmin-app,
 html.sa-static .sa-layout,
 html.sa-static .sa-main {
-  background: #080B14 !important;
-  color: #F0F6FF !important;
+  background: #141C2B !important;
+  color: #F8FBFF !important;
 }
 
 html.sa-static .sa-content-card,
@@ -1170,8 +1170,8 @@ html.sa-static .sa-data-table,
 html.sa-static table,
 html.sa-static .bg-white,
 html.sa-static [class*="rounded-card"] {
-  background: #101522 !important;
-  color: #F0F6FF !important;
+  background: #1C2638 !important;
+  color: #F8FBFF !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
   box-shadow: none !important;
 }
@@ -1181,14 +1181,14 @@ html.sa-static thead th,
 html.sa-static .sa-data-table td,
 html.sa-static tbody td {
   background: transparent !important;
-  color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
   border-bottom-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 html.sa-static .sa-data-table th,
 html.sa-static thead th {
-  background: #141A2A !important;
-  color: #C5D1E8 !important;
+  background: #243044 !important;
+  color: #D0DBEC !important;
 }
 
 html.sa-static .sa-data-table tbody tr:hover td,
@@ -1197,7 +1197,7 @@ html.sa-static tbody tr:hover td {
 }
 
 html.sa-static .sa-sidebar {
-  background: #080B14 !important;
+  background: #141C2B !important;
   border-right-color: rgba(255, 255, 255, 0.08) !important;
 }
 
@@ -1223,8 +1223,8 @@ html.sa-static .sa-brand-icon {
 html.sa-static body.superadmin-app input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
 html.sa-static body.superadmin-app textarea,
 html.sa-static body.superadmin-app select {
-  background: #141A2A !important;
-  color: #F0F6FF !important;
+  background: #243044 !important;
+  color: #F8FBFF !important;
   border-color: rgba(255, 255, 255, 0.14) !important;
 }
 
@@ -1233,8 +1233,8 @@ html.sa-static body.superadmin-app textarea:hover,
 html.sa-static body.superadmin-app input:focus,
 html.sa-static body.superadmin-app textarea:focus,
 html.sa-static body.superadmin-app select:focus {
-  background: #141A2A !important;
-  color: #F0F6FF !important;
+  background: #243044 !important;
+  color: #F8FBFF !important;
 }
 
 html.sa-static .ds-btn-primary,
@@ -1260,11 +1260,34 @@ html.sa-static .sa-content-card h1 {
 }
 
 html.sa-static .sa-subtitle {
-  color: #8B98AE !important;
+  color: #B4C2D6 !important;
 }
 
 html.sa-static .sa-mobile-bar {
-  background: rgba(16, 21, 34, 0.94) !important;
+  background: rgba(28, 38, 56, 0.94) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  color: #F0F6FF;
+  color: #F8FBFF;
+}
+html.sa-static .sa-btn-secondary,
+html.sa-static .sa-btn-outline {
+  background: #243044 !important;
+  color: #E8EEF8 !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+html.sa-static .sa-env-list {
+  background: #243044 !important;
+  color: #E8EEF8 !important;
+}
+html.sa-static .sa-alert-warn {
+  background: rgba(217, 119, 6, 0.18) !important;
+  color: #FDE68A !important;
+  border-color: rgba(245, 158, 11, 0.45) !important;
+}
+html.sa-static .sa-clinic-btn-suspend {
+  background: #243044 !important;
+  color: #FECACA !important;
+}
+html.sa-static body.superadmin-app input[readonly] {
+  background: #1A2334 !important;
+  color: #B4C2D6 !important;
 }

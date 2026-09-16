@@ -322,7 +322,7 @@
         '<section class="dma-section" style="margin-top:16px"><header class="dma-section-h"><h2>Preview</h2></header><div class="dma-section-b">' +
         '<p class="cos-hint">This is the embeddable chat UI. Sending a message uses POST /api/public/clinics/' + esc(slug || ":slug") + "/ai-chat, which loads published training the same way inbound WhatsApp does.</p>" +
         (slug
-          ? '<iframe title="Website chat preview" src="/widget.html?clinic=' + encodeURIComponent(slug) + '" style="width:100%;max-width:380px;height:520px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:#080B14"></iframe>'
+          ? '<iframe title="Website chat preview" src="/widget.html?clinic=' + encodeURIComponent(slug) + '" style="width:100%;max-width:380px;height:520px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:#141C2B"></iframe>'
           : A().empty("No booking slug yet", "Save a booking URL in Settings, then return here for a live preview.", "/dashboard/settings/", "Open settings")) +
         "</div></section>";
 

@@ -1,14 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="sa-static">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>WhatsApp API Ã¢â‚¬â€ Doctors My Agency</title>
+  <title>WhatsApp API — Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=49" />
-  <link rel="stylesheet" href="/superadmin-theme.css?v=13" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=54" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=15" />
 </head>
 <body class="superadmin-app">
   <div class="sa-layout">
@@ -27,10 +27,10 @@
         <button type="button" data-t="docs">Reference</button>
         <button type="button" data-t="logs">Logs</button>
       </div>
-      <div id="body" class="ds-section"><p class="ds-loading">LoadingÃ¢â‚¬Â¦</p></div>
+      <div id="body" class="ds-section"><p class="ds-loading">Loading…</p></div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=18"></script>
+  <script src="/superadmin-admin-shell.js?v=19"></script>
   <script src="/dma-ui.js?v=8"></script>
   <script>
     (function () {
@@ -57,7 +57,7 @@
           var c = document.getElementById('copy-meta');
           if (c) c.onclick = function () { DmaUI.copy(hooks.meta); };
         } else if (tab === 'meta') {
-          body.innerHTML = '<p class="cos-hint">Edit Meta credentials in Integrations Ã¢â€ â€™ WhatsApp / Meta. This tab is status only so live send/webhook flow is not duplicated.</p>' +
+          body.innerHTML = '<p class="cos-hint">Edit Meta credentials in Integrations → WhatsApp / Meta. This tab is status only so live send/webhook flow is not duplicated.</p>' +
             DmaUI.kv([['Status', meta.status], ['Configured fields', String(meta.configured || 0) + ' / ' + String(meta.total || 0)]]) +
             '<a class="ds-btn ds-btn-primary" href="/superadmin/integrations/">Open Meta settings</a> ' +
             '<a class="ds-btn ds-btn-outline" href="/superadmin/whatsapp/">Clinic connections</a>';
@@ -65,7 +65,7 @@
           var fields = ext.fields || [];
           body.innerHTML = '<div class="int-card"><p class="cos-hint">' + esc(ext.description || '') + '</p>' +
             fields.map(function (f) {
-              var ph = f.secret ? (f.set ? ('Saved: ' + (f.masked || 'Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢') + ' Ã¢â‚¬â€ leave blank to keep') : 'Not set') : (f.placeholder || '');
+              var ph = f.secret ? (f.set ? ('Saved: ' + (f.masked || '••••') + ' — leave blank to keep') : 'Not set') : (f.placeholder || '');
               var valAttr = f.secret ? '' : (' value="' + String(f.value || '').replace(/"/g, '&quot;') + '"');
               return '<div class="dma-field"><label>' + esc(f.label) + '</label><input data-key="' + f.key + '" data-secret="' + (f.secret ? '1' : '0') + '" placeholder="' + String(ph).replace(/"/g,'&quot;') + '"' + valAttr + '></div>';
             }).join('') +
@@ -86,7 +86,7 @@
           };
         } else if (tab === 'docs') {
           body.innerHTML = '<div class="int-card"><h2 style="text-transform:none;font-size:1rem;color:var(--ds-text)">Reference</h2>' +
-            '<p class="cos-hint">Live path: inbound Meta webhook Ã¢â€ â€™ clinic resolution Ã¢â€ â€™ conversation engine Ã¢â€ â€™ Meta send. Future CRM/API will sit beside this, not replace it.</p>' +
+            '<p class="cos-hint">Live path: inbound Meta webhook → clinic resolution → conversation engine → Meta send. Future CRM/API will sit beside this, not replace it.</p>' +
             '<p class="cos-hint">Auth (planned): bearer token or HMAC. Version: stored as EXT_CRM_API_VERSION.</p>' +
             '<p class="cos-hint">Test request: not available until the provider runtime exists. Do not treat this page as a live CRM console.</p></div>';
         } else {

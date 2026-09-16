@@ -69,13 +69,13 @@
   if (!document.querySelector('link[href*="dma-design-system.css"]')) {
     var dsLink = document.createElement('link');
     dsLink.rel = 'stylesheet';
-    dsLink.href = '/dma-design-system.css?v=24';
+    dsLink.href = '/dma-design-system.css?v=54';
     document.head.appendChild(dsLink);
   }
   if (!isDocStatic && !isSaStatic && !document.querySelector('link[href*="dma-doctor-app.css"]')) {
     var appCss = document.createElement('link');
     appCss.rel = 'stylesheet';
-    appCss.href = '/dma-doctor-app.css?v=6';
+    appCss.href = '/dma-doctor-app.css?v=7';
     document.head.appendChild(appCss);
   }
 
@@ -205,7 +205,7 @@
     if (!document.querySelector('link[href*="superadmin-theme.css"]')) {
       var saCss = document.createElement('link');
       saCss.rel = 'stylesheet';
-      saCss.href = '/superadmin-theme.css?v=12';
+      saCss.href = '/superadmin-theme.css?v=15';
       document.head.appendChild(saCss);
     }
     if (!document.getElementById('dma-sa-critical-style')) {
@@ -389,23 +389,23 @@
     if (!document.querySelector('link[href*="dashboard-doctor-shell.css"]')) {
       var docShellCss = document.createElement('link');
       docShellCss.rel = 'stylesheet';
-      docShellCss.href = '/dashboard-doctor-shell.css?v=16';
+      docShellCss.href = '/dashboard-doctor-shell.css?v=20';
       document.head.appendChild(docShellCss);
     }
     if (!document.querySelector('script[src*="dashboard-doctor-shell.js"]')) {
       var docShellJs = document.createElement('script');
-      docShellJs.src = '/dashboard-doctor-shell.js?v=19';
+      docShellJs.src = '/dashboard-doctor-shell.js?v=22';
       (document.head || document.documentElement).appendChild(docShellJs);
     }
     if (!document.querySelector('link[href*="dashboard-whatsapp-hub.css"]')) {
       var waHubCss = document.createElement('link');
       waHubCss.rel = 'stylesheet';
-      waHubCss.href = '/dashboard-whatsapp-hub.css?v=8';
+      waHubCss.href = '/dashboard-whatsapp-hub.css?v=11';
       document.head.appendChild(waHubCss);
     }
     if (!document.querySelector('script[src*="dashboard-whatsapp-hub.js"]')) {
       var waHubJs = document.createElement('script');
-      waHubJs.src = '/dashboard-whatsapp-hub.js?v=6';
+      waHubJs.src = '/dashboard-whatsapp-hub.js?v=7';
       (document.head || document.documentElement).appendChild(waHubJs);
     }
   }

@@ -1,14 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="sa-static">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Revenue Ã¢â‚¬â€ Doctors My Agency</title>
+  <title>Revenue — Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=49" />
-  <link rel="stylesheet" href="/superadmin-theme.css?v=13" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=54" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=15" />
 </head>
 <body class="superadmin-app">
   <div class="sa-layout">
@@ -21,7 +21,7 @@
         </div>
         <a class="ds-btn ds-btn-outline" href="/superadmin/stripe/">Stripe</a>
       </div>
-      <div id="state" class="ds-loading">Loading revenueÃ¢â‚¬Â¦</div>
+      <div id="state" class="ds-loading">Loading revenue…</div>
       <div id="content" style="display:none">
         <div class="ds-kpis" id="kpis"></div>
         <div class="ds-tabs" id="tabs">
@@ -33,7 +33,7 @@
       </div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=18"></script>
+  <script src="/superadmin-admin-shell.js?v=19"></script>
   <script src="/dma-ui.js?v=8"></script>
   <script>
     (function () {
@@ -102,7 +102,7 @@
           '<div class="ds-kpi"><div><label>Previous MRR</label><strong>' + money(prevN) + '</strong></div></div>' +
           '<div class="ds-kpi"><div><label>Paid clinics</label><strong>' + esc(paid || s.activeClinics || 0) + '</strong></div></div>' +
           '<div class="ds-kpi"><div><label>Trial clinics</label><strong>' + esc(trial) + '</strong></div></div>' +
-          '<div class="ds-kpi"><div><label>Growth</label><strong>' + (prevN ? (growth > 0 ? '+' : '') + growth + '%' : 'Ã¢â‚¬â€') + '</strong></div></div>';
+          '<div class="ds-kpi"><div><label>Growth</label><strong>' + (prevN ? (growth > 0 ? '+' : '') + growth + '%' : '—') + '</strong></div></div>';
         document.getElementById('state').style.display = 'none';
         document.getElementById('content').style.display = 'block';
         draw();

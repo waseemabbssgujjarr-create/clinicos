@@ -304,7 +304,7 @@
             '<section class="dma-home-wa" aria-label="Connect WhatsApp">' +
               '<div class="dma-home-wa-copy"><strong>Connect WhatsApp</strong>' +
               '<p>Connect your clinic\'s WhatsApp Business account securely through Meta.</p></div>' +
-              '<a class="dma-btn dma-btn-wa" id="dma-home-wa-connect" href="/dashboard/whatsapp/">Connect WhatsApp</a>' +
+              '<a class="dma-btn dma-btn-wa" id="dma-home-wa-connect" href="/dashboard/whatsapp/?connect=1">Connect WhatsApp</a>' +
             '</section>';
         }
       }

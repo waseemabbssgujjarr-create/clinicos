@@ -762,3 +762,16 @@ html[data-theme="dark"] body.min-h-screen main h2 {
   color: #F1F5F9 !important;
   -webkit-text-fill-color: #F1F5F9 !important;
 }
+
+html.doc-static body.min-h-screen main select,
+html.doc-static body.min-h-screen main [role="listbox"] {
+  background-color: #243044 !important;
+  color: #F8FBFF !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+html.doc-static body.min-h-screen main [class*="quick-actions"] button,
+html.doc-static body.min-h-screen main [class*="quick"] button[class*="flex"] {
+  background: #243044 !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #F8FBFF !important;
+}

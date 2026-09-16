@@ -48,22 +48,33 @@
     return d.innerHTML;
   }
 
+  function readBody(r) {
+    return r.text().then(function (txt) {
+      var d = {};
+      try { d = txt ? JSON.parse(txt) : {}; } catch (_) {
+        d = { error: /API server unreachable|PROXY_ERROR/i.test(txt || '') ? 'API server unreachable' : 'Clinic API returned a non-JSON response.', _nonJson: true };
+      }
+      if (!d || typeof d !== 'object') d = {};
+      d._status = r.status;
+      if (!r.ok || d.code === 'PROXY_ERROR' || /API server unreachable/i.test(d.error || '')) {
+        d._unavailable = true;
+      }
+      return d;
+    });
+  }
+
+  function apiDownMessage(d) {
+    if (d && (d.code === 'PROXY_ERROR' || /API server unreachable|PROXY_ERROR|_nonJson/i.test(String(d.error || '')))) {
+      return 'Clinic API is not running, so WhatsApp did not connect. Retry after the server is back — do not assume Meta finished.';
+    }
+    return (d && (d.error || d.message)) || 'Could not reach the clinic API. Try again.';
+  }
+
   function apiGet(path) {
     return fetch(path, { headers: authHeaders(), credentials: 'include', cache: 'no-store' })
-      .then(function (r) {
-        return r.json().then(function (d) {
-          var data = d && typeof d === 'object' ? d : {};
-          if (!r.ok) {
-            data._unavailable = true;
-            data._status = r.status;
-          }
-          return data;
-        }).catch(function () {
-          return { _unavailable: true, _status: r.status };
-        });
-      })
+      .then(function (r) { return readBody(r); })
       .catch(function () {
-        return { _unavailable: true, _status: 0 };
+        return { _unavailable: true, _status: 0, error: 'API server unreachable', code: 'PROXY_ERROR' };
       });
   }
 
@@ -82,7 +93,9 @@
       credentials: 'include',
       body: JSON.stringify(body || {}),
     }).then(function (r) {
-      return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+      return readBody(r).then(function (d) {
+        return { ok: r.ok && !d._unavailable, status: r.status, d: d };
+      });
     });
   }
 
@@ -222,8 +235,8 @@
       FB.login(function (response) {
         if (!response.authResponse || !response.authResponse.code) {
           cleanup();
-          if (errEl) { errEl.textContent = 'Meta signup cancelled. Please try again.'; errEl.style.display = 'block'; }
-          if (btnEl) { btnEl.disabled = false; btnEl.textContent = btnEl.dataset.origText || 'Connect WhatsApp with Meta'; }
+          if (errEl) { errEl.textContent = 'Meta signup cancelled. Please try again.'; errEl.style.display = 'block'; errEl.setAttribute('role', 'alert'); }
+          if (btnEl) { btnEl.disabled = false; btnEl.textContent = btnEl.dataset.origText || 'Connect WhatsApp'; }
           return;
         }
 
@@ -238,16 +251,24 @@
             phone_number_id:      si.phone_number_id      || si.phoneNumberId      || '',
             display_phone_number: si.display_phone_number || si.displayPhoneNumber || '',
           }).then(function (res) {
-            if (btnEl) { btnEl.disabled = false; btnEl.textContent = btnEl.dataset.origText || 'Connect WhatsApp with Meta'; }
+            if (btnEl) { btnEl.disabled = false; btnEl.textContent = btnEl.dataset.origText || 'Connect WhatsApp'; }
             if (!res.ok) {
-              if (errEl) { errEl.textContent = res.d.error || 'Connection failed. Please try again.'; errEl.style.display = 'block'; }
+              if (errEl) {
+                errEl.textContent = apiDownMessage(res.d);
+                errEl.style.display = 'block';
+                errEl.setAttribute('role', 'alert');
+              }
               return;
             }
             if (onSuccess) onSuccess(res.d);
             else location.reload();
           }).catch(function () {
-            if (btnEl) { btnEl.disabled = false; btnEl.textContent = btnEl.dataset.origText || 'Connect WhatsApp with Meta'; }
-            if (errEl) { errEl.textContent = 'Network error. Check your connection and try again.'; errEl.style.display = 'block'; }
+            if (btnEl) { btnEl.disabled = false; btnEl.textContent = btnEl.dataset.origText || 'Connect WhatsApp'; }
+            if (errEl) {
+              errEl.textContent = 'Clinic API is not running, so WhatsApp did not connect. Retry after the server is back.';
+              errEl.style.display = 'block';
+              errEl.setAttribute('role', 'alert');
+            }
           });
         });
       }, {
@@ -543,6 +564,11 @@
       connectBtn.onclick = function () {
         runEmbeddedConnect(config, connectBtn, document.getElementById('dma-wa-error'), function () { boot(); });
       };
+      if (/[?&]connect=1(?:&|$)/.test(location.search) && isSignupEnabled(config) && !window.__dmaWaAutoConnect) {
+        window.__dmaWaAutoConnect = true;
+        try { history.replaceState(null, '', location.pathname); } catch (_) {}
+        setTimeout(function () { connectBtn.click(); }, 200);
+      }
     }
 
     var reconnectBtn = document.getElementById('dma-wa-reconnect');
@@ -566,11 +592,11 @@
     s.id = 'dma-wa-hub-styles';
     s.textContent =
       '.dma-wa-connected-info{margin-bottom:4px}' +
-      '.dma-wa-phone-badge{display:flex;align-items:center;gap:12px;background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:14px 16px}' +
+      '.dma-wa-phone-badge{display:flex;align-items:center;gap:12px;background:rgba(34,197,94,.12);border:1px solid rgba(74,222,128,.35);border-radius:12px;padding:14px 16px}' +
       '.dma-wa-phone-icon{font-size:1.5rem;flex-shrink:0}' +
-      '.dma-wa-phone-number{font-size:1.05rem;font-weight:700;color:#0f172a;margin:0 0 3px}' +
-      '.dma-wa-phone-meta{font-size:.75rem;color:#64748b;margin:0}' +
-      '.dma-wa-unavailable{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px;text-align:center}' +
+      '.dma-wa-phone-number{font-size:1.05rem;font-weight:700;color:#F8FBFF;margin:0 0 3px}' +
+      '.dma-wa-phone-meta{font-size:.75rem;color:#D0DBEC;margin:0}' +
+      '.dma-wa-unavailable{background:rgba(220,38,38,.16);border:1px solid rgba(248,113,113,.45);border-radius:10px;padding:20px;text-align:center;color:#FECACA}' +
       '.dma-wa-btn--whatsapp{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#25d366,#128c7e)!important;font-size:.92rem!important}';
     document.head.appendChild(s);
   }

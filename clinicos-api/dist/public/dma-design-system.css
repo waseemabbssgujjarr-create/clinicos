@@ -270,21 +270,21 @@
    DARK THEME — html[data-theme="dark"]
    ═══════════════════════════════════════════════════════════ */
 html[data-theme="dark"] {
-  --bg:          #0D1117;
-  --bg-2:        #161B22;
-  --surface:     #1C2333;
-  --surface-2:   #21262D;
-  --surface-3:   #262D3A;
+  --bg:          #141C2B;
+  --bg-2:        #1A2334;
+  --surface:     #1C2638;
+  --surface-2:   #243044;
+  --surface-3:   #2A3850;
   --sidebar-bg:  #0B6456;
-  --text-1:      #F0F6FF;
-  --text-2:      #E2EAF4;
-  --text-3:      #C5D1E8;
-  --muted:       #8B98AE;
-  --faint:       #5B6E8C;
-  --placeholder: #5B6E8C;
+  --text-1:      #F8FBFF;
+  --text-2:      #E8EEF8;
+  --text-3:      #D0DBEC;
+  --muted:       #B4C2D6;
+  --faint:       #8FA0B8;
+  --placeholder: #8FA0B8;
   --border:      #2D3748;
   --border-2:    #3D4A60;
-  --sidebar-text:  #8B98AE;
+  --sidebar-text:  #B4C2D6;
   --sidebar-hover: rgba(20,150,127,.18);
   --sidebar-act:   rgba(37,99,235,.30);
   --shadow-xs:  0 1px 2px rgba(0,0,0,.3);
@@ -357,7 +357,7 @@ body.min-h-screen aside [class*="logo-wrap"] {
 body.min-h-screen aside [class*="font-bold"][class*="text-white"],
 body.min-h-screen aside strong,
 body.min-h-screen aside .dma-brand-name {
-  color: #F0F6FF !important;
+  color: #F8FBFF !important;
   font-family: 'Montserrat', Inter, sans-serif !important;
   font-weight: 800 !important;
   font-size: .95rem !important;
@@ -442,7 +442,7 @@ body.min-h-screen aside [class*="border-t"] {
 
 body.min-h-screen aside > div:last-child [class*="font-"],
 body.min-h-screen aside [class*="border-t"] strong {
-  color: #E2EAF4 !important;
+  color: #E8EEF8 !important;
   font-size: .85rem !important;
 }
 
@@ -2320,9 +2320,9 @@ html.sa-static .ds-table tbody tr:hover td { background: var(--ds-primary-soft);
    Scoped to html.doc-static so Superadmin is unchanged.
    ═══════════════════════════════════════════════════════════ */
 html.doc-static {
-  --ds-surface-section: var(--ds-surface-2, #141A2A);
+  --ds-surface-section: var(--ds-surface-2, #243044);
   --ds-surface-hover: rgba(255, 255, 255, 0.06);
-  --doc-sidebar: #080B14;
+  --doc-sidebar: #141C2B;
 }
 
 html.doc-static body {
@@ -3562,15 +3562,15 @@ html.doc-static textarea:focus-visible {
    ═══════════════════════════════════════════════════════════ */
 
 html.dma-world-public {
-  --ds-bg: #080B14;
+  --ds-bg: #141C2B;
   --ds-nav: transparent;
-  background: #080B14;
+  background: #141C2B;
 }
 html.dma-world-public body {
   margin: 0;
   font-family: var(--ds-font);
-  color: #E2E8F0;
-  background: #080B14;
+  color: #E8EEF8;
+  background: #141C2B;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -4684,7 +4684,7 @@ html.dma-world-public {
 }
 #dma-public-header {
   position: sticky; top: 0; z-index: 60;
-  background: rgba(8, 11, 20, 0.94);
+  background: rgba(20, 28, 43, 0.94);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -5390,23 +5390,23 @@ html.dma-world-public .dma-editorial .dma-flow { margin-top: 20px; }
 
 /* Public DMA OS — landing and helping pages share this dark chrome. */
 html.dma-world-public.dma-pub-home {
-  --dma-lp-bg: #080B14;
+  --dma-lp-bg: #141C2B;
   --dma-lp-card: rgba(255, 255, 255, 0.05);
   --dma-lp-line: rgba(255, 255, 255, 0.08);
   --dma-lp-blue: #2565FC;
   --dma-lp-blue-2: #3B6BFC;
-  --dma-lp-muted: #7A899F;
-  --ds-bg: #080B14;
+  --dma-lp-muted: #A8B6CC;
+  --ds-bg: #141C2B;
   scroll-behavior: smooth;
-  background: #080B14;
-  color: #E2E8F0;
+  background: #141C2B;
+  color: #E8EEF8;
 }
 html.dma-world-public.dma-pub-home body {
   background:
     radial-gradient(900px 480px at 70% -10%, rgba(37, 101, 252, 0.18), transparent 58%),
     radial-gradient(720px 420px at 10% 20%, rgba(124, 58, 237, 0.12), transparent 55%),
-    #080B14;
-  color: #E2E8F0;
+    #141C2B;
+  color: #E8EEF8;
   font-family: Inter, var(--ds-font);
 }
 html.dma-world-public.dma-pub-home .dma-h-display {
@@ -5417,7 +5417,7 @@ html.dma-world-public.dma-pub-home .dma-h-display {
 }
 html.dma-world-public.dma-pub-home .lede { color: var(--dma-lp-muted); }
 html.dma-world-public.dma-pub-home #dma-public-header {
-  background: rgba(8, 11, 20, 0.94);
+  background: rgba(20, 28, 43, 0.94);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   z-index: 80;
@@ -5437,11 +5437,11 @@ html.dma-world-public.dma-pub-home .dma-pub-links button.dma-pub-drop:hover {
   color: #fff;
 }
 html.dma-world-public.dma-pub-home .dma-pub-dd-list {
-  background: #101522;
+  background: #1C2638;
   border-color: rgba(255, 255, 255, 0.08);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
 }
-html.dma-world-public.dma-pub-home .dma-pub-dd-list a { color: #E2E8F0; }
+html.dma-world-public.dma-pub-home .dma-pub-dd-list a { color: #E8EEF8; }
 html.dma-world-public.dma-pub-home .dma-pub-dd-list a:hover {
   background: rgba(37, 101, 252, 0.16);
   color: #fff;
@@ -5765,7 +5765,7 @@ html.dma-world-public.dma-pub-home .dma-pub-foot-wrap {
 html.dma-world-public.dma-pub-home .dma-pub-copy { color: rgba(255,255,255,0.4); }
 
 html.dma-world-public.dma-pub-home .dma-pub-dock {
-  background: rgba(8, 11, 20, 0.94);
+  background: rgba(20, 28, 43, 0.94);
   border-color: rgba(255,255,255,0.08);
 }
 html.dma-world-public.dma-pub-home .dma-pub-dock a {
@@ -5780,7 +5780,7 @@ html.dma-world-public.dma-pub-home .dma-pub-dock a:hover,
 html.dma-world-public.dma-pub-home .dma-pub-dock a:focus-visible,
 html.dma-world-public.dma-pub-home .dma-pub-dock a:active,
 html.dma-world-public.dma-pub-home .dma-pub-dock a[aria-current="page"] {
-  color: #080B14;
+  color: #141C2B;
   background: #E8F6F2;
 }
 html.dma-world-public.dma-pub-home .dma-pub-dock a:focus-visible {
@@ -5805,7 +5805,7 @@ html.dma-world-public.dma-pub-home .dma-pub-dock a:focus-visible {
     margin-top: 8px;
     padding: 10px 8px 12px;
     border-radius: 10px;
-    background: #101522;
+    background: #1C2638;
     border: 1px solid rgba(255,255,255,0.1);
     box-shadow: 0 18px 40px rgba(0,0,0,0.45);
   }
@@ -5818,7 +5818,7 @@ html.dma-world-public.dma-pub-home .dma-pub-dock a:focus-visible {
   }
   html.dma-world-public.dma-pub-home .dma-pub-nav.is-open .dma-pub-links a,
   html.dma-world-public.dma-pub-home .dma-pub-nav.is-open .dma-pub-links button.dma-pub-drop {
-    color: #E2E8F0 !important;
+    color: #E8EEF8 !important;
     background: transparent;
   }
   html.dma-world-public.dma-pub-home .dma-pub-nav.is-open .dma-pub-links a:hover,
@@ -6323,9 +6323,9 @@ html.sa-static .sa-sidebar nav a {
     margin-top: 8px;
     padding: 10px 8px 12px;
     border-radius: 10px !important;
-    background: #101522 !important;
+    background: #1C2638 !important;
     border: 1px solid rgba(255,255,255,0.12) !important;
-    color: #E2E8F0 !important;
+    color: #E8EEF8 !important;
   }
   html.dma-world-public.dma-pub-home .dma-pub-nav.is-open .dma-pub-links,
   html.dma-world-public.dma-pub-home .dma-pub-nav.is-open .dma-pub-links li,
@@ -6334,8 +6334,8 @@ html.sa-static .sa-sidebar nav a {
   html.dma-world-public.dma-pub-home .dma-pub-nav.is-open .dma-pub-links span,
   html.dma-world-public.dma-pub-home .dma-pub-nav.is-open .dma-pub-menu-brand,
   html.dma-world-public.dma-pub-home .dma-pub-nav.is-open .dma-pub-menu-brand * {
-    color: #E2E8F0 !important;
-    -webkit-text-fill-color: #E2E8F0 !important;
+    color: #E8EEF8 !important;
+    -webkit-text-fill-color: #E8EEF8 !important;
     opacity: 1 !important;
   }
   html.dma-world-public.dma-pub-home .dma-pub-nav.is-open .dma-pub-menu-brand .dma-pub-logo,
@@ -6381,27 +6381,28 @@ html.sa-static .sa-sidebar nav a {
 
 html.doc-static,
 html.sa-static,
-html.dma-world-auth {
-  --ds-bg: #080B14;
-  --ds-bg-2: #0C101C;
-  --ds-surface: #101522;
-  --ds-surface-2: #141A2A;
-  --ds-surface-section: #101522;
+html.dma-world-auth,
+html.dma-world-public {
+  --ds-bg: #141C2B;
+  --ds-bg-2: #1A2334;
+  --ds-surface: #1C2638;
+  --ds-surface-2: #243044;
+  --ds-surface-section: #1C2638;
   --ds-surface-hover: rgba(255,255,255,0.06);
-  --ds-elevated: #161D2E;
-  --ds-text: #F0F6FF;
-  --ds-text-2: #E2E8F0;
-  --ds-text-3: #C5D1E8;
-  --ds-muted: #8B98AE;
-  --ds-faint: #8B98AE;
+  --ds-elevated: #2A3850;
+  --ds-text: #F8FBFF;
+  --ds-text-2: #E8EEF8;
+  --ds-text-3: #D0DBEC;
+  --ds-muted: #B4C2D6;
+  --ds-faint: #B4C2D6;
   --ds-border: rgba(255,255,255,0.08);
   --ds-border-2: rgba(255,255,255,0.14);
-  --ds-aqua: #080B14;
+  --ds-aqua: #141C2B;
   --ds-mint: rgba(37,101,252,0.12);
   --ds-mint-deep: rgba(37,101,252,0.18);
-  --ds-nav: #080B14;
-  --ds-nav-text: #F0F6FF;
-  --ds-nav-muted: #8B98AE;
+  --ds-nav: #141C2B;
+  --ds-nav-text: #F8FBFF;
+  --ds-nav-muted: #B4C2D6;
   --ds-primary: #2563EB;
   --ds-primary-hover: #276AFC;
   --ds-primary-active: #1D4ED8;
@@ -6409,31 +6410,34 @@ html.dma-world-auth {
   --ds-primary-glow: rgba(37,117,252,0.28);
   --ds-focus: 0 0 0 3px rgba(37,117,252,0.35);
   --ds-grad-primary: linear-gradient(90deg, #276AFC 0%, #2563EB 100%);
-  --bg: #080B14;
-  --bg-2: #0C101C;
-  --surface: #101522;
-  --surface-2: #141A2A;
-  --text-1: #F0F6FF;
-  --text-2: #E2E8F0;
-  --muted: #8B98AE;
-  --placeholder: #8B98AE;
+  --bg: #141C2B;
+  --bg-2: #1A2334;
+  --surface: #1C2638;
+  --surface-2: #243044;
+  --text-1: #F8FBFF;
+  --text-2: #E8EEF8;
+  --muted: #B4C2D6;
+  --placeholder: #B4C2D6;
   --border: rgba(255,255,255,0.08);
-  --doc-bg: #080B14;
-  --doc-surface: #101522;
-  --doc-surface-2: #141A2A;
-  --doc-text: #F0F6FF;
-  --doc-muted: #8B98AE;
+  --doc-bg: #141C2B;
+  --doc-surface: #1C2638;
+  --doc-surface-2: #243044;
+  --doc-text: #F8FBFF;
+  --doc-muted: #B4C2D6;
   --doc-border: rgba(255,255,255,0.08);
-  --doc-sidebar: #080B14;
-  --sa-main-bg: #080B14;
-  --sa-card-bg: #101522;
-  --sa-text: #F0F6FF;
-  --sa-muted: #8B98AE;
-  --sa-sidebar-bg: #080B14;
-  --sa-input-bg: #141A2A;
+  --doc-sidebar: #141C2B;
+  --sa-main-bg: #141C2B;
+  --sa-card-bg: #1C2638;
+  --sa-text: #F8FBFF;
+  --sa-muted: #B4C2D6;
+  --sa-sidebar-bg: #141C2B;
+  --sa-input-bg: #243044;
   --sa-input-border: rgba(255,255,255,0.14);
   color-scheme: dark;
-  background: #080B14;
+  background: #141C2B;
+}
+html.dma-world-public {
+  --ds-nav: transparent;
 }
 
 html.doc-static,
@@ -6443,8 +6447,8 @@ html.sa-static body,
 html.dma-world-auth,
 html.dma-world-auth body,
 html.dma-world-auth body.portal-page {
-  background: #080B14 !important;
-  color: #F0F6FF !important;
+  background: #141C2B !important;
+  color: #F8FBFF !important;
 }
 
 html.doc-static .doc-layout,
@@ -6454,22 +6458,22 @@ html.doc-static .doc-page,
 html.sa-static .sa-layout,
 html.sa-static .sa-main,
 html.sa-static .sa-main-inner {
-  background: #080B14 !important;
-  color: #F0F6FF !important;
+  background: #141C2B !important;
+  color: #F8FBFF !important;
 }
 
 html.doc-static .doc-sidebar,
 html.doc-static .doc-sidebar-backdrop,
 html.sa-static .sa-sidebar {
-  background: #080B14 !important;
-  color: #F0F6FF !important;
+  background: #141C2B !important;
+  color: #F8FBFF !important;
   border-color: rgba(255,255,255,0.08) !important;
 }
 
 html.doc-static .doc-nav a,
 html.doc-static .doc-sidebar .doc-nav a,
 html.sa-static .sa-sidebar nav a {
-  color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
 }
 html.doc-static .doc-nav a:hover,
 html.sa-static .sa-sidebar nav a:hover {
@@ -6484,7 +6488,7 @@ html.sa-static .sa-sidebar nav a.active {
 }
 html.doc-static .doc-nav-section,
 html.sa-static .sa-nav-label {
-  color: #8B98AE !important;
+  color: #B4C2D6 !important;
 }
 html.doc-static .doc-brand strong,
 html.sa-static .sa-brand-text strong,
@@ -6494,20 +6498,20 @@ html.sa-static .sa-mobile-brand strong {
 html.doc-static .doc-brand span,
 html.sa-static .sa-brand-text span,
 html.sa-static .sa-mobile-brand span {
-  color: #8B98AE !important;
+  color: #B4C2D6 !important;
 }
 
 html.doc-static .doc-topbar,
 html.sa-static .sa-mobile-bar {
-  background: rgba(16,21,34,0.94) !important;
+  background: rgba(28, 38, 56,0.94) !important;
   border-color: rgba(255,255,255,0.08) !important;
-  color: #F0F6FF !important;
+  color: #F8FBFF !important;
 }
 html.doc-static .doc-topbar h1,
 html.doc-static .doc-topbar-actions,
 html.doc-static .doc-topbar-actions a,
 html.doc-static .doc-user-name {
-  color: #F0F6FF !important;
+  color: #F8FBFF !important;
 }
 
 html.doc-static .ds-section,
@@ -6517,9 +6521,9 @@ html.doc-static .doc-card,
 html.sa-static .ds-section,
 html.sa-static .sa-content-card,
 html.sa-static .ds-card {
-  background: #101522 !important;
+  background: #1C2638 !important;
   border: 1px solid rgba(255,255,255,0.08) !important;
-  color: #F0F6FF !important;
+  color: #F8FBFF !important;
   box-shadow: none !important;
 }
 
@@ -6531,7 +6535,7 @@ html.dma-world-auth h1, html.dma-world-auth h2, html.dma-world-auth h3 {
 
 html.doc-static p, html.doc-static .ds-muted, html.doc-static .sa-subtitle,
 html.sa-static p, html.sa-static .sa-subtitle, html.sa-static .ds-muted {
-  color: #8B98AE;
+  color: #B4C2D6;
 }
 
 html.doc-static input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
@@ -6545,10 +6549,10 @@ html.dma-world-auth select,
 html.dma-world-auth textarea,
 html.doc-static .ds-search,
 html.sa-static .ds-search {
-  background: #141A2A !important;
-  color: #F0F6FF !important;
+  background: #243044 !important;
+  color: #F8FBFF !important;
   border: 1px solid rgba(255,255,255,0.14) !important;
-  -webkit-text-fill-color: #F0F6FF !important;
+  -webkit-text-fill-color: #F8FBFF !important;
 }
 html.doc-static input::placeholder,
 html.doc-static textarea::placeholder,
@@ -6556,19 +6560,19 @@ html.sa-static input::placeholder,
 html.sa-static textarea::placeholder,
 html.dma-world-auth input::placeholder,
 html.doc-static .ds-search::placeholder {
-  color: #8B98AE !important;
-  -webkit-text-fill-color: #8B98AE !important;
+  color: #B4C2D6 !important;
+  -webkit-text-fill-color: #B4C2D6 !important;
   opacity: 1 !important;
 }
 html.doc-static option,
 html.sa-static option,
 html.dma-world-auth option {
-  background: #101522;
-  color: #F0F6FF;
+  background: #1C2638;
+  color: #F8FBFF;
 }
 html.doc-static select,
 html.sa-static select {
-  color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
 }
 
 html.doc-static .dma-table,
@@ -6576,12 +6580,12 @@ html.doc-static .ds-table,
 html.sa-static table,
 html.doc-static th, html.doc-static td,
 html.sa-static th, html.sa-static td {
-  color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
   border-color: rgba(255,255,255,0.08) !important;
 }
 html.doc-static thead th,
 html.sa-static thead th {
-  color: #8B98AE !important;
+  color: #B4C2D6 !important;
   background: rgba(255,255,255,0.03) !important;
 }
 
@@ -6604,23 +6608,23 @@ html.doc-static .ds-btn-outline,
 html.sa-static .ds-btn-secondary,
 html.sa-static .sa-btn-outline {
   background: rgba(255,255,255,0.04) !important;
-  color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
   border-color: rgba(255,255,255,0.14) !important;
 }
 
 html.dma-world-auth .dma-auth {
-  background: #080B14 !important;
+  background: #141C2B !important;
 }
 html.dma-world-auth .dma-auth-visual {
-  background: linear-gradient(165deg, #101522 0%, #080B14 72%) !important;
+  background: linear-gradient(165deg, #1C2638 0%, #141C2B 72%) !important;
   color: #fff !important;
   border-right: 1px solid rgba(255,255,255,0.08);
 }
 html.dma-world-auth .dma-auth-form,
 html.dma-world-auth .dma-auth-simple .dma-auth-form,
 html.dma-world-auth .form-card {
-  background: #101522 !important;
-  color: #F0F6FF !important;
+  background: #1C2638 !important;
+  color: #F8FBFF !important;
   border: 1px solid rgba(255,255,255,0.08) !important;
   box-shadow: 0 18px 40px rgba(0,0,0,0.35) !important;
 }
@@ -6631,12 +6635,12 @@ html.dma-world-auth .dma-auth-visual h1 {
 html.dma-world-auth .dma-auth-form .dma-hint,
 html.dma-world-auth .dma-auth-visual p,
 html.dma-world-auth .dma-steps {
-  color: #8B98AE !important;
+  color: #B4C2D6 !important;
 }
 html.dma-world-auth .dma-auth-form a { color: #93B4FF !important; }
 html.dma-world-auth .dma-chip {
   background: rgba(255,255,255,0.06) !important;
-  color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
   border-color: rgba(255,255,255,0.12) !important;
 }
 html.dma-world-auth .dma-chip.is-active {
@@ -6646,7 +6650,7 @@ html.dma-world-auth .dma-chip.is-active {
 }
 html.dma-world-auth .dma-field label,
 html.dma-world-auth .field label {
-  color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
 }
 
 html.doc-static .ds-workspace-tabs,
@@ -6661,7 +6665,7 @@ html.sa-static .ds-workspace-tabs {
 }
 html.doc-static .ds-workspace-tabs a,
 html.sa-static .ds-workspace-tabs a {
-  color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
   background: rgba(255,255,255,0.04) !important;
   border: 1px solid rgba(255,255,255,0.10) !important;
   border-radius: 10px !important;
@@ -6695,8 +6699,8 @@ html.sa-static .dma-settings-tabs {
 html.doc-static .dma-settings-tabs button,
 html.doc-static [data-dma-tabs] button,
 html.sa-static .dma-settings-tabs button {
-  color: #E2E8F0 !important;
-  -webkit-text-fill-color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
+  -webkit-text-fill-color: #E8EEF8 !important;
   background: rgba(255,255,255,0.04) !important;
   border: 1px solid rgba(255,255,255,0.10) !important;
   border-radius: 10px !important;
@@ -6765,7 +6769,7 @@ html.sa-static .ds-work-header .ds-btn {
 
 html.doc-static .doc-menu-btn span,
 html.sa-static .sa-menu-btn span {
-  background: #E2E8F0 !important;
+  background: #E8EEF8 !important;
 }
 
 html.dma-world-auth .dma-field input:not([type="checkbox"]):not([type="radio"]),
@@ -6775,25 +6779,25 @@ html.dma-world-auth .field input:not([type="checkbox"]):not([type="radio"]),
 html.dma-world-auth .field select,
 html.dma-world-auth .dma-auth-form input:not([type="checkbox"]):not([type="radio"]),
 html.dma-world-auth .form-card input:not([type="checkbox"]):not([type="radio"]) {
-  background: #141A2A !important;
-  color: #F0F6FF !important;
-  -webkit-text-fill-color: #F0F6FF !important;
+  background: #243044 !important;
+  color: #F8FBFF !important;
+  -webkit-text-fill-color: #F8FBFF !important;
   border: 1px solid rgba(255,255,255,0.14) !important;
   box-shadow: none !important;
 }
 html.dma-world-auth .dma-field input::placeholder,
 html.dma-world-auth .field input::placeholder,
 html.dma-world-auth .dma-auth-form input::placeholder {
-  color: #8B98AE !important;
-  -webkit-text-fill-color: #8B98AE !important;
+  color: #B4C2D6 !important;
+  -webkit-text-fill-color: #B4C2D6 !important;
   opacity: 1 !important;
 }
 html.dma-world-auth input:-webkit-autofill,
 html.dma-world-auth input:-webkit-autofill:hover,
 html.dma-world-auth input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 1000px #141A2A inset !important;
-  -webkit-text-fill-color: #F0F6FF !important;
-  caret-color: #F0F6FF;
+  -webkit-box-shadow: 0 0 0 1000px #243044 inset !important;
+  -webkit-text-fill-color: #F8FBFF !important;
+  caret-color: #F8FBFF;
 }
 
 html.doc-static .cos-empty,
@@ -6801,9 +6805,9 @@ html.doc-static .cos-unavail,
 html.doc-static .dma-empty,
 html.doc-static .ds-empty,
 html.doc-static .ds-empty-panel {
-  background: #101522 !important;
+  background: #1C2638 !important;
   border: 1px solid rgba(255,255,255,0.08) !important;
-  color: #F0F6FF !important;
+  color: #F8FBFF !important;
 }
 html.doc-static .cos-empty h2,
 html.doc-static .cos-unavail h2,
@@ -6814,7 +6818,7 @@ html.doc-static .dma-empty strong {
 html.doc-static .cos-empty p,
 html.doc-static .cos-unavail p,
 html.doc-static .dma-empty p {
-  color: #8B98AE !important;
+  color: #B4C2D6 !important;
 }
 html.doc-static .cos-filterbar,
 html.doc-static .ds-toolbar,
@@ -6825,8 +6829,8 @@ html.doc-static .cos-filterbar {
 html.doc-static .cos-filterbar .dma-search,
 html.doc-static .cos-filterbar input[type="search"],
 html.doc-static .cos-filterbar input[type="text"] {
-  background: #141A2A !important;
-  color: #F0F6FF !important;
+  background: #243044 !important;
+  color: #F8FBFF !important;
   border-color: rgba(255,255,255,0.14) !important;
   flex: 0 1 220px !important;
   max-width: 280px !important;
@@ -6835,19 +6839,19 @@ html.doc-static .cos-filterbar input[type="text"] {
 html.doc-static .cos-filterbar select,
 html.doc-static .cos-appt-card,
 html.doc-static .cos-cal-day {
-  background: #101522 !important;
-  color: #E2E8F0 !important;
+  background: #1C2638 !important;
+  color: #E8EEF8 !important;
   border-color: rgba(255,255,255,0.08) !important;
 }
 html.doc-static .ds-pill,
 html.doc-static .dma-chip:not(.is-active):not(.dma-chip-green):not(.dma-chip-red):not(.dma-chip-amber) {
   background: rgba(255,255,255,0.06) !important;
-  color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
   border-color: rgba(255,255,255,0.1) !important;
 }
 html.sa-static .sa-sidebar,
 html.sa-static aside.sa-sidebar {
-  background: #080B14 !important;
+  background: #141C2B !important;
 }
 
 html.doc-static .dma-tabs,
@@ -6859,7 +6863,7 @@ html.sa-static .ds-tabs {
 }
 html.doc-static .dma-tabs button,
 html.doc-static .ds-tabs button {
-  color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
   background: transparent !important;
   font-family: var(--ds-font) !important;
 }
@@ -6880,8 +6884,8 @@ html.doc-static .cos-pt-toolbar .dma-search {
   flex: 0 1 220px !important;
   max-width: 240px !important;
   width: 220px !important;
-  background: #141A2A !important;
-  color: #F0F6FF !important;
+  background: #243044 !important;
+  color: #F8FBFF !important;
   border: 1px solid rgba(255,255,255,0.14) !important;
 }
 html.doc-static .cos-pt-toolbar .dma-tabs {
@@ -7013,7 +7017,7 @@ html.dma-world-public.dma-pub-home .dma-lp-chat-meta span i {
   width: 7px; height: 7px; border-radius: 50%; background: #34D399;
 }
 html.dma-world-public.dma-pub-home .dma-lp-chat-meta em {
-  grid-column: 2; font-style: normal; color: #7A899F; font-size: 0.68rem; text-align: right;
+  grid-column: 2; font-style: normal; color: #A8B6CC; font-size: 0.68rem; text-align: right;
 }
 html.dma-world-public.dma-pub-home .dma-lp-chat-log { display: grid; gap: 8px; margin-top: 12px; }
 html.dma-world-public.dma-pub-home .dma-lp-msg {
@@ -7043,7 +7047,7 @@ html.dma-world-public.dma-pub-home .dma-lp-float-wa strong {
   display: block; font-size: 0.8125rem; color: #fff;
 }
 html.dma-world-public.dma-pub-home .dma-lp-float-wa p {
-  margin: 2px 0 0; font-size: 0.72rem; color: #7A899F; line-height: 1.35;
+  margin: 2px 0 0; font-size: 0.72rem; color: #A8B6CC; line-height: 1.35;
 }
 html.dma-world-public.dma-pub-home .dma-lp-float-appt {
   left: 28px; bottom: 10px; width: min(268px, 78%);
@@ -7052,7 +7056,7 @@ html.dma-world-public.dma-pub-home .dma-lp-float-appt {
 }
 html.dma-world-public.dma-pub-home .dma-lp-float-appt > span {
   display: block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
-  text-transform: uppercase; color: #7A899F; margin-bottom: 6px;
+  text-transform: uppercase; color: #A8B6CC; margin-bottom: 6px;
 }
 html.dma-world-public.dma-pub-home .dma-lp-appt-row strong {
   display: block; font-family: Montserrat, var(--ds-font-display);
@@ -7242,9 +7246,9 @@ html.doc-static .cos-settings-body .dma-section,
 html.doc-static .cos-consult-bar,
 html.doc-static .dma-ui-bars,
 html.doc-static .dma-home-wa {
-  background: #101522 !important;
+  background: #1C2638 !important;
   background-image: none !important;
-  color: #F0F6FF !important;
+  color: #F8FBFF !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
   box-shadow: none !important;
 }
@@ -7276,8 +7280,8 @@ html.doc-static .dma-modal-h,
 html.doc-static .cos-label,
 html.doc-static .dma-field label,
 html.doc-static .cos-drawer-sec h3 {
-  color: #C5D1E8 !important;
-  -webkit-text-fill-color: #C5D1E8 !important;
+  color: #D0DBEC !important;
+  -webkit-text-fill-color: #D0DBEC !important;
   opacity: 1 !important;
 }
 
@@ -7293,8 +7297,8 @@ html.doc-static .dma-modal-h h3,
 html.doc-static .cos-week-col,
 html.doc-static .cos-cal-day,
 html.doc-static .dma-home-wa strong {
-  color: #F0F6FF !important;
-  -webkit-text-fill-color: #F0F6FF !important;
+  color: #F8FBFF !important;
+  -webkit-text-fill-color: #F8FBFF !important;
   opacity: 1 !important;
 }
 
@@ -7302,12 +7306,12 @@ html.doc-static .cos-card--alert,
 html.doc-static .dma-alert {
   background: rgba(250, 208, 105, 0.10) !important;
   border-color: rgba(250, 208, 105, 0.28) !important;
-  color: #F0F6FF !important;
+  color: #F8FBFF !important;
 }
 
 html.doc-static .cos-skel,
 html.doc-static .dma-ui-bars {
-  background: linear-gradient(90deg, #141A2A 0%, #1A2236 50%, #141A2A 100%) !important;
+  background: linear-gradient(90deg, #243044 0%, #1A2236 50%, #243044 100%) !important;
   background-size: 200% 100% !important;
 }
 
@@ -7319,7 +7323,7 @@ html.doc-static .cos-cal-day.is-today {
 html.doc-static .dma-inbox-item,
 html.doc-static .dma-inbox-item .name,
 html.doc-static .dma-inbox-item .sub {
-  color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
 }
 html.doc-static .dma-inbox-item:hover {
   background: rgba(255, 255, 255, 0.04) !important;
@@ -7331,7 +7335,7 @@ html.doc-static .dma-inbox-item.on {
 
 html.doc-static .dma-bubble.in {
   background: #1A2236 !important;
-  color: #F0F6FF !important;
+  color: #F8FBFF !important;
 }
 html.doc-static .dma-bubble.out {
   background: linear-gradient(135deg, #14967F, #0B6456) !important;
@@ -7340,24 +7344,24 @@ html.doc-static .dma-bubble.out {
 
 html.doc-static .dma-modal-bg,
 html.doc-static .ds-modal-wrap {
-  background: rgba(8, 11, 20, 0.72) !important;
+  background: rgba(20, 28, 43, 0.72) !important;
 }
 html.doc-static .dma-modal,
 html.doc-static .dma-modal--wizard,
 html.doc-static .ds-modal {
-  background: #101522 !important;
-  color: #F0F6FF !important;
+  background: #1C2638 !important;
+  color: #F8FBFF !important;
   border: 1px solid rgba(255, 255, 255, 0.10) !important;
 }
 html.doc-static .cos-pick-item {
-  background: #141A2A !important;
-  color: #F0F6FF !important;
+  background: #243044 !important;
+  color: #F8FBFF !important;
   border-color: rgba(255, 255, 255, 0.10) !important;
 }
 html.doc-static .cos-pick-item .cos-pick-copy strong,
 html.doc-static .cos-pick-item .cos-pick-copy span {
-  color: #E2E8F0 !important;
-  -webkit-text-fill-color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
+  -webkit-text-fill-color: #E8EEF8 !important;
   opacity: 1 !important;
 }
 html.doc-static .cos-pick-item:hover,
@@ -7373,7 +7377,7 @@ html.doc-static .cos-pick-item.on .cos-pick-copy span {
 html.doc-static .cos-stepper-meta,
 html.doc-static .dma-modal-h button,
 html.doc-static .dma-modal-h .dma-btn-ghost {
-  color: #C5D1E8 !important;
+  color: #D0DBEC !important;
   opacity: 1 !important;
 }
 
@@ -7389,8 +7393,8 @@ html.doc-static .dma-status-bar {
   align-items: center !important;
 }
 html.doc-static .cos-filter-hint {
-  background: #141A2A !important;
-  color: #C5D1E8 !important;
+  background: #243044 !important;
+  color: #D0DBEC !important;
   border: 1px solid rgba(255, 255, 255, 0.10) !important;
   height: 40px !important;
 }
@@ -7400,7 +7404,7 @@ html.doc-static .cos-settings-nav {
   border-color: rgba(255, 255, 255, 0.08) !important;
 }
 html.doc-static .cos-settings-nav button {
-  color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
 }
 html.doc-static .cos-settings-nav button.active {
   background: linear-gradient(90deg, #276AFC, #2563EB) !important;
@@ -7412,14 +7416,14 @@ html.doc-static .dma-view-toggle {
   border-color: rgba(255, 255, 255, 0.08) !important;
 }
 html.doc-static .dma-view-toggle button.on {
-  background: #141A2A !important;
-  color: #F0F6FF !important;
+  background: #243044 !important;
+  color: #F8FBFF !important;
 }
 
 html.doc-static .dma-panel-h,
 html.doc-static .dma-section-muted,
 html.doc-static .ds-section-muted {
-  background: #141A2A !important;
+  background: #243044 !important;
 }
 
 html.doc-static .dma-person-card .dma-avatar,
@@ -7433,7 +7437,7 @@ html.doc-static a.cos-card--kpi:hover,
 html.doc-static .cos-card--kpi:hover,
 html.doc-static .dma-kpi:hover {
   border-color: rgba(37, 99, 235, 0.45) !important;
-  background: #141A2A !important;
+  background: #243044 !important;
 }
 
 html.doc-static .dma-home-wa {
@@ -7446,7 +7450,7 @@ html.doc-static .dma-home-wa {
   margin: 0 0 16px;
   border-radius: 16px;
   border: 1px solid rgba(37, 211, 102, 0.28) !important;
-  background: linear-gradient(165deg, #101522 0%, #0E1A18 100%) !important;
+  background: linear-gradient(165deg, #1C2638 0%, #0E1A18 100%) !important;
 }
 html.doc-static .dma-home-wa-copy {
   min-width: 0;
@@ -7462,7 +7466,7 @@ html.doc-static .dma-home-wa-copy strong {
 }
 html.doc-static .dma-home-wa-copy p {
   margin: 0;
-  color: #C5D1E8 !important;
+  color: #D0DBEC !important;
   font-size: 0.875rem;
   line-height: 1.5;
 }
@@ -7484,16 +7488,16 @@ html.doc-static .dma-wa-phone-badge,
 html.doc-static .dma-wa-log,
 html.doc-static .dma-wa-log th,
 html.doc-static .dma-wa-log td {
-  background: #101522 !important;
-  color: #E2E8F0 !important;
+  background: #1C2638 !important;
+  color: #E8EEF8 !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
 }
 html.doc-static .dma-wa-panel h2,
 html.doc-static .dma-wa-stat__val,
 html.doc-static .dma-wa-quick__item strong,
 html.doc-static .dma-wa-phone-number {
-  color: #F0F6FF !important;
-  -webkit-text-fill-color: #F0F6FF !important;
+  color: #F8FBFF !important;
+  -webkit-text-fill-color: #F8FBFF !important;
 }
 html.doc-static .dma-wa-panel p,
 html.doc-static .dma-wa-stat__lbl,
@@ -7502,15 +7506,15 @@ html.doc-static .dma-wa-muted,
 html.doc-static .dma-wa-quick__item span,
 html.doc-static .dma-wa-log-preview,
 html.doc-static .dma-wa-phone-meta {
-  color: #C5D1E8 !important;
-  -webkit-text-fill-color: #C5D1E8 !important;
+  color: #D0DBEC !important;
+  -webkit-text-fill-color: #D0DBEC !important;
 }
 html.doc-static .dma-wa-quick__item {
-  background: #141A2A !important;
+  background: #243044 !important;
 }
 html.doc-static .dma-wa-btn--ghost {
   background: rgba(255, 255, 255, 0.06) !important;
-  color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
   border-color: rgba(255, 255, 255, 0.14) !important;
 }
 
@@ -7526,14 +7530,14 @@ html.sa-static thead th,
 html.sa-static tbody td,
 html.sa-static .int-card,
 html.sa-static .sa-main-inner {
-  background: #101522 !important;
-  color: #F0F6FF !important;
+  background: #1C2638 !important;
+  color: #F8FBFF !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
   box-shadow: none !important;
 }
 html.sa-static thead th {
-  background: #141A2A !important;
-  color: #C5D1E8 !important;
+  background: #243044 !important;
+  color: #D0DBEC !important;
 }
 html.sa-static tbody tr:hover td,
 html.sa-static .sa-data-table tbody tr:hover td {
@@ -7541,10 +7545,10 @@ html.sa-static .sa-data-table tbody tr:hover td {
 }
 html.sa-static .sa-subtitle,
 html.sa-static .ds-muted {
-  color: #8B98AE !important;
+  color: #B4C2D6 !important;
 }
 html.sa-static .sa-main {
-  background: #080B14 !important;
+  background: #141C2B !important;
   padding: 20px 24px 40px !important;
 }
 html.sa-static .ds-work-header {
@@ -7568,7 +7572,7 @@ html.doc-static .dma-comp-bar {
 }
 html.doc-static .dma-comp-row,
 html.doc-static .dma-comp-row strong {
-  color: #E2E8F0 !important;
+  color: #E8EEF8 !important;
 }
 
 @media (max-width: 768px) {
@@ -7616,7 +7620,7 @@ html.dma-world-public.dma-pub-page .legal-wrap h2 {
 html.dma-world-public.dma-pub-page .legal-meta,
 html.dma-world-public.dma-pub-page .legal-section p,
 html.dma-world-public.dma-pub-page .legal-section li {
-  color: #8B9BB4;
+  color: #B4C2D6;
 }
 html.dma-world-public.dma-pub-page .legal-section a,
 html.dma-world-public.dma-pub-page .legal-toc a,
@@ -7682,6 +7686,70 @@ html.dma-world-auth .dma-auth-simple .dma-logo-white {
     max-width: 160px;
   }
 }
+
+/* Dark OS — readable danger/status (never pale bar + light text) */
+html.doc-static .ds-error,
+html.doc-static .dma-wa-error,
+html.doc-static .alert-error,
+html.sa-static .ds-error,
+html.sa-static .alert-error,
+html.dma-world-auth .alert-error,
+html.dma-world-auth .dma-alert {
+  background: rgba(127, 29, 29, 0.72) !important;
+  border: 1px solid rgba(248, 113, 113, 0.45) !important;
+  color: #FECACA !important;
+  -webkit-text-fill-color: #FECACA !important;
+}
+html.doc-static .ds-error a,
+html.sa-static .ds-error a,
+html.dma-world-auth .alert-error a,
+html.doc-static .dma-wa-error {
+  color: #FECACA !important;
+  -webkit-text-fill-color: #FECACA !important;
+}
+html.doc-static .ds-toast,
+html.sa-static .ds-toast {
+  background: #1C2638 !important;
+  color: #F8FBFF !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+html.doc-static .ds-toast.err,
+html.sa-static .ds-toast.err,
+html.doc-static .dma-toast.err {
+  background: rgba(127, 29, 29, 0.92) !important;
+  color: #FEE2E2 !important;
+  border-left-color: #F87171 !important;
+}
+html.doc-static .ds-toast.ok,
+html.sa-static .ds-toast.ok {
+  background: rgba(22, 101, 52, 0.92) !important;
+  color: #DCFCE7 !important;
+}
+html.doc-static .cos-savebar {
+  background: linear-gradient(180deg, transparent, #141C2B 28%) !important;
+}
+html.doc-static .dma-view-toggle button.on {
+  background: #243044 !important;
+  color: #F8FBFF !important;
+}
+html.doc-static .ds-toolbar {
+  gap: 8px;
+  margin-bottom: 12px;
+}
+html.doc-static .doc-plan-card ~ .doc-plan-card {
+  display: none !important;
+}
+html.doc-static .doc-logout {
+  background: #1C2638 !important;
+  color: #E8EEF8 !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+html.doc-static .dma-tabs button:hover,
+html.doc-static .ds-tabs button:hover {
+  background: #243044 !important;
+  color: #F8FBFF !important;
+}
+
 
 
 

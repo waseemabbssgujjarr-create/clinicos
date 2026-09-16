@@ -1,14 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="sa-static">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Integrations Ã¢â‚¬â€ Doctors My Agency</title>
+  <title>Integrations — Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=49" />
-  <link rel="stylesheet" href="/superadmin-theme.css?v=13" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=54" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=15" />
 </head>
 <body class="superadmin-app">
   <div class="sa-layout">
@@ -29,10 +29,10 @@
       <div id="int-err" class="ds-error" style="display:none"></div>
       <div id="int-smtp-live" class="ds-section-muted" style="display:none;padding:12px;margin-bottom:12px;border-radius:8px"></div>
       <div class="ds-tabs" id="int-tabs"></div>
-      <div id="int-body" class="ds-section"><p class="ds-loading">LoadingÃ¢â‚¬Â¦</p></div>
+      <div id="int-body" class="ds-section"><p class="ds-loading">Loading…</p></div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=18"></script>
+  <script src="/superadmin-admin-shell.js?v=19"></script>
   <script src="/dma-ui.js?v=8"></script>
   <script>
     (function () {
@@ -58,13 +58,13 @@
       function drawTabs() {
         document.getElementById('int-tabs').innerHTML = TABS.map(function (t) {
           var g = state && state.groups && state.groups[t[0]];
-          var st = g ? ' Ã‚Â· ' + g.status : '';
+          var st = g ? ' · ' + g.status : '';
           return '<button type="button" data-t="' + t[0] + '" class="' + (tab === t[0] ? 'active' : '') + '">' + t[1] + (t[0] !== 'overview' ? st : '') + '</button>';
         }).join('');
       }
 
       function fieldHtml(f) {
-        var ph = f.secret ? (f.set ? ('Saved: ' + (f.masked || 'Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢') + ' Ã¢â‚¬â€ leave blank to keep') : (f.placeholder || 'Not set')) : (f.placeholder || '');
+        var ph = f.secret ? (f.set ? ('Saved: ' + (f.masked || '••••') + ' — leave blank to keep') : (f.placeholder || 'Not set')) : (f.placeholder || '');
         var valAttr = f.secret ? '' : (' value="' + String(f.value || '').replace(/"/g, '&quot;') + '"');
         return '<div class="int-field dma-field"><label>' + esc(f.label) + ' <span class="source" style="color:var(--ds-muted);font-weight:500">' + esc(f.source || '') + '</span></label>' +
           '<input class="cos-input" type="' + (f.secret ? 'password' : 'text') + '" data-key="' + f.key + '" data-secret="' + (f.secret ? '1' : '0') + '" placeholder="' + String(ph).replace(/"/g, '&quot;') + '"' + valAttr + ' autocomplete="off" />' +
