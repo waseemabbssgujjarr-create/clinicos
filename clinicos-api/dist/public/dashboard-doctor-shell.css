@@ -614,3 +614,46 @@ html.doc-static .doc-brand strong,
 html.doc-static .doc-topbar h1 {
   font-family: Montserrat, "Plus Jakarta Sans", Inter, sans-serif;
 }
+
+/* Inherited page gutters — content never flush to the viewport or sidebar */
+html.doc-static .doc-main {
+  padding: 24px 24px 48px !important;
+  box-sizing: border-box;
+}
+html.doc-static .doc-topbar {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+html.doc-static .doc-main .cos-kpi-row,
+html.doc-static .doc-main .dma-kpis,
+html.doc-static .doc-main .ds-kpis,
+html.doc-static .doc-main .dma-grid-2,
+html.doc-static .doc-main .ds-work-grid {
+  gap: 16px;
+}
+html.doc-static .doc-main .dma-section + .dma-section,
+html.doc-static .doc-main .ds-section + .ds-section,
+html.doc-static .doc-main .dma-panel + .dma-panel {
+  margin-top: 16px;
+}
+html.doc-static .doc-main .cos-filterbar,
+html.doc-static .doc-main .ds-toolbar,
+html.doc-static .doc-main .ds-work-header,
+html.doc-static .doc-main .dma-empty,
+html.doc-static .doc-main .ds-empty {
+  margin-left: 0;
+  margin-right: 0;
+}
+html.doc-static .doc-main .bg-white,
+html.doc-static .doc-main [class*="bg-white"] {
+  background: var(--doc-surface) !important;
+}
+@media (max-width: 1024px) {
+  html.doc-static .doc-main {
+    padding: 16px 16px 96px !important;
+  }
+  html.doc-static .doc-topbar {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

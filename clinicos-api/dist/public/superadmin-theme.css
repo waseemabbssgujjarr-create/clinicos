@@ -1291,3 +1291,37 @@ html.sa-static body.superadmin-app input[readonly] {
   background: #1A2334 !important;
   color: #B4C2D6 !important;
 }
+
+/* Inherited page gutters — content never flush to the viewport or sidebar */
+html.sa-static .sa-main {
+  padding: 24px 24px 48px !important;
+  box-sizing: border-box;
+}
+html.sa-static .sa-main .ds-kpis,
+html.sa-static .sa-main .ds-ops-grid,
+html.sa-static .sa-main .ds-ops-grid-3,
+html.sa-static .sa-main .dma-quick-row,
+html.sa-static .sa-main .int-grid {
+  gap: 16px;
+}
+html.sa-static .sa-content-card + .sa-content-card,
+html.sa-static .sa-main .ds-section + .ds-section,
+html.sa-static .int-card + .int-card {
+  margin-top: 16px;
+}
+html.sa-static .sa-content-card {
+  padding: 24px;
+}
+html.sa-static .sa-table-wrap,
+html.sa-static .bg-white,
+html.sa-static [class*="bg-white"] {
+  background: #1C2638 !important;
+}
+@media (max-width: 1024px) {
+  html.sa-static .sa-main {
+    padding: calc(var(--sa-topbar-h) + 16px) 16px 32px !important;
+  }
+  html.sa-static .sa-content-card {
+    padding: 18px 16px;
+  }
+}

@@ -2,7 +2,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=54';
+    ds.href = '/dma-design-system.css?v=57';
     document.head.appendChild(ds);
   }
   var ICONS = {

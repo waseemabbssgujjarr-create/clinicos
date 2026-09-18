@@ -265,10 +265,57 @@
     if (isHome() && location.hash) {
       var target = document.getElementById(location.hash.slice(1));
       if (target && target.scrollIntoView) {
+        var html = document.documentElement;
+        var prev = html.style.scrollBehavior;
+        html.style.scrollBehavior = "auto";
         requestAnimationFrame(function () {
-          target.scrollIntoView({ block: "start" });
+          target.scrollIntoView({ block: "start", behavior: "auto" });
+          html.style.scrollBehavior = prev;
         });
       }
+    }
+    window.addEventListener("hashchange", function () {
+      var id = String(location.hash || "").slice(1);
+      if (!id) return;
+      var el = document.getElementById(id);
+      if (!el || !el.scrollIntoView) return;
+      var html = document.documentElement;
+      var prev = html.style.scrollBehavior;
+      html.style.scrollBehavior = "auto";
+      el.scrollIntoView({ block: "start", behavior: "auto" });
+      html.style.scrollBehavior = prev;
+      if (document.getElementById("for-clinics")) {
+        if (id === "for-doctors" || id === "for-patients") {
+          var root = document.getElementById("for-clinics");
+          var tab = root.querySelector('[data-dma-tab="' + (id === "for-doctors" ? "doctors" : "patients") + '"]');
+          if (tab) tab.click();
+        }
+      }
+    });
+    var demo = document.getElementById("dma-demo-dialog");
+    function closeDemo() {
+      if (!demo) return;
+      if (demo.close) demo.close();
+      else demo.removeAttribute("open");
+    }
+    function openDemo() {
+      if (!demo) return;
+      if (demo.showModal) demo.showModal();
+      else demo.setAttribute("open", "");
+    }
+    document.querySelectorAll("[data-dma-demo]").forEach(function (btn) {
+      btn.addEventListener("click", function () { openDemo(); });
+    });
+    document.querySelectorAll("[data-dma-demo-close]").forEach(function (btn) {
+      btn.addEventListener("click", closeDemo);
+    });
+    if (demo) {
+      demo.addEventListener("click", function (e) {
+        if (e.target === demo) closeDemo();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeDemo();
+      });
     }
     if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     var reveal = document.querySelectorAll(".dma-editorial, .dma-cta-band");
