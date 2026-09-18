@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" class="dma-world-auth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reset your password — Doctors My Agency</title>
+  <link rel="icon" href="/media/landing/dma-insignia.png" type="image/png" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=57" />
+</head>
+<body>
+  <div class="dma-auth dma-auth-simple">
+    <main class="dma-auth-form">
+      <a class="dma-pub-logo dma-pub-logo--img" href="/"><img class="dma-logo-white" src="/media/landing/dma-logo-white.png" alt="Doctors My Agency" width="220" height="64" /></a>
+      <h2 style="margin-top:28px">Reset your password</h2>
+      <p class="dma-hint" id="subtitle">Enter your email and we’ll send a reset link if an account exists.</p>
+      <div id="error" class="dma-alert" style="display:none;margin:12px 0"></div>
+      <div id="success" class="dma-alert dma-alert-ok" style="display:none;margin:12px 0"></div>
+      <form id="form">
+        <div class="dma-field"><label for="email">Email</label><input id="email" type="email" name="email" required autocomplete="email"></div>
+        <button type="submit" class="dma-btn dma-btn-primary" style="width:100%;margin-top:8px">Send reset link</button>
+      </form>
+      <p class="dma-hint" style="margin-top:20px"><a href="/doctor-login/" id="backLink">Back to sign in</a></p>
+    </main>
+  </div>
+  <script src="/portal.js"></script>
+  <script>
+    (function () {
+      var role = new URLSearchParams(location.search).get('role') || '';
+      if (role === 'admin') {
+        document.getElementById('backLink').href = '/admin-login/';
+        document.getElementById('backLink').textContent = 'Back to admin login';
+        document.getElementById('subtitle').textContent = 'Enter your platform admin email. If an account exists, we’ll send instructions.';
+      }
+    })();
+    document.getElementById('form').onsubmit = async (e) => {
+      e.preventDefault();
+      const err = document.getElementById('error');
+      const ok = document.getElementById('success');
+      err.style.display = 'none';
+      ok.style.display = 'none';
+      const email = new FormData(e.target).get('email');
+      try {
+        const r = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || data.message || 'Request failed');
+        ok.textContent = data.message || 'Check your inbox. If an account exists for this email, we’ve sent instructions.';
+        ok.style.display = 'block';
+        e.target.reset();
+      } catch (ex) {
+        err.textContent = ex.message;
+        err.style.display = 'block';
+      }
+    };
+  </script>
+</body>
+</html>

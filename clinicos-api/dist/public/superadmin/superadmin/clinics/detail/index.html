@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" class="sa-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Organization — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=57" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=16" />
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="sa-main-inner">
+        <a href="/superadmin/clinics/" class="sa-back">← Organizations</a>
+        <div id="loading" class="ds-loading">Loading organization…</div>
+        <div id="error" class="ds-error" style="display:none"></div>
+        <div id="content" style="display:none" class="sa-content-card">
+          <div class="ds-page-header">
+            <div class="cos-profile-hero" style="margin:0;width:100%">
+              <div class="dma-avatar" id="org-avatar" aria-hidden="true">OR</div>
+              <div>
+                <span class="ds-pill">Organization</span>
+                <h1 id="clinic-name">—</h1>
+                <p id="clinic-owner">—</p>
+              </div>
+            </div>
+            <div class="ds-page-actions">
+              <span id="status-badge" class="ds-badge sa-badge-ok">Active</span>
+              <span id="plan-badge" class="ds-badge">—</span>
+              <button type="button" class="ds-btn ds-btn-outline" id="toggle-status-btn">Suspend</button>
+            </div>
+          </div>
+          <div class="ds-kpis">
+            <div class="ds-kpi"><div><label>Patients</label><strong id="stat-patients">—</strong></div></div>
+            <div class="ds-kpi"><div><label>Appointments</label><strong id="stat-appointments">—</strong></div></div>
+            <div class="ds-kpi"><div><label>Staff</label><strong id="stat-staff">—</strong></div></div>
+            <div class="ds-kpi"><div><label>Messages</label><strong id="stat-messages">—</strong></div></div>
+          </div>
+          <div id="cos-workspace"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=19"></script>
+  <script src="/dma-ui.js?v=8"></script>
+  <script src="/superadmin-clinic-workspace.js?v=4"></script>
+  <script>
+    (function () {
+      if (!DmaAdminShell.initStaticPage('/superadmin/clinics/')) return;
+
+      function clinicIdFromPath() {
+        var q = new URLSearchParams(location.search).get('id');
+        if (q) return q;
+        var parts = location.pathname.replace(/\/+$/, '').split('/');
+        var last = parts[parts.length - 1];
+        if (last === 'detail' || last === 'clinics') return null;
+        return /^[a-zA-Z0-9]+$/.test(last) ? last : null;
+      }
+
+      var clinicId = clinicIdFromPath();
+      var clinic = null;
+      var loading = document.getElementById('loading');
+      var errorEl = document.getElementById('error');
+      var content = document.getElementById('content');
+      var toast = DmaUI.toast;
+
+      if (!clinicId) {
+        loading.style.display = 'none';
+        errorEl.style.display = 'block';
+        errorEl.textContent = 'Invalid clinic URL.';
+        return;
+      }
+
+      function render(c) {
+        clinic = c;
+        document.getElementById('clinic-name').textContent = c.name || '—';
+        document.getElementById('clinic-owner').textContent = (c.ownerName || '—') + (c.email ? ' · ' + c.email : '');
+        var av = document.getElementById('org-avatar');
+        if (av) {
+          var parts = String(c.name || 'OR').trim().split(/\s+/);
+          av.textContent = parts.slice(0, 2).map(function (p) { return p.charAt(0); }).join('').toUpperCase();
+        }
+        var planBadge = document.getElementById('plan-badge');
+        if (planBadge) planBadge.textContent = (c.plan || '—') + (c.planStatus ? ' · ' + c.planStatus : '');
+        document.getElementById('stat-patients').textContent = (c._count && c._count.patients != null) ? c._count.patients.toLocaleString() : '0';
+        document.getElementById('stat-appointments').textContent = (c._count && c._count.appointments != null) ? c._count.appointments.toLocaleString() : '0';
+        document.getElementById('stat-staff').textContent = (c._count && c._count.staff != null) ? c._count.staff.toLocaleString() : '0';
+        document.getElementById('stat-messages').textContent = (c._count && c._count.messages != null) ? c._count.messages.toLocaleString() : '0';
+        var badge = document.getElementById('status-badge');
+        var toggleBtn = document.getElementById('toggle-status-btn');
+        if (c.isActive) {
+          badge.textContent = 'Active';
+          badge.className = 'ds-badge sa-badge-ok';
+          toggleBtn.textContent = 'Suspend';
+        } else {
+          badge.textContent = 'Suspended';
+          badge.className = 'ds-badge ds-badge-danger';
+          toggleBtn.textContent = 'Reactivate';
+        }
+        document.title = (c.name || 'Organization') + ' — Platform Admin';
+      }
+
+      function load() {
+        DmaAdminShell.api('/api/superadmin/clinics/' + clinicId)
+          .then(function (data) {
+            loading.style.display = 'none';
+            content.style.display = 'block';
+            render(data);
+          })
+          .catch(function (err) {
+            loading.style.display = 'none';
+            errorEl.style.display = 'block';
+            errorEl.textContent = err.message || 'Could not load clinic.';
+          });
+      }
+
+      document.getElementById('toggle-status-btn').onclick = function () {
+        if (!clinic) return;
+        var next = !clinic.isActive;
+        if (!confirm(next ? 'Reactivate this organization?' : 'Suspend this organization?')) return;
+        var btn = this;
+        btn.disabled = true;
+        DmaAdminShell.api('/api/superadmin/clinics/' + clinicId + '/status', { method: 'PATCH', body: { isActive: next } })
+          .then(function () { clinic.isActive = next; render(clinic); toast('Updated', 'ok'); })
+          .catch(function (err) { toast(err.message || 'Update failed', 'err'); })
+          .finally(function () { btn.disabled = false; });
+      };
+
+      var del = document.getElementById('delete-clinic-btn');
+      if (del) del.onclick = function () {
+        if (!clinic) return;
+        if (!confirm('Permanently delete "' + (clinic.name || 'this organization') + '"?')) return;
+        if (!confirm('Final confirmation: delete forever?')) return;
+        var btn = this;
+        btn.disabled = true;
+        DmaAdminShell.api('/api/superadmin/clinics/' + clinicId, { method: 'DELETE' })
+          .then(function () { location.href = '/superadmin/clinics/'; })
+          .catch(function (err) { toast(err.message || 'Delete failed', 'err'); btn.disabled = false; });
+      };
+
+      load();
+    })();
+  </script>
+</body>
+</html>

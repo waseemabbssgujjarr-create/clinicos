@@ -104,6 +104,18 @@ io.on('connection', (socket) => {
 // ── Security ──────────────────────────────────────────────────────────────────
 app.set('trust proxy', 1);
 app.use((0, helmet_1.default)({ crossOriginEmbedderPolicy: false, contentSecurityPolicy: false }));
+app.use((req, res, next) => {
+    if (String(req.path || '').startsWith('/api/public')) {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type');
+        if (req.method === 'OPTIONS') {
+            res.sendStatus(204);
+            return;
+        }
+    }
+    next();
+});
 app.use((0, cors_1.default)({
     origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
     credentials: true,

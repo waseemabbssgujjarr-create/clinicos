@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" class="sa-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Audit Log — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=57" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=16" />
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="ds-work-header">
+        <div>
+          <h1 style="margin:0;font-size:1.25rem">Audit log</h1>
+          <p class="sa-subtitle" style="margin:4px 0 0">Platform activity — logins, plan changes, WhatsApp, and admin actions.</p>
+        </div>
+        <button type="button" class="ds-btn ds-btn-outline" id="refresh">Refresh</button>
+      </div>
+      <form class="ds-toolbar" id="filters">
+        <input class="ds-input ds-search" id="q" type="search" placeholder="Search actor, action, clinic…" />
+        <select class="ds-input" id="type" aria-label="Event type">
+          <option value="">All events</option>
+          <option value="login">Logins</option>
+          <option value="plan">Plan</option>
+          <option value="whatsapp">WhatsApp</option>
+          <option value="ai">AI</option>
+          <option value="admin">Admin</option>
+        </select>
+        <select class="ds-input" id="period" aria-label="Date range">
+          <option value="1">Today</option>
+          <option value="7" selected>Last 7 days</option>
+          <option value="30">Last 30 days</option>
+          <option value="90">Last 90 days</option>
+          <option value="all">All loaded</option>
+        </select>
+        <button type="submit" class="ds-btn ds-btn-primary">Filter</button>
+      </form>
+      <div id="state" class="ds-loading">Loading audit log…</div>
+      <div class="ds-table-wrap">
+        <table class="ds-table" id="table" style="display:none">
+          <thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Clinic</th><th>Target</th><th>Result</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=19"></script>
+  <script src="/dma-ui.js?v=8"></script>
+  <script>
+    (function () {
+      if (!DmaAdminShell.initStaticPage('/superadmin/audit/')) return;
+      var esc = DmaUI.esc;
+      var rows = [];
+
+      function actor(item) {
+        return item.actorEmail || item.actor || item.userEmail || item.email || item.clinicEmail || '—';
+      }
+      function clinic(item) {
+        return item.clinicName || item.clinicId || '—';
+      }
+      function target(item) {
+        return item.target || item.resource || item.patientId || item.details || '—';
+      }
+      function action(item) {
+        return String(item.action || item.type || item.event || 'event').replace(/_/g, ' ');
+      }
+      function ok(item) {
+        return item.success !== false && item.status !== 'error';
+      }
+
+      function openEvent(item) {
+        DmaUI.drawer({
+          title: action(item),
+          subtitle: new Date(item.createdAt || item.timestamp || Date.now()).toLocaleString(),
+          html: DmaUI.kv([
+            ['Actor', actor(item)],
+            ['Action', action(item)],
+            ['Clinic', clinic(item)],
+            ['Target', typeof target(item) === 'string' ? String(target(item)).slice(0, 240) : '—'],
+            ['Result', ok(item) ? 'Success' : 'Failed'],
+            ['Source', item.source || 'audit']
+          ])
+        });
+      }
+
+      function filtered() {
+        var q = (document.getElementById('q').value || '').toLowerCase();
+        var type = document.getElementById('type').value;
+        var period = document.getElementById('period').value;
+        var cutoff = period === 'all' ? 0 : Date.now() - Number(period) * 86400000;
+        return rows.filter(function (item) {
+          var t = new Date(item.createdAt || item.timestamp || 0).getTime();
+          if (cutoff && t && t < cutoff) return false;
+          var blob = (action(item) + ' ' + actor(item) + ' ' + clinic(item) + ' ' + target(item)).toLowerCase();
+          if (q && blob.indexOf(q) === -1) return false;
+          if (type && blob.indexOf(type) === -1 && String(item.action || '').toLowerCase().indexOf(type) === -1) return false;
+          return true;
+        });
+      }
+
+      function render() {
+        var list = filtered();
+        if (!list.length) {
+          document.getElementById('state').style.display = 'block';
+          document.getElementById('state').className = 'ds-empty-panel';
+          document.getElementById('state').innerHTML = '<strong>No matching events</strong>Try a different filter or date range.';
+          document.getElementById('table').style.display = 'none';
+          return;
+        }
+        document.getElementById('state').style.display = 'none';
+        document.getElementById('table').style.display = '';
+        document.getElementById('tbody').innerHTML = list.slice(0, 200).map(function (item, i) {
+          return '<tr data-i="' + i + '"><td>' + esc(item.createdAt ? new Date(item.createdAt).toLocaleString() : '—') +
+            '</td><td>' + esc(actor(item)) + '</td><td>' + esc(action(item)) + '</td><td>' + esc(clinic(item)) +
+            '</td><td>' + esc(String(target(item)).slice(0, 48)) + '</td><td>' +
+            DmaUI.badge(ok(item) ? 'Success' : 'Failed', ok(item) ? 'ok' : 'danger') + '</td></tr>';
+        }).join('');
+        document.getElementById('tbody').onclick = function (e) {
+          var tr = e.target.closest('[data-i]');
+          if (!tr) return;
+          openEvent(list[Number(tr.getAttribute('data-i'))]);
+        };
+      }
+
+      function load() {
+        document.getElementById('state').style.display = 'block';
+        document.getElementById('state').className = 'ds-loading';
+        document.getElementById('state').textContent = 'Loading audit log…';
+        DmaAdminShell.api('/api/superadmin/audit?limit=200')
+          .then(function (d) {
+            rows = d.data || d.logs || d.items || [];
+            if (!Array.isArray(rows)) rows = [];
+            render();
+          })
+          .catch(function (e) {
+            document.getElementById('state').className = 'ds-error';
+            document.getElementById('state').textContent = e.message || 'Could not load audit log.';
+            document.getElementById('table').style.display = 'none';
+          });
+      }
+
+      document.getElementById('filters').onsubmit = function (e) { e.preventDefault(); render(); };
+      document.getElementById('refresh').onclick = load;
+      load();
+    })();
+  </script>
+</body>
+</html>

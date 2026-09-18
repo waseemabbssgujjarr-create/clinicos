@@ -171,6 +171,16 @@ function clinicPublicWhere(extra) {
         ...extra,
     };
 }
+async function websiteWidgetEnabled(clinicId) {
+    try {
+        const tp = require("../controllers/ai.training-profile.controller");
+        const profile = await tp.getProfileForEngine(clinicId, { live: false });
+        if (profile && profile.channels && profile.channels.websiteWidget === false)
+            return false;
+    }
+    catch (_) { /* training table optional */ }
+    return true;
+}
 /** Persist web chat turn to CRM (mirrors WhatsApp webhook path). */
 async function persistWebChatToCrm(clinic, patient, userMessage, aiResponse, durationMs, inboundMsgId, recentAppts) {
     const channel = 'WEBSITE';
@@ -355,6 +365,7 @@ router.get('/clinics/:slug', (0, asyncHandler_1.asyncHandler)(async (req, res) =
         hours: formatHoursRange(cfg),
         isOpen: !!cfg?.isOpen,
     }));
+    const websiteWidget = await websiteWidgetEnabled(clinic.id);
     res.json({
         ...clinic,
         slug: clinic.bookingSlug,
@@ -364,6 +375,7 @@ router.get('/clinics/:slug', (0, asyncHandler_1.asyncHandler)(async (req, res) =
         isMultiProvider,
         availability,
         hoursSummary,
+        websiteWidget,
     });
 }));
 // ─── POST /api/public/clinics/:slug/ai-chat — clinic-scoped AI (persists to CRM) ─
@@ -384,6 +396,10 @@ router.post('/clinics/:slug/ai-chat', (0, asyncHandler_1.asyncHandler)(async (re
     });
     if (!clinic || !clinic.isActive || clinic.planStatus === 'CANCELLED') {
         res.status(404).json({ error: 'Clinic not found or not accepting inquiries.' });
+        return;
+    }
+    if (!(await websiteWidgetEnabled(clinic.id))) {
+        res.status(403).json({ error: 'Website chat is not enabled for this clinic.', code: 'WIDGET_OFF' });
         return;
     }
     const visitorPhone = String(patientPhone || '').trim().replace(/\s/g, '');

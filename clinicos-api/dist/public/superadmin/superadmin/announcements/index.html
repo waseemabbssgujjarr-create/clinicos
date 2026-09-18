@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" class="sa-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Announcements — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=57" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=16" />
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="ds-work-header">
+        <div>
+          <h1 style="margin:0;font-size:1.25rem">Announcements</h1>
+          <p class="sa-subtitle" style="margin:4px 0 0">Email every active clinic owner. Uses the platform SMTP integration.</p>
+        </div>
+        <button type="button" class="ds-btn ds-btn-primary" id="compose">Compose</button>
+      </div>
+      <div class="ds-tabs" id="tabs">
+        <button type="button" class="active" data-t="all">All</button>
+        <button type="button" data-t="drafts">Drafts</button>
+        <button type="button" data-t="scheduled">Scheduled</button>
+        <button type="button" data-t="published">Published</button>
+      </div>
+      <div id="body" class="ds-section"></div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=19"></script>
+  <script src="/dma-ui.js?v=8"></script>
+  <script>
+    (function () {
+      if (!DmaAdminShell.initStaticPage('/superadmin/announcements/')) return;
+      var tab = 'all';
+      var lastSend = null;
+      try { lastSend = JSON.parse(sessionStorage.getItem('dma-announce-last') || 'null'); } catch (_) {}
+
+      function compose() {
+        var m = DmaUI.modal({
+          title: 'Compose announcement',
+          html:
+            '<div class="dma-field"><label for="subject">Subject</label><input id="subject" maxlength="180" required /></div>' +
+            '<div class="dma-field"><label for="body">Message</label><textarea id="body" rows="8" required></textarea></div>',
+          footer:
+            '<button type="button" class="ds-btn ds-btn-outline" data-close="1">Cancel</button>' +
+            '<button type="button" class="ds-btn ds-btn-primary" id="send">Send to active clinics</button>'
+        });
+        var btn = m.el.querySelector('#send');
+        btn.onclick = function () {
+          var subject = m.el.querySelector('#subject').value.trim();
+          var body = m.el.querySelector('#body').value.trim();
+          if (!subject || !body) { DmaUI.toast('Subject and message are required', 'err'); return; }
+          btn.disabled = true;
+          DmaAdminShell.api('/api/superadmin/announce', { method: 'POST', body: { subject: subject, body: body } })
+            .then(function (d) {
+              lastSend = { subject: subject, sent: d.sent || 0, total: d.total || 0, at: new Date().toISOString() };
+              try { sessionStorage.setItem('dma-announce-last', JSON.stringify(lastSend)); } catch (_) {}
+              DmaUI.toast('Sent to ' + lastSend.sent + ' of ' + lastSend.total, 'ok');
+              m.close();
+              render();
+            })
+            .catch(function (err) { DmaUI.toast(err.message || 'Send failed', 'err'); })
+            .finally(function () { btn.disabled = false; });
+        };
+      }
+
+      function render() {
+        var body = document.getElementById('body');
+        if (tab === 'drafts') {
+          body.innerHTML = '<div class="ds-empty-panel"><strong>No drafts stored</strong>The platform sends announcements immediately. Draft storage is not available yet.</div>';
+          return;
+        }
+        if (tab === 'scheduled') {
+          body.innerHTML = '<div class="ds-empty-panel"><strong>Scheduling is not available</strong>Announcements send now via SMTP. Nothing is queued.</div>';
+          return;
+        }
+        if (tab === 'published' || tab === 'all') {
+          if (!lastSend) {
+            body.innerHTML = '<div class="ds-empty-panel"><strong>No announcement sent this session</strong>Compose to email active clinic owners. The API does not keep a history archive.</div>';
+            return;
+          }
+          body.innerHTML =
+            '<article class="int-card"><strong>' + DmaUI.esc(lastSend.subject) + '</strong>' +
+            '<p class="cos-hint">Sent ' + DmaUI.esc(lastSend.sent) + ' of ' + DmaUI.esc(lastSend.total) +
+            ' · ' + DmaUI.esc(new Date(lastSend.at).toLocaleString()) + '</p></article>';
+        }
+      }
+
+      document.getElementById('tabs').onclick = function (e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+        tab = b.getAttribute('data-t');
+        [].forEach.call(document.getElementById('tabs').querySelectorAll('button'), function (x) {
+          x.classList.toggle('active', x === b);
+        });
+        render();
+      };
+      document.getElementById('compose').onclick = compose;
+      render();
+    })();
+  </script>
+</body>
+</html>

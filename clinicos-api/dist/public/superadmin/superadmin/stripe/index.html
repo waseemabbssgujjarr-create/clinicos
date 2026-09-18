@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" class="sa-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Stripe — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=57" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=16" />
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="ds-work-header">
+        <div>
+          <h1 style="margin:0;font-size:1.25rem">Stripe</h1>
+          <p class="sa-subtitle" style="margin:4px 0 0">Billing provider for trial conversion. Keys stay on Integrations.</p>
+        </div>
+        <a class="ds-btn ds-btn-primary" href="/superadmin/integrations/">Configure keys</a>
+      </div>
+      <div id="stripe-status" class="ds-section">Checking Stripe configuration…</div>
+      <div class="ds-ops-grid" style="margin-top:16px">
+        <section class="ds-section">
+          <h2>Checklist</h2>
+          <ol class="sa-steps">
+            <li>Create a Stripe account</li>
+            <li>Paste secret, publishable, and webhook keys on Integrations → Stripe</li>
+            <li>Add Starter / Pro / Enterprise price IDs</li>
+            <li>Register <code>/api/webhooks/stripe</code></li>
+          </ol>
+        </section>
+        <section class="ds-section ds-section-muted">
+          <h2>Related</h2>
+          <p class="cos-hint">This page does not store secrets.</p>
+          <a class="ds-btn ds-btn-outline" href="/superadmin/subscriptions/">Subscriptions</a>
+          <a class="ds-btn ds-btn-outline" href="/superadmin/revenue/">Revenue</a>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=19"></script>
+  <script src="/dma-ui.js?v=8"></script>
+  <script>
+    if (DmaAdminShell.initStaticPage('/superadmin/stripe/')) {
+      var box = document.getElementById('stripe-status');
+      DmaAdminShell.api('/api/superadmin/integrations').then(function (d) {
+        var g = d.groups && d.groups.stripe;
+        var st = g && g.status;
+        box.innerHTML = '<strong>Status: ' + DmaUI.esc(st || 'unknown') + '</strong><p class="cos-hint">' +
+          (st === 'ready' ? 'Stripe keys are present. Test an upgrade from a clinic billing page.' :
+            'Stripe is not fully configured. Clinics remain on trial until keys and prices are set.') + '</p>';
+      }).catch(function () {
+        box.textContent = 'Could not verify Stripe status.';
+      });
+    }
+  </script>
+</body>
+</html>

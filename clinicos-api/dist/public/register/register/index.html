@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" class="dma-world-auth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Set up your clinic — Clinicos</title>
+  <link rel="icon" href="/media/landing/dma-insignia.png" type="image/png" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=57" />
+  <link rel="stylesheet" href="/portal.css?v=5" />
+  <script src="/api-shim.js"></script>
+</head>
+<body class="portal-page">
+  <div class="dma-auth">
+    <aside class="dma-auth-visual">
+      <a class="dma-pub-logo dma-pub-logo--lockup" href="/"><img class="dma-logo-mark" src="/media/landing/dma-insignia-white.png" alt="" width="36" height="36" /><span>Clinicos</span></a>
+      <div>
+        <h1>Set up your clinic in minutes.</h1>
+        <p>A private clinic workspace — not a public directory.</p>
+      </div>
+      <div class="dma-auth-preview"><strong>14-day trial</strong><p>No credit card. WhatsApp is optional until you’re ready.</p></div>
+    </aside>
+    <main class="dma-auth-form" style="max-width:520px">
+      <a href="/" class="dma-hint">← Home</a>
+      <p class="dma-steps"><b>1 Clinic</b> → 2 Practice → 3 Hours → 4 Launch</p>
+      <h2>Create your account</h2>
+      <p class="dma-hint">14-day free trial — no credit card needed</p>
+      <div class="form-card wide" style="padding:0;border:0;box-shadow:none;background:transparent">
+
+        <div id="error" class="alert alert-error" style="display:none"></div>
+        <div id="success" class="alert" style="display:none;background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46"></div>
+
+        <form id="form">
+          <div class="field">
+            <label>Your Full Name *</label>
+            <input type="text" name="ownerName" required placeholder="Dr. Ahmed Rahman" autocomplete="name" />
+          </div>
+          <div class="field">
+            <label>Clinic Name *</label>
+            <input type="text" name="clinicName" required placeholder="Rahman Dental Clinic" autocomplete="organization" />
+          </div>
+          <div class="field-row-2">
+            <div class="field">
+              <label>Specialty</label>
+              <select name="specialty">
+                <option value="">Select...</option>
+                <option value="general practice">General Practice</option>
+                <option value="dental">Dental</option>
+                <option value="dermatology">Dermatology</option>
+                <option value="ophthalmology">Ophthalmology</option>
+                <option value="pediatrics">Pediatrics</option>
+                <option value="cardiology">Cardiology</option>
+                <option value="orthopedics">Orthopedics</option>
+                <option value="gynecology">Gynecology</option>
+                <option value="psychiatry">Psychiatry</option>
+                <option value="ent">ENT</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Phone *</label>
+              <input type="tel" name="phone" required placeholder="+971 50 123 4567" autocomplete="tel" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Email Address *</label>
+            <input type="email" name="email" required placeholder="you@clinic.com" autocomplete="email" />
+          </div>
+          <div class="field">
+            <label>Password *</label>
+            <div class="password-wrap">
+              <input type="password" name="password" required minlength="8" placeholder="At least 8 characters" autocomplete="new-password" />
+              <button type="button" class="password-toggle" data-password-toggle aria-label="Show password" title="Show password">
+                <svg class="icon-show" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-hide" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary dma-btn dma-btn-primary" style="width:100%;margin-top:8px" id="submitBtn">Create Account &amp; Continue →</button>
+        </form>
+
+        <p class="dma-hint" style="margin-top:20px">Already have an account? <a href="/doctor-login/">Sign in</a></p>
+      </div>
+    </main>
+  </div>
+  <script src="/portal.js?v=8"></script>
+  <script>
+    document.getElementById('form').onsubmit = async (e) => {
+      e.preventDefault();
+      const err = document.getElementById('error');
+      const ok = document.getElementById('success');
+      const btn = document.getElementById('submitBtn');
+      err.style.display = 'none';
+      ok.style.display = 'none';
+      setBtnLoading(btn, true, 'Creating account…');
+
+      const fd = new FormData(e.target);
+      const payload = {
+        ownerName: fd.get('ownerName'),
+        clinicName: fd.get('clinicName'),
+        specialty: fd.get('specialty') || undefined,
+        phone: fd.get('phone'),
+        email: fd.get('email'),
+        password: fd.get('password'),
+      };
+
+      try {
+        const r = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          throw new Error(data.error || data.message || 'Registration failed. Please try again.');
+        }
+
+        const clinic = data.clinic || {};
+        const user = data.user || {
+          id: clinic.id,
+          clinicId: clinic.id,
+          role: 'DOCTOR',
+          name: payload.ownerName,
+          email: payload.email,
+          clinicName: payload.clinicName,
+          plan: clinic.plan || 'TRIAL',
+          planStatus: clinic.planStatus || 'TRIALING',
+          onboardingDone: false,
+        };
+
+        if (data.token) {
+          syncClinicosStore(user, data.token);
+        }
+
+        if (data.email) {
+          try {
+            sessionStorage.setItem('dma-verify-email', data.email);
+            sessionStorage.setItem('dma-verify-sent', data.verificationEmailSent === false ? '0' : '1');
+          } catch (_) {}
+        }
+
+        if (data.requiresVerification) {
+          if (data.verificationEmailSent === false) {
+            ok.style.background = '#fff7ed';
+            ok.style.borderColor = '#fdba74';
+            ok.style.color = '#9a3412';
+            ok.textContent = (data.message || 'Account created but verification email could not be sent.') + ' You can resend from the next step.';
+          } else {
+            ok.textContent = (data.message || 'Check your email to verify your account.') + ' You can finish clinic setup now; sign-in requires verification.';
+          }
+          ok.style.display = 'block';
+          setTimeout(() => { window.location.href = '/register/clinic/'; }, data.verificationEmailSent === false ? 2500 : 1800);
+          return;
+        }
+
+        window.location.href = '/register/clinic/';
+      } catch (ex) {
+        const msg = String(ex.message || ex);
+        err.textContent = msg === 'Failed to fetch'
+          ? 'API server is not running. In cPanel → Node.js → RESTART the app, then open /api-status.php to confirm. Also upload clinicos-api/bootstrap.js (startup file must match).'
+          : msg;
+        err.style.display = 'block';
+      } finally {
+        setBtnLoading(btn, false);
+      }
+    };
+  </script>
+</body>
+</html>

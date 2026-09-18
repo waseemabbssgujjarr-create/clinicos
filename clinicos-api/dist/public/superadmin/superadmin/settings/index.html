@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" class="sa-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Settings — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=57" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=16" />
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="ds-work-header">
+        <div>
+          <h1 style="margin:0;font-size:1.25rem">Platform settings</h1>
+          <p class="sa-subtitle" style="margin:4px 0 0">Product defaults. Integration credentials live on Integrations.</p>
+        </div>
+        <a class="ds-btn ds-btn-outline" href="/superadmin/integrations/">Integrations</a>
+      </div>
+      <div class="ds-tabs" id="tabs">
+        <button type="button" class="active" data-t="general">General</button>
+        <button type="button" data-t="platform">Platform</button>
+        <button type="button" data-t="defaults">Defaults</button>
+        <button type="button" data-t="notifications">Notifications</button>
+        <button type="button" data-t="security">Security</button>
+        <button type="button" data-t="billing">Billing</button>
+        <button type="button" data-t="system">System</button>
+      </div>
+      <div id="body" class="ds-section"><p class="ds-loading">Loading…</p></div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=19"></script>
+  <script src="/dma-ui.js?v=8"></script>
+  <script>
+    (function () {
+      if (!DmaAdminShell.initStaticPage('/superadmin/settings/')) return;
+      var tab = 'general';
+      var app = {};
+      var esc = DmaUI.esc;
+
+      function field(key) {
+        var fields = app.fields || [];
+        for (var i = 0; i < fields.length; i++) if (fields[i].key === key) return fields[i];
+        return {};
+      }
+      function val(key, fallback) {
+        var f = field(key);
+        return f.value || fallback || '';
+      }
+
+      function render() {
+        var body = document.getElementById('body');
+        if (tab === 'general') {
+          body.innerHTML =
+            '<div class="dma-field"><label>Platform name</label><input id="APP_NAME" value="' + esc(val('APP_NAME', 'Doctors My Agency')) + '" /></div>' +
+            '<div class="dma-field"><label>Public site URL</label><input id="APP_URL" value="' + esc(val('APP_URL', location.origin)) + '" /></div>' +
+            '<button type="button" class="ds-btn ds-btn-primary" id="save-app">Save general</button>';
+          document.getElementById('save-app').onclick = function () {
+            DmaAdminShell.api('/api/superadmin/integrations', {
+              method: 'PUT',
+              body: { settings: { APP_NAME: document.getElementById('APP_NAME').value, APP_URL: document.getElementById('APP_URL').value } }
+            }).then(function () { DmaUI.toast('Saved', 'ok'); }).catch(function (e) { DmaUI.toast(e.message || 'Save failed', 'err'); });
+          };
+        } else if (tab === 'platform') {
+          body.innerHTML = '<p class="cos-hint">Product mode is fixed: CRM for doctors, clinics &amp; hospitals. There is no public marketplace.</p>' +
+            DmaUI.kv([['Product', 'Clinic operations platform'], ['Public marketplace', 'No']]);
+        } else if (tab === 'defaults') {
+          body.innerHTML =
+            '<div class="dma-field"><label>Trial length (days)</label><input id="TRIAL_DAYS" type="number" min="1" max="90" value="' + esc(val('TRIAL_DAYS', '14')) + '" /></div>' +
+            '<button type="button" class="ds-btn ds-btn-primary" id="save-def">Save defaults</button>';
+          document.getElementById('save-def').onclick = function () {
+            DmaAdminShell.api('/api/superadmin/integrations', {
+              method: 'PUT',
+              body: { settings: { TRIAL_DAYS: document.getElementById('TRIAL_DAYS').value } }
+            }).then(function () { DmaUI.toast('Saved', 'ok'); }).catch(function (e) { DmaUI.toast(e.message || 'Save failed', 'err'); });
+          };
+        } else if (tab === 'notifications') {
+          body.innerHTML = '<p class="cos-hint">Owner announcement email uses SMTP. Credentials are not duplicated here.</p>' +
+            '<a class="ds-btn ds-btn-primary" href="/superadmin/integrations/">Open Email / SMTP</a> ' +
+            '<a class="ds-btn ds-btn-outline" href="/superadmin/announcements/">Announcements</a>';
+        } else if (tab === 'security') {
+          body.innerHTML = '<p class="cos-hint">Admin access is token-based. Secrets stay on Integrations and are masked in the UI.</p>' +
+            '<a class="ds-btn ds-btn-outline" href="/debug-deploy.php" target="_blank" rel="noopener">Deploy diagnostics</a>';
+        } else if (tab === 'billing') {
+          body.innerHTML = '<p class="cos-hint">Stripe keys and price IDs are configured on Integrations. This page does not store secrets.</p>' +
+            '<a class="ds-btn ds-btn-primary" href="/superadmin/integrations/">Stripe on Integrations</a> ' +
+            '<a class="ds-btn ds-btn-outline" href="/superadmin/stripe/">Stripe helper</a>';
+        } else {
+          body.innerHTML = '<p class="cos-hint">Runtime health, logs, and audit belong in System workspaces.</p>' +
+            '<a class="ds-btn ds-btn-primary" href="/superadmin/health/">Health</a> ' +
+            '<a class="ds-btn ds-btn-outline" href="/superadmin/audit/">Audit</a>';
+        }
+      }
+
+      document.getElementById('tabs').onclick = function (e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+        tab = b.getAttribute('data-t');
+        [].forEach.call(document.getElementById('tabs').querySelectorAll('button'), function (x) {
+          x.classList.toggle('active', x === b);
+        });
+        render();
+      };
+
+      DmaAdminShell.api('/api/superadmin/integrations').then(function (data) {
+        app = (data.groups && data.groups.app) || {};
+        var name = val('APP_NAME', 'Doctors My Agency');
+        if (/ClinicOS|MediCore/i.test(name)) name = 'Doctors My Agency';
+        (app.fields || []).forEach(function (f) {
+          if (f.key === 'APP_NAME') f.value = name;
+        });
+        render();
+      }).catch(function () { render(); });
+    })();
+  </script>
+</body>
+</html>

@@ -20,7 +20,7 @@ if (isset($_GET['sync_orders']) && $_GET['sync_orders'] === '1') {
     $synced = lifecycle_repair_stuck_orders_for_user($userId, 100);
     $message = $synced > 0
         ? "Synced {$synced} order(s) from WhatsApp chat history."
-        : 'No missing orders found â€” all chats are already synced.';
+        : 'No missing orders found — all chats are already synced.';
 } else {
     $repairedOrders = lifecycle_repair_stuck_orders_for_user($userId, 50);
     if ($repairedOrders > 0 && $message === '') {
@@ -56,11 +56,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf($_POST['csrf_token'] ??
     $status = trim($_POST['status'] ?? '');
     if ($orderId && catalog_update_order_status($orderId, $userId, $status)) {
         $meta = catalog_order_status_last_update();
-        $message = 'Order #' . $orderId . ' â†’ ' . ($meta['status_label'] ?? industry_order_status_label($status, $industryKey !== 'default' ? $industryKey : null));
+        $message = 'Order #' . $orderId . ' → ' . ($meta['status_label'] ?? industry_order_status_label($status, $industryKey !== 'default' ? $industryKey : null));
         if (!empty($meta['customer_notified'])) {
-            $message .= ' Â· Customer notified on WhatsApp';
+            $message .= ' · Customer notified on WhatsApp';
         } elseif (!empty($meta['notify_error'])) {
-            $message .= ' Â· WhatsApp: ' . $meta['notify_error'];
+            $message .= ' · WhatsApp: ' . $meta['notify_error'];
         }
     }
     $botId = (int) ($_POST['bot_id'] ?? $botId);

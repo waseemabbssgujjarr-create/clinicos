@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" class="sa-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>WhatsApp — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=57" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=16" />
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="ds-work-header">
+        <div>
+          <h1 style="margin:0;font-size:1.25rem">WhatsApp connections</h1>
+          <p class="sa-subtitle" style="margin:4px 0 0">Live Meta Cloud API connections. Click a clinic for details.</p>
+        </div>
+        <a class="ds-btn ds-btn-outline" href="/superadmin/api/">API providers</a>
+      </div>
+      <div class="ds-section-muted" style="padding:12px;border-radius:8px;margin-bottom:16px">
+        Meta webhook: <code id="wa-hook"></code>
+        <button type="button" class="ds-btn ds-btn-outline ds-btn-sm" id="copy-hook">Copy</button>
+      </div>
+      <div class="ds-kpis" id="kpis"><div class="ds-loading">Loading…</div></div>
+      <div id="err" class="ds-error" style="display:none"></div>
+      <div id="wrap"><p class="ds-loading">Loading clinics…</p></div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=19"></script>
+  <script src="/dma-ui.js?v=8"></script>
+  <script>
+    (function () {
+      if (!DmaAdminShell.initStaticPage('/superadmin/whatsapp/')) return;
+      var esc = DmaUI.esc;
+      var hook = location.origin + '/api/webhooks/meta';
+      document.getElementById('wa-hook').textContent = hook;
+      document.getElementById('copy-hook').onclick = function () { DmaUI.copy(hook); };
+      var clinics = [];
+
+      function openWa(c) {
+        var d = DmaUI.drawer({
+          title: c.name || 'Clinic',
+          subtitle: c.connected ? 'Connected' : 'Not connected',
+          html: DmaUI.skeleton(4),
+          footer:
+            '<button type="button" class="ds-btn ds-btn-outline" data-close="1">Close</button>' +
+            (c.connected ? '<button type="button" class="ds-btn ds-btn-danger" id="wa-rev">Revoke</button>' : '') +
+            '<a class="ds-btn ds-btn-primary" href="/superadmin/clinics/' + encodeURIComponent(c.id) + '/">View clinic</a>'
+        });
+        d.setBody(DmaUI.kv([
+          ['Owner', c.ownerName || '—'],
+          ['Email', c.email || '—'],
+          ['Status', c.connected ? 'Connected' : 'Not connected'],
+          ['Phone', c.displayPhoneNumber || c.phoneNumber || '—'],
+          ['WABA', c.wabaId || c.whatsappBusinessAccountId || '—'],
+          ['Plan', (c.plan || '—') + ' / ' + (c.planStatus || '—')],
+          ['Messages', String(c.whatsappMessages != null ? c.whatsappMessages : '—')],
+          ['Last activity', c.lastActivity || c.updatedAt || '—']
+        ]));
+        var rev = d.el.querySelector('#wa-rev');
+        if (rev) rev.onclick = function () {
+          DmaUI.confirm('Revoke WhatsApp for this clinic? They must reconnect.', function () {
+            DmaAdminShell.api('/api/superadmin/whatsapp/clinics/' + c.id, { method: 'DELETE' })
+              .then(function () { DmaUI.toast('Revoked', 'ok'); d.close(); load(); })
+              .catch(function (e) { DmaUI.toast(e.message || 'Failed', 'err'); });
+          });
+        };
+      }
+
+      function render(data) {
+        clinics = data.clinics || [];
+        document.getElementById('kpis').innerHTML =
+          '<div class="ds-kpi"><div><label>Connected</label><strong>' + (data.connected || 0) + '</strong></div></div>' +
+          '<div class="ds-kpi"><div><label>Not connected</label><strong>' + ((data.total || 0) - (data.connected || 0)) + '</strong></div></div>' +
+          '<div class="ds-kpi"><div><label>Total clinics</label><strong>' + (data.total || 0) + '</strong></div></div>';
+        if (!clinics.length) {
+          document.getElementById('wrap').innerHTML = '<div class="ds-empty-panel"><strong>No clinics yet</strong></div>';
+          return;
+        }
+        document.getElementById('wrap').innerHTML =
+          '<div class="ds-table-wrap"><table class="ds-table"><thead><tr>' +
+          '<th>Clinic</th><th>Owner</th><th>WhatsApp</th><th>Plan</th><th>Msgs</th>' +
+          '</tr></thead><tbody>' + clinics.map(function (c, i) {
+            return '<tr data-i="' + i + '"><td><strong>' + esc(c.name) + '</strong></td><td>' + esc(c.ownerName) +
+              '</td><td>' + DmaUI.badge(c.connected ? 'Live' : 'Offline', c.connected ? 'ok' : 'off') +
+              (c.displayPhoneNumber ? ' ' + esc(c.displayPhoneNumber) : '') +
+              '</td><td>' + esc(c.plan) + '</td><td>' + esc(c.whatsappMessages || 0) + '</td></tr>';
+          }).join('') + '</tbody></table></div>';
+        document.getElementById('wrap').querySelectorAll('tr[data-i]').forEach(function (tr) {
+          tr.onclick = function () { openWa(clinics[Number(tr.getAttribute('data-i'))]); };
+        });
+      }
+
+      function load() {
+        document.getElementById('err').style.display = 'none';
+        DmaAdminShell.api('/api/superadmin/whatsapp/clinics')
+          .then(render)
+          .catch(function (e) {
+            document.getElementById('err').textContent = e.message || 'Failed to load';
+            document.getElementById('err').style.display = 'block';
+            document.getElementById('wrap').innerHTML = '';
+          });
+      }
+      load();
+    })();
+  </script>
+</body>
+</html>

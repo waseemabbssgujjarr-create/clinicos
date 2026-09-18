@@ -102,7 +102,7 @@ $planPill = match(true) {
 
 iqp_admin_begin($user, 'businesses', [
     'title'    => sanitize((string)($bot['name'] ?? 'Bot')),
-    'subtitle' => sanitize(($bot['company_name'] ?? '') . ' Â· ' . ($bot['client_email'] ?? '')),
+    'subtitle' => sanitize(($bot['company_name'] ?? '') . ' · ' . ($bot['client_email'] ?? '')),
     'actions'  => '<a class="btn btn--ghost btn--sm" href="/admin/client-detail?id=' . (int)$bot['user_id'] . '">â† Back to Client</a>',
 ]);
 iqp_flash($message);
@@ -178,14 +178,14 @@ if ($error !== '') iqp_flash($error, 'err');
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue-600)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         <span class="card__title">Training / Knowledge</span>
         <span class="spacer"></span>
-        <a class="view-all" href="/admin/client-detail?id=<?= (int)$bot['user_id'] ?>">View client â†’</a>
+        <a class="view-all" href="/admin/client-detail?id=<?= (int)$bot['user_id'] ?>">View client →</a>
       </div>
       <div class="card__body">
         <div class="grid grid-2" style="margin-bottom:14px">
-          <div><div class="eyebrow" style="margin-bottom:3px">Rep Name</div><div class="strong"><?= sanitize((string)($bot['rep_name'] ?? 'â€”')) ?></div></div>
-          <div><div class="eyebrow" style="margin-bottom:3px">Website</div><div><?= !empty($bot['website_url']) ? '<a href="' . sanitize((string)$bot['website_url']) . '" target="_blank" style="color:var(--green-700)">' . sanitize((string)$bot['website_url']) . '</a>' : '<span class="muted">â€”</span>' ?></div></div>
+          <div><div class="eyebrow" style="margin-bottom:3px">Rep Name</div><div class="strong"><?= sanitize((string)($bot['rep_name'] ?? '—')) ?></div></div>
+          <div><div class="eyebrow" style="margin-bottom:3px">Website</div><div><?= !empty($bot['website_url']) ? '<a href="' . sanitize((string)$bot['website_url']) . '" target="_blank" style="color:var(--green-700)">' . sanitize((string)$bot['website_url']) . '</a>' : '<span class="muted">—</span>' ?></div></div>
           <div><div class="eyebrow" style="margin-bottom:3px">Knowledge</div><div class="strong"><?= $hasKnowledge ? number_format(strlen((string)$bot['bot_knowledge'])) . ' characters' : '<span class="muted">Not configured</span>' ?></div></div>
-          <div><div class="eyebrow" style="margin-bottom:3px">Business Model</div><div class="strong"><?= !empty($bot['business_model']) ? mb_strimwidth((string)$bot['business_model'], 0, 60, 'â€¦') : '<span class="muted">â€”</span>' ?></div></div>
+          <div><div class="eyebrow" style="margin-bottom:3px">Business Model</div><div class="strong"><?= !empty($bot['business_model']) ? mb_strimwidth((string)$bot['business_model'], 0, 60, '…') : '<span class="muted">—</span>' ?></div></div>
         </div>
         <?php if ($hasKnowledge): ?>
         <details style="border:1px solid var(--line-2);border-radius:10px">
@@ -238,8 +238,8 @@ if ($error !== '') iqp_flash($error, 'err');
       <div class="card__head"><span class="card__title">Bot Info</span></div>
       <div class="card__body" style="display:flex;flex-direction:column;gap:10px">
         <div class="between"><span class="muted small">Bot ID</span><span class="strong small">#<?= (int)$bot['id'] ?></span></div>
-        <div class="between"><span class="muted small">Owner</span><a href="/admin/client-detail?id=<?= (int)$bot['user_id'] ?>" style="color:var(--green-700);font-size:13px"><?= sanitize((string)($bot['company_name'] ?: $bot['client_name'] ?? 'â€”')) ?></a></div>
-        <div class="between"><span class="muted small">Email</span><span class="strong small"><?= sanitize((string)($bot['client_email'] ?? 'â€”')) ?></span></div>
+        <div class="between"><span class="muted small">Owner</span><a href="/admin/client-detail?id=<?= (int)$bot['user_id'] ?>" style="color:var(--green-700);font-size:13px"><?= sanitize((string)($bot['company_name'] ?: $bot['client_name'] ?? '—')) ?></a></div>
+        <div class="between"><span class="muted small">Email</span><span class="strong small"><?= sanitize((string)($bot['client_email'] ?? '—')) ?></span></div>
         <div class="between"><span class="muted small">WhatsApp</span><span class="badge <?= $bot['whatsapp_verified'] ? 'badge--green' : 'badge--gray' ?>" style="font-size:11px"><span class="dot"></span><?= $bot['whatsapp_verified'] ? 'Connected' : 'Not set' ?></span></div>
         <div class="between"><span class="muted small">Widget</span><span class="badge <?= $bot['widget_enabled'] ? 'badge--blue' : 'badge--gray' ?>" style="font-size:11px"><?= $bot['widget_enabled'] ? 'Enabled' : 'Disabled' ?></span></div>
         <div class="divider"></div>

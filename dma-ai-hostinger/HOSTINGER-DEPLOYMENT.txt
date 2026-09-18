@@ -1,0 +1,16 @@
+DMA AI — Hostinger Deployment
+
+1. Extract this ZIP file.
+2. Open the extracted folder and select all files, including .htaccess.
+3. Upload them into your Hostinger public_html folder.
+4. Make sure index.html is directly inside public_html, not inside another nested folder.
+5. Open your domain and test:
+   - the homepage
+   - the contact form
+   - the WhatsApp button
+   - the Privacy overview and Service boundaries links
+
+Important:
+- Do not upload source files or node_modules; this package contains the production build only.
+- The contact and newsletter forms use the EmailJS settings configured for this website.
+- Do not include patient names, medical records, or sensitive health information in the enquiry form.

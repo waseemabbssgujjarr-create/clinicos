@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" class="sa-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Integrations — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=57" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=16" />
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="ds-work-header">
+        <div>
+          <h1 style="margin:0;font-size:1.25rem">Integrations</h1>
+          <p class="sa-subtitle" style="margin:4px 0 0">Configure one provider at a time. Secrets stay masked. Empty fields keep the current value.</p>
+        </div>
+        <div class="ds-page-actions">
+          <button type="button" class="ds-btn ds-btn-outline" id="int-reload">Reload</button>
+          <button type="button" class="ds-btn ds-btn-outline" id="int-test-email">Test email</button>
+          <button type="button" class="ds-btn ds-btn-primary" id="int-save">Save this section</button>
+        </div>
+      </div>
+      <div id="int-ok" class="ds-empty" style="display:none"></div>
+      <div id="int-err" class="ds-error" style="display:none"></div>
+      <div id="int-smtp-live" class="ds-section-muted" style="display:none;padding:12px;margin-bottom:12px;border-radius:8px"></div>
+      <div class="ds-tabs" id="int-tabs"></div>
+      <div id="int-body" class="ds-section"><p class="ds-loading">Loading…</p></div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=19"></script>
+  <script src="/dma-ui.js?v=8"></script>
+  <script>
+    (function () {
+      if (!DmaAdminShell.initStaticPage('/superadmin/integrations/')) return;
+      var TABS = [
+        ['overview', 'Overview'],
+        ['app', 'Application'],
+        ['email', 'Email / SMTP'],
+        ['ai', 'AI'],
+        ['meta', 'WhatsApp / Meta'],
+        ['twilio', 'Twilio'],
+        ['stripe', 'Stripe'],
+        ['cloudinary', 'Cloudinary'],
+        ['apiprovider', 'API providers']
+      ];
+      var tab = 'overview';
+      var state = null;
+      var esc = DmaUI.esc;
+
+      function showOk(m) { document.getElementById('int-ok').style.display = 'block'; document.getElementById('int-ok').textContent = m; document.getElementById('int-err').style.display = 'none'; }
+      function showErr(m) { document.getElementById('int-err').style.display = 'block'; document.getElementById('int-err').textContent = m; document.getElementById('int-ok').style.display = 'none'; }
+
+      function drawTabs() {
+        document.getElementById('int-tabs').innerHTML = TABS.map(function (t) {
+          var g = state && state.groups && state.groups[t[0]];
+          var st = g ? ' · ' + g.status : '';
+          return '<button type="button" data-t="' + t[0] + '" class="' + (tab === t[0] ? 'active' : '') + '">' + t[1] + (t[0] !== 'overview' ? st : '') + '</button>';
+        }).join('');
+      }
+
+      function fieldHtml(f) {
+        var ph = f.secret ? (f.set ? ('Saved: ' + (f.masked || '••••') + ' — leave blank to keep') : (f.placeholder || 'Not set')) : (f.placeholder || '');
+        var valAttr = f.secret ? '' : (' value="' + String(f.value || '').replace(/"/g, '&quot;') + '"');
+        return '<div class="int-field dma-field"><label>' + esc(f.label) + ' <span class="source" style="color:var(--ds-muted);font-weight:500">' + esc(f.source || '') + '</span></label>' +
+          '<input class="cos-input" type="' + (f.secret ? 'password' : 'text') + '" data-key="' + f.key + '" data-secret="' + (f.secret ? '1' : '0') + '" placeholder="' + String(ph).replace(/"/g, '&quot;') + '"' + valAttr + ' autocomplete="off" />' +
+          '<p class="guide cos-hint">' + esc(f.guide || '') + '</p></div>';
+      }
+
+      function render() {
+        drawTabs();
+        var body = document.getElementById('int-body');
+        if (tab === 'overview') {
+          var groups = (state && state.groups) || {};
+          var hooks = state && state.webhookHints || {};
+          body.innerHTML =
+            '<p class="cos-hint">Status is configuration state, not a live vendor connection except where Health verifies SMTP.</p>' +
+            '<div class="ds-ops-grid-3">' +
+            TABS.filter(function (t) { return t[0] !== 'overview'; }).map(function (t) {
+              var g = groups[t[0]] || {};
+              return '<div class="int-card"><strong>' + t[1] + '</strong> ' + DmaUI.badge(g.status || 'empty', g.status === 'ready' ? 'ok' : g.status === 'partial' ? 'warn' : 'off') +
+                '<p class="cos-hint" style="margin:8px 0 0">' + esc(g.description || '') + '</p></div>';
+            }).join('') + '</div>' +
+            '<div class="ds-section-muted" style="margin-top:16px;padding:12px;border-radius:8px">' +
+            '<strong>Webhook URLs</strong><br>Meta: <code>' + esc(hooks.meta) + '</code> <button type="button" class="ds-btn ds-btn-outline ds-btn-sm" data-copy="' + esc(hooks.meta || '') + '">Copy</button><br>' +
+            'Stripe: <code>' + esc(hooks.stripe) + '</code><br>Twilio: <code>' + esc(hooks.twilio) + '</code></div>';
+          body.onclick = function (e) {
+            var b = e.target.closest('[data-copy]');
+            if (b) DmaUI.copy(b.getAttribute('data-copy'));
+          };
+          return;
+        }
+        var g = state.groups && state.groups[tab];
+        if (!g) { body.innerHTML = '<p class="ds-empty">This section has no fields yet.</p>'; return; }
+        body.innerHTML = '<div class="int-card"><h2 style="margin:0 0 8px;text-transform:none;font-size:1rem;color:var(--ds-text)">' + esc(g.title) + ' ' + DmaUI.badge(g.status, g.status === 'ready' ? 'ok' : g.status === 'partial' ? 'warn' : 'off') + '</h2>' +
+          '<p class="desc cos-hint">' + esc(g.description) + '</p>' +
+          (g.fields || []).map(fieldHtml).join('') + '</div>';
+      }
+
+      function load() {
+        return DmaAdminShell.api('/api/superadmin/integrations').then(function (data) {
+          state = data;
+          var box = document.getElementById('int-smtp-live');
+          if (data.smtpLive && data.smtpLive.ok) { box.style.display = 'block'; box.textContent = 'SMTP live check OK.'; }
+          else if (data.smtpLive && data.smtpLive.error) { box.style.display = 'block'; box.textContent = 'SMTP: ' + data.smtpLive.error; }
+          else box.style.display = 'none';
+          render();
+        }).catch(function (e) { showErr(e.message || 'Failed to load'); });
+      }
+
+      document.getElementById('int-tabs').onclick = function (e) {
+        var b = e.target.closest('button'); if (!b) return;
+        tab = b.getAttribute('data-t'); render();
+      };
+      document.getElementById('int-save').onclick = function () {
+        if (tab === 'overview') { showOk('Select a provider tab to save.'); return; }
+        var settings = {};
+        document.querySelectorAll('#int-body input[data-key]').forEach(function (el) {
+          var secret = el.getAttribute('data-secret') === '1';
+          if (secret && !String(el.value || '').trim()) return;
+          settings[el.getAttribute('data-key')] = el.value;
+        });
+        var btn = document.getElementById('int-save');
+        btn.disabled = true;
+        DmaAdminShell.api('/api/superadmin/integrations', { method: 'PUT', body: { settings: settings } })
+          .then(function (data) {
+            state = data.integrations || data;
+            render();
+            showOk('Saved this section. Blank secrets were unchanged.');
+            DmaUI.toast('Saved', 'ok');
+          })
+          .catch(function (e) { showErr(e.message || 'Save failed'); })
+          .finally(function () { btn.disabled = false; });
+      };
+      document.getElementById('int-reload').onclick = load;
+      document.getElementById('int-test-email').onclick = function () {
+        var to = window.prompt('Send test email to:');
+        if (!to) return;
+        DmaAdminShell.api('/api/superadmin/integrations/test-email', { method: 'POST', body: { to: to } })
+          .then(function (d) { showOk(d.message || 'Sent'); })
+          .catch(function (e) { showErr(e.message || 'Test failed'); });
+      };
+      load();
+    })();
+  </script>
+</body>
+</html>

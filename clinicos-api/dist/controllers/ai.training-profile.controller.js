@@ -67,6 +67,9 @@ function defaultTrainingProfile() {
       avoidRepeatFallback: true,
       followUpAwareness: true,
     },
+    channels: {
+      websiteWidget: true,
+    },
   };
 }
 
@@ -134,7 +137,7 @@ async function getTrainingProfile(req, res) {
       aiEnabled: true, aiLanguage: true, aiPersonality: true,
       customIntroMsg: true, autoConfirm: true, reminderTiming: true,
       treatments: true, workingHours: true, name: true, specialty: true,
-      address: true, phone: true, updatedAt: true,
+      address: true, phone: true, updatedAt: true, bookingSlug: true,
     },
   });
   const row = await getRow(clinicId);
@@ -165,6 +168,7 @@ async function getTrainingProfile(req, res) {
       treatments: clinic && clinic.treatments,
       workingHours: clinic && clinic.workingHours,
       aiEnabled: clinic && clinic.aiEnabled,
+      bookingSlug: clinic && clinic.bookingSlug,
     },
   });
 }

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" class="dma-world-auth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in — Clinicos</title>
+  <link rel="icon" href="/media/landing/dma-insignia.png" type="image/png" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=57" />
+</head>
+<body>
+  <div class="dma-auth">
+    <aside class="dma-auth-visual">
+      <a class="dma-pub-logo dma-pub-logo--lockup" href="/"><img class="dma-logo-mark" src="/media/landing/dma-insignia-white.png" alt="" width="36" height="36" /><span>Clinicos</span></a>
+      <div>
+        <h1>Your clinic, connected.</h1>
+        <p>Appointments, waiting room, conversations and visits — without a public marketplace.</p>
+      </div>
+      <div class="dma-auth-preview">
+        <strong>Clinicos</strong>
+        <p>Private clinic workspace. WhatsApp when you connect it.</p>
+      </div>
+    </aside>
+    <main class="dma-auth-form">
+      <h2>Welcome back</h2>
+      <p class="dma-hint">Clinic owner sign in.</p>
+      <div class="dma-auth-roles">
+        <span class="dma-chip is-active">Doctor</span>
+        <a class="dma-chip" href="/staff-login/">Staff</a>
+      </div>
+      <div id="error" class="dma-alert" style="display:none;margin-bottom:12px"></div>
+      <form id="form">
+        <div class="dma-field"><label for="email">Email</label><input id="email" type="email" name="email" required autocomplete="email" placeholder="you@clinic.com"></div>
+        <div class="dma-field"><label for="password">Password</label><input id="password" type="password" name="password" required autocomplete="current-password" placeholder="Your password"></div>
+        <div class="dma-field dma-auth-row">
+          <label class="dma-auth-check" for="remember"><input type="checkbox" id="remember"> <span>Remember me</span></label>
+          <a href="/forgot-password/">Forgot password?</a>
+        </div>
+        <button type="submit" class="dma-btn dma-btn-primary">Log in</button>
+      </form>
+      <hr class="dma-auth-rule" />
+      <p class="dma-hint" style="text-align:center"><a href="/staff-login/">Staff login</a></p>
+      <p class="dma-hint" style="text-align:center">Don’t have a clinic account? <a href="/register/">Start free</a></p>
+    </main>
+  </div>
+  <script src="/portal.js?v=8"></script>
+  <script>
+    (function () {
+      var emailEl = document.getElementById('email');
+      var rememberEl = document.getElementById('remember');
+      try {
+        var saved = localStorage.getItem('clinicos-remember-email');
+        if (saved && emailEl) { emailEl.value = saved; if (rememberEl) rememberEl.checked = true; }
+      } catch (_) {}
+      document.getElementById('form').onsubmit = async (e) => {
+        e.preventDefault();
+        const err = document.getElementById('error');
+        const btn = e.target.querySelector('[type="submit"]');
+        err.style.display = 'none';
+        if (typeof setBtnLoading === 'function') setBtnLoading(btn, true, 'Signing in…');
+        else { btn.disabled = true; btn.textContent = 'Signing in…'; }
+        const fd = new FormData(e.target);
+        try {
+          if (rememberEl && rememberEl.checked) localStorage.setItem('clinicos-remember-email', fd.get('email') || '');
+          else localStorage.removeItem('clinicos-remember-email');
+        } catch (_) {}
+        try {
+          const r = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ email: fd.get('email'), password: fd.get('password') }),
+          });
+          const data = await r.json().catch(() => ({}));
+          if (!r.ok) {
+            if (data.code === 'EMAIL_NOT_VERIFIED') {
+              err.innerHTML = (data.error || 'Verify your email.') + ' <a href="/verify-email/?email=' + encodeURIComponent(fd.get('email')) + '">Resend link</a>';
+              err.style.display = 'block';
+              if (typeof setBtnLoading === 'function') setBtnLoading(btn, false); else { btn.disabled = false; btn.textContent = 'Log in'; }
+              return;
+            }
+            throw new Error(data.error || data.message || 'Sign in failed — check email and password');
+          }
+          if (data.token && data.user && typeof syncClinicosStore === 'function') syncClinicosStore(data.user, data.token);
+          window.location.href = '/dashboard/';
+        } catch (ex) {
+          err.textContent = ex.message;
+          err.style.display = 'block';
+          if (typeof setBtnLoading === 'function') setBtnLoading(btn, false); else { btn.disabled = false; btn.textContent = 'Log in'; }
+        }
+      };
+    })();
+  </script>
+</body>
+</html>

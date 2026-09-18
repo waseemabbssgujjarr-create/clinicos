@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" class="sa-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Subscriptions — Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=57" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=16" />
+</head>
+<body class="superadmin-app">
+  <div class="sa-layout">
+    <aside class="sa-sidebar" id="sa-sidebar"></aside>
+    <main class="sa-main">
+      <div class="ds-work-header">
+        <div>
+          <h1 style="margin:0;font-size:1.25rem">Subscriptions</h1>
+          <p class="sa-subtitle" style="margin:4px 0 0">Clinic plans across the platform. Click a row for details.</p>
+        </div>
+      </div>
+      <div class="ds-kpis" id="kpis"><div class="ds-loading">Loading…</div></div>
+      <div class="ds-filters" id="filters">
+        <button type="button" class="active" data-f="all">All</button>
+        <button type="button" data-f="trial">Trial</button>
+        <button type="button" data-f="active">Active</button>
+        <button type="button" data-f="past">Past due</button>
+        <button type="button" data-f="cancelled">Cancelled</button>
+      </div>
+      <div id="state" class="ds-loading">Loading clinics…</div>
+      <div class="ds-table-wrap ds-desktop-table">
+        <table class="ds-table" id="table" style="display:none">
+          <thead><tr><th>Clinic</th><th>Owner</th><th>Plan</th><th>Status</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="ds-clinic-cards" id="cards"></div>
+    </main>
+  </div>
+  <script src="/superadmin-admin-shell.js?v=19"></script>
+  <script src="/dma-ui.js?v=8"></script>
+  <script>
+    (function () {
+      if (!DmaAdminShell.initStaticPage('/superadmin/subscriptions/')) return;
+      var esc = DmaUI.esc;
+      var clinics = [];
+      var filter = 'all';
+
+      function match(c) {
+        var st = String(c.planStatus || '').toUpperCase();
+        var plan = String(c.plan || '').toUpperCase();
+        if (filter === 'trial') return plan === 'TRIAL';
+        if (filter === 'active') return /ACTIVE/.test(st) && plan !== 'TRIAL';
+        if (filter === 'past') return /PAST/.test(st);
+        if (filter === 'cancelled') return /CANCEL/.test(st);
+        return true;
+      }
+
+      function openSub(c) {
+        DmaUI.drawer({
+          title: c.name || 'Clinic',
+          subtitle: (c.plan || 'TRIAL') + ' · ' + (c.planStatus || '—'),
+          html: DmaUI.kv([
+            ['Owner', c.ownerName || c.email],
+            ['Email', c.email],
+            ['Plan', c.plan || 'TRIAL'],
+            ['Status', c.planStatus || '—'],
+            ['Clinic status', c.isActive ? 'Active' : 'Suspended']
+          ]),
+          footer:
+            '<button type="button" class="ds-btn ds-btn-outline" data-close="1">Close</button>' +
+            '<a class="ds-btn ds-btn-primary" href="/superadmin/clinics/' + encodeURIComponent(c.id) + '/">Open full workspace</a>'
+        });
+      }
+
+      function render() {
+        var list = clinics.filter(match);
+        document.getElementById('kpis').innerHTML =
+          '<div class="ds-kpi"><div><label>Total clinics</label><strong>' + clinics.length + '</strong></div></div>' +
+          '<div class="ds-kpi"><div><label>On trial</label><strong>' + clinics.filter(function (c) { return (c.plan || '') === 'TRIAL'; }).length + '</strong></div></div>' +
+          '<div class="ds-kpi"><div><label>Active paid</label><strong>' + clinics.filter(function (c) { return /active/i.test(c.planStatus || '') && (c.plan || '') !== 'TRIAL'; }).length + '</strong></div></div>' +
+          '<div class="ds-kpi"><div><label>Cancelled</label><strong>' + clinics.filter(function (c) { return /cancel/i.test(c.planStatus || ''); }).length + '</strong></div></div>';
+        if (!list.length) {
+          document.getElementById('state').style.display = 'block';
+          document.getElementById('state').className = 'ds-empty-panel';
+          document.getElementById('state').innerHTML = '<strong>No subscriptions in this filter</strong>';
+          document.getElementById('table').style.display = 'none';
+          document.getElementById('cards').innerHTML = '';
+          document.getElementById('tbody').innerHTML = '';
+          return;
+        }
+        document.getElementById('state').style.display = 'none';
+        document.getElementById('table').style.display = '';
+        document.getElementById('tbody').innerHTML = list.map(function (c, i) {
+          return '<tr data-i="' + i + '"><td><strong>' + esc(c.name) + '</strong></td><td>' + esc(c.ownerName || c.email) +
+            '</td><td>' + DmaUI.badge(c.plan || 'TRIAL') + '</td><td>' + DmaUI.badge(c.planStatus || '—', /active/i.test(c.planStatus || '') ? 'ok' : /cancel|past/i.test(c.planStatus || '') ? 'warn' : 'off') + '</td></tr>';
+        }).join('');
+        document.getElementById('cards').innerHTML = list.map(function (c, i) {
+          return '<article class="ds-clinic-card" data-i="' + i + '"><h3>' + esc(c.name) + '</h3><div class="ds-clinic-meta">' + esc(c.plan) + ' · ' + esc(c.planStatus) + '</div></article>';
+        }).join('');
+      }
+
+      function pick(e) {
+        var row = e.target.closest('[data-i]');
+        if (!row) return;
+        var list = clinics.filter(match);
+        openSub(list[Number(row.getAttribute('data-i'))]);
+      }
+      document.getElementById('tbody').onclick = pick;
+      document.getElementById('cards').onclick = pick;
+      document.getElementById('filters').onclick = function (e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+        filter = b.getAttribute('data-f');
+        [].forEach.call(document.getElementById('filters').querySelectorAll('button'), function (x) {
+          x.classList.toggle('active', x === b);
+        });
+        render();
+      };
+
+      DmaAdminShell.api('/api/superadmin/clinics?limit=100', { retries: 3 })
+        .then(function (data) {
+          clinics = data.data || data.clinics || [];
+          if (!Array.isArray(clinics)) clinics = [];
+          render();
+        })
+        .catch(function (e) {
+          document.getElementById('state').className = 'ds-error';
+          document.getElementById('state').textContent = e.message || 'Could not load clinics.';
+        });
+    })();
+  </script>
+</body>
+</html>

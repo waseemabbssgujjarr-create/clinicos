@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" class="dma-world-auth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify your email — Doctors My Agency</title>
+  <link rel="icon" href="/media/landing/dma-insignia.png" type="image/png" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=57" />
+</head>
+<body>
+  <div class="dma-auth dma-auth-simple">
+    <main class="dma-auth-form" style="text-align:center">
+      <a class="dma-pub-logo dma-pub-logo--img" href="/" style="justify-content:center"><img class="dma-logo-white" src="/media/landing/dma-logo-white.png" alt="Doctors My Agency" width="220" height="64" /></a>
+      <div class="dma-verify-mark" aria-hidden="true">âœ‰</div>
+      <h2 id="title">Verifying your email…</h2>
+      <p id="emailHint" class="dma-hint" style="display:none"></p>
+      <p id="msg" class="dma-hint">Please wait.</p>
+      <div id="actions" style="margin-top:24px;display:none;flex-wrap:wrap;gap:10px;justify-content:center"></div>
+      <div id="resend" style="margin-top:20px;display:none">
+        <p class="dma-hint">Didn’t get the email?</p>
+        <button type="button" class="dma-btn dma-btn-ghost" id="resendBtn">Resend email</button>
+        <p class="dma-hint" style="margin-top:12px"><a href="/register/">Change email</a> by starting again, or sign in with the correct address.</p>
+      </div>
+    </main>
+  </div>
+  <script src="/portal.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const token = params.get('token');
+    const email = params.get('email');
+    const next = params.get('next') || '';
+    const title = document.getElementById('title');
+    const msg = document.getElementById('msg');
+    const actions = document.getElementById('actions');
+    const resend = document.getElementById('resend');
+
+    function safeNext(url) {
+      if (!url || url.charAt(0) !== '/' || url.indexOf('//') === 0) return '';
+      return url;
+    }
+    function friendlyError(errMsg) {
+      var m = String(errMsg || '');
+      if (/No account is registered|not registered with this email/i.test(m)) {
+        return 'We couldn’t find that address. Check the email used at signup.';
+      }
+      if (/API server unreachable|PROXY_ERROR|not reachable/i.test(m)) {
+        return 'We couldn’t reach the clinic service. Try again in a moment.';
+      }
+      if (/Can't reach database|P1001|P1000|Access denied for user|prisma\.|Database is temporarily|DB_UNAVAILABLE/i.test(m)) {
+        return 'The clinic service is temporarily unavailable. Try again shortly.';
+      }
+      if (/Email delivery failed|SMTP|ECONNREFUSED|Invalid login|535/i.test(m)) {
+        return 'We couldn’t send email just now. Try resend in a minute.';
+      }
+      return m || 'Something went wrong.';
+    }
+    const emailHint = document.getElementById('emailHint');
+    if (email) {
+      emailHint.textContent = 'We sent a verification link to ' + email;
+      emailHint.style.display = 'block';
+    }
+    async function verify() {
+      if (!token) {
+        title.textContent = email ? 'Verify your email' : 'Invalid link';
+        msg.textContent = email
+          ? 'Check your inbox for the verification link, or resend below.'
+          : 'This verification link is missing or invalid.';
+        if (email) resend.style.display = 'block';
+        var n = safeNext(next);
+        if (n) {
+          actions.style.display = 'flex';
+          actions.innerHTML = '<a href="' + n + '" class="dma-btn dma-btn-primary">Continue setup</a><a href="/doctor-login/" class="dma-btn dma-btn-ghost">Sign in</a>';
+        }
+        return;
+      }
+      try {
+        const r = await fetch('/api/auth/verify-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, email }),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.detail || data.error || 'Verification failed');
+        if (data.email) {
+          try { sessionStorage.setItem('dma-verify-email', data.email); } catch (_) {}
+        }
+        title.textContent = 'Email verified';
+        msg.textContent = data.message || 'You can continue to your clinic.';
+        actions.style.display = 'flex';
+        var dest = safeNext(next) || (data.role === 'STAFF' ? '/staff-login/' : '/register/plan/');
+        if (data.role !== 'STAFF' && data.email) {
+          dest += (dest.indexOf('?') >= 0 ? '&' : '?') + 'email=' + encodeURIComponent(data.email);
+        }
+        actions.innerHTML = '<a href="' + dest + '" class="dma-btn dma-btn-primary">Continue</a><a href="/doctor-login/" class="dma-btn dma-btn-ghost">Sign in</a>';
+      } catch (e) {
+        title.textContent = 'Verification needed';
+        msg.textContent = friendlyError(e.message);
+        if (email) resend.style.display = 'block';
+      }
+    }
+    document.getElementById('resendBtn')?.addEventListener('click', async () => {
+      if (!email) return;
+      const btn = document.getElementById('resendBtn');
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      try {
+        const r = await fetch('/api/auth/resend-verification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.detail || data.error || data.message || 'Could not send email');
+        if (data.found === false) {
+          msg.textContent = friendlyError(data.message || 'No account is registered with this email address.');
+          return;
+        }
+        msg.textContent = data.message || 'Verification email sent. Check your inbox and spam folder.';
+      } catch (e) {
+        msg.textContent = friendlyError(e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Resend email';
+      }
+    });
+    verify();
+  </script>
+</body>
+</html>

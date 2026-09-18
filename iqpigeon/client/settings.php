@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'password') {
-        // Handled via AJAX â€” legacy POST ignored
+        // Handled via AJAX — legacy POST ignored
     }
 
     if ($action === 'save_business_hours') {

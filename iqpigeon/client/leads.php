@@ -15,7 +15,7 @@ if (isset($_GET['sync_orders']) && $_GET['sync_orders'] === '1') {
     $synced = lifecycle_repair_stuck_orders_for_user($userId, 100);
     $syncMessage = $synced > 0
         ? "Synced {$synced} confirmed order(s) from WhatsApp chat history."
-        : 'No missing orders found â€” all chats are already synced.';
+        : 'No missing orders found — all chats are already synced.';
 } else {
     lifecycle_repair_stuck_orders_for_user($userId, 50);
 }

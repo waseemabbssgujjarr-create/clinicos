@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" class="doc-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>Broadcasts — Clinicos</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=57" />
+  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=21" />
+  <link rel="stylesheet" href="/dma-doctor-app.css?v=6" />
+  <link rel="stylesheet" href="/dma-doctor-pages.css?v=5" />
+  <style>
+    .bc-audience-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .bc-chip { height: 32px; padding: 0 12px; border-radius: 10px; font-size: .72rem; font-weight: 700; border: 1px solid var(--ds-border-2, #CBD5E1); background: #fff; color: #64748B; cursor: pointer; }
+    .bc-chip.selected { background: var(--ds-primary, #14967F); color: #fff; border-color: transparent; }
+    .bc-preview { background: var(--ds-surface-section, #EEF8F5); border: 1px solid var(--ds-border, #E5E7EB); border-radius: 10px; padding: 12px; min-height: 72px; font-size: .8125rem; white-space: pre-wrap; max-width: 40rem; }
+  </style>
+</head>
+<body>
+  <div class="doc-layout">
+    <aside class="doc-sidebar" id="doc-sidebar" aria-label="Clinic navigation"></aside>
+    <div class="doc-main-wrap">
+      <header class="doc-topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button type="button" class="doc-menu-btn" id="doc-menu-btn" aria-label="Open menu"><span></span><span></span><span></span></button>
+          <h1 id="doc-page-title">Broadcasts</h1>
+        </div>
+        <div class="doc-topbar-actions">
+          <a href="/dashboard/whatsapp/">WhatsApp</a>
+          <a href="/dashboard/messages/">Inbox</a>
+          <span id="doc-user-label">Doctor</span>
+        </div>
+      </header>
+      <main class="doc-main dma-clinic-canvas">
+        <div class="dma-head dma-head-page">
+          <div>
+            <h1>Broadcasts</h1>
+            <p class="dma-prose">Send updates to opted-in patients.</p>
+          </div>
+          <div class="dma-head-actions">
+            <button type="button" class="dma-btn dma-btn-primary" id="bc-new">New broadcast</button>
+          </div>
+        </div>
+        <div class="dma-tabs" id="bc-tabs" role="tablist"><button type="button" class="active">Sent</button></div>
+        <p class="dma-hint" id="bc-hist-count">Loading…</p>
+        <div id="bc-history">
+          <div class="ds-empty-panel"><strong>No broadcasts yet</strong><p>Send your first patient update when you're ready.</p><p style="margin-top:12px"><button type="button" class="dma-btn dma-btn-primary" id="bc-empty-new">New broadcast</button></p></div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
+  <script src="/dashboard-doctor-shell.js?v=22"></script>
+  <script src="/dma-ui.js?v=8"></script>
+  <script src="/dma-doctor-app.js?v=5"></script>
+  <script src="/dashboard-bootstrap.js?v=7"></script>
+  <script>
+  (function () {
+    if (!DmaDoctorShell.initStaticPage('/dashboard/broadcasts/', 'Broadcasts')) return;
+    var selectedAudience = 'ALL_PATIENTS';
+    var token = localStorage.getItem('token');
+    function ah() { return { Authorization: 'Bearer ' + (token || ''), 'Content-Type': 'application/json' }; }
+    function toast(msg, kind) {
+      if (window.DmaApp && DmaApp.toast) DmaApp.toast(msg, kind);
+      else alert(msg);
+    }
+
+    function bindChips() {
+      document.querySelectorAll('.bc-chip').forEach(function (c) {
+        c.onclick = function () {
+          document.querySelectorAll('.bc-chip').forEach(function (x) { x.classList.remove('selected'); });
+          c.classList.add('selected');
+          selectedAudience = c.getAttribute('data-v');
+        };
+      });
+      var ta = document.getElementById('bc-message');
+      if (ta) ta.oninput = function () {
+        var n = document.getElementById('bc-char');
+        var p = document.getElementById('bc-preview');
+        if (n) n.textContent = ta.value.length;
+        if (p) p.textContent = ta.value || 'Your message will appear here...';
+      };
+    }
+
+    var composeModal = null;
+    function openCompose() {
+      var html =
+        '<div class="dma-field"><label>Audience</label>' +
+        '<div class="bc-audience-chips">' +
+          '<button type="button" class="bc-chip selected" data-v="ALL_PATIENTS">All patients</button>' +
+          '<button type="button" class="bc-chip" data-v="HOT_LEADS">Hot leads</button>' +
+          '<button type="button" class="bc-chip" data-v="NO_SHOW">No-show follow-up</button>' +
+          '<button type="button" class="bc-chip" data-v="INACTIVE">Inactive (90+ days)</button>' +
+        '</div></div>' +
+        '<div class="dma-field"><label>Message</label>' +
+        '<textarea id="bc-message" maxlength="4096" placeholder="Hi {{name}}, we have an update from the clinic..."></textarea>' +
+        '<p class="dma-hint"><span id="bc-char">0</span>/4096</p></div>' +
+        '<div class="dma-field"><label>Preview</label><div class="bc-preview" id="bc-preview">Your message will appear here...</div></div>';
+      if (window.DmaUI && DmaUI.modal) {
+        composeModal = DmaUI.modal({
+          title: 'New broadcast',
+          html: html,
+          footer: '<button type="button" class="dma-btn dma-btn-ghost" data-close="1">Cancel</button>' +
+            '<button type="button" class="dma-btn dma-btn-primary" id="bc-send-btn">Send now</button>'
+        });
+      } else if (window.DmaApp) {
+        DmaApp.modal('New broadcast', html,
+          '<button class="dma-btn dma-btn-ghost" data-close>Cancel</button><button class="dma-btn dma-btn-primary" id="bc-send-btn">Send now</button>');
+      }
+      selectedAudience = 'ALL_PATIENTS';
+      bindChips();
+      var send = document.getElementById('bc-send-btn');
+      if (send) send.onclick = sendBroadcast;
+    }
+
+    function sendBroadcast() {
+      var msgEl = document.getElementById('bc-message');
+      var msg = (msgEl && msgEl.value || '').trim();
+      if (!msg) { toast('Enter a message', 'err'); return; }
+      var btn = document.getElementById('bc-send-btn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+      fetch('/api/messages/broadcasts', {
+        method: 'POST',
+        headers: ah(),
+        credentials: 'include',
+        body: JSON.stringify({ messageBody: msg, targetGroup: selectedAudience, channel: 'WHATSAPP' })
+      }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Send now'; }
+        if (!res.ok) { toast((res.d && res.d.error) || 'Send failed', 'err'); return; }
+        toast('Broadcast sent to ' + (res.d.sentCount || ' - ') + ' patients', 'ok');
+        if (composeModal && composeModal.close) composeModal.close();
+        else if (window.DmaApp) DmaApp.closeModal();
+        location.reload();
+      }).catch(function () {
+        if (btn) { btn.disabled = false; btn.textContent = 'Send now'; }
+        toast('Network error', 'err');
+      });
+    }
+
+    document.getElementById('bc-new').onclick = openCompose;
+    var emptyNew = document.getElementById('bc-empty-new');
+    if (emptyNew) emptyNew.onclick = openCompose;
+
+    fetch('/api/messages/broadcasts', { headers: ah(), credentials: 'include' })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (data) {
+        var list = data.broadcasts || data || [];
+        if (!Array.isArray(list)) list = [];
+        document.getElementById('bc-hist-count').textContent = list.length ? (list.length + ' sent') : 'No broadcasts yet';
+        if (!list.length) return;
+        document.getElementById('bc-history').innerHTML = list.slice(0, 40).map(function (b) {
+          var date = b.createdAt ? new Date(b.createdAt).toLocaleDateString() : ' - ';
+          var body = (b.messageBody || '').slice(0, 120);
+          return '<div class="bc-history-item">' +
+            '<div class="bc-history-body"><p class="bc-history-msg">' + body + '</p>' +
+            '<p class="bc-history-meta">' + date + ' · ' + (b.targetGroup || 'All patients') + '</p></div>' +
+            '<div class="bc-history-stat"><strong>' + (b.sentCount || 0) + '</strong><span>sent</span></div></div>';
+        }).join('');
+      }).catch(function () {
+        document.getElementById('bc-hist-count').textContent = 'Could not load broadcasts';
+      });
+  })();
+  </script>
+</body>
+</html>

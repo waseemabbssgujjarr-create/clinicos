@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en" class="doc-static">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leads  -  Doctors My Agency</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=57" />
+  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=21" />
+  <link rel="stylesheet" href="/dma-doctor-app.css?v=6" />
+  <link rel="stylesheet" href="/dma-doctor-pages.css?v=5" />
+</head>
+<body>
+  <div class="doc-layout">
+    <aside class="doc-sidebar" id="doc-sidebar" aria-label="Clinic navigation"></aside>
+    <div class="doc-main-wrap">
+      <header class="doc-topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button type="button" class="doc-menu-btn" id="doc-menu-btn" aria-label="Open menu">
+            <span></span><span></span><span></span>
+          </button>
+          <h1 id="doc-page-title">Leads & Pipeline</h1>
+        </div>
+        <div class="doc-topbar-actions">
+          <span id="doc-user-label">Doctor</span>
+        </div>
+      </header>
+      <main class="doc-main dma-clinic-canvas">
+
+        <div class="dma-head dma-head-page">
+          <div>
+            <h1>Leads</h1>
+            <p class="dma-prose">Pipeline of new, warm, hot, and booked patients from WhatsApp and the booking page.</p>
+          </div>
+          <div class="dma-head-actions">
+            <a class="dma-btn dma-btn-ghost" href="/dashboard/patients/">Patients</a>
+            <a class="dma-btn dma-btn-primary" href="/dashboard/patients/?action=new">Add patient</a>
+          </div>
+        </div>
+
+        <div class="dma-kpis" id="leads-stats">
+          <div class="dma-kpi"><div><label>Total</label><strong id="stat-total"> - </strong><span class="sub">all time</span></div></div>
+          <div class="dma-kpi"><div><label>Hot</label><strong id="stat-hot"> - </strong><span class="sub">need follow-up</span></div></div>
+          <div class="dma-kpi"><div><label>Booked</label><strong id="stat-booked"> - </strong><span class="sub">this month</span></div></div>
+          <div class="dma-kpi"><div><label>Conversion</label><strong id="stat-conv"> - %</strong><span class="sub">lead → booked</span></div></div>
+        </div>
+
+        <div class="dma-tabs" id="leads-view">
+          <button type="button" class="active" onclick="switchView('kanban', this)">Pipeline</button>
+          <button type="button" onclick="switchView('list', this)">List</button>
+        </div>
+        <p class="dma-hint" id="leads-count-label">Loading...</p>
+
+        <!-- Kanban view -->
+        <div id="view-kanban">
+          <div class="leads-pipeline" id="kanban-board">
+            <div class="pipeline-col col-new">
+              <div class="pipeline-col-header">
+                <span class="pipeline-col-title">New</span>
+                <span class="pipeline-badge" id="badge-new">0</span>
+              </div>
+              <div class="pipeline-col-body" id="col-new"><p style="text-align:center;color:var(--faint);font-size:var(--f-sm);padding:2rem 0">Loading...</p></div>
+            </div>
+            <div class="pipeline-col col-warm">
+              <div class="pipeline-col-header">
+                <span class="pipeline-col-title">Warm</span>
+                <span class="pipeline-badge" id="badge-warm">0</span>
+              </div>
+              <div class="pipeline-col-body" id="col-warm"></div>
+            </div>
+            <div class="pipeline-col col-hot">
+              <div class="pipeline-col-header">
+                <span class="pipeline-col-title">Hot 🔥</span>
+                <span class="pipeline-badge" id="badge-hot">0</span>
+              </div>
+              <div class="pipeline-col-body" id="col-hot"></div>
+            </div>
+            <div class="pipeline-col col-booked">
+              <div class="pipeline-col-header">
+                <span class="pipeline-col-title">Booked ✓</span>
+                <span class="pipeline-badge" id="badge-booked">0</span>
+              </div>
+              <div class="pipeline-col-body" id="col-booked"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- List view -->
+        <div id="view-list" style="display:none">
+          <div class="leads-table-section">
+            <div class="search-bar">
+              <input type="text" id="leads-search" placeholder="Search by name, phone, or treatment..." />
+              <select class="filter-sel" id="leads-score-filter">
+                <option value="">All scores</option>
+                <option value="HOT">🔥 Hot</option>
+                <option value="WARM">🟡 Warm</option>
+                <option value="COLD">❄️ Cold</option>
+              </select>
+              <select class="filter-sel" id="leads-status-filter">
+                <option value="">All statuses</option>
+                <option value="NEW">New</option>
+                <option value="CONTACTED">Contacted</option>
+                <option value="BOOKED">Booked</option>
+                <option value="LOST">Lost</option>
+              </select>
+            </div>
+            <div id="leads-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Patient</th>
+                    <th>Treatment Interest</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                    <th>Source</th>
+                    <th>Last Activity</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="leads-tbody">
+                  <tr><td colspan="7" style="text-align:center;padding:3rem 1rem;color:var(--muted);font-weight:600">Loading leads...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+  <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
+
+  <script src="/dashboard-doctor-shell.js?v=22"></script>
+  <script src="/dma-ui.js?v=8"></script>
+  <script src="/dma-doctor-app.js?v=5"></script>
+  <script src="/dashboard-bootstrap.js?v=7"></script>
+  <script>
+  (function () {
+    if (!DmaDoctorShell.initStaticPage('/dashboard/leads/', 'Leads & Pipeline')) return;
+    try {
+      var u = JSON.parse(localStorage.getItem('clinicos-store') || '{}').state.user;
+      if (u && u.ownerName) document.getElementById('doc-user-label').textContent = u.ownerName;
+    } catch (_) {}
+
+    var token = localStorage.getItem('token');
+    function ah() { return { Authorization: 'Bearer ' + (token || ''), 'Content-Type': 'application/json' }; }
+    function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+    function ago(d) {
+      if (!d) return ' - ';
+      var diff = (Date.now() - new Date(d)) / 1000;
+      if (diff < 60) return 'just now';
+      if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+      return Math.floor(diff/86400) + 'd ago';
+    }
+
+    var allLeads = [];
+
+    function findLead(id) {
+      for (var i = 0; i < allLeads.length; i++) if (String(allLeads[i].id) === String(id)) return allLeads[i];
+      return null;
+    }
+
+    function openLead(l) {
+      if (!l) return;
+      if (window.DmaUI && DmaUI.drawer) {
+        DmaUI.drawer({
+          title: l.fullName || l.phone || 'Lead',
+          subtitle: (l.leadScore || '') + (l.status ? ' · ' + l.status : ''),
+          html: (window.DmaUI ? DmaUI.kv([
+            ['Phone', l.phone || ' - '],
+            ['Email', l.email || ' - '],
+            ['Score', l.leadScore || ' - '],
+            ['Status', l.status || ' - '],
+            ['Treatment', l.treatmentInterest || l.intent || ' - '],
+            ['Source', l.source || ' - '],
+            ['Updated', ago(l.updatedAt || l.createdAt)]
+          ]) : ''),
+          tabs: [
+            { id: 'overview', label: 'Overview' },
+            { id: 'contact', label: 'Contact' },
+            { id: 'activity', label: 'Activity' }
+          ],
+          onTab: function (tab, api) {
+            if (tab === 'contact') {
+              api.setBody((window.DmaUI ? DmaUI.kv([['Phone', l.phone], ['Email', l.email], ['Source', l.source]]) : ''));
+            } else if (tab === 'activity') {
+              api.setBody('<p class="dma-hint">Last activity ' + ago(l.updatedAt || l.createdAt) + '. Open Messages for the conversation thread.</p>');
+            } else {
+              api.setBody((window.DmaUI ? DmaUI.kv([
+                ['Score', l.leadScore], ['Status', l.status],
+                ['Treatment', l.treatmentInterest || l.intent], ['Updated', ago(l.updatedAt || l.createdAt)]
+              ]) : ''));
+            }
+          },
+          footer:
+            '<button type="button" class="ds-btn ds-btn-outline" data-close="1">Close</button>' +
+            '<a class="ds-btn ds-btn-outline" href="/dashboard/messages/' + (l.patientId ? '?patient=' + encodeURIComponent(l.patientId) : '') + '">Message</a>' +
+            (l.patientId
+              ? '<a class="ds-btn ds-btn-primary" href="/dashboard/appointments/?action=book&patient=' + encodeURIComponent(l.patientId) + '">Book</a>'
+              : '<a class="ds-btn ds-btn-primary" href="/dashboard/patients/?action=new">Add patient</a>')
+        });
+        return;
+      }
+      if (l.patientId) location.href = '/dashboard/patients/detail/?id=' + encodeURIComponent(l.patientId);
+    }
+
+    function loadLeads() {
+      fetch('/api/leads', { headers: ah(), credentials: 'include' })
+        .then(function (r) { return r.ok ? r.json() : { leads: [] }; })
+        .then(function (d) {
+          allLeads = d.leads || d || [];
+          renderStats();
+          renderKanban();
+          renderList();
+          var lbl = allLeads.length + ' lead' + (allLeads.length !== 1 ? 's' : '') + ' total';
+          document.getElementById('leads-count-label').textContent = lbl;
+        })
+        .catch(function () {
+          document.getElementById('leads-count-label').textContent = 'Could not load leads';
+        });
+    }
+
+    function renderStats() {
+      var hot = allLeads.filter(function(l){return l.leadScore==='HOT';}).length;
+      var booked = allLeads.filter(function(l){return l.status==='BOOKED';}).length;
+      var conv = allLeads.length ? Math.round((booked/allLeads.length)*100) : 0;
+      document.getElementById('stat-total').textContent = allLeads.length;
+      document.getElementById('stat-hot').textContent = hot;
+      document.getElementById('stat-booked').textContent = booked;
+      document.getElementById('stat-conv').textContent = conv + '%';
+    }
+
+    function renderKanban() {
+      var buckets = { NEW: [], WARM: [], HOT: [], BOOKED: [] };
+      allLeads.forEach(function (l) {
+        var score = (l.leadScore || 'COLD').toUpperCase();
+        var status = (l.status || 'NEW').toUpperCase();
+        if (status === 'BOOKED') buckets.BOOKED.push(l);
+        else if (score === 'HOT') buckets.HOT.push(l);
+        else if (score === 'WARM') buckets.WARM.push(l);
+        else buckets.NEW.push(l);
+      });
+      var map = { NEW: 'new', WARM: 'warm', HOT: 'hot', BOOKED: 'booked' };
+      Object.keys(buckets).forEach(function (k) {
+        var col = document.getElementById('col-' + map[k]);
+        var badge = document.getElementById('badge-' + map[k]);
+        if (badge) badge.textContent = buckets[k].length;
+        if (!col) return;
+        if (!buckets[k].length) {
+          col.innerHTML = '<p style="text-align:center;color:var(--faint);font-size:var(--f-xs);padding:2rem 0;font-weight:600">No leads</p>';
+          return;
+        }
+        col.innerHTML = buckets[k].slice(0, 20).map(function (l) {
+          return '<article class="lead-card" data-id="' + esc(l.id) + '" role="button" tabindex="0">' +
+            '<div class="lead-card-name">' + esc(l.fullName || l.phone) + '</div>' +
+            '<div class="lead-card-phone">' + esc(l.phone || '') + '</div>' +
+            '<div class="lead-card-footer">' +
+              '<span class="lead-card-treatment">' + esc(l.treatmentInterest || l.intent || 'General') + '</span>' +
+              '<span class="lead-card-time">' + ago(l.updatedAt || l.createdAt) + '</span>' +
+            '</div></article>';
+        }).join('');
+        col.querySelectorAll('[data-id]').forEach(function (card) {
+          card.onclick = function () { openLead(findLead(card.getAttribute('data-id'))); };
+        });
+      });
+    }
+
+    function renderList() {
+      var tbody = document.getElementById('leads-tbody');
+      var search = (document.getElementById('leads-search').value || '').toLowerCase();
+      var scoreF = document.getElementById('leads-score-filter').value;
+      var statusF = document.getElementById('leads-status-filter').value;
+      var filtered = allLeads.filter(function (l) {
+        if (search && !(l.fullName || '').toLowerCase().includes(search) &&
+            !(l.phone || '').includes(search) &&
+            !(l.treatmentInterest || '').toLowerCase().includes(search)) return false;
+        if (scoreF && (l.leadScore || '').toUpperCase() !== scoreF) return false;
+        if (statusF && (l.status || '').toUpperCase() !== statusF) return false;
+        return true;
+      });
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:3rem 1rem;color:var(--muted);font-weight:600">No leads found</td></tr>';
+        return;
+      }
+      var scoreColors = { HOT: '#DC2626', WARM: '#D97706', COLD: '#94A3B8' };
+      var scoreLabels = { HOT: '🔥 Hot', WARM: '🟡 Warm', COLD: '❄️ Cold' };
+      tbody.innerHTML = filtered.slice(0, 50).map(function (l) {
+        var score = (l.leadScore || 'COLD').toUpperCase();
+        var status = l.status || 'NEW';
+        var srcIcon = l.source === 'WHATSAPP' ? '📱' : l.source === 'EMAIL' ? '✉️' : '🌐';
+        return '<tr data-id="' + esc(l.id) + '">' +
+          '<td data-label="Patient"><strong>' + esc(l.fullName || ' - ') + '</strong><br><span style="color:var(--muted);font-size:.72rem">' + esc(l.phone || '') + '</span></td>' +
+          '<td data-label="Treatment">' + esc(l.treatmentInterest || l.intent || ' - ') + '</td>' +
+          '<td data-label="Score"><span style="display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;color:' + (scoreColors[score] || '#94A3B8') + '">' +
+            '<span style="width:8px;height:8px;border-radius:50%;background:' + (scoreColors[score] || '#94A3B8') + ';flex-shrink:0;display:inline-block"></span>' +
+            (scoreLabels[score] || score) + '</span></td>' +
+          '<td data-label="Status"><span style="font-size:.67rem;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(20,150,127,.1);color:#14967F">' + esc(status) + '</span></td>' +
+          '<td data-label="Source">' + srcIcon + ' ' + esc(l.source || ' - ') + '</td>' +
+          '<td data-label="Activity">' + ago(l.updatedAt || l.createdAt) + '</td>' +
+          '<td data-label="Actions" style="white-space:nowrap">' +
+            '<a href="/dashboard/messages/' + (l.patientId ? '?patient=' + encodeURIComponent(l.patientId) : '') + '" style="font-size:.72rem;font-weight:700;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--c-blue);text-decoration:none;margin-right:4px">Message</a>' +
+            (l.patientId
+              ? '<a href="/dashboard/appointments/?action=book&patient=' + encodeURIComponent(l.patientId) + '" style="font-size:.72rem;font-weight:700;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--c-blue);text-decoration:none">Book</a>'
+              : '<a href="/dashboard/patients/?action=new" style="font-size:.72rem;font-weight:700;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--c-blue);text-decoration:none">Add patient</a>') +
+          '</td>' +
+          '</tr>';
+      }).join('');
+      tbody.querySelectorAll('tr[data-id]').forEach(function (tr) {
+        tr.onclick = function (e) {
+          if (e.target.closest('a, button')) return;
+          openLead(findLead(tr.getAttribute('data-id')));
+        };
+      });
+    }
+
+    window.switchView = function (v, btn) {
+      document.getElementById('view-kanban').style.display = v === 'kanban' ? '' : 'none';
+      document.getElementById('view-list').style.display = v === 'list' ? '' : 'none';
+      document.querySelectorAll('#leads-view button').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+    }
+
+    document.getElementById('leads-search').addEventListener('input', renderList);
+    document.getElementById('leads-score-filter').addEventListener('change', renderList);
+    document.getElementById('leads-status-filter').addEventListener('change', renderList);
+
+    loadLeads();
+  })();
+  </script>
+</body>
+</html>
