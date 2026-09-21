@@ -1,21 +1,27 @@
 <!DOCTYPE html>
 <html lang="en" class="doc-static">
 <head>
+  <script>(function(){try{var r=document.documentElement;var c=r.className||"";var t;if(/\bdma-world-auth\b/.test(c))t="light";else if(/\bdma-world-public\b/.test(c)||/\bdoc-static\b/.test(c)||/\bsa-static\b/.test(c)){t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t="dark";}else{t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <title>Broadcasts — Clinicos</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=57" />
-  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=21" />
-  <link rel="stylesheet" href="/dma-doctor-app.css?v=6" />
-  <link rel="stylesheet" href="/dma-doctor-pages.css?v=5" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=60" />
+  <script src="/js/ds-theme.js?v=2"></script>
+  <script src="/js/ds-status.js?v=1"></script>
+  <script src="/js/ds-format.js?v=1"></script>
+  <script src="/js/ds-permissions.js?v=1"></script>
+  <script src="/js/ds-icons.js?v=1"></script>
+  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=24" />
+  <link rel="stylesheet" href="/dma-doctor-app.css?v=7" />
+  <link rel="stylesheet" href="/dma-doctor-pages.css?v=8" />
   <style>
     .bc-audience-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-    .bc-chip { height: 32px; padding: 0 12px; border-radius: 10px; font-size: .72rem; font-weight: 700; border: 1px solid var(--ds-border-2, #CBD5E1); background: #fff; color: #64748B; cursor: pointer; }
-    .bc-chip.selected { background: var(--ds-primary, #14967F); color: #fff; border-color: transparent; }
-    .bc-preview { background: var(--ds-surface-section, #EEF8F5); border: 1px solid var(--ds-border, #E5E7EB); border-radius: 10px; padding: 12px; min-height: 72px; font-size: .8125rem; white-space: pre-wrap; max-width: 40rem; }
+    .bc-chip { height: 32px; padding: 0 12px; border-radius: 999px; font-size: .72rem; font-weight: 700; border: 1px solid rgba(148, 163, 184, 0.22); background: #243044; color: #B4C2D6; cursor: pointer; }
+    .bc-chip.selected { background: linear-gradient(135deg, #0E7A68 0%, #0B6456 100%); color: #fff; border-color: transparent; }
+    .bc-preview { background: #0F1724; border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 10px; padding: 12px; min-height: 72px; font-size: .8125rem; white-space: pre-wrap; max-width: 40rem; color: #F8FBFF; }
   </style>
 </head>
 <body>
@@ -52,8 +58,8 @@
     </div>
   </div>
   <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
-  <script src="/dashboard-doctor-shell.js?v=22"></script>
-  <script src="/dma-ui.js?v=8"></script>
+  <script src="/dashboard-doctor-shell.js?v=24"></script>
+  <script src="/dma-ui.js?v=9"></script>
   <script src="/dma-doctor-app.js?v=5"></script>
   <script src="/dashboard-bootstrap.js?v=7"></script>
   <script>
@@ -67,24 +73,42 @@
       else alert(msg);
     }
 
+    var composeModal = null;
+    var DRAFT = 'Hi {{name}}, we have an update from the clinic.';
+
+    function composeRoot() {
+      if (composeModal && composeModal.el) return composeModal.el;
+      return document.getElementById('ds-modal') || document.getElementById('dma-modal-bg') || document;
+    }
+
+    function syncPreview() {
+      var root = composeRoot();
+      var ta = root.querySelector('#bc-message');
+      if (!ta) return;
+      var n = root.querySelector('#bc-char');
+      var p = root.querySelector('#bc-preview');
+      if (n) n.textContent = String(ta.value.length);
+      if (p) p.textContent = ta.value.trim() || 'Your message will appear here.';
+    }
+
     function bindChips() {
-      document.querySelectorAll('.bc-chip').forEach(function (c) {
+      var root = composeRoot();
+      root.querySelectorAll('.bc-chip').forEach(function (c) {
         c.onclick = function () {
-          document.querySelectorAll('.bc-chip').forEach(function (x) { x.classList.remove('selected'); });
+          root.querySelectorAll('.bc-chip').forEach(function (x) { x.classList.remove('selected'); });
           c.classList.add('selected');
           selectedAudience = c.getAttribute('data-v');
         };
       });
-      var ta = document.getElementById('bc-message');
-      if (ta) ta.oninput = function () {
-        var n = document.getElementById('bc-char');
-        var p = document.getElementById('bc-preview');
-        if (n) n.textContent = ta.value.length;
-        if (p) p.textContent = ta.value || 'Your message will appear here...';
-      };
+      var ta = root.querySelector('#bc-message');
+      if (ta) {
+        ta.oninput = syncPreview;
+        if (!ta.value.trim()) ta.value = DRAFT;
+        syncPreview();
+        if (ta.focus) ta.focus();
+      }
     }
 
-    var composeModal = null;
     function openCompose() {
       var html =
         '<div class="dma-field"><label>Audience</label>' +
@@ -95,9 +119,9 @@
           '<button type="button" class="bc-chip" data-v="INACTIVE">Inactive (90+ days)</button>' +
         '</div></div>' +
         '<div class="dma-field"><label>Message</label>' +
-        '<textarea id="bc-message" maxlength="4096" placeholder="Hi {{name}}, we have an update from the clinic..."></textarea>' +
-        '<p class="dma-hint"><span id="bc-char">0</span>/4096</p></div>' +
-        '<div class="dma-field"><label>Preview</label><div class="bc-preview" id="bc-preview">Your message will appear here...</div></div>';
+        '<textarea id="bc-message" class="ds-input" rows="5" maxlength="4096" placeholder="Write the update patients will receive">' + DRAFT + '</textarea>' +
+        '<p class="dma-hint"><span id="bc-char">0</span>/4096 · Use {{name}} for the patient’s first name.</p></div>' +
+        '<div class="dma-field"><label>Preview</label><div class="bc-preview" id="bc-preview"></div></div>';
       if (window.DmaUI && DmaUI.modal) {
         composeModal = DmaUI.modal({
           title: 'New broadcast',
@@ -106,36 +130,54 @@
             '<button type="button" class="dma-btn dma-btn-primary" id="bc-send-btn">Send now</button>'
         });
       } else if (window.DmaApp) {
-        DmaApp.modal('New broadcast', html,
-          '<button class="dma-btn dma-btn-ghost" data-close>Cancel</button><button class="dma-btn dma-btn-primary" id="bc-send-btn">Send now</button>');
+        composeModal = { el: DmaApp.modal('New broadcast', html,
+          '<button type="button" class="dma-btn dma-btn-ghost" data-close>Cancel</button><button type="button" class="dma-btn dma-btn-primary" id="bc-send-btn">Send now</button>'),
+          close: function () { DmaApp.closeModal(); } };
       }
       selectedAudience = 'ALL_PATIENTS';
       bindChips();
-      var send = document.getElementById('bc-send-btn');
+      var send = composeRoot().querySelector('#bc-send-btn');
       if (send) send.onclick = sendBroadcast;
     }
 
     function sendBroadcast() {
-      var msgEl = document.getElementById('bc-message');
+      var root = composeRoot();
+      var msgEl = root.querySelector('#bc-message');
       var msg = (msgEl && msgEl.value || '').trim();
-      if (!msg) { toast('Enter a message', 'err'); return; }
-      var btn = document.getElementById('bc-send-btn');
+      if (!msg) { toast('Enter a message', 'err'); if (msgEl && msgEl.focus) msgEl.focus(); return; }
+      var btn = root.querySelector('#bc-send-btn');
       if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
-      fetch('/api/messages/broadcasts', {
-        method: 'POST',
-        headers: ah(),
-        credentials: 'include',
-        body: JSON.stringify({ messageBody: msg, targetGroup: selectedAudience, channel: 'WHATSAPP' })
-      }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
-      .then(function (res) {
+      var payload = { messageBody: msg, targetGroup: selectedAudience, channel: 'WHATSAPP' };
+      var req = (window.DmaApp && DmaApp.post)
+        ? DmaApp.post('/api/messages/broadcast', payload)
+        : fetch('/api/messages/broadcast', {
+            method: 'POST', headers: ah(), credentials: 'include', body: JSON.stringify(payload)
+          }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); });
+      req.then(function (res) {
         if (btn) { btn.disabled = false; btn.textContent = 'Send now'; }
-        if (!res.ok) { toast((res.d && res.d.error) || 'Send failed', 'err'); return; }
-        toast('Broadcast sent to ' + (res.d.sentCount || ' - ') + ' patients', 'ok');
+        if (!res.ok) {
+          toast((res.d && (res.d.error || res.d.message)) || 'Send failed', 'err');
+          return;
+        }
+        var n = (res.d && res.d.sentCount);
+        toast(n != null ? ('Broadcast sent to ' + n + ' patients') : 'Broadcast sent', 'ok');
         if (composeModal && composeModal.close) composeModal.close();
         else if (window.DmaApp) DmaApp.closeModal();
-        location.reload();
-      }).catch(function () {
+        var hist = document.getElementById('bc-history');
+        var countEl = document.getElementById('bc-hist-count');
+        if (hist) {
+          var item = '<div class="bc-history-item">' +
+            '<div class="bc-history-body"><p class="bc-history-msg">' + (window.DmaApp ? DmaApp.esc(msg).slice(0, 120) : msg.slice(0, 120)) + '</p>' +
+            '<p class="bc-history-meta">Just now · ' + selectedAudience + '</p></div>' +
+            '<div class="bc-history-stat"><strong>' + (n != null ? n : '—') + '</strong><span>sent</span></div></div>';
+          var empty = hist.querySelector('.ds-empty-panel');
+          if (empty) hist.innerHTML = item;
+          else hist.insertAdjacentHTML('afterbegin', item);
+        }
+        if (countEl) countEl.textContent = 'Sent';
+      }).catch(function (err) {
         if (btn) { btn.disabled = false; btn.textContent = 'Send now'; }
+        if (err && err.status === 401) return;
         toast('Network error', 'err');
       });
     }
