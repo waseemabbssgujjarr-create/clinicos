@@ -33,7 +33,7 @@
   function pageHead(title, desc, actionsHtml, kicker) {
     return '<div class="dma-head dma-head-page ds-page-enter"><div>' +
       (kicker ? '<div class="dma-head-kicker"><span class="ds-pill">' + kicker + '</span></div>' : '') +
-      '<h1>' + title + '</h1>' +
+      '<p class="dma-head-title">' + title + '</p>' +
       (desc ? '<p class="dma-prose">' + desc + '</p>' : '') +
       '</div>' +
       (actionsHtml ? '<div class="dma-head-actions">' + actionsHtml + '</div>' : '') + '</div>';
@@ -55,7 +55,8 @@
     var opts = ['PENDING', 'CONFIRMED', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED', 'NO_SHOW', 'CANCELLED'];
     return '<select class="dma-status-sel" ' + (onchangeAttr || '') + '>' +
       opts.map(function (s) {
-        return '<option value="' + s + '"' + (s === current ? ' selected' : '') + '>' + s.replace('_', ' ') + '</option>';
+        var label = (global.DmaStatus && DmaStatus.lookup("appointment", s).label) || s.replace(/_/g, " ");
+        return '<option value="' + s + '"' + (s === current ? ' selected' : '') + '>' + label + '</option>';
       }).join('') + '</select>';
   }
 
@@ -104,8 +105,8 @@
     var noshow = rows.filter(function (a) { return statusOf(a) === 'NO_SHOW'; }).length;
     return {
       completed: completed,
-      cancelRate: n ? Math.round((cancelled / n) * 100) : 0,
-      noShowRate: n ? Math.round((noshow / n) * 100) : 0,
+      cancelRate: n ? Math.round((cancelled / n) * 100) : null,
+      noShowRate: n ? Math.round((noshow / n) * 100) : null,
       revenue: rows.filter(function (a) { return statusOf(a) === 'COMPLETED'; }).reduce(function (s, a) { return s + feeOf(a); }, 0),
       waiting: rows.filter(function (a) { return statusOf(a) === 'ARRIVED' || statusOf(a) === 'IN_PROGRESS'; }).length,
       uniquePatients: Object.keys(rows.reduce(function (m, a) {
