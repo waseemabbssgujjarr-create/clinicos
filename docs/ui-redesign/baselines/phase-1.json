@@ -1,0 +1,3454 @@
+{
+  "label": "phase-1",
+  "at": "2026-09-21T13:27:48.874Z",
+  "origin": "http://127.0.0.1:8765",
+  "api": "not-started",
+  "auth": {
+    "owner": false,
+    "staff": false,
+    "admin": false
+  },
+  "notes": [
+    "No UI_E2E_* credentials in environment. Clinic/superadmin routes are static HTML + expected login redirect. API not started (no DATABASE_URL in this checkout)."
+  ],
+  "results": [
+    {
+      "route": "/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "aria-required-children",
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": [
+        "axe-serious:aria-required-children,color-contrast"
+      ]
+    },
+    {
+      "route": "/platform/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#platform",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": []
+    },
+    {
+      "route": "/ai-receptionist/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#ai-receptionist",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": []
+    },
+    {
+      "route": "/clinic-crm/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#clinic-crm",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": []
+    },
+    {
+      "route": "/clinical/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#clinical",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": []
+    },
+    {
+      "route": "/patient-experience/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#patient-experience",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": []
+    },
+    {
+      "route": "/solutions/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#solutions",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": []
+    },
+    {
+      "route": "/pricing/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#pricing",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "aria-required-children",
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": [
+        "axe-serious:aria-required-children,color-contrast"
+      ]
+    },
+    {
+      "route": "/faqs/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/faqs/",
+      "title": "FAQs — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 1,
+        "ids": [
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 1
+      },
+      "notes": [
+        "axe-serious:color-contrast"
+      ]
+    },
+    {
+      "route": "/contact/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/contact/",
+      "title": "Contact — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 1,
+        "ids": [
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 2
+      },
+      "notes": [
+        "axe-serious:color-contrast"
+      ]
+    },
+    {
+      "route": "/about/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/about/",
+      "title": "About — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 2
+      },
+      "notes": []
+    },
+    {
+      "route": "/privacy/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/privacy/",
+      "title": "Privacy Policy — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/terms/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/terms/",
+      "title": "Terms of Service — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/security/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/security/",
+      "title": "Security Practices — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/data-deletion/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/data-deletion/",
+      "title": "Data Deletion — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 2
+      },
+      "notes": []
+    },
+    {
+      "route": "/data-processing/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/data-processing/",
+      "title": "Data Processing Agreement — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/demo/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/demo/",
+      "title": "Live AI Receptionist Demo — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 1,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/start/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/start/",
+      "title": "Get Started — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 1,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 0
+      },
+      "notes": []
+    },
+    {
+      "route": "/doctor-login/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 1,
+        "ids": [
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": [
+        "axe-serious:color-contrast"
+      ]
+    },
+    {
+      "route": "/staff-login/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/staff-login/",
+      "title": "Staff sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "color-contrast",
+          "label"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": [
+        "axe-serious:color-contrast,label"
+      ]
+    },
+    {
+      "route": "/admin-login/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 0,
+        "ids": []
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/register/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/register/",
+      "title": "Set up your clinic — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/register/clinic/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/register/",
+      "title": "Set up your clinic — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/register/hours/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/register/",
+      "title": "Set up your clinic — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/register/plan/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/register/",
+      "title": "Set up your clinic — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/forgot-password/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/forgot-password/",
+      "title": "Reset your password — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 0,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/reset-password/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/reset-password/",
+      "title": "Set new password — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 0,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/verify-email/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/verify-email/",
+      "title": "Verify your email — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 0,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 0
+      },
+      "notes": []
+    },
+    {
+      "route": "/accept-invite/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/accept-invite/",
+      "title": "Accept Invitation — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 1,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/book/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/book/",
+      "title": "Book an Appointment — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 1,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 0
+      },
+      "notes": []
+    },
+    {
+      "route": "/patients/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/patients/",
+      "title": "Patient Access — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 1,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 0
+      },
+      "notes": []
+    },
+    {
+      "route": "/verify/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/verify/",
+      "title": "Verify Phone — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 1,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 2
+      },
+      "notes": []
+    },
+    {
+      "route": "/my-appointments/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/my-appointments/",
+      "title": "My Appointments — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 3,
+        "nav": 1,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 2
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/appointments/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fappointments%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/calendar/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fcalendar%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/waiting/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fwaiting%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/patients/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fpatients%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/patients/detail/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fpatients%2Fdetail%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/messages/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fmessages%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/whatsapp/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fwhatsapp%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/broadcasts/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fbroadcasts%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/communication/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fcommunication%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/ai/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fai%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/leads/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fleads%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/clinical/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fclinical%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/consult/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fconsult%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/vitals/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fvitals%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/prescriptions/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fprescriptions%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/laboratory/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Flaboratory%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/documents/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fdocuments%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/staff/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fstaff%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/doctors/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fdoctors%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/rooms/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Frooms%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/operations/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Foperations%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/inventory/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Finventory%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/leave/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fleave%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/telemedicine/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Ftelemedicine%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/locations/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Flocations%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/payments/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fpayments%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/tasks/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Ftasks%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/analytics/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fanalytics%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/reports/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Freports%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/reviews/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Freviews%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/billing/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fbilling%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/settings/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fsettings%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/notifications/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2Fnotifications%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/clinics/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/clinics/detail/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/users/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/subscriptions/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/stripe/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/revenue/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/whatsapp/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/announcements/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/support/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/settings/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/security/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/health/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/audit/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/integrations/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/api/",
+      "width": 1366,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/",
+      "width": 360,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": []
+    },
+    {
+      "route": "/doctor-login/",
+      "width": 360,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/staff-login/",
+      "width": 360,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/staff-login/",
+      "title": "Staff sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/admin-login/",
+      "width": 360,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/",
+      "width": 360,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/",
+      "width": 360,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/pricing/",
+      "width": 360,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#pricing",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": []
+    },
+    {
+      "route": "/",
+      "width": 768,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": []
+    },
+    {
+      "route": "/doctor-login/",
+      "width": 768,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/staff-login/",
+      "width": 768,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/staff-login/",
+      "title": "Staff sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/admin-login/",
+      "width": 768,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/",
+      "width": 768,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/",
+      "width": 768,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/pricing/",
+      "width": 768,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#pricing",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": []
+    },
+    {
+      "route": "/",
+      "width": 1024,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "aria-required-children",
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": [
+        "axe-serious:aria-required-children,color-contrast"
+      ]
+    },
+    {
+      "route": "/doctor-login/",
+      "width": 1024,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 1,
+        "ids": [
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": [
+        "axe-serious:color-contrast"
+      ]
+    },
+    {
+      "route": "/staff-login/",
+      "width": 1024,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/staff-login/",
+      "title": "Staff sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "color-contrast",
+          "label"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": [
+        "axe-serious:color-contrast,label"
+      ]
+    },
+    {
+      "route": "/admin-login/",
+      "width": 1024,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 0,
+        "ids": []
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/",
+      "width": 1024,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/",
+      "width": 1024,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/pricing/",
+      "width": 1024,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#pricing",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "aria-required-children",
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": [
+        "axe-serious:aria-required-children,color-contrast"
+      ]
+    },
+    {
+      "route": "/",
+      "width": 1920,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "aria-required-children",
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": [
+        "axe-serious:aria-required-children,color-contrast"
+      ]
+    },
+    {
+      "route": "/doctor-login/",
+      "width": 1920,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 1,
+        "ids": [
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": [
+        "axe-serious:color-contrast"
+      ]
+    },
+    {
+      "route": "/staff-login/",
+      "width": 1920,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/staff-login/",
+      "title": "Staff sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "color-contrast",
+          "label"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": [
+        "axe-serious:color-contrast,label"
+      ]
+    },
+    {
+      "route": "/admin-login/",
+      "width": 1920,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 0,
+        "ids": []
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/",
+      "width": 1920,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/",
+      "width": 1920,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/pricing/",
+      "width": 1920,
+      "theme": "light",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#pricing",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "aria-required-children",
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": [
+        "axe-serious:aria-required-children,color-contrast"
+      ]
+    },
+    {
+      "route": "/",
+      "width": 360,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": []
+    },
+    {
+      "route": "/doctor-login/",
+      "width": 360,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/staff-login/",
+      "width": 360,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/staff-login/",
+      "title": "Staff sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/admin-login/",
+      "width": 360,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/",
+      "width": 360,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/",
+      "width": 360,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/pricing/",
+      "width": 360,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#pricing",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": []
+    },
+    {
+      "route": "/",
+      "width": 768,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": []
+    },
+    {
+      "route": "/doctor-login/",
+      "width": 768,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/staff-login/",
+      "width": 768,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/staff-login/",
+      "title": "Staff sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/admin-login/",
+      "width": 768,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/",
+      "width": 768,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/",
+      "width": 768,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/pricing/",
+      "width": 768,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#pricing",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": []
+    },
+    {
+      "route": "/",
+      "width": 1024,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "aria-required-children",
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": [
+        "axe-serious:aria-required-children,color-contrast"
+      ]
+    },
+    {
+      "route": "/doctor-login/",
+      "width": 1024,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 1,
+        "ids": [
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": [
+        "axe-serious:color-contrast"
+      ]
+    },
+    {
+      "route": "/staff-login/",
+      "width": 1024,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/staff-login/",
+      "title": "Staff sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "color-contrast",
+          "label"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": [
+        "axe-serious:color-contrast,label"
+      ]
+    },
+    {
+      "route": "/admin-login/",
+      "width": 1024,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 0,
+        "ids": []
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/",
+      "width": 1024,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/",
+      "width": 1024,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/pricing/",
+      "width": 1024,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#pricing",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "aria-required-children",
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": [
+        "axe-serious:aria-required-children,color-contrast"
+      ]
+    },
+    {
+      "route": "/",
+      "width": 1366,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "aria-required-children",
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": [
+        "axe-serious:aria-required-children,color-contrast"
+      ]
+    },
+    {
+      "route": "/doctor-login/",
+      "width": 1366,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 1,
+        "ids": [
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": [
+        "axe-serious:color-contrast"
+      ]
+    },
+    {
+      "route": "/staff-login/",
+      "width": 1366,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/staff-login/",
+      "title": "Staff sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "color-contrast",
+          "label"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": [
+        "axe-serious:color-contrast,label"
+      ]
+    },
+    {
+      "route": "/admin-login/",
+      "width": 1366,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 0,
+        "ids": []
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/",
+      "width": 1366,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/",
+      "width": 1366,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/pricing/",
+      "width": 1366,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#pricing",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "aria-required-children",
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": [
+        "axe-serious:aria-required-children,color-contrast"
+      ]
+    },
+    {
+      "route": "/",
+      "width": 1920,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "aria-required-children",
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": [
+        "axe-serious:aria-required-children,color-contrast"
+      ]
+    },
+    {
+      "route": "/doctor-login/",
+      "width": 1920,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 1,
+        "ids": [
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": [
+        "axe-serious:color-contrast"
+      ]
+    },
+    {
+      "route": "/staff-login/",
+      "width": 1920,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/staff-login/",
+      "title": "Staff sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "color-contrast",
+          "label"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": [
+        "axe-serious:color-contrast,label"
+      ]
+    },
+    {
+      "route": "/admin-login/",
+      "width": 1920,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 0,
+        "ids": []
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/dashboard/",
+      "width": 1920,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/doctor-login/?next=%2Fdashboard%2F",
+      "title": "Sign in — Clinicos",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/superadmin/",
+      "width": 1920,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/admin-login/",
+      "title": "Platform Admin — Doctors My Agency",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": null,
+      "landmarks": {
+        "h1": 1,
+        "nav": 0,
+        "main": 1,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": true,
+        "primaryBtn": 1
+      },
+      "notes": []
+    },
+    {
+      "route": "/pricing/",
+      "width": 1920,
+      "theme": "dark",
+      "status": "ok",
+      "url": "http://127.0.0.1:8765/#pricing",
+      "title": "Clinicos — Run your clinic without the paperwork",
+      "overflowX": false,
+      "consoleErrors": [],
+      "failedNetwork": [],
+      "axe": {
+        "serious": 2,
+        "ids": [
+          "aria-required-children",
+          "color-contrast"
+        ]
+      },
+      "landmarks": {
+        "h1": 1,
+        "nav": 2,
+        "main": 0,
+        "docLayout": false,
+        "saLayout": false,
+        "auth": false,
+        "primaryBtn": 6
+      },
+      "notes": [
+        "axe-serious:aria-required-children,color-contrast"
+      ]
+    }
+  ],
+  "summary": {
+    "total": 146,
+    "ok": 146,
+    "overflow": 0,
+    "httpFail": 0,
+    "axeSerious": 26,
+    "missingHtml": 0
+  }
+}

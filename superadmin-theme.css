@@ -11,7 +11,7 @@
   --sa-orange-border: rgba(20, 150, 127, 0.25);
   --sa-sidebar-w: var(--ds-sidebar, 240px);
   --sa-content-max: var(--ds-content, 1440px);
-  --sa-topbar-h: var(--ds-h-header, 56px);
+  --sa-topbar-h: var(--ds-h-header, 64px);
   --sa-space-1: 4px;
   --sa-space-2: 8px;
   --sa-space-3: 12px;

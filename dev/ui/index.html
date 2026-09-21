@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clinicos design system — /dev/ui</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <script>(function(){try{var t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dma-design-system.css?v=58" />
+  <script src="/js/ds-theme.js?v=1"></script>
+  <script src="/js/ds-status.js?v=1"></script>
+  <script src="/js/ds-format.js?v=1"></script>
+  <script src="/js/ds-permissions.js?v=1"></script>
+  <script src="/js/ds-icons.js?v=1"></script>
+  <style>
+    .dev-ui { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+    .dev-ui h1 { font-family: var(--ds-font-display); font-size: var(--text-display); margin: 0 0 8px; }
+    .dev-ui .lead { color: var(--ds-muted); margin: 0 0 24px; }
+    .dev-ui section { margin: 40px 0; }
+    .dev-ui h2 { font-family: var(--ds-font-display); font-size: var(--text-title); }
+    .swatch-row { display: flex; flex-wrap: wrap; gap: 12px; }
+    .swatch { width: 140px; border: 1px solid var(--ds-border); border-radius: 14px; overflow: hidden; background: var(--ds-surface); }
+    .swatch i { display: block; height: 56px; }
+    .swatch b, .swatch span { display: block; padding: 0 10px; font-size: 12px; }
+    .swatch span { color: var(--ds-muted); padding-bottom: 10px; }
+    .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0; }
+    .type-sample { margin: 8px 0; }
+    table.dev-table { width: 100%; border-collapse: collapse; }
+    table.dev-table th, table.dev-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--ds-border); font-size: 14px; }
+    .arch { display: grid; gap: 16px; }
+    .arch article { border: 1px solid var(--ds-border); border-radius: 16px; padding: 16px; background: var(--ds-surface); }
+  </style>
+</head>
+<body>
+  <div class="dev-ui">
+    <p class="ds-hint" style="margin:0 0 12px">Dev only · not linked from product nav · noindex</p>
+    <h1>Clinicos primitives</h1>
+    <p class="lead">Token-driven light and dark. Teal fills use #0E7A68 so white text meets WCAG AA. Headings are Montserrat; body is Plus Jakarta Sans. Inter is not loaded.</p>
+    <div class="row">
+      <button type="button" class="ds-btn ds-btn-secondary" data-ds-theme-toggle>Toggle theme</button>
+      <span class="ds-muted" id="theme-label"></span>
+    </div>
+
+    <section>
+      <h2>Color</h2>
+      <div class="swatch-row" id="swatches"></div>
+    </section>
+
+    <section>
+      <h2>Type</h2>
+      <div class="type-sample" style="font-family:var(--ds-font-display);font-size:var(--text-display);font-weight:700">Display — Montserrat 700</div>
+      <div class="type-sample" style="font-family:var(--ds-font-display);font-size:var(--text-title);font-weight:700">Title — page name</div>
+      <div class="type-sample" style="font-size:var(--ds-body)">Body 15px — Plus Jakarta Sans. Missing values render as —.</div>
+      <div class="type-sample ds-num" style="font-size:var(--text-kpi);font-weight:700">1,240.00</div>
+    </section>
+
+    <section>
+      <h2>Buttons</h2>
+      <div class="row">
+        <button type="button" class="ds-btn ds-btn-primary">Primary</button>
+        <button type="button" class="ds-btn ds-btn-secondary">Secondary</button>
+        <button type="button" class="ds-btn ds-btn-ghost">Ghost</button>
+        <button type="button" class="ds-btn ds-btn-danger">Danger</button>
+        <button type="button" class="ds-btn ds-btn-primary" disabled>Disabled</button>
+        <a class="ds-btn ds-btn-primary" href="#forms">Link as button</a>
+      </div>
+    </section>
+
+    <section id="forms">
+      <h2>Fields</h2>
+      <div class="row">
+        <label>Name <input class="ds-input" type="text" placeholder="Patient name" /></label>
+        <label>Status
+          <select class="ds-input">
+            <option>Confirmed</option>
+            <option>Pending</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section>
+      <h2>Status pills</h2>
+      <div class="row" id="pills"></div>
+    </section>
+
+    <section>
+      <h2>Stat card</h2>
+      <div class="ds-kpis">
+        <article class="ds-card dma-kpi"><span>Today’s visits</span><strong class="ds-num">12</strong></article>
+        <article class="ds-card dma-kpi"><span>Cancel rate</span><strong>—</strong><small>Hidden when the day has no visits</small></article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Table</h2>
+      <div class="ds-table-wrap">
+        <table class="ds-table dev-table">
+          <thead><tr><th>Patient</th><th>Status</th><th>Time</th></tr></thead>
+          <tbody>
+            <tr><td>Amira Khan</td><td id="pill-row"></td><td class="ds-num">09:30</td></tr>
+            <tr><td>No results example</td><td colspan="2">Use empty copy: “No patients match these filters.”</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Empty / loading / error</h2>
+      <div class="ds-empty"><h2>No appointments yet</h2><p>When you book the first visit it will show up here.</p></div>
+      <div class="ds-empty"><h2>No matching appointments</h2><p>Try another date or clear filters.</p></div>
+      <div class="ds-skel-wrap" aria-hidden="true"><div class="ds-skel"></div><div class="ds-skel"></div></div>
+      <div class="ds-error"><h2>Couldn’t load appointments</h2><p>Check your connection, then retry.</p><button type="button" class="ds-btn ds-btn-secondary">Retry</button></div>
+    </section>
+
+    <section>
+      <h2>Archetypes A–H (templates)</h2>
+      <div class="arch">
+        <article><strong>A Overview</strong><p>Greeting, 3–5 real stats, attention list. No fake deltas.</p></article>
+        <article><strong>B List + preview</strong><p>Toolbar + table. Docked preview when <code>?id=</code> exists; drawer on small screens.</p></article>
+        <article><strong>C Detail</strong><p>Identity, URL-synced pill tabs, cards, meta rail.</p></article>
+        <article><strong>D Settings</strong><p>Section cards, one save model.</p></article>
+        <article><strong>E Form / wizard</strong><p>One column, 44px controls, sentence-case labels.</p></article>
+        <article><strong>F Billing</strong><p>Only clinic Stripe and superadmin subscriptions — real API numbers.</p></article>
+        <article><strong>G Time</strong><p>Calendar, waiting room, schedule.</p></article>
+        <article><strong>H Auth</strong><p>Light split, 10px controls, teal panel. Stays light.</p></article>
+      </div>
+    </section>
+  </div>
+  <script>
+    document.getElementById("theme-label").textContent = "Theme: " + document.documentElement.getAttribute("data-theme");
+    document.addEventListener("click", function () {
+      setTimeout(function () {
+        document.getElementById("theme-label").textContent = "Theme: " + document.documentElement.getAttribute("data-theme");
+      }, 0);
+    });
+    var colors = [
+      ["--ds-primary-fill", "Primary fill AA"],
+      ["--ds-primary", "Brand teal"],
+      ["--ds-nav", "Sidebar"],
+      ["--ds-bg", "App canvas"],
+      ["--ds-surface", "Surface"],
+      ["--ds-text", "Text"],
+      ["--ds-danger", "Danger"]
+    ];
+    document.getElementById("swatches").innerHTML = colors.map(function (c) {
+      return '<div class="swatch"><i style="background:var(' + c[0] + ')"></i><b>' + c[1] + '</b><span>' + c[0] + '</span></div>';
+    }).join("");
+    var domains = [["appointment","CONFIRMED"],["appointment","NO_SHOW"],["planStatus","PAST_DUE"],["whatsapp","connected"],["health","ONLINE"]];
+    document.getElementById("pills").innerHTML = domains.map(function (d) { return DmaStatus.pill(d[0], d[1]); }).join(" ");
+    document.getElementById("pill-row").innerHTML = DmaStatus.pill("appointment", "ARRIVED");
+  </script>
+</body>
+</html>

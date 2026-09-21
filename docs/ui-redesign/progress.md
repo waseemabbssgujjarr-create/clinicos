@@ -128,3 +128,13 @@ _None blocking. Phase 0 opens resolved by product owner 21 Sep 2026._
 - Forced dark + IQPigeon blue overlay in `dma-design-system.css` (~L6383+) on `html.doc-static` / `sa-static` / auth. Phase 1 must scope to `[data-theme="dark"]` and restore teal.
 - Dark theme does not remap `--ds-*` at `:root` (only legacy `--bg`).
 - No seed credentials in repo; harness static-only unless env provided.
+
+## Phase 1 (foundation) — done
+
+- Dark `--ds-*` remaps on `html[data-theme="dark"]`. Forced-dark overlay scoped to `[data-theme="dark"]` for clinic/admin. Auth stays light. Landing stays dark OS.
+- Filled buttons `#0E7A68` + white. Inter removed from Google Fonts; body is Plus Jakarta Sans.
+- Header 64px, sidebar 240px. No-flash boot in HTML heads.
+- Helpers: `js/ds-theme.js`, `ds-status.js`, `ds-format.js`, `ds-permissions.js`, `ds-icons.js`, `ds-nav.js`.
+- Style guide: `/dev/ui/` (noindex).
+- Page bodies not restyled. Shell chrome not yet unified (Phase 2).
+
