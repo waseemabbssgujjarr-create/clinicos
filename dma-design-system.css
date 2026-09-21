@@ -4535,7 +4535,7 @@ html.doc-static .dma-modal-f,
   gap: 8px;
   padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--ds-border);
-  background: #fff;
+  background: var(--ds-surface);
   flex-shrink: 0;
 }
 html.doc-static .dma-modal-h .dma-btn,
@@ -4578,7 +4578,7 @@ html.doc-static .ds-modal-f {
   gap: 8px;
   padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--ds-border);
-  background: #fff;
+  background: var(--ds-surface);
   flex-shrink: 0;
 }
 
@@ -8749,3 +8749,190 @@ html.sa-static .ds-drawer-f {
 }
 html.doc-static .ds-drawer-h strong,
 html.sa-static .ds-drawer-h strong { color: #F8FBFF; }
+
+/* ═══════════════════════════════════════════════════════════
+   Page stack — blocks never share edges
+   ═══════════════════════════════════════════════════════════ */
+html.doc-static .doc-main,
+html.sa-static .sa-main-inner,
+html.sa-static .sa-content-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-5, 20px);
+}
+
+html.doc-static .doc-main > .dma-head,
+html.doc-static .doc-main > .ds-page-header,
+html.doc-static .doc-main > .ds-workspace-tabs,
+html.doc-static .doc-main > .dma-tabs,
+html.doc-static .doc-main > .ds-tabs,
+html.doc-static .doc-main > .dma-status-bar,
+html.doc-static .doc-main > .ds-status-strip,
+html.doc-static .doc-main > .dma-kpis,
+html.doc-static .doc-main > .ds-kpis,
+html.doc-static .doc-main > .dma-section,
+html.doc-static .doc-main > .ds-section,
+html.doc-static .doc-main > .dma-panel {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+html.doc-static .dma-head,
+html.doc-static .ds-page-header,
+html.sa-static .ds-page-header {
+  margin: 0;
+}
+
+html.doc-static .ds-workspace-tabs {
+  padding: 0;
+  margin: 0;
+}
+
+html.doc-static .dma-status-bar,
+html.doc-static .ds-status-strip,
+html.doc-static .dma-tabs,
+html.doc-static .ds-tabs {
+  margin: 0;
+}
+
+html.doc-static .dma-kpis,
+html.doc-static .ds-kpis {
+  margin: 0;
+}
+
+html.doc-static .doc-main > [id$="-body"]:not(tbody),
+html.doc-static .doc-main > [id$="-clinic"],
+html.doc-static #ai-body,
+html.doc-static #home-clinic,
+html.doc-static #an-body,
+html.doc-static #rv-body,
+html.doc-static #st-body,
+html.doc-static #bl-body,
+html.doc-static #ap-body,
+html.doc-static #cal-body,
+html.doc-static #w-body,
+html.doc-static #pt-body:not(tbody),
+html.doc-static #lab-body,
+html.doc-static #rm-body,
+html.doc-static #tele-body,
+html.doc-static #inv-body,
+html.doc-static #doc-body,
+html.doc-static #lv-body,
+html.doc-static #loc-body,
+html.doc-static #pay-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-5, 20px);
+}
+
+html.doc-static .dma-section,
+html.doc-static .ds-section,
+html.doc-static .dma-panel {
+  margin-bottom: 0;
+}
+
+html.doc-static .dma-section + .dma-section,
+html.doc-static .ds-section + .ds-section,
+html.doc-static .dma-panel + .dma-panel {
+  margin-top: 0;
+}
+
+html.doc-static .dma-section-h,
+html.doc-static .ds-section-h {
+  padding: 16px 20px 12px;
+}
+
+html.doc-static .dma-section-b,
+html.doc-static .ds-section-b {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 20px 20px;
+}
+
+html.doc-static .cos-consult .dma-section-b {
+  display: block;
+  gap: 0;
+  padding: 0;
+}
+
+html.doc-static .dma-section-b > .dma-field,
+html.doc-static .ds-section-b > .dma-field {
+  margin-bottom: 0;
+}
+
+html.doc-static .dma-row {
+  gap: 16px;
+  margin: 0;
+}
+
+html.doc-static .dma-section .dma-table-wrap,
+html.doc-static .dma-section .ds-table-wrap,
+html.doc-static .dma-panel .dma-table-wrap,
+html.doc-static .ds-section .ds-table-wrap,
+html.sa-static .sa-content-card .sa-table-wrap,
+html.sa-static .sa-content-card .ds-table-wrap {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html.doc-static .ds-toolbar,
+html.doc-static .cos-filterbar,
+html.doc-static .dma-filters,
+html.doc-static .ds-work-header {
+  margin: 0;
+}
+
+html.sa-static .sa-content-card > .ds-page-header,
+html.sa-static .sa-content-card > .ds-toolbar,
+html.sa-static .sa-content-card > .ds-kpis,
+html.sa-static .sa-content-card > .ds-section {
+  margin: 0;
+}
+
+html.doc-static .dma-inbox {
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  html.doc-static .doc-main,
+  html.sa-static .sa-main-inner,
+  html.sa-static .sa-content-wrap {
+    gap: 16px;
+  }
+}
+
+html.doc-static .ds-modal,
+html.doc-static .dma-modal,
+html.sa-static .ds-modal {
+  background: var(--ds-surface) !important;
+  color: var(--ds-text) !important;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+}
+html.doc-static .ds-modal .ds-drawer-h,
+html.doc-static .ds-modal .ds-drawer-f,
+html.doc-static .ds-modal .ds-modal-b,
+html.doc-static .dma-modal-h,
+html.doc-static .dma-modal-b,
+html.doc-static .dma-modal-f,
+html.doc-static .ds-modal-f,
+html.sa-static .ds-modal .ds-drawer-h,
+html.sa-static .ds-modal .ds-drawer-f,
+html.sa-static .ds-modal .ds-modal-b {
+  background: var(--ds-surface) !important;
+  color: var(--ds-text) !important;
+  border-color: rgba(148, 163, 184, 0.16) !important;
+}
+html.doc-static .ds-modal .ds-drawer-h strong,
+html.doc-static .ds-modal .ds-modal-b,
+html.doc-static .ds-modal .ds-modal-b label,
+html.sa-static .ds-modal .ds-drawer-h strong {
+  color: var(--ds-text) !important;
+}
+html.doc-static button.dma-row-item,
+html.doc-static a.dma-row-item {
+  background: var(--ds-surface) !important;
+  color: var(--ds-text) !important;
+}

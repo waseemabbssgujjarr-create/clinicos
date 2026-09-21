@@ -43,7 +43,7 @@ for (const file of files) {
 
   html = html.replace(/href="https:\/\/fonts\.googleapis\.com\/css2\?[^"]+"/g, 'href="' + FONT + '"');
 
-  html = html.replace(/dma-design-system\.css\?v=\d+/g, "dma-design-system.css?v=58");
+  html = html.replace(/dma-design-system\.css\?v=\d+/g, "dma-design-system.css?v=60");
   html = html.replace(/dashboard-doctor-shell\.css\?v=\d+/g, "dashboard-doctor-shell.css?v=22");
   html = html.replace(/superadmin-theme\.css\?v=\d+/g, "superadmin-theme.css?v=17");
 

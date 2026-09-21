@@ -426,7 +426,8 @@ html.doc-static body {
 .doc-main .dma-wa-root,
 .doc-main > div:not(.ds-workspace-tabs) {
   max-width: none;
-  margin: 0;
+  margin-left: 0;
+  margin-right: 0;
   width: 100%;
 }
 
@@ -631,6 +632,9 @@ html.doc-static .doc-topbar h1 {
 html.doc-static .doc-main {
   padding: 24px 24px 48px !important;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 html.doc-static .doc-topbar {
   padding-left: 24px;
@@ -646,7 +650,7 @@ html.doc-static .doc-main .ds-work-grid {
 html.doc-static .doc-main .dma-section + .dma-section,
 html.doc-static .doc-main .ds-section + .ds-section,
 html.doc-static .doc-main .dma-panel + .dma-panel {
-  margin-top: 16px;
+  margin-top: 0;
 }
 html.doc-static .doc-main .cos-filterbar,
 html.doc-static .doc-main .ds-toolbar,

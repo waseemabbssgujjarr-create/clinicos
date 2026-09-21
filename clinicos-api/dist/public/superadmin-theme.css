@@ -1298,6 +1298,12 @@ html.sa-static .sa-main {
   padding: 24px 24px 48px !important;
   box-sizing: border-box;
 }
+html.sa-static .sa-main-inner,
+html.sa-static .sa-content-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 html.sa-static .sa-main .ds-kpis,
 html.sa-static .sa-main .ds-ops-grid,
 html.sa-static .sa-main .ds-ops-grid-3,
@@ -1308,9 +1314,12 @@ html.sa-static .sa-main .int-grid {
 html.sa-static .sa-content-card + .sa-content-card,
 html.sa-static .sa-main .ds-section + .ds-section,
 html.sa-static .int-card + .int-card {
-  margin-top: 16px;
+  margin-top: 0;
 }
 html.sa-static .sa-content-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   padding: 24px;
 }
 html.sa-static[data-theme="dark"] .sa-table-wrap,

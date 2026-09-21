@@ -587,12 +587,12 @@ a.dma-row-item:hover { background: rgba(20, 150, 127, 0.04); border-radius: 8px;
   flex-wrap: nowrap;
   overflow-x: auto;
   scrollbar-width: none;
-  gap: 4px;
+  gap: 8px;
   margin-bottom: 1.25rem;
-  padding: 4px;
-  background: var(--ds-surface-section, #EEF2F7);
-  border: 1px solid var(--doc-border, #E2E8F0);
-  border-radius: var(--ds-r-card, 8px);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
 }
 .dma-tabs::-webkit-scrollbar { display: none; }
 
@@ -736,7 +736,7 @@ a.dma-row-item:hover { background: rgba(20, 150, 127, 0.04); border-radius: 8px;
 .dma-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.875rem;
+  gap: 1rem;
 }
 @media (max-width: 480px) {
   .dma-row { grid-template-columns: 1fr; }
@@ -1052,12 +1052,12 @@ a.dma-row-item:hover { background: rgba(20, 150, 127, 0.04); border-radius: 8px;
 
 .dma-modal-f {
   padding: 1rem 1.375rem;
-  border-top: 1px solid #E2E8F0;
+  border-top: 1px solid var(--ds-border, #E2E8F0);
   display: flex;
   justify-content: flex-end;
   gap: 0.625rem;
   flex-shrink: 0;
-  background: #F8FAFC;
+  background: var(--ds-surface, #1C2638);
 }
 
 /* ═══════════════════════════════════════════════════════════
