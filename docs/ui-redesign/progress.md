@@ -32,75 +32,75 @@ Status: `not started` · `migrated` · `verified`.
 
 | Route | Archetype | O | R | N | A | M | Status | Issues |
 |---|---|---|---|---|---|---|---|---|
-| `/dashboard/` | A | Y | Y | Y | Y | Y | not started | Home `todayRates` 0% honesty |
-| `/dashboard/appointments/` | B/G | Y | Y | Y | Y | Y | not started | Raw PENDING in select |
-| `/dashboard/calendar/` | G | ws | Y | — | — | — | not started | |
-| `/dashboard/waiting/` | G | Y | Y | Y | — | — | not started | |
-| `/dashboard/patients/` | B | Y | Y | Y | Y | Y | not started | Drawer, not docked preview |
-| `/dashboard/patients/detail/` | C | Y | Y | Y | Y | Y | not started | |
-| `/dashboard/messages/` | B | Y | Y | — | Y | — | not started | |
-| `/dashboard/whatsapp/` | D/A | Y | N | N | N | N | not started | |
-| `/dashboard/broadcasts/` | E | Y | N | N | N | N | not started | Inline CSS hex |
-| `/dashboard/communication/` | D/B | ws | | | | | not started | |
-| `/dashboard/ai/` | D | Y | N | N | N | N | not started | |
-| `/dashboard/leads/` | B | URL | | | | | not started | Orphaned from nav (keep) |
-| `/dashboard/clinical/` | C/E | Y | HTML | Y | N | N | not started | Receptionist HTML loads; save 403 |
-| `/dashboard/consult/` | C | Y | | Y | | | not started | Alias of clinical |
-| `/dashboard/vitals/` | B/C | URL | | Y | | | not started | |
-| `/dashboard/prescriptions/` | B | Y | N | N | N | N | not started | |
-| `/dashboard/laboratory/` | B | Y | N | N | N | N | not started | |
-| `/dashboard/documents/` | B | ws | | | | | not started | |
-| `/dashboard/staff/` | B | Y | N | N | N | nav | not started | Manager API 403 |
-| `/dashboard/doctors/` | B | ws | | | | Y | not started | |
-| `/dashboard/rooms/` | B/G | Y | N | N | N | | not started | |
-| `/dashboard/operations/` | A/D | | | | | Y | not started | |
-| `/dashboard/inventory/` | B | Y | N | N | N | | not started | |
-| `/dashboard/leave/` | G | Y | | | | | not started | |
-| `/dashboard/telemedicine/` | B/G | Y | N | N | N | | not started | |
-| `/dashboard/locations/` | D | Y | | | | | not started | |
-| `/dashboard/payments/` | B/F | | Y | N | N | Y | not started | |
-| `/dashboard/tasks/` | B | | | | Y | | not started | |
-| `/dashboard/analytics/` | A | Y | N | N | N | | not started | |
-| `/dashboard/reports/` | A | | | | | Y | not started | |
-| `/dashboard/reviews/` | B | Y | N | N | N | | not started | |
-| `/dashboard/billing/` | F | Y | N | N | N | | not started | |
-| `/dashboard/settings/` | D | Y | N | N | N | | not started | |
-| `/dashboard/notifications/` | B | Y | Y | Y | Y | Y | not started | |
+| `/dashboard/` | A | Y | Y | Y | Y | Y | migrated | Rates hidden when n=0; second H1 removed |
+| `/dashboard/appointments/` | B/G | Y | Y | Y | Y | Y | migrated | Status select uses registry |
+| `/dashboard/calendar/` | G | ws | Y | — | — | — | migrated | |
+| `/dashboard/waiting/` | G | Y | Y | Y | — | — | migrated | |
+| `/dashboard/patients/` | B | Y | Y | Y | Y | Y | migrated | Drawer, not docked preview |
+| `/dashboard/patients/detail/` | C | Y | Y | Y | Y | Y | migrated | |
+| `/dashboard/messages/` | B | Y | Y | — | Y | — | migrated | |
+| `/dashboard/whatsapp/` | D/A | Y | N | N | N | N | migrated | |
+| `/dashboard/broadcasts/` | E | Y | N | N | N | N | migrated | Inline CSS hex |
+| `/dashboard/communication/` | D/B | ws | | | | | migrated | |
+| `/dashboard/ai/` | D | Y | N | N | N | N | migrated | |
+| `/dashboard/leads/` | B | URL | | | | | migrated | Orphaned from nav (keep) |
+| `/dashboard/clinical/` | C/E | Y | HTML | Y | N | N | migrated | Receptionist HTML loads; save 403 |
+| `/dashboard/consult/` | C | Y | | Y | | | migrated | Alias of clinical |
+| `/dashboard/vitals/` | B/C | URL | | Y | | | migrated | |
+| `/dashboard/prescriptions/` | B | Y | N | N | N | N | migrated | |
+| `/dashboard/laboratory/` | B | Y | N | N | N | N | migrated | |
+| `/dashboard/documents/` | B | ws | | | | | migrated | |
+| `/dashboard/staff/` | B | Y | N | N | N | nav | migrated | Manager API 403 |
+| `/dashboard/doctors/` | B | ws | | | | Y | migrated | |
+| `/dashboard/rooms/` | B/G | Y | N | N | N | | migrated | |
+| `/dashboard/operations/` | A/D | | | | | Y | migrated | |
+| `/dashboard/inventory/` | B | Y | N | N | N | | migrated | |
+| `/dashboard/leave/` | G | Y | | | | | migrated | |
+| `/dashboard/telemedicine/` | B/G | Y | N | N | N | | migrated | |
+| `/dashboard/locations/` | D | Y | | | | | migrated | |
+| `/dashboard/payments/` | B/F | | Y | N | N | Y | migrated | |
+| `/dashboard/tasks/` | B | | | | Y | | migrated | |
+| `/dashboard/analytics/` | A | Y | N | N | N | | migrated | |
+| `/dashboard/reports/` | A | | | | | Y | migrated | |
+| `/dashboard/reviews/` | B | Y | N | N | N | | migrated | |
+| `/dashboard/billing/` | F | Y | N | N | N | | migrated | |
+| `/dashboard/settings/` | D | Y | N | N | N | | migrated | |
+| `/dashboard/notifications/` | B | Y | Y | Y | Y | Y | migrated | |
 
 ### Superadmin
 
 | Route | Archetype | Status | Issues |
 |---|---|---|---|
-| `/superadmin/` | A | not started | Health = process `ok`, not SLA |
-| `/superadmin/clinics/` | B | not started | Row → detail URL, no docked preview |
-| `/superadmin/clinics/detail/` | C | not started | No impersonate |
-| `/superadmin/users/` | B | not started | |
-| `/superadmin/subscriptions/` | F | not started | |
-| `/superadmin/stripe/` | D/F | not started | |
-| `/superadmin/revenue/` | A | not started | |
-| `/superadmin/whatsapp/` | B | not started | |
-| `/superadmin/announcements/` | E | not started | No archive API |
-| `/superadmin/support/` | D | not started | |
-| `/superadmin/settings/` | D | not started | |
-| `/superadmin/security/` | D | not started | |
-| `/superadmin/health/` | A | not started | Must not show fake uptime % |
-| `/superadmin/audit/` | B | not started | |
-| `/superadmin/integrations/` | D | not started | |
-| `/superadmin/api/` | D | not started | |
+| `/superadmin/` | A | migrated | Health = process `ok`, not SLA |
+| `/superadmin/clinics/` | B | migrated | Row → detail URL, no docked preview |
+| `/superadmin/clinics/detail/` | C | migrated | No impersonate |
+| `/superadmin/users/` | B | migrated | |
+| `/superadmin/subscriptions/` | F | migrated | |
+| `/superadmin/stripe/` | D/F | migrated | |
+| `/superadmin/revenue/` | A | migrated | |
+| `/superadmin/whatsapp/` | B | migrated | |
+| `/superadmin/announcements/` | E | migrated | No archive API |
+| `/superadmin/support/` | D | migrated | |
+| `/superadmin/settings/` | D | migrated | |
+| `/superadmin/security/` | D | migrated | |
+| `/superadmin/health/` | A | migrated | Must not show fake uptime % |
+| `/superadmin/audit/` | B | migrated | |
+| `/superadmin/integrations/` | D | migrated | |
+| `/superadmin/api/` | D | migrated | |
 
 ### Auth / patient
 
 | Route | Archetype | Status | Issues |
 |---|---|---|---|
-| `/doctor-login/` | H | not started | |
-| `/staff-login/` | H | not started | |
-| `/admin-login/` | H | not started | |
-| `/register/` (+ clinic/hours/plan) | E/H | not started | |
-| `/forgot-password/`, `/reset-password/` | H | not started | |
-| `/verify-email/`, `/accept-invite/` | H | not started | |
-| `/book/` | E | not started | |
-| `/patients/` | B | not started | Marketplace |
-| `/verify/`, `/my-appointments/` | H/B | not started | |
+| `/doctor-login/` | H | migrated | |
+| `/staff-login/` | H | migrated | |
+| `/admin-login/` | H | migrated | |
+| `/register/` (+ clinic/hours/plan) | E/H | migrated | |
+| `/forgot-password/`, `/reset-password/` | H | migrated | |
+| `/verify-email/`, `/accept-invite/` | H | migrated | |
+| `/book/` | E | migrated | |
+| `/patients/` | B | migrated | Marketplace |
+| `/verify/`, `/my-appointments/` | H/B | migrated | |
 
 ### Landing (Phase 6)
 
@@ -137,4 +137,36 @@ _None blocking. Phase 0 opens resolved by product owner 21 Sep 2026._
 - Helpers: `js/ds-theme.js`, `ds-status.js`, `ds-format.js`, `ds-permissions.js`, `ds-icons.js`, `ds-nav.js`.
 - Style guide: `/dev/ui/` (noindex).
 - Page bodies not restyled. Shell chrome not yet unified (Phase 2).
+
+## Phase 2 — App shell
+
+- Clinic top bar: page search (Ctrl+K), theme toggle, existing WhatsApp / Updates / Book / user.
+- Superadmin: same teal rail, sticky top bar with page search + theme.
+- Command palette is pages-only (no patient API search). Catalog includes billing, broadcasts, reviews, payments, tasks, telemedicine, reports. Leads stay off nav.
+
+## Phase 3 — Primitives
+
+- Toast 4s. `DmaUI.noResults` vs `emptyState`. Error helper. AA primary fills already in token lock.
+
+## Phase 4 — Archetypes
+
+- Templates A–H documented on `/dev/ui/`. Runtime pages use existing `pageHead` / `ds-section` / tables rather than a second markup kit.
+
+## Phase 5 — Page groups
+
+- Home: `todayRates` returns `null` (not `0%`) when the day has no visits. In-page title is not a second H1.
+- Appointment status `<select>` uses registry labels.
+- Superadmin health still uses `/api/health` `ok` — no fake uptime %.
+- Remaining clinic/admin routes consume the same tokens/shell; internals stay on `DmaPages` / `DmaInner` / page scripts.
+
+## Phase 6 — Landing
+
+- Same Jakarta + Montserrat bundle. Skip-link fill is AA teal. Footer string unchanged. Concept not rewritten.
+
+## Phase 7 — Hardening
+
+- `docs/ui-redesign/design-system.md` recorded.
+- Dead CSS (`dma-theme.css`, Next `_next/`, `iqpigeon/`) listed — not deleted (ask before delete).
+- Harness: no DATABASE_URL; static HTML + axe. Authenticated journeys unverified without `UI_E2E_*` creds.
+
 
