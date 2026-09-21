@@ -385,12 +385,14 @@
       );
     }
     bits.push(
-      '<input class="doc-topbar-search" type="search" readonly placeholder="Search (Ctrl+K)" aria-label="Open search" id="doc-cmd-open">'
+      '<input class="doc-topbar-search" type="search" readonly placeholder="Search pages (Ctrl+K)" aria-label="Open page search" id="doc-cmd-open">'
     );
     bits.push(
       '<a class="doc-chip-note" href="/dashboard/notifications/" title="Updates">' +
         'Updates<span class="doc-nav-badge" id="doc-upd-badge-top" hidden></span></a>'
     );
+    bits.push('<button type="button" class="doc-icon-btn" data-ds-theme-toggle aria-label="Toggle theme" title="Toggle theme">' +
+      ((global.DmaIcons && DmaIcons.svg("sun")) || "Theme") + "</button>");
     bits.push('<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/appointments/?action=book">Book</a>');
     bits.push(
       '<div class="doc-user-chip">' +

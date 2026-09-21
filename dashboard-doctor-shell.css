@@ -356,9 +356,9 @@ html.doc-static body {
 
 .doc-topbar h1 {
   margin: 0;
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 1rem;
-  font-weight: 800;
+  font-family: var(--ds-font-display, Montserrat, sans-serif);
+  font-size: 1.125rem;
+  font-weight: 700;
   color: var(--doc-text);
   letter-spacing: -.02em;
 }
@@ -647,6 +647,32 @@ html.doc-static .doc-main .ds-empty {
 html.doc-static .doc-main .bg-white,
 html.doc-static .doc-main [class*="bg-white"] {
   background: var(--doc-surface) !important;
+}
+.doc-icon-btn {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid var(--doc-border);
+  background: var(--doc-surface);
+  color: var(--doc-text);
+  cursor: pointer;
+}
+.doc-icon-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ds-focus);
+}
+.doc-topbar-search {
+  min-height: 40px;
+  border: 1px solid var(--doc-border);
+  border-radius: 10px;
+  padding: 0 12px;
+  background: var(--doc-bg);
+  color: var(--doc-text);
+  font: inherit;
+  max-width: 220px;
 }
 @media (max-width: 1024px) {
   html.doc-static .doc-main {
