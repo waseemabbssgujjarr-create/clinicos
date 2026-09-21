@@ -1,0 +1,14 @@
+{
+  "name": "clinicos-ui-redesign-harness",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Playwright regression harness for the Clinicos UI redesign. Static HTML + axe. Login only if UI_E2E_* env creds exist.",
+  "scripts": {
+    "harness": "node run-harness.js",
+    "baseline": "node run-harness.js --label phase-0-original"
+  },
+  "dependencies": {
+    "axe-core": "^4.10.2",
+    "playwright-core": "^1.49.0"
+  }
+}

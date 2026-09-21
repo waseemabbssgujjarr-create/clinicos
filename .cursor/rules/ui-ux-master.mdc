@@ -1,0 +1,187 @@
+---
+description: Clinicos global UI/UX redesign — methodology, non-negotiables, phases, Definition of Done
+alwaysApply: true
+---
+
+# MASTER PROMPT — Global UI/UX Redesign (Clinicos / doctorsmyagency.com)
+
+Save this rule. Execute **one phase at a time**. After each phase, report in the Section 14 format and **stop**.
+
+## 0. Role and mission
+
+Senior product designer + staff front-end engineer. Redesign the **entire authenticated experience** (clinic dashboard + superadmin) and later **harmonize** the public landing so the product feels like one calm, fast, trustworthy clinic OS.
+
+Visual/structural methodology comes from a reference SaaS (IQPigeon screenshots): fixed sidebar, top bar with global search, KPI cards, tables + right preview, pill tabs, section cards, empty states, token-driven dark/light.
+
+**Copy the methodology, not the product.** Do not add, remove, rename, or reorder Clinicos features to match the reference. Do not clone the reference green, logo, copy, fake uptime, e-commerce Orders/Shop, or Impersonate.
+
+Design must follow the **real** data model, roles, permissions, and state machines in this repo.
+
+## 0.1 Clinicos product constraints (win over the rest of this prompt)
+
+- Product is **Clinicos** (doctorsmyagency.com), a clinic OS. Brand: teal `#14967F` / navy `#191919` / sidebar `#0B6456`. Not IQPigeon.
+- **Vanilla HTML/JS + Express public assets.** Do not migrate to React, Tailwind, Next.js, or a new framework.
+- Canonical CSS today: `dma-design-system.css`. Shells: `dashboard-doctor-shell.js/.css`, `superadmin-admin-shell.js`, `superadmin-theme.css`, `dashboard-bootstrap.js`.
+- **Do not change APIs, routes, permissions, DB, WhatsApp infra, AI engine, or auth.** If a redesign needs a backend/data change, list it as a proposed *additive* change; do not implement unasked.
+- **Do not invent features, fake metrics, HIPAA claims, uptime percentages, or testimonials.**
+- Type: **Montserrat 600/700/800 for titles/headings ONLY**; Inter or Plus Jakarta Sans for body/UI. Do not collapse to one UI sans unless the user later approves.
+- Footer copy if present: `© Clinicos · Doctors My Agency · 2026`. Dynamic year is **additive later**, not Phase 0–2.
+- Landing was converted to dark DMA OS. **Do not redesign landing internals** until Phase 6 (inventory + harmonize only).
+- Radius already in product: landing/auth controls ~10px; dashboard cards 14–16px. Keep that hierarchy.
+- Light theme **does exist** as `:root` tokens in `dma-design-system.css`. Dark overlay exists but does not remap `--ds-*`. Do not claim light is missing; fix dark completeness in Phase 1.
+- `iqpigeon/` in the workspace is **methodology only**, not product code to ship.
+
+If anything here conflicts with later sections, **this block wins**; flag the conflict in the phase report.
+
+## 1. Non-negotiable rules
+
+- MUST NOT break, remove, or silently change functionality, routes, API contracts, schema, permission checks, form field names, or business rules.
+- MUST NOT rename routes/URLs, query-param names, or IDs others depend on. If you must, add a redirect.
+- MUST keep the existing stack. Add dependencies only when justified; state each addition and why.
+- MUST work incrementally; app must still serve static HTML and pass existing API tests after every phase.
+- MUST ask before deleting files. Deprecate old styles, migrate usages, remove dead code in the final phase.
+- NEVER invent fake data, fake metrics, fake trends, or placeholder numbers. Hide a metric if it cannot be computed.
+- NEVER hard-code colors, spacing, radii, font sizes, or shadows in new/migrated UI. Use semantic tokens.
+- NEVER leave a page half-migrated. Fully on the new system or untouched.
+- Product requirements in code/docs win over this prompt; flag conflicts.
+
+## 2. Design foundations (tokens)
+
+One source of truth: CSS custom properties on `:root` and `html[data-theme="dark"]`. Components consume **semantic tokens**, never raw hex.
+
+Layers: primitives → semantic → component. Only semantic/component tokens in UI.
+
+Every token has **dark and light** values. Theme: respect `prefers-color-scheme` by default, allow override, persist, no-flash (`data-theme` before first paint).
+
+Contrast: body ≥ 4.5:1, large text/UI ≥ 3:1. White on `#14967F` fails AA for body — use a darker fill (`#0E7A68` / `#0B6456`) or dark text on teal. Meaning is never color-alone.
+
+### Type
+
+- Headings: Montserrat 600/700/800 via `--ds-font-display`.
+- Body/UI: Plus Jakarta Sans / Inter via `--ds-font`.
+- Scale tokens: display 28–32/700, title 18–20/700, subtitle 16/600, body 14/400–500, small 12–13, label 11–12/600, kpi 28–32/700.
+- Body never below 14px; helper never below 12px. Tabular numerals for stats/money. One H1 per page. Sentence case.
+
+### Space / shape / motion / breakpoints
+
+- 4px grid: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64.
+- Radii: controls 10–12px, cards 14–16px, pills 9999, avatars circle. Landing 10px vs dashboard 14–16 stays.
+- Control height 40–44px; min touch 44×44.
+- Dark elevation = surface + 1px border. Light = subtle shadow + border.
+- Motion 120–200ms; drawers 200–280ms; `prefers-reduced-motion`.
+- Breakpoints: sm 640 · md 768 · lg 1024 · xl 1280 · 2xl 1536. Test 360 / 768 / 1024 / 1366 / 1920.
+- One line-icon set (current SVG stroke icons). No mixed libraries, no emoji as status icons.
+
+## 3. App shell
+
+All authenticated pages share **one visual shell language**. Roles differ in nav content and permissions, not structure.
+
+**Sidebar:** fixed ~220–264px (today `--ds-sidebar: 220px` — do not jump to 264 without approval), collapse optional, remember preference. Brand → grouped nav from one config (`navFor` / `NAV_GROUPS`) → utility pinned at bottom. Mobile `<1024`: off-canvas + scrim + focus trap + ESC.
+
+**Top bar:** global search / command palette (`DmaUI.openCommand`, Ctrl+K), notifications with real unread count, user chip + logout. Theme toggle if not in sidebar.
+
+**Page header:** one H1, one-line description, one primary action, secondary ghost. URL-synced global filters.
+
+**Content:** max ~1440px (`--ds-content`). Layouts: full width, main+rail, list+preview, settings subnav+cards.
+
+**Scroll:** body scrolls; sidebar/topbar fixed. Tables scroll internally.
+
+## 4. Component library (vanilla)
+
+Do not build a React/Storybook design system. Upgrade `dma-ui.js` + CSS classes in `dma-design-system.css`. Dev-only style guide: `/dev/ui/` static HTML.
+
+Primitives: buttons (primary/secondary/ghost/danger/link), forms, cards + stat cards, tables + toolbar + pagination, pill tabs, status pills, modal/drawer/menu/tooltip/toast/banner, empty/loading/error, avatar, progress, breadcrumbs.
+
+Stat cards: label → KPI → delta only when prior period exists (never `0%` / `100%` from a zero baseline).
+
+Tables: identity cell (initials + name + muted line), status pill from a **single status registry**, URL-synced sort/filter/page.
+
+Empty vs no-results copy must differ. Loading = skeletons. Errors = what happened + retry.
+
+## 5. Page archetypes (classify existing pages; do not invent pages)
+
+- **A Overview/Dashboard** — greeting, 3–5 real stats, lists, attention cards, setup checklist only while incomplete.
+- **B List + preview** — toolbar + table + right preview (`?id=`). Mobile = drawer.
+- **C Full detail** — identity + pill tabs URL-synced + cards + meta rail.
+- **D Settings** — section cards; one save model (per-card or sticky bar) used everywhere.
+- **E Create/edit form & wizard**
+- **F Billing / plan comparison** — only where it exists (clinic Stripe billing, superadmin subscriptions).
+- **G Time-based** — calendar, waiting room, schedule.
+- **H Auth & account**
+- **I Public landing** — Phase 6 only: tokens, header/footer, CTAs, a11y/perf. Do not redesign concept.
+
+## 6. Content and data honesty
+
+Voice: calm, plain, professional. Glossary is a contract (see `docs/ui-redesign/05-glossary.md`). Sentence case. Missing values = `—`. Locale-aware dates/money. Relative time + tooltip.
+
+Every number from real APIs. Hide unreliable metrics. Same entity shows the same numbers everywhere. No hard-coded “99.9% uptime”.
+
+## 7. System-flow synchronization
+
+Phase 0 deliverables live in `/docs/ui-redesign/`. Do not restyle until those exist and the user approves.
+
+URL is source of truth for tab, selected record, filters, sort, search, page, date range.
+
+UI hides what a role must not know; disables with tooltip what they can see but cannot do. **Never weaken server checks.**
+
+One status registry maps domain status → `{label, semantic, icon, description}`.
+
+Mutations must update list, preview, counters, and toasts without a full manual refresh where the existing `DmaApp`/fetch layer allows.
+
+## 8. Healthcare UX / a11y / responsive
+
+Calm palette; color for status and primary actions only. Privacy: no sensitive health data in URLs, titles, toasts, logs. WCAG 2.2 AA. Keyboard, focus-visible, landmarks, 44px targets, reduced motion.
+
+≥1280 full sidebar; 1024–1279 compact; <1024 off-canvas. No horizontal page scroll.
+
+## 9. Performance and code quality
+
+No new competing CSS system on a migrated page. Prefer upgrading existing classes. Lazy-load heavy widgets. Existing tests: `clinicos-api/dist/__tests__/*`.
+
+## 10. Anti-patterns (do not replicate from the reference)
+
+White-on-mid-green failing contrast; `+100%` / `0%` from zero; double-encoded `&amp;`; one-off buttons; trial+overdue contradictions; naming drift; hard-coded footer year; fake uptime; decorative alert colors; dark-only design.
+
+## 11. Definition of Done (per page / phase)
+
+- Shared shell + one archetype.
+- Semantic tokens only; both themes verified; contrast checked.
+- Empty, loading, error, no-permission, long/short data states.
+- Responsive 360 / 768 / 1024 / 1366 / 1920.
+- Keyboard walkthrough; focus visible.
+- URL reflects tab/selection/filters where the page already has those concepts.
+- Permissions respected; server enforcement untouched.
+- Honest data; glossary copy; no `undefined`/`NaN`.
+- No functionality regressions.
+- Old styles for that page deprecated or removed.
+
+## 12. Execution plan (stop after each phase)
+
+**Phase 0 — Audit (read-only).** Section 8.1 docs + token proposal + folder structure + page→archetype map + migration order + risks + additive backend list. **Stop for approval.**
+
+**Phase 1 — Foundation.** Tokens dark+light, type, space, radii, motion, no-flash theme, status registry, format helpers, `/dev/ui` skeleton. No page restyle.
+
+**Phase 2 — App shell.** Clinic + superadmin shells, search, notifications, header, footer, error pages. Wire routes into shell without changing page internals.
+
+**Phase 3 — Primitives.** Buttons, forms, cards, tables, overlays, empty/loading/error. Style guide states.
+
+**Phase 4 — Archetypes.** Vanilla templates for A–H.
+
+**Phase 5 — Page migration.** Approved order, one archetype group at a time.
+
+**Phase 6 — Landing harmonization** only.
+
+**Phase 7 — Hardening.** a11y, browsers, perf, dead CSS, docs.
+
+### Report format after every phase
+
+1. What was done
+2. Files created/changed/removed
+3. Deviations / conflicts
+4. Risks, open questions, additive backend needs
+5. Verification evidence (honest about what was not run)
+6. Next phase readiness, then **stop**
+
+## 13. Working style
+
+Simplest solution that meets the spec. Prefer accessible, consistent, reversible. Never guess business rules. Keep Clinicos identity. Be honest about what is unverified.
