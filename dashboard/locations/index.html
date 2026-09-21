@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="en" class="doc-static">
 <head>
-  <script>(function(){try{var r=document.documentElement;var c=r.className||"";var t;if(/\bdma-world-auth\b/.test(c))t="light";else if(/\bdma-world-public\b/.test(c))t="dark";else{t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();</script>
+  <script>(function(){try{var r=document.documentElement;var c=r.className||"";var t;if(/\bdma-world-auth\b/.test(c))t="light";else if(/\bdma-world-public\b/.test(c)||/\bdoc-static\b/.test(c)||/\bsa-static\b/.test(c)){t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t="dark";}else{t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Locations - Doctors My Agency</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=58" />
-  <script src="/js/ds-theme.js?v=1"></script>
+  <link rel="stylesheet" href="/dma-design-system.css?v=59" />
+  <script src="/js/ds-theme.js?v=2"></script>
   <script src="/js/ds-status.js?v=1"></script>
   <script src="/js/ds-format.js?v=1"></script>
   <script src="/js/ds-permissions.js?v=1"></script>
   <script src="/js/ds-icons.js?v=1"></script>
-  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=22" />
+  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=23" />
   <link rel="stylesheet" href="/dma-doctor-app.css?v=7" />
-  <link rel="stylesheet" href="/dma-doctor-pages.css?v=6" />
+  <link rel="stylesheet" href="/dma-doctor-pages.css?v=7" />
 </head>
 <body>
   <div class="doc-layout">
@@ -33,9 +33,9 @@
     </div>
   </div>
   <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
-  <script src="/dashboard-doctor-shell.js?v=22"></script>
+  <script src="/dashboard-doctor-shell.js?v=23"></script>
   <script src="/dma-doctor-app.js?v=5"></script>
-  <script src="/dma-ui.js?v=8"></script>
+  <script src="/dma-ui.js?v=9"></script>
   <script src="/dma-doctor-pages.js?v=18"></script>
   <script src="/dma-clinicos-clinical.js?v=3"></script>
   <script src="/dma-clinicos-inner.js?v=13"></script>

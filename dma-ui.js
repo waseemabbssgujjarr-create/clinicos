@@ -126,7 +126,7 @@
     closeExisting("ds-drawer");
     var wrap = document.createElement("div");
     wrap.id = "ds-drawer";
-    wrap.className = "ds-drawer" + (opts.wide ? " wide" : "");
+    wrap.className = "ds-drawer ds-drawer-dock" + (opts.wide ? " wide" : "");
     var tabsHtml = "";
     if (opts.tabs && opts.tabs.length) {
       tabsHtml = '<div class="ds-tabs ds-drawer-tabs">' + opts.tabs.map(function (t, i) {

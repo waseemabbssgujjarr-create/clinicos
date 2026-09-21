@@ -5,7 +5,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=57';
+    ds.href = '/dma-design-system.css?v=59';
     document.head.appendChild(ds);
   }
 
@@ -279,9 +279,8 @@
       });
       if (tabs.length < 2) return;
     }
-    var wrap = document.querySelector('.doc-main-wrap');
     var main = document.querySelector('.doc-main');
-    if (!wrap || !main) return;
+    if (!main) return;
     var nav = document.createElement('nav');
     nav.className = 'ds-workspace-tabs';
     nav.setAttribute('aria-label', ws.label);
@@ -290,7 +289,7 @@
       var on = path === target || path.indexOf(target) === 0;
       return '<a href="' + t.href + '" class="' + (on ? 'on' : '') + '"' + (on ? ' aria-current="page"' : '') + '>' + t.label + '</a>';
     }).join('');
-    wrap.insertBefore(nav, main);
+    main.insertBefore(nav, main.firstChild);
   }
 
   function planLabel(u) {
@@ -385,12 +384,14 @@
       );
     }
     bits.push(
-      '<input class="doc-topbar-search" type="search" readonly placeholder="Search (Ctrl+K)" aria-label="Open search" id="doc-cmd-open">'
+      '<input class="doc-topbar-search" type="search" readonly placeholder="Search pages (Ctrl+K)" aria-label="Open page search" id="doc-cmd-open">'
     );
     bits.push(
       '<a class="doc-chip-note" href="/dashboard/notifications/" title="Updates">' +
         'Updates<span class="doc-nav-badge" id="doc-upd-badge-top" hidden></span></a>'
     );
+    bits.push('<button type="button" class="doc-icon-btn" data-ds-theme-toggle aria-label="Toggle theme" title="Toggle theme">' +
+      ((global.DmaIcons && DmaIcons.svg("sun")) || "Theme") + "</button>");
     bits.push('<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/appointments/?action=book">Book</a>');
     bits.push(
       '<div class="doc-user-chip">' +

@@ -2,7 +2,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=57';
+    ds.href = '/dma-design-system.css?v=59';
     document.head.appendChild(ds);
   }
   var ICONS = {
@@ -174,8 +174,8 @@
       if (w.match.some(function (m) { return path === m || path.indexOf(m) === 0; })) ws = w;
     });
     if (!ws) return;
-    var main = document.querySelector('.sa-main');
-    if (!main) return;
+    var inner = document.querySelector('.sa-main-inner') || document.querySelector('.sa-main');
+    if (!inner) return;
     var nav = document.createElement('nav');
     nav.className = 'ds-workspace-tabs';
     nav.setAttribute('aria-label', 'Section');
@@ -184,16 +184,33 @@
       var on = path === target || path.indexOf(target) === 0;
       return '<a href="' + t.href + '" class="' + (on ? 'on' : '') + '"' + (on ? ' aria-current="page"' : '') + '>' + t.label + '</a>';
     }).join('');
-    if (main.firstChild) main.insertBefore(nav, main.firstChild);
-    else main.appendChild(nav);
+    inner.insertBefore(nav, inner.firstChild);
   }
 
   function wrapMainContent(main) {
-    if (!main || main.querySelector('.sa-main-inner')) return;
-    var inner = document.createElement('div');
-    inner.className = 'sa-main-inner';
-    while (main.firstChild) inner.appendChild(main.firstChild);
-    main.appendChild(inner);
+    if (!main) return;
+    var inner = main.querySelector(".sa-main-inner");
+    if (!inner) {
+      inner = document.createElement("div");
+      inner.className = "sa-main-inner";
+      while (main.firstChild) inner.appendChild(main.firstChild);
+      main.appendChild(inner);
+    }
+    if (main.querySelector(".sa-topbar")) return;
+    var bar = document.createElement("header");
+    bar.className = "sa-topbar";
+    bar.innerHTML =
+      '<input class="doc-topbar-search sa-topbar-search" type="search" readonly placeholder="Search pages (Ctrl+K)" aria-label="Open page search" id="sa-cmd-open">' +
+      '<button type="button" class="sa-theme-btn" data-ds-theme-toggle aria-label="Toggle theme">Theme</button>';
+    main.insertBefore(bar, inner);
+    var cmd = bar.querySelector("#sa-cmd-open");
+    if (cmd) {
+      function openCmd() {
+        if (global.DmaUI && DmaUI.openCommand) DmaUI.openCommand();
+      }
+      cmd.addEventListener("click", openCmd);
+      cmd.addEventListener("focus", function () { cmd.blur(); openCmd(); });
+    }
   }
 
   function wireMobileChrome() {
@@ -240,6 +257,7 @@
       '<nav>' + links + '</nav>' +
       '<div class="sa-sidebar-footer">' +
         (email ? '<div class="sa-user">' + email + '</div>' : '') +
+        '<button type="button" class="sa-theme-btn" data-ds-theme-toggle aria-label="Toggle theme">Theme</button>' +
         '<button type="button" class="sa-logout" id="sa-logout-btn">Log out</button>' +
       '</div>';
 

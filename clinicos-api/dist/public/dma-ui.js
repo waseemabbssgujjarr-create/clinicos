@@ -17,7 +17,7 @@
     document.body.appendChild(el);
     setTimeout(function () {
       if (el.parentNode) el.parentNode.removeChild(el);
-    }, 2600);
+    }, 4000);
   }
 
   function copy(text) {
@@ -126,7 +126,7 @@
     closeExisting("ds-drawer");
     var wrap = document.createElement("div");
     wrap.id = "ds-drawer";
-    wrap.className = "ds-drawer" + (opts.wide ? " wide" : "");
+    wrap.className = "ds-drawer ds-drawer-dock" + (opts.wide ? " wide" : "");
     var tabsHtml = "";
     if (opts.tabs && opts.tabs.length) {
       tabsHtml = '<div class="ds-tabs ds-drawer-tabs">' + opts.tabs.map(function (t, i) {
@@ -284,6 +284,14 @@
         (href ? '<a class="dma-btn dma-btn-primary" href="' + esc(href) + '">' + esc(cta || "Continue") + "</a>" : "") +
         "</div>";
     },
+    noResults: function (title, body) {
+      return '<div class="ds-empty ds-empty-filter"><h2>' + esc(title || "No matching results") + "</h2><p>" +
+        esc(body || "Try another search or clear filters.") + "</p></div>";
+    },
+    errorState: function (title, body) {
+      return '<div class="ds-error"><h2>' + esc(title || "Something went wrong") + "</h2><p>" +
+        esc(body || "Check your connection, then retry.") + "</p></div>";
+    },
     openCommand: openCommand
   };
 
@@ -298,8 +306,8 @@
     var wrap = document.createElement("div");
     wrap.id = "ds-cmd";
     wrap.className = "ds-cmd open";
-    wrap.innerHTML = '<div class="ds-cmd-bg" data-close="1"></div><div class="ds-cmd-panel" role="dialog" aria-label="Search">' +
-      '<input id="ds-cmd-q" placeholder="Search patients, appointments, pages…" autocomplete="off">' +
+    wrap.innerHTML = '<div class="ds-cmd-bg" data-close="1"></div><div class="ds-cmd-panel" role="dialog" aria-label="Search pages">' +
+      '<input id="ds-cmd-q" placeholder="Search pages…" autocomplete="off">' +
       '<div class="ds-cmd-list" id="ds-cmd-list"></div></div>';
     document.body.appendChild(wrap);
     function close() { wrap.classList.remove("open"); }
@@ -313,20 +321,32 @@
       ["/dashboard/waiting/", "Waiting room"],
       ["/dashboard/calendar/", "Calendar"],
       ["/dashboard/patients/", "Patients"],
-      ["/dashboard/clinical/", "Clinical"],
+      ["/dashboard/clinical/", "Consultations"],
       ["/dashboard/prescriptions/", "Prescriptions"],
       ["/dashboard/laboratory/", "Laboratory"],
       ["/dashboard/documents/", "Documents"],
       ["/dashboard/messages/", "Inbox"],
       ["/dashboard/whatsapp/", "WhatsApp"],
+      ["/dashboard/broadcasts/", "Broadcasts"],
       ["/dashboard/ai/", "AI receptionist"],
       ["/dashboard/rooms/", "Rooms"],
       ["/dashboard/inventory/", "Inventory"],
       ["/dashboard/leave/", "Leave"],
       ["/dashboard/locations/", "Locations"],
-      ["/dashboard/staff/", "Staff"],
+      ["/dashboard/staff/", "Team"],
+      ["/dashboard/payments/", "Payments"],
+      ["/dashboard/tasks/", "Tasks"],
+      ["/dashboard/telemedicine/", "Telemedicine"],
       ["/dashboard/analytics/", "Analytics"],
-      ["/dashboard/settings/", "Settings"]
+      ["/dashboard/reports/", "Reports"],
+      ["/dashboard/reviews/", "Reviews"],
+      ["/dashboard/billing/", "Billing"],
+      ["/dashboard/settings/", "Settings"],
+      ["/dashboard/notifications/", "Updates"],
+      ["/superadmin/", "Control Center"],
+      ["/superadmin/clinics/", "Clinics"],
+      ["/superadmin/users/", "Users"],
+      ["/superadmin/subscriptions/", "Subscriptions"]
     ];
     var commands = [
       ["/dashboard/appointments/?action=book", "Create appointment"],
@@ -346,14 +366,6 @@
     paint("");
     q.oninput = function () {
       paint(q.value);
-      if (!global.DmaApp || q.value.length < 2) return;
-      global.DmaApp.get("/api/patients?search=" + encodeURIComponent(q.value) + "&limit=6").then(function (d) {
-        var rows = (d && d.data) || [];
-        if (!rows.length) return;
-        list.innerHTML = rows.map(function (p) {
-          return '<a href="/dashboard/patients/detail/?id=' + esc(p.id) + '"><span>' + esc(p.fullName) + "</span><span class=\"dma-hint\">Patient</span></a>";
-        }).join("") + list.innerHTML;
-      }).catch(function () {});
     };
     q.focus();
   }

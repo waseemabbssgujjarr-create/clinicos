@@ -5,7 +5,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=57';
+    ds.href = '/dma-design-system.css?v=59';
     document.head.appendChild(ds);
   }
 
@@ -279,9 +279,8 @@
       });
       if (tabs.length < 2) return;
     }
-    var wrap = document.querySelector('.doc-main-wrap');
     var main = document.querySelector('.doc-main');
-    if (!wrap || !main) return;
+    if (!main) return;
     var nav = document.createElement('nav');
     nav.className = 'ds-workspace-tabs';
     nav.setAttribute('aria-label', ws.label);
@@ -290,7 +289,7 @@
       var on = path === target || path.indexOf(target) === 0;
       return '<a href="' + t.href + '" class="' + (on ? 'on' : '') + '"' + (on ? ' aria-current="page"' : '') + '>' + t.label + '</a>';
     }).join('');
-    wrap.insertBefore(nav, main);
+    main.insertBefore(nav, main.firstChild);
   }
 
   function planLabel(u) {

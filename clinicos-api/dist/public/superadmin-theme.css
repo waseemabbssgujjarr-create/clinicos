@@ -11,14 +11,14 @@
   --sa-orange-border: rgba(20, 150, 127, 0.25);
   --sa-sidebar-w: var(--ds-sidebar, 240px);
   --sa-content-max: var(--ds-content, 1440px);
-  --sa-topbar-h: var(--ds-h-header, 56px);
+  --sa-topbar-h: var(--ds-h-header, 64px);
   --sa-space-1: 4px;
   --sa-space-2: 8px;
   --sa-space-3: 12px;
   --sa-space-4: 16px;
   --sa-space-5: 24px;
   --sa-space-6: 32px;
-  --sa-sidebar-bg: #0B6456;
+  --sa-sidebar-bg: #141C2B;
   --sa-sidebar-border: rgba(20, 150, 127, 0.22);
   --sa-sidebar-text: #ffffff;
   --sa-sidebar-muted: rgba(255,255,255,.72);
@@ -37,8 +37,8 @@
 
 /* Old hardcoded brown sidebar — replaced by blue */
 .bg-sidebar {
-  background-color: #0B6456 !important;
-  background: #0B6456 !important;
+  background-color: #141C2B !important;
+  background: #141C2B !important;
 }
 
 aside.bg-sidebar,
@@ -110,7 +110,7 @@ main.flex-1 .font-extrabold {
 aside.bg-sidebar,
 aside[class*="w-[220px]"],
 aside[class*="w-\[220px\]"] {
-  background: #0B6456 !important;
+  background: #141C2B !important;
   border-right: 1px solid var(--sa-sidebar-border) !important;
   width: var(--sa-sidebar-w) !important;
   max-width: var(--sa-sidebar-w) !important;
@@ -485,8 +485,8 @@ aside a[class*="text-red"] {
 
 body.superadmin-app {
   margin: 0;
-  font-family: Inter, system-ui, sans-serif;
-  background: var(--sa-main-bg);
+  font-family: var(--ds-font, "Plus Jakarta Sans", sans-serif);
+  background: #141C2B;
   color: var(--sa-text);
   -webkit-font-smoothing: antialiased;
 }
@@ -503,7 +503,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
 
 .sa-sidebar {
   width: var(--sa-sidebar-w);
-  background: var(--adm-sidebar-bg, #0B6456);
+  background: #141C2B;
   border-right: 1px solid var(--sa-sidebar-border);
   padding: 20px 14px;
   display: flex;
@@ -600,13 +600,14 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
 }
 
 .sa-sidebar nav a.active {
-  background: var(--sa-orange-soft);
-  color: var(--sa-orange);
-  border-left-color: var(--sa-orange);
+  background: linear-gradient(135deg, #0E7A68 0%, #0B6456 100%);
+  color: #fff;
+  border-left-color: transparent;
+  border-radius: 10px;
 }
 
 .sa-sidebar nav a.active .sa-nav-icon {
-  color: var(--sa-orange);
+  color: #fff;
 }
 
 .sa-sidebar-footer {
@@ -1312,10 +1313,57 @@ html.sa-static .int-card + .int-card {
 html.sa-static .sa-content-card {
   padding: 24px;
 }
-html.sa-static .sa-table-wrap,
-html.sa-static .bg-white,
-html.sa-static [class*="bg-white"] {
-  background: #1C2638 !important;
+html.sa-static[data-theme="dark"] .sa-table-wrap,
+html.sa-static[data-theme="dark"] .bg-white,
+html.sa-static[data-theme="dark"] [class*="bg-white"] {
+  background: var(--ds-surface) !important;
+}
+
+.sa-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  min-height: var(--ds-h-header, 64px);
+  margin: calc(-1 * var(--sa-space-5)) calc(-1 * var(--sa-space-5)) var(--sa-space-4);
+  padding: 0 20px;
+  background: var(--ds-surface);
+  border-bottom: 1px solid var(--ds-border);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.sa-topbar-search,
+.doc-topbar-search {
+  min-height: 40px;
+  min-width: 180px;
+  border: 1px solid var(--ds-border);
+  border-radius: 10px;
+  padding: 0 12px;
+  background: var(--ds-bg);
+  color: var(--ds-text);
+  font: inherit;
+  cursor: pointer;
+}
+.sa-theme-btn,
+.doc-icon-btn {
+  min-height: 44px;
+  min-width: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--ds-border);
+  background: var(--ds-surface);
+  color: var(--ds-text);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+.sa-theme-btn:focus-visible,
+.doc-icon-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ds-focus);
+}
+@media (max-width: 1024px) {
+  .sa-topbar { margin-left: -16px; margin-right: -16px; }
 }
 @media (max-width: 1024px) {
   html.sa-static .sa-main {

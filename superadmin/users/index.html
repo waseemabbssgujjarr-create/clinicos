@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="en" class="sa-static">
 <head>
-  <script>(function(){try{var r=document.documentElement;var c=r.className||"";var t;if(/\bdma-world-auth\b/.test(c))t="light";else if(/\bdma-world-public\b/.test(c))t="dark";else{t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();</script>
+  <script>(function(){try{var r=document.documentElement;var c=r.className||"";var t;if(/\bdma-world-auth\b/.test(c))t="light";else if(/\bdma-world-public\b/.test(c)||/\bdoc-static\b/.test(c)||/\bsa-static\b/.test(c)){t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t="dark";}else{t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
           <title>Users — Clinicos</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=58" />
-  <script src="/js/ds-theme.js?v=1"></script>
+  <link rel="stylesheet" href="/dma-design-system.css?v=59" />
+  <script src="/js/ds-theme.js?v=2"></script>
   <script src="/js/ds-status.js?v=1"></script>
   <script src="/js/ds-format.js?v=1"></script>
   <script src="/js/ds-permissions.js?v=1"></script>
   <script src="/js/ds-icons.js?v=1"></script>
-  <link rel="stylesheet" href="/superadmin-theme.css?v=17" />
+  <link rel="stylesheet" href="/superadmin-theme.css?v=18" />
 </head>
 <body class="superadmin-app">
   <div class="sa-layout">
@@ -47,8 +47,8 @@
       </div>
     </main>
   </div>
-  <script src="/superadmin-admin-shell.js?v=19"></script>
-  <script src="/dma-ui.js?v=8"></script>
+  <script src="/superadmin-admin-shell.js?v=20"></script>
+  <script src="/dma-ui.js?v=9"></script>
   <script>
     (function () {
       if (!DmaAdminShell.initStaticPage('/superadmin/users/')) return;

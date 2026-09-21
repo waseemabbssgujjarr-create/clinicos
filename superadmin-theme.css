@@ -18,7 +18,7 @@
   --sa-space-4: 16px;
   --sa-space-5: 24px;
   --sa-space-6: 32px;
-  --sa-sidebar-bg: #0B6456;
+  --sa-sidebar-bg: #141C2B;
   --sa-sidebar-border: rgba(20, 150, 127, 0.22);
   --sa-sidebar-text: #ffffff;
   --sa-sidebar-muted: rgba(255,255,255,.72);
@@ -37,8 +37,8 @@
 
 /* Old hardcoded brown sidebar — replaced by blue */
 .bg-sidebar {
-  background-color: #0B6456 !important;
-  background: #0B6456 !important;
+  background-color: #141C2B !important;
+  background: #141C2B !important;
 }
 
 aside.bg-sidebar,
@@ -110,7 +110,7 @@ main.flex-1 .font-extrabold {
 aside.bg-sidebar,
 aside[class*="w-[220px]"],
 aside[class*="w-\[220px\]"] {
-  background: #0B6456 !important;
+  background: #141C2B !important;
   border-right: 1px solid var(--sa-sidebar-border) !important;
   width: var(--sa-sidebar-w) !important;
   max-width: var(--sa-sidebar-w) !important;
@@ -485,8 +485,8 @@ aside a[class*="text-red"] {
 
 body.superadmin-app {
   margin: 0;
-  font-family: Inter, system-ui, sans-serif;
-  background: var(--sa-main-bg);
+  font-family: var(--ds-font, "Plus Jakarta Sans", sans-serif);
+  background: #141C2B;
   color: var(--sa-text);
   -webkit-font-smoothing: antialiased;
 }
@@ -503,7 +503,7 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
 
 .sa-sidebar {
   width: var(--sa-sidebar-w);
-  background: var(--adm-sidebar-bg, #0B6456);
+  background: #141C2B;
   border-right: 1px solid var(--sa-sidebar-border);
   padding: 20px 14px;
   display: flex;
@@ -600,13 +600,14 @@ body.min-h-screen.bg-app.dma-sa-nav-open {
 }
 
 .sa-sidebar nav a.active {
-  background: var(--sa-orange-soft);
-  color: var(--sa-orange);
-  border-left-color: var(--sa-orange);
+  background: linear-gradient(135deg, #0E7A68 0%, #0B6456 100%);
+  color: #fff;
+  border-left-color: transparent;
+  border-radius: 10px;
 }
 
 .sa-sidebar nav a.active .sa-nav-icon {
-  color: var(--sa-orange);
+  color: #fff;
 }
 
 .sa-sidebar-footer {

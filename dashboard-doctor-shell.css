@@ -159,10 +159,11 @@ html.doc-static body {
 
 .doc-nav a.active,
 .doc-sidebar .doc-nav a.active {
-  background: rgba(20, 150, 127, 0.28);
-  border-left-color: #14967F;
+  background: linear-gradient(135deg, #0E7A68 0%, #0B6456 100%);
+  border-left-color: transparent;
   color: #fff;
   font-weight: 750;
+  border-radius: 10px;
 }
 
 .doc-nav a.active .doc-nav-icon { color: #fff !important; }
@@ -419,12 +420,14 @@ html.doc-static body {
   width: 100%;
   box-sizing: border-box;
   background: var(--doc-bg);
+  max-width: none;
 }
 
 .doc-main .dma-wa-root,
-.doc-main > div {
-  max-width: 1280px;
-  margin: 0 auto;
+.doc-main > div:not(.ds-workspace-tabs) {
+  max-width: none;
+  margin: 0;
+  width: 100%;
 }
 
 /* ── Hamburger ── */
@@ -609,6 +612,15 @@ html.doc-static {
   --doc-border-2: rgba(255,255,255,0.14);
   --doc-sidebar: #141C2B;
   --doc-sidebar-border: rgba(255,255,255,0.08);
+}
+html.doc-static,
+html.doc-static body {
+  background: #141C2B;
+  color: #F8FBFF;
+}
+html.doc-static .doc-sidebar {
+  background: #141C2B !important;
+  border-right: 1px solid rgba(255,255,255,0.08) !important;
 }
 html.doc-static .doc-brand strong,
 html.doc-static .doc-topbar h1 {

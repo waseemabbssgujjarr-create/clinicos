@@ -2,7 +2,7 @@
   if (typeof document !== 'undefined' && !document.querySelector('link[href*="dma-design-system.css"]')) {
     var ds = document.createElement('link');
     ds.rel = 'stylesheet';
-    ds.href = '/dma-design-system.css?v=57';
+    ds.href = '/dma-design-system.css?v=59';
     document.head.appendChild(ds);
   }
   var ICONS = {
@@ -174,8 +174,8 @@
       if (w.match.some(function (m) { return path === m || path.indexOf(m) === 0; })) ws = w;
     });
     if (!ws) return;
-    var main = document.querySelector('.sa-main');
-    if (!main) return;
+    var inner = document.querySelector('.sa-main-inner') || document.querySelector('.sa-main');
+    if (!inner) return;
     var nav = document.createElement('nav');
     nav.className = 'ds-workspace-tabs';
     nav.setAttribute('aria-label', 'Section');
@@ -184,8 +184,7 @@
       var on = path === target || path.indexOf(target) === 0;
       return '<a href="' + t.href + '" class="' + (on ? 'on' : '') + '"' + (on ? ' aria-current="page"' : '') + '>' + t.label + '</a>';
     }).join('');
-    if (main.firstChild) main.insertBefore(nav, main.firstChild);
-    else main.appendChild(nav);
+    inner.insertBefore(nav, inner.firstChild);
   }
 
   function wrapMainContent(main) {
