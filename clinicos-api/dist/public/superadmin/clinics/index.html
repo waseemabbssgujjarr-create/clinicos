@@ -9,70 +9,21 @@
 <link rel="icon" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/os.css?v=1">
-<link rel="stylesheet" href="/assets/os-live.css?v=1">
+<link rel="stylesheet" href="/assets/os.css?v=2">
+<link rel="stylesheet" href="/assets/os-live.css?v=2">
 <link rel="stylesheet" href="/superadmin-theme.css?v=20">
 </head>
 <body data-live="1" data-area="admin" data-route="superadmin/clinics">
 <div id="app"></div>
-<div id="os-live-preserve" hidden>
-      <div class="sa-content-card">
-        <div class="ds-page-header">
-          <div>
-            <h1>Organizations</h1>
-            <p>Search, inspect, and operate every clinic on the platform. Open, suspend, or reactivate — impersonation is not available.</p>
-          </div>
-          <p class="sa-status" id="meta">Loading…</p>
-        </div>
-        <form class="ds-toolbar" id="filters">
-          <input class="ds-input ds-search" id="q" type="search" placeholder="Search clinic, owner, or email" autocomplete="off" />
-          <select class="ds-input" id="plan" aria-label="Plan">
-            <option value="">All plans</option>
-            <option value="TRIAL">Trial</option>
-            <option value="STARTER">Starter</option>
-            <option value="PRO">Pro</option>
-            <option value="ENTERPRISE">Enterprise</option>
-          </select>
-          <select class="ds-input" id="status" aria-label="Status">
-            <option value="">All statuses</option>
-            <option value="active">Active</option>
-            <option value="suspended">Suspended</option>
-          </select>
-          <button type="submit" class="ds-btn ds-btn-primary">Filter</button>
-        </form>
-        <div id="state" class="ds-loading">Loading clinics…</div>
-        <div class="ds-table-wrap ds-desktop-table">
-          <table class="ds-table" id="table">
-            <thead>
-              <tr>
-                <th data-sort="name">Clinic</th>
-                <th data-sort="ownerName">Owner</th>
-                <th>Contact</th>
-                <th>WhatsApp</th>
-                <th>AI</th>
-                <th data-sort="patients">Patients</th>
-                <th data-sort="appointments">Appointments</th>
-                <th data-sort="plan">Subscription</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="tbody"></tbody>
-          </table>
-        </div>
-        <div class="ds-clinic-cards" id="cards"></div>
-        <div class="ds-pager" id="pager"></div>
-      </div>
-    </div>
-<script src="/assets/os.js?v=1"></script>
+
+<script src="/assets/os.js?v=2"></script>
 <script src="/superadmin-admin-shell.js?v=20"></script>
 <script src="/js/ds-theme.js?v=2"></script>
 <script src="/js/ds-status.js?v=1"></script>
 <script src="/js/ds-format.js?v=1"></script>
 <script src="/dma-ui.js?v=10"></script>
-<script src="/assets/os-live.js?v=1"></script>
-<script src="/superadmin-admin-shell.js?v=20"></script>
-<script src="/superadmin-clinics.js?v=4"></script>
-<script>window.__OS_LIVE_INIT__=function(){(function(){try{var r=document.documentElement;var c=r.className||"";var t;if(/\bdma-world-auth\b/.test(c))t="light";else if(/\bdma-world-public\b/.test(c)||/\bdoc-static\b/.test(c)||/\bsa-static\b/.test(c)){t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t="dark";}else{t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();};</script>
+<script src="/assets/os-live.js?v=2"></script>
+
+
 </body>
 </html>

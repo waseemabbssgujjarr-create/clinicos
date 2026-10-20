@@ -102,7 +102,7 @@ function clinicShellHtml(meta, rel, preserve, extraScripts) {
   if (meta.title) attrs.push(`data-title="${meta.title}"`);
 
   const liveScripts = [
-    "/assets/os.js?v=1",
+    "/assets/os.js?v=2",
     "/dma-doctor-app.js?v=6",
     "/js/ds-theme.js?v=2",
     "/js/ds-status.js?v=1",
@@ -111,7 +111,7 @@ function clinicShellHtml(meta, rel, preserve, extraScripts) {
     "/dma-ui.js?v=10",
     "/dma-doctor-pages.js?v=19",
     "/dma-clinicos-inner.js?v=14",
-    "/assets/os-live.js?v=1",
+    "/assets/os-live.js?v=2",
   ];
 
   const preserveBlock = preserve
@@ -138,8 +138,8 @@ function clinicShellHtml(meta, rel, preserve, extraScripts) {
 <link rel="icon" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="${ASSETS}/os.css?v=1">
-<link rel="stylesheet" href="${ASSETS}/os-live.css?v=1">
+<link rel="stylesheet" href="${ASSETS}/os.css?v=2">
+<link rel="stylesheet" href="${ASSETS}/os-live.css?v=2">
 <link rel="stylesheet" href="/dma-doctor-pages.css?v=9">
 </head>
 <body ${attrs.join(" ")}>
@@ -157,13 +157,13 @@ function adminShellHtml(meta, rel, preserve) {
   const root = depthToRoot(rel);
   const attrs = [`data-live="1"`, `data-area="admin"`, `data-route="${meta.route}"`];
   const scripts = [
-    "/assets/os.js?v=1",
+    "/assets/os.js?v=2",
     "/superadmin-admin-shell.js?v=20",
     "/js/ds-theme.js?v=2",
     "/js/ds-status.js?v=1",
     "/js/ds-format.js?v=1",
     "/dma-ui.js?v=10",
-    "/assets/os-live.js?v=1",
+    "/assets/os-live.js?v=2",
   ];
   const preserveBlock = preserve
     ? `<div id="os-live-preserve" hidden>${preserve.html}</div>`
@@ -187,8 +187,8 @@ function adminShellHtml(meta, rel, preserve) {
 <link rel="icon" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="${ASSETS}/os.css?v=1">
-<link rel="stylesheet" href="${ASSETS}/os-live.css?v=1">
+<link rel="stylesheet" href="${ASSETS}/os.css?v=2">
+<link rel="stylesheet" href="${ASSETS}/os-live.css?v=2">
 <link rel="stylesheet" href="/superadmin-theme.css?v=20">
 </head>
 <body ${attrs.join(" ")}>
@@ -204,9 +204,9 @@ ${init}
 function publicProtoHtml(rel, route, area) {
   const root = depthToRoot(rel);
   const isAuth = /login|register|forgot|reset|accept-invite|verify-email/.test(route);
-  const scripts = [`${ASSETS}/os.js?v=1`, `${ASSETS}/site.js?v=1`];
+  const scripts = [`${ASSETS}/os.js?v=2`, `${ASSETS}/site.js?v=2`];
   if (isAuth) {
-    scripts.push("/portal.js?v=9", `${ASSETS}/os-auth-live.js?v=1`);
+    scripts.push("/portal.js?v=9", `${ASSETS}/os-auth-live.js?v=2`);
   }
   return `<!doctype html>
 <html lang="en">
@@ -219,7 +219,7 @@ function publicProtoHtml(rel, route, area) {
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${ASSETS}/os.css?v=1">
 </head>
-<body data-root="${root}" data-area="${area}" data-route="${route}">
+<body data-root="" data-area="${area}" data-route="${route}">
 <div id="app"></div>
 ${scripts.map((s) => `<script src="${s}"></script>`).join("\n")}
 </body>
@@ -298,15 +298,13 @@ for (const rel of protoFiles) {
   written++;
 }
 
-const homePath = path.join(ROOT, "index.html");
-if (fs.existsSync(homePath)) {
-  let home = fs.readFileSync(homePath, "utf8");
-  home = home.replace(
-    /else if\(\/\\bdma-world-public\\b\/\.test\(c\)\)t="dark"/,
-    'else if(/\\bdma-world-public\\b/.test(c))t="light"'
-  );
-  fs.writeFileSync(homePath, home);
-}
+fs.writeFileSync(
+  path.join(ROOT, "index.html"),
+  publicProtoHtml("index.html", "index", "public").replace(
+    "<title>Clinicos</title>",
+    "<title>Clinicos — Run your clinic without the paperwork</title>\n<meta name=\"description\" content=\"Appointments, patients, consultations, WhatsApp, and your AI receptionist — connected in one clinic workspace.\" />\n<link rel=\"icon\" href=\"/favicon.svg\">"
+  )
+);
 
 function copyDir(src, dest) {
   fs.mkdirSync(dest, { recursive: true });

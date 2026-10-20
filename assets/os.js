@@ -6,7 +6,8 @@ const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelecto
 OS.$=$;OS.$$=$$;
 const B=document.body,ROOT=B.dataset.root||'',AREA=B.dataset.area,ROUTE=B.dataset.route;
 OS.root=ROOT;OS.area=AREA;OS.route=ROUTE;
-const U=OS.U=(r)=>{if(/^(https?:|#|mailto:|tel:)/.test(r))return r;let h='',q='';if(r.includes('#')){[r,h]=r.split('#');h='#'+h}if(r.includes('?')){[r,q]=r.split('?');q='?'+q}return ROOT+(r?r.replace(/\/?$/,'/')+'index.html':'index.html')+q+h};
+function useCleanUrls(){if(typeof location!=='undefined'&&location.protocol==='file:')return false;if(B&&B.dataset.live==='1')return true;if(!ROOT)return true;return false}
+const U=OS.U=(r)=>{if(/^(https?:|#|mailto:|tel:)/.test(r))return r;let h='',q='';if(r.includes('#')){[r,h]=r.split('#');h='#'+h}if(r.includes('?')){[r,q]=r.split('?');q='?'+q}if(useCleanUrls()){if(!r)return '/'+q+h;let path=r.replace(/\/?$/,'/');if(!path.startsWith('/'))path='/'+path;return path+q+h}return ROOT+(r?r.replace(/\/?$/,'/')+'index.html':'index.html')+q+h};
 /* state */
 const mem={};
 const S=OS.S={get(k,d){try{const v=localStorage.getItem('cl_'+k);return v===null?(k in mem?mem[k]:d):JSON.parse(v)}catch(e){return k in mem?mem[k]:d}},set(k,v){mem[k]=v;try{localStorage.setItem('cl_'+k,JSON.stringify(v))}catch(e){}}};

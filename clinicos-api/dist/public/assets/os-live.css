@@ -4,7 +4,21 @@
 .pg.os-live-mount #doc-page,
 .pg.os-live-mount .dma-clinic-canvas,
 .pg.os-live-mount .sa-main,
-.pg.os-live-mount .sa-main-inner { padding: 0; max-width: none; }
+.pg.os-live-mount .sa-main-inner {
+  padding: 0;
+  max-width: none;
+  background: var(--bg) !important;
+  color: var(--ink);
+}
+.pg.os-live-mount .dma-head-title,
+.pg.os-live-mount .dma-head h1 { color: var(--ink); }
+.pg.os-live-mount .dma-prose,
+.pg.os-live-mount .dma-hint { color: var(--mut); }
+.pg.os-live-mount .dma-section {
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--sh);
+}
 .pg.os-live-mount .dma-btn { border-radius: var(--r, 10px); }
 .pg.os-live-mount .dma-section,
 .pg.os-live-mount .cos-empty,

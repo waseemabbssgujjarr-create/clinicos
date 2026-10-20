@@ -46,12 +46,17 @@ RewriteRule ^patients/clinic/[a-zA-Z0-9_-]+/?$ /patients/clinic/detail/index.htm
 # ── Legacy patient verify path (Next.js used /patient/verify) ─────────────────
 RewriteRule ^patient/verify/?$ /verify/ [R=302,L]
 
+# ── Pretty URLs: hide index.html (do not expose .html in the browser) ───────
+RewriteCond %{THE_REQUEST} \s/+(.*/)?index\.html[\s?] [NC]
+RewriteRule ^ %1 [R=301,L]
+
+# ── Fix mistaken nested dashboard links from old relative URLs ───────────────
+RewriteRule ^dashboard/[^/]+/dashboard/.* /dashboard/ [R=301,L]
+
 # ── Never SPA-fallback real scripts / diagnostics ───────────────────────────
 RewriteRule \.(php|js|css|map|json|svg|png|jpg|jpeg|gif|webp|ico|txt|xml|woff2?)$ - [L]
 
-# ── SPA fallback: serve index.html for all non-file, non-directory routes ────
-# This makes deep-links like /dashboard/, /login/ work correctly.
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !\.(php|js|css)$ [NC]
-RewriteRule ^ /index.html [L]
+# ── Trailing slash for section directories (DirectoryIndex serves index.html) ─
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_URI} !/$
+RewriteRule ^(.+)$ $1/ [R=301,L]
