@@ -619,8 +619,22 @@
 
   // ── Shell mount ───────────────────────────────────────────────────────────────
 
+  function liveHubHost() {
+    if (document.body.dataset.live !== '1') return null;
+    return document.getElementById('os-wa-hub-slot');
+  }
+
   function mountShell() {
     if (document.getElementById(ROOT_ID)) return;
+    var liveSlot = liveHubHost();
+    if (liveSlot && isWhatsAppPage) {
+      liveSlot.innerHTML =
+        '<div id="' +
+        ROOT_ID +
+        '" class="dma-wa-root os-wa-hub-live"><p class="dma-wa-muted">Loading WhatsApp…</p></div>';
+      injectStyles();
+      return;
+    }
     var main = document.querySelector('main');
     if (!main) return;
 
@@ -689,7 +703,16 @@
     setTimeout(boot, 2200);
   }
 
-  if (document.readyState === 'loading') {
+  function autoConnect() {
+    var connectBtn = document.getElementById('dma-wa-connect-embedded');
+    if (connectBtn) connectBtn.click();
+  }
+
+  window.DmaWaHub = { boot: boot, autoConnect: autoConnect };
+
+  if (document.body.dataset.live === '1') {
+    /* os-live.js calls DmaWaHub.boot() after prototype page mount */
+  } else if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', scheduleBoot);
   } else {
     scheduleBoot();

@@ -425,3 +425,120 @@ html.os-live .tb {
 .app > .main > .foot {
   margin: 24px 20px 12px;
 }
+
+/* WhatsApp Command Center inside OS live shell */
+html.os-live .os-wa-hub-live.dma-wa-root {
+  margin-bottom: 18px;
+}
+
+html.os-live .os-wa-hub-live .dma-wa-hero {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r, 16px);
+  box-shadow: var(--sh);
+  padding: 20px 22px;
+  margin-bottom: 16px;
+}
+
+html.os-live .os-wa-hub-live .dma-wa-hero h1 {
+  font-family: var(--fh, Montserrat, sans-serif);
+  font-size: 20px;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+
+html.os-live .os-wa-hub-live .dma-wa-hero p,
+html.os-live .os-wa-hub-live .dma-wa-muted {
+  color: var(--mut);
+}
+
+html.os-live .os-wa-hub-live .dma-wa-stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+html.os-live .os-wa-hub-live .dma-wa-stat {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: var(--sh);
+}
+
+html.os-live .os-wa-hub-live .dma-wa-stat__val {
+  display: block;
+  font: 700 22px/1.2 var(--fh, Montserrat, sans-serif);
+  color: var(--ink);
+}
+
+html.os-live .os-wa-hub-live .dma-wa-stat__lbl {
+  display: block;
+  font-size: 12px;
+  color: var(--mut);
+  margin-top: 4px;
+}
+
+html.os-live .os-wa-hub-live .dma-wa-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+html.os-live .os-wa-hub-live .dma-wa-panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: var(--sh);
+}
+
+html.os-live .os-wa-hub-live .dma-wa-panel--wide {
+  grid-column: 1 / -1;
+}
+
+html.os-live .os-wa-hub-live .dma-wa-quick {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+html.os-live .os-wa-hub-live .dma-wa-quick__item {
+  display: block;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card2);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+html.os-live .os-wa-hub-live .dma-wa-log {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+html.os-live .os-wa-hub-live .dma-wa-log th,
+html.os-live .os-wa-hub-live .dma-wa-log td {
+  border-bottom: 1px solid var(--line);
+  padding: 10px 8px;
+  text-align: left;
+}
+
+html.os-live .wa-cc-hero {
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--sh);
+  padding: 18px 20px;
+}
+
+@media (max-width: 1024px) {
+  html.os-live .os-wa-hub-live .dma-wa-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  html.os-live .os-wa-hub-live .dma-wa-grid {
+    grid-template-columns: 1fr;
+  }
+}

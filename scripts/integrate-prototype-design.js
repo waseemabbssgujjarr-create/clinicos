@@ -20,7 +20,7 @@ const ROUTE_PAGE = {
   "dashboard/patients/detail/index.html": { route: "dashboard/patients/detail", page: "patient", title: "Patient" },
   "dashboard/communication/index.html": { route: "dashboard/communication", page: "communication", title: "Communication" },
   "dashboard/messages/index.html": { route: "dashboard/messages", page: "messages", title: "Inbox" },
-  "dashboard/whatsapp/index.html": { route: "dashboard/whatsapp", preserve: true },
+  "dashboard/whatsapp/index.html": { route: "dashboard/whatsapp", page: "whatsapp", title: "WhatsApp" },
   "dashboard/broadcasts/index.html": { route: "dashboard/broadcasts", preserve: true },
   "dashboard/leads/index.html": { route: "dashboard/leads", preserve: true },
   "dashboard/ai/index.html": { route: "dashboard/ai", page: "ai", title: "AI Receptionist" },
@@ -113,8 +113,16 @@ function clinicShellHtml(meta, rel, preserve, extraScripts) {
     "/dma-ui.js?v=10",
     "/dma-doctor-pages.js?v=19",
     "/dma-clinicos-inner.js?v=14",
-    "/assets/os-live.js?v=3",
+    "/assets/clinic.js?v=2",
+    "/assets/clinic2.js?v=2",
+    "/assets/os-live-pages.js?v=1",
+    "/assets/os-live.js?v=4",
   ];
+
+  const waExtra =
+    meta.route === "dashboard/whatsapp"
+      ? `\n<script src="/dashboard-whatsapp-hub.js?v=8"></script>`
+      : "";
 
   const preserveBlock = preserve
     ? `<div id="os-live-preserve" hidden>${preserve.html}</div>`
@@ -142,7 +150,7 @@ ${THEME_BOOT}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${ASSETS}/os.css?v=2">
-<link rel="stylesheet" href="${ASSETS}/os-live.css?v=5">
+<link rel="stylesheet" href="${ASSETS}/os-live.css?v=6">
 <link rel="stylesheet" href="/dma-design-system.css?v=61">
 <link rel="stylesheet" href="/dma-doctor-pages.css?v=10">
 </head>
@@ -151,7 +159,7 @@ ${THEME_BOOT}
 ${preserveBlock}
 ${liveScripts.map((s) => `<script src="${s}"></script>`).join("\n")}
 ${extra}
-${extraScripts || ""}
+${waExtra}${extraScripts || ""}
 ${init}
 </body>
 </html>`;
@@ -167,7 +175,8 @@ function adminShellHtml(meta, rel, preserve) {
     "/js/ds-status.js?v=1",
     "/js/ds-format.js?v=1",
     "/dma-ui.js?v=10",
-    "/assets/os-live.js?v=3",
+    "/assets/admin.js?v=2",
+    "/assets/os-live.js?v=4",
   ];
   const preserveBlock = preserve
     ? `<div id="os-live-preserve" hidden>${preserve.html}</div>`
@@ -193,7 +202,7 @@ ${THEME_BOOT}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${ASSETS}/os.css?v=2">
-<link rel="stylesheet" href="${ASSETS}/os-live.css?v=5">
+<link rel="stylesheet" href="${ASSETS}/os-live.css?v=6">
 <link rel="stylesheet" href="/dma-design-system.css?v=61">
 <link rel="stylesheet" href="/superadmin-theme.css?v=20">
 <link rel="stylesheet" href="/dma-doctor-pages.css?v=10">

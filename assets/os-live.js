@@ -14,7 +14,6 @@
   }
 
   function readLiveTheme() {
-    /* Match prototype: light main canvas; dark rail is fixed in os.css */
     return 'light';
   }
 
@@ -72,6 +71,11 @@
     'dashboard/reports': 'reports',
     'dashboard/operations': 'operations',
     'dashboard/communication': 'messages',
+  };
+
+  var DMA_FALLBACK_ROUTES = {
+    'dashboard/patients/detail': true,
+    'superadmin/clinics/detail': true,
   };
 
   function cleanUrl(r) {
@@ -149,6 +153,27 @@
     if (window.DmaPages && DmaPages.mount) DmaPages.mount();
   }
 
+  function mountPrototype(route) {
+    var pg = document.getElementById('pg');
+    if (!pg || !OS.pages[route] || DMA_FALLBACK_ROUTES[route]) return false;
+    pg.classList.add('os-live-mount');
+    try {
+      pg.innerHTML = OS.pages[route]() || '';
+    } catch (e) {
+      pg.innerHTML =
+        OS.empty('Page error', 'This screen could not render. Try refreshing.') || '';
+      return true;
+    }
+    var initFn = OS.init[route];
+    if (initFn) {
+      try {
+        initFn();
+      } catch (_) {}
+    }
+    OS.post(pg);
+    return true;
+  }
+
   function applyPreserve() {
     var box = document.getElementById('os-live-preserve');
     var pg = document.getElementById('pg');
@@ -157,6 +182,55 @@
     pg.innerHTML = box.innerHTML;
     box.remove();
     return true;
+  }
+
+  function patchLiveChrome() {
+    if (!window.DmaApp) return;
+    var u = DmaApp.user() || {};
+    var clinic = u.clinicName || u.name;
+    if (clinic) {
+      OS.CLINIC = clinic;
+      var rb = document.querySelector('.rb small');
+      if (rb) rb.textContent = clinic;
+    }
+    var name = u.ownerName || u.name || '';
+    var chipEl = document.querySelector('.uchip');
+    if (chipEl && name) {
+      var av = chipEl.querySelector('.av');
+      if (av && DmaApp.initials) av.textContent = DmaApp.initials(name);
+      var sp = chipEl.querySelector('span');
+      if (sp) sp.textContent = name;
+    }
+    DmaApp.waStatus()
+      .catch(function () {
+        return { unavailable: true };
+      })
+      .then(function (wa) {
+        var connected = !!(wa.connected || wa.status === 'connected' || wa.status === 'CONNECTED');
+        try {
+          OS.S.set('wa', connected);
+        } catch (_) {}
+        var wachip = document.querySelector('.wachip');
+        if (wachip) {
+          wachip.classList.toggle('off', !connected && !wa.unavailable);
+          var span = wachip.querySelector('span');
+          if (span && !wa.unavailable) {
+            span.textContent = 'WhatsApp ' + (connected ? 'connected' : 'not connected');
+          }
+        }
+      });
+    DmaApp.get('/api/notifications?limit=1&unread=1')
+      .catch(function () {
+        return { unread: 0 };
+      })
+      .then(function (n) {
+        var count = (n && (n.unread != null ? n.unread : n.unreadCount)) || 0;
+        var badge = document.querySelector('.tbs .nb');
+        if (badge) {
+          badge.textContent = count > 99 ? '99+' : String(count);
+          badge.style.display = count > 0 ? '' : 'none';
+        }
+      });
   }
 
   function wireChrome() {
@@ -181,6 +255,7 @@
     });
     var tray = document.querySelector('.tray');
     if (tray) tray.remove();
+    patchLiveChrome();
   }
 
   function bootClinic() {
@@ -193,22 +268,19 @@
     var app = document.getElementById('app');
     if (!app) return;
 
-    var body =
-      '<div class="os-live-loading mut" style="padding:24px">Loading…</div>';
-    app.innerHTML = OS.clinicShell(title, body);
+    app.innerHTML = OS.clinicShell(title, '<div class="os-live-loading mut" style="padding:24px">Loading…</div>');
     wireChrome();
 
-    var pg = document.getElementById('pg');
-    if (applyPreserve()) {
+    var mounted = mountPrototype(route);
+    if (!mounted && applyPreserve()) {
       if (window.__OS_LIVE_INIT__) window.__OS_LIVE_INIT__();
       if (window.DmaDoctorShell && DmaDoctorShell.refreshBadges) DmaDoctorShell.refreshBadges();
       OS.post(app);
       return;
     }
-
-    var pageId = document.body.getAttribute('data-page') || ROUTE_PAGE[route];
-    if (pageId) {
-      mountStandard(pageId, document.body.getAttribute('data-title') || title);
+    if (!mounted) {
+      var pageId = document.body.getAttribute('data-page') || ROUTE_PAGE[route];
+      if (pageId) mountStandard(pageId, document.body.getAttribute('data-title') || title);
     }
     if (window.__OS_LIVE_INIT__) window.__OS_LIVE_INIT__();
     if (window.DmaDoctorShell && DmaDoctorShell.refreshBadges) DmaDoctorShell.refreshBadges();
@@ -226,8 +298,10 @@
     if (!app) return;
     app.innerHTML = OS.adminShell(title, '<div class="os-live-loading mut" style="padding:24px">Loading…</div>');
     wireChrome();
-    var pg = document.getElementById('pg');
-    if (applyPreserve()) {
+
+    var mounted = mountPrototype(route);
+    if (!mounted && applyPreserve()) {
+      var pg = document.getElementById('pg');
       pg.classList.add('sa-main');
       var inner = document.createElement('div');
       inner.className = 'sa-main-inner';
@@ -242,7 +316,8 @@
       OS.post(app);
       return;
     }
-    mountStandard('home', title);
+    if (!mounted) mountStandard('home', title);
+    if (window.__OS_LIVE_INIT__) window.__OS_LIVE_INIT__();
     OS.post(app);
   }
 
@@ -250,6 +325,8 @@
     if (window.__OS_LIVE_PUBLIC__) return;
     OS.boot();
   }
+
+  window.OsLive = { patchChrome: patchLiveChrome };
 
   window.addEventListener('DOMContentLoaded', function () {
     if (document.body.dataset.live !== '1') return;
