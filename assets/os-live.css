@@ -1,4 +1,36 @@
-/* Live Clinicos: DMA page content inside OS prototype shell */
+/* Live Clinicos: DMA page content inside OS prototype shell (light canvas + dark rail) */
+
+/* ── Canvas: OS tokens win over dma doc-static dark canvas ── */
+html.os-live.doc-static,
+html.os-live.doc-static body,
+html.os-live.sa-static,
+html.os-live.sa-static body {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+}
+
+html.os-live.doc-static .app > .main,
+html.os-live.sa-static .app > .main {
+  background: var(--bg) !important;
+}
+
+html.os-live.doc-static .pg.os-live-mount,
+html.os-live.sa-static .pg.os-live-mount,
+html.os-live.doc-static[data-theme="dark"] .pg.os-live-mount .doc-main,
+html.os-live.doc-static[data-theme="dark"] .pg.os-live-mount #doc-page,
+html.os-live.doc-static[data-theme="light"] .pg.os-live-mount .doc-main,
+html.os-live.doc-static[data-theme="light"] .pg.os-live-mount #doc-page,
+html.os-live.sa-static[data-theme="dark"] .pg.os-live-mount .sa-main,
+html.os-live.sa-static[data-theme="dark"] .pg.os-live-mount .sa-main-inner,
+html.os-live.sa-static[data-theme="light"] .pg.os-live-mount .sa-main,
+html.os-live.sa-static[data-theme="light"] .pg.os-live-mount .sa-main-inner,
+html.doc-static[data-theme="dark"] .pg.os-live-mount .doc-main,
+html.doc-static[data-theme="dark"] .pg.os-live-mount #doc-page,
+html.sa-static[data-theme="dark"] .pg.os-live-mount .sa-main-inner {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+}
+
 .pg.os-live-mount {
   max-width: var(--content, 1440px);
   padding: 6px 20px 28px;
@@ -15,6 +47,29 @@
   background: var(--bg) !important;
   color: var(--ink);
   box-sizing: border-box;
+}
+
+/* Remap DMA doc tokens → OS prototype tokens inside live mount */
+html.os-live .pg.os-live-mount {
+  --doc-bg: var(--bg);
+  --doc-surface: var(--card);
+  --doc-surface-2: var(--card2);
+  --doc-text: var(--ink);
+  --doc-muted: var(--mut);
+  --doc-border: var(--line);
+  --ds-bg: var(--bg);
+  --ds-bg-2: var(--bg2);
+  --ds-surface: var(--card);
+  --ds-surface-2: var(--card2);
+  --ds-text: var(--ink);
+  --ds-text-2: var(--ink2);
+  --ds-muted: var(--mut);
+  --ds-border: var(--line);
+  --ds-border-2: var(--line2);
+  --sa-main-bg: var(--bg);
+  --sa-card-bg: var(--card);
+  --sa-text: var(--ink);
+  --sa-muted: var(--mut);
 }
 
 html.doc-static .pg.os-live-mount .doc-main,
@@ -43,11 +98,15 @@ html.sa-static .pg.os-live-mount .sa-main-inner {
 }
 
 .pg.os-live-mount .dma-section,
-.pg.os-live-mount .cos-card {
-  background: var(--card);
-  border: 1px solid var(--line);
+.pg.os-live-mount .cos-card,
+.pg.os-live-mount .ds-section,
+.pg.os-live-mount .ds-card,
+.pg.os-live-mount .dma-card {
+  background: var(--card) !important;
+  border: 1px solid var(--line) !important;
   box-shadow: var(--sh);
   border-radius: var(--r, 16px);
+  color: var(--ink);
 }
 
 .pg.os-live-mount .dma-btn {
@@ -58,6 +117,21 @@ html.sa-static .pg.os-live-mount .sa-main-inner {
 .pg.os-live-mount .cos-empty,
 .pg.os-live-mount .ds-section {
   border-radius: var(--rc, 14px);
+}
+
+.pg.os-live-mount .cos-empty {
+  background: var(--card) !important;
+  border: 1px solid var(--line);
+  padding: 28px 24px;
+  text-align: center;
+}
+
+.pg.os-live-mount .cos-empty h2 {
+  color: var(--ink);
+}
+
+.pg.os-live-mount .cos-empty p {
+  color: var(--mut);
 }
 
 .pg.os-live-mount .doc-layout,
@@ -73,7 +147,35 @@ html.sa-static .pg.os-live-mount .sa-main-inner {
   margin-bottom: 16px;
 }
 
-/* KPI grids + pickers (need dma-design-system + doc-static on html) */
+/* Quick actions + ghost buttons (prototype pill row) */
+html.os-live .pg.os-live-mount .cos-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+  align-items: center;
+}
+
+html.os-live .pg.os-live-mount .cos-quick-actions .dma-btn-ghost,
+html.os-live .pg.os-live-mount .dma-head-actions .dma-btn-ghost,
+html.os-live .pg.os-live-mount .dma-btn-row .dma-btn-ghost {
+  background: var(--card) !important;
+  color: var(--teal-d, #0e7a68) !important;
+  border: 1.5px solid var(--line2) !important;
+  box-shadow: var(--sh, 0 1px 2px rgba(15, 26, 36, 0.06));
+  min-height: 40px;
+  padding: 0 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+html.os-live .pg.os-live-mount .cos-quick-actions .dma-btn-ghost:hover,
+html.os-live .pg.os-live-mount .dma-btn-ghost:hover:not(:disabled) {
+  background: var(--teal-t, #eef8f5) !important;
+  border-color: var(--teal, #14967f) !important;
+}
+
+/* KPI grids */
 html.doc-static .pg.os-live-mount .cos-kpi-row,
 html.doc-static .pg.os-live-mount .dma-kpis,
 html.doc-static .pg.os-live-mount .ds-kpis {
@@ -94,12 +196,21 @@ html.doc-static .pg.os-live-mount .ds-kpis {
 html.doc-static .pg.os-live-mount .cos-card--kpi {
   padding: 16px 18px;
   min-height: 0;
+  background: var(--card) !important;
 }
 
 html.doc-static .pg.os-live-mount .cos-card--kpi span,
 html.doc-static .pg.os-live-mount .cos-card--kpi strong,
 html.doc-static .pg.os-live-mount .cos-card--kpi em {
   display: block;
+}
+
+html.doc-static .pg.os-live-mount .cos-card--kpi span {
+  color: var(--mut);
+}
+
+html.doc-static .pg.os-live-mount .cos-card--kpi strong {
+  color: var(--ink);
 }
 
 html.doc-static .pg.os-live-mount .cos-quick-actions {
@@ -123,7 +234,86 @@ html.doc-static .pg.os-live-mount .ds-work-grid {
   }
 }
 
-/* Toasts above OS rail / dock (fixed root lives on body) */
+/* Superadmin tables / panels inside live mount */
+html.os-live.sa-static .pg.os-live-mount .sa-panel,
+html.os-live.sa-static .pg.os-live-mount .dma-section,
+html.os-live.sa-static .pg.os-live-mount table {
+  color: var(--ink);
+}
+
+html.os-live.sa-static .pg.os-live-mount .sa-panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r, 16px);
+  box-shadow: var(--sh);
+}
+
+/* WhatsApp hub (preserved #os-live-preserve content) */
+html.os-live .pg.os-live-mount .dma-wa-root,
+html.os-live .pg.os-live-mount #dma-wa-command-center {
+  max-width: none;
+  width: 100%;
+}
+
+html.os-live .pg.os-live-mount .dma-wa-root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+html.os-live .pg.os-live-mount .dma-wa-panel,
+html.os-live .pg.os-live-mount .dma-wa-stat,
+html.os-live .pg.os-live-mount .dma-wa-quick__item,
+html.os-live .pg.os-live-mount .dma-wa-settings-teaser,
+html.os-live .pg.os-live-mount .dma-wa-phone-badge {
+  background: var(--card) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--rc, 14px);
+  color: var(--ink);
+  box-shadow: var(--sh);
+}
+
+html.os-live .pg.os-live-mount .dma-wa-quick {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+html.os-live .pg.os-live-mount .dma-wa-quick__item {
+  padding: 14px 16px;
+  text-decoration: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+html.os-live .pg.os-live-mount .dma-wa-quick__item:hover {
+  border-color: var(--teal, #14967f) !important;
+  box-shadow: var(--sh2);
+}
+
+html.os-live .pg.os-live-mount .dma-wa-muted,
+html.os-live .pg.os-live-mount .dma-wa-stat__lbl,
+html.os-live .pg.os-live-mount .dma-wa-phone-meta {
+  color: var(--mut) !important;
+}
+
+html.os-live .pg.os-live-mount .dma-wa-btn--ghost {
+  background: var(--card) !important;
+  border: 1.5px solid var(--line2) !important;
+  color: var(--teal-d, #0e7a68) !important;
+  border-radius: var(--r2, 10px);
+  min-height: 40px;
+  padding: 0 14px;
+  font-weight: 600;
+}
+
+html.os-live .pg.os-live-mount .dma-wa-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* Toasts above OS rail / dock */
 #dma-toast-root {
   position: fixed !important;
   top: calc(12px + env(safe-area-inset-top, 0px)) !important;
@@ -139,14 +329,12 @@ html.doc-static .pg.os-live-mount .ds-work-grid {
   box-shadow: var(--sh2, 0 8px 24px rgba(15, 26, 36, 0.18));
 }
 
-/* Modals / wizards above shell chrome */
 .dma-modal-bg,
 .ds-drawer-backdrop,
 .ds-modal-backdrop {
   z-index: 10100 !important;
 }
 
-/* Shell footer spacing — keep OS foot inside main column only */
 .app > .main > .foot {
   margin: 24px 20px 12px;
 }

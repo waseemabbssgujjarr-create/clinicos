@@ -9,6 +9,8 @@ const ASSETS = "/assets";
 
 const SKIP_PROTO = new Set(["index.html", "widget.html"]);
 
+const THEME_BOOT = `<script>(function(){try{var r=document.documentElement;r.classList.add('os-live');var t=localStorage.getItem('dma-theme');if(t!=='light'&&t!=='dark'){var c=localStorage.getItem('cl_theme');if(c){try{c=JSON.parse(c)}catch(e){}if(c==='light'||c==='dark')t=c}}if(t!=='light'&&t!=='dark')t='light';r.setAttribute('data-theme',t);r.style.colorScheme=t;}catch(e){}})();</script>`;
+
 const ROUTE_PAGE = {
   "dashboard/index.html": { route: "dashboard", page: "home", title: "Home" },
   "dashboard/appointments/index.html": { route: "dashboard/appointments", page: "appointments", title: "Appointments" },
@@ -111,7 +113,7 @@ function clinicShellHtml(meta, rel, preserve, extraScripts) {
     "/dma-ui.js?v=10",
     "/dma-doctor-pages.js?v=19",
     "/dma-clinicos-inner.js?v=14",
-    "/assets/os-live.js?v=2",
+    "/assets/os-live.js?v=3",
   ];
 
   const preserveBlock = preserve
@@ -128,9 +130,10 @@ function clinicShellHtml(meta, rel, preserve, extraScripts) {
     .join("\n");
 
   return `<!doctype html>
-<html lang="en" class="doc-static">
+<html lang="en" class="doc-static os-live">
 <head>
 <meta charset="utf-8">
+${THEME_BOOT}
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#14967F">
 <meta name="robots" content="noindex, nofollow">
@@ -139,8 +142,8 @@ function clinicShellHtml(meta, rel, preserve, extraScripts) {
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${ASSETS}/os.css?v=2">
+<link rel="stylesheet" href="${ASSETS}/os-live.css?v=4">
 <link rel="stylesheet" href="/dma-design-system.css?v=61">
-<link rel="stylesheet" href="${ASSETS}/os-live.css?v=3">
 <link rel="stylesheet" href="/dma-doctor-pages.css?v=10">
 </head>
 <body ${attrs.join(" ")}>
@@ -164,7 +167,7 @@ function adminShellHtml(meta, rel, preserve) {
     "/js/ds-status.js?v=1",
     "/js/ds-format.js?v=1",
     "/dma-ui.js?v=10",
-    "/assets/os-live.js?v=2",
+    "/assets/os-live.js?v=3",
   ];
   const preserveBlock = preserve
     ? `<div id="os-live-preserve" hidden>${preserve.html}</div>`
@@ -178,9 +181,10 @@ function adminShellHtml(meta, rel, preserve) {
     .join("\n");
 
   return `<!doctype html>
-<html lang="en" class="sa-static">
+<html lang="en" class="sa-static os-live">
 <head>
 <meta charset="utf-8">
+${THEME_BOOT}
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#14967F">
 <meta name="robots" content="noindex, nofollow">
@@ -189,8 +193,8 @@ function adminShellHtml(meta, rel, preserve) {
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${ASSETS}/os.css?v=2">
+<link rel="stylesheet" href="${ASSETS}/os-live.css?v=4">
 <link rel="stylesheet" href="/dma-design-system.css?v=61">
-<link rel="stylesheet" href="${ASSETS}/os-live.css?v=3">
 <link rel="stylesheet" href="/superadmin-theme.css?v=20">
 <link rel="stylesheet" href="/dma-doctor-pages.css?v=10">
 </head>

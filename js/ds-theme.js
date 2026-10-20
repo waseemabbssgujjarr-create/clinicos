@@ -21,6 +21,15 @@
     return /\bdoc-static\b/.test(root().className) || /\bsa-static\b/.test(root().className);
   }
 
+  function isOsLive() {
+    if (/\bos-live\b/.test(root().className)) return true;
+    try {
+      return document.body && document.body.getAttribute("data-live") === "1";
+    } catch (_) {
+      return false;
+    }
+  }
+
   function systemTheme() {
     try {
       return global.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -43,6 +52,7 @@
     if (explicit === "light" || explicit === "dark") return explicit;
     var s = stored();
     if (s) return s;
+    if (isOsLive()) return "light";
     if (isPublic() || isApp()) return "dark";
     return systemTheme();
   }

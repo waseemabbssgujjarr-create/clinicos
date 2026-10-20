@@ -7,9 +7,55 @@
 
   function ensureLiveThemeClasses() {
     var html = document.documentElement;
+    html.classList.add('os-live');
     var area = document.body.getAttribute('data-area');
     if (area === 'clinic') html.classList.add('doc-static');
     else if (area === 'admin') html.classList.add('sa-static');
+  }
+
+  function readLiveTheme() {
+    var t;
+    try {
+      t = localStorage.getItem('dma-theme');
+    } catch (_) {}
+    if (t === 'light' || t === 'dark') return t;
+    try {
+      var cl = localStorage.getItem('cl_theme');
+      if (cl != null) {
+        try {
+          cl = JSON.parse(cl);
+        } catch (_) {}
+        if (cl === 'light' || cl === 'dark') return cl;
+      }
+    } catch (_) {}
+    return 'light';
+  }
+
+  function applyLiveTheme(theme, persist) {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    OS.S.set('theme', theme);
+    if (persist) {
+      try {
+        localStorage.setItem('dma-theme', theme);
+      } catch (_) {}
+    }
+    if (window.DmaTheme && DmaTheme.apply) {
+      try {
+        DmaTheme.apply(theme, persist);
+      } catch (_) {}
+    }
+  }
+
+  function wireLiveThemeToggle() {
+    if (OS._liveThemeWired) return;
+    OS._liveThemeWired = true;
+    var orig = OS.A.theme;
+    OS.A.theme = function () {
+      if (orig) orig();
+      var t = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+      applyLiveTheme(t, true);
+    };
   }
 
   var ROUTE_PAGE = {
@@ -101,11 +147,7 @@
       var u = DmaApp.user();
       OS.CLINIC = u.clinicName || u.name || 'Clinic';
     }
-    var theme = localStorage.getItem('dma-theme') || localStorage.getItem('cl_theme');
-    if (theme === 'light' || theme === 'dark') {
-      OS.S.set('theme', theme);
-      document.documentElement.dataset.theme = theme;
-    }
+    applyLiveTheme(readLiveTheme(), false);
   }
 
   function pageTitle(route) {
@@ -230,6 +272,7 @@
   window.addEventListener('DOMContentLoaded', function () {
     if (document.body.dataset.live !== '1') return;
     ensureLiveThemeClasses();
+    wireLiveThemeToggle();
     OS.route = document.body.getAttribute('data-route') || routeFromLocation();
     OS.area = document.body.getAttribute('data-area') || 'clinic';
     if (OS.area === 'clinic') bootClinic();
