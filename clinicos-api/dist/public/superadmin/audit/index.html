@@ -1,25 +1,21 @@
-<!DOCTYPE html>
-<html lang="en" class="sa-static">
+<!doctype html>
+<html lang="en">
 <head>
-  <script>(function(){try{var r=document.documentElement;var c=r.className||"";var t;if(/\bdma-world-auth\b/.test(c))t="light";else if(/\bdma-world-public\b/.test(c)||/\bdoc-static\b/.test(c)||/\bsa-static\b/.test(c)){t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t="dark";}else{t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();</script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Audit Log — Doctors My Agency</title>
-  <meta name="robots" content="noindex, nofollow" />
-  <link rel="icon" href="/favicon.svg" />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=60" />
-  <script src="/js/ds-theme.js?v=2"></script>
-  <script src="/js/ds-status.js?v=1"></script>
-  <script src="/js/ds-format.js?v=1"></script>
-  <script src="/js/ds-permissions.js?v=1"></script>
-  <script src="/js/ds-icons.js?v=1"></script>
-  <link rel="stylesheet" href="/superadmin-theme.css?v=19" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14967F">
+<meta name="robots" content="noindex, nofollow">
+<title>audit · Clinicos</title>
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/os.css?v=1">
+<link rel="stylesheet" href="/assets/os-live.css?v=1">
+<link rel="stylesheet" href="/superadmin-theme.css?v=20">
 </head>
-<body class="superadmin-app">
-  <div class="sa-layout">
-    <aside class="sa-sidebar" id="sa-sidebar"></aside>
-    <main class="sa-main">
+<body data-live="1" data-area="admin" data-route="superadmin/audit">
+<div id="app"></div>
+<div id="os-live-preserve" hidden>
       <div class="ds-work-header">
         <div>
           <h1 style="margin:0;font-size:1.25rem">Audit log</h1>
@@ -53,13 +49,18 @@
           <tbody id="tbody"></tbody>
         </table>
       </div>
-    </main>
-  </div>
-  <script src="/superadmin-admin-shell.js?v=20"></script>
-  <script src="/dma-ui.js?v=9"></script>
-  <script>
-    (function () {
-      if (!DmaAdminShell.initStaticPage('/superadmin/audit/')) return;
+    </div>
+<script src="/assets/os.js?v=1"></script>
+<script src="/superadmin-admin-shell.js?v=20"></script>
+<script src="/js/ds-theme.js?v=2"></script>
+<script src="/js/ds-status.js?v=1"></script>
+<script src="/js/ds-format.js?v=1"></script>
+<script src="/dma-ui.js?v=10"></script>
+<script src="/assets/os-live.js?v=1"></script>
+<script src="/superadmin-admin-shell.js?v=20"></script>
+<script>window.__OS_LIVE_INIT__=function(){(function(){try{var r=document.documentElement;var c=r.className||"";var t;if(/\bdma-world-auth\b/.test(c))t="light";else if(/\bdma-world-public\b/.test(c)||/\bdoc-static\b/.test(c)||/\bsa-static\b/.test(c)){t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t="dark";}else{t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();
+(function () {
+      if(!window.DmaAdminShell||!DmaAdminShell.requireAuth())return;
       var esc = DmaUI.esc;
       var rows = [];
 
@@ -153,7 +154,6 @@
       document.getElementById('filters').onsubmit = function (e) { e.preventDefault(); render(); };
       document.getElementById('refresh').onclick = load;
       load();
-    })();
-  </script>
+    })();};</script>
 </body>
 </html>

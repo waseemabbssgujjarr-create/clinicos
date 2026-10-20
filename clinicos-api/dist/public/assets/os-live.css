@@ -1,0 +1,18 @@
+/* Live Clinicos: DMA page content inside OS prototype shell */
+.pg.os-live-mount { max-width: var(--content, 1440px); }
+.pg.os-live-mount .doc-main,
+.pg.os-live-mount #doc-page,
+.pg.os-live-mount .dma-clinic-canvas,
+.pg.os-live-mount .sa-main,
+.pg.os-live-mount .sa-main-inner { padding: 0; max-width: none; }
+.pg.os-live-mount .dma-btn { border-radius: var(--r, 10px); }
+.pg.os-live-mount .dma-section,
+.pg.os-live-mount .cos-empty,
+.pg.os-live-mount .ds-section { border-radius: var(--rc, 14px); }
+.pg.os-live-mount .doc-layout,
+.pg.os-live-mount .doc-sidebar,
+.pg.os-live-mount .doc-topbar,
+.pg.os-live-mount .sa-layout > .sa-sidebar,
+.pg.os-live-mount .sa-mobile-bar,
+.pg.os-live-mount .sa-nav-backdrop { display: none !important; }
+.pg.os-live-mount .ds-workspace-tabs { margin-bottom: 16px; }

@@ -329,5 +329,6 @@
     initStaticPage: initStaticPage,
     wireLogout: wireLogout,
     setNavOpen: setNavOpen,
+    renderWorkspaceTabs: renderWorkspaceTabs,
   };
 })(window);

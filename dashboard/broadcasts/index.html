@@ -1,210 +1,33 @@
-<!DOCTYPE html>
-<html lang="en" class="doc-static">
+<!doctype html>
+<html lang="en">
 <head>
-  <script>(function(){try{var r=document.documentElement;var c=r.className||"";var t;if(/\bdma-world-auth\b/.test(c))t="light";else if(/\bdma-world-public\b/.test(c)||/\bdoc-static\b/.test(c)||/\bsa-static\b/.test(c)){t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t="dark";}else{t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();</script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>Broadcasts — Clinicos</title>
-  <meta name="robots" content="noindex, nofollow" />
-  <link rel="icon" href="/favicon.svg" />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=60" />
-  <script src="/js/ds-theme.js?v=2"></script>
-  <script src="/js/ds-status.js?v=1"></script>
-  <script src="/js/ds-format.js?v=1"></script>
-  <script src="/js/ds-permissions.js?v=1"></script>
-  <script src="/js/ds-icons.js?v=1"></script>
-  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=24" />
-  <link rel="stylesheet" href="/dma-doctor-app.css?v=7" />
-  <link rel="stylesheet" href="/dma-doctor-pages.css?v=8" />
-  <style>
-    .bc-audience-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-    .bc-chip { height: 32px; padding: 0 12px; border-radius: 999px; font-size: .72rem; font-weight: 700; border: 1px solid rgba(148, 163, 184, 0.22); background: #243044; color: #B4C2D6; cursor: pointer; }
-    .bc-chip.selected { background: linear-gradient(135deg, #0E7A68 0%, #0B6456 100%); color: #fff; border-color: transparent; }
-    .bc-preview { background: #0F1724; border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 10px; padding: 12px; min-height: 72px; font-size: .8125rem; white-space: pre-wrap; max-width: 40rem; color: #F8FBFF; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#14967F">
+<meta name="robots" content="noindex, nofollow">
+<title>Clinicos · Clinicos</title>
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/os.css?v=1">
+<link rel="stylesheet" href="/assets/os-live.css?v=1">
+<link rel="stylesheet" href="/dma-doctor-pages.css?v=9">
 </head>
-<body>
-  <div class="doc-layout">
-    <aside class="doc-sidebar" id="doc-sidebar" aria-label="Clinic navigation"></aside>
-    <div class="doc-main-wrap">
-      <header class="doc-topbar">
-        <div style="display:flex;align-items:center;gap:12px">
-          <button type="button" class="doc-menu-btn" id="doc-menu-btn" aria-label="Open menu"><span></span><span></span><span></span></button>
-          <h1 id="doc-page-title">Broadcasts</h1>
-        </div>
-        <div class="doc-topbar-actions">
-          <a href="/dashboard/whatsapp/">WhatsApp</a>
-          <a href="/dashboard/messages/">Inbox</a>
-          <span id="doc-user-label">Doctor</span>
-        </div>
-      </header>
-      <main class="doc-main dma-clinic-canvas">
-        <div class="dma-head dma-head-page">
-          <div>
-            <h1>Broadcasts</h1>
-            <p class="dma-prose">Send updates to opted-in patients.</p>
-          </div>
-          <div class="dma-head-actions">
-            <button type="button" class="dma-btn dma-btn-primary" id="bc-new">New broadcast</button>
-          </div>
-        </div>
-        <div class="dma-tabs" id="bc-tabs" role="tablist"><button type="button" class="active">Sent</button></div>
-        <p class="dma-hint" id="bc-hist-count">Loading…</p>
-        <div id="bc-history">
-          <div class="ds-empty-panel"><strong>No broadcasts yet</strong><p>Send your first patient update when you're ready.</p><p style="margin-top:12px"><button type="button" class="dma-btn dma-btn-primary" id="bc-empty-new">New broadcast</button></p></div>
-        </div>
-      </main>
-    </div>
-  </div>
-  <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
-  <script src="/dashboard-doctor-shell.js?v=24"></script>
-  <script src="/dma-ui.js?v=9"></script>
-  <script src="/dma-doctor-app.js?v=5"></script>
-  <script src="/dashboard-bootstrap.js?v=7"></script>
-  <script>
-  (function () {
-    if (!DmaDoctorShell.initStaticPage('/dashboard/broadcasts/', 'Broadcasts')) return;
-    var selectedAudience = 'ALL_PATIENTS';
-    var token = localStorage.getItem('token');
-    function ah() { return { Authorization: 'Bearer ' + (token || ''), 'Content-Type': 'application/json' }; }
-    function toast(msg, kind) {
-      if (window.DmaApp && DmaApp.toast) DmaApp.toast(msg, kind);
-      else alert(msg);
-    }
+<body data-live="1" data-area="clinic" data-route="dashboard/broadcasts">
+<div id="app"></div>
+<div id="os-live-preserve" hidden></div>
+<script src="/assets/os.js?v=1"></script>
+<script src="/dma-doctor-app.js?v=6"></script>
+<script src="/js/ds-theme.js?v=2"></script>
+<script src="/js/ds-status.js?v=1"></script>
+<script src="/js/ds-format.js?v=1"></script>
+<script src="/dma-clinicos-clinical.js?v=4"></script>
+<script src="/dma-ui.js?v=10"></script>
+<script src="/dma-doctor-pages.js?v=19"></script>
+<script src="/dma-clinicos-inner.js?v=14"></script>
+<script src="/assets/os-live.js?v=1"></script>
+<script src="/dashboard-bootstrap.js?v=7"></script>
 
-    var composeModal = null;
-    var DRAFT = 'Hi {{name}}, we have an update from the clinic.';
 
-    function composeRoot() {
-      if (composeModal && composeModal.el) return composeModal.el;
-      return document.getElementById('ds-modal') || document.getElementById('dma-modal-bg') || document;
-    }
-
-    function syncPreview() {
-      var root = composeRoot();
-      var ta = root.querySelector('#bc-message');
-      if (!ta) return;
-      var n = root.querySelector('#bc-char');
-      var p = root.querySelector('#bc-preview');
-      if (n) n.textContent = String(ta.value.length);
-      if (p) p.textContent = ta.value.trim() || 'Your message will appear here.';
-    }
-
-    function bindChips() {
-      var root = composeRoot();
-      root.querySelectorAll('.bc-chip').forEach(function (c) {
-        c.onclick = function () {
-          root.querySelectorAll('.bc-chip').forEach(function (x) { x.classList.remove('selected'); });
-          c.classList.add('selected');
-          selectedAudience = c.getAttribute('data-v');
-        };
-      });
-      var ta = root.querySelector('#bc-message');
-      if (ta) {
-        ta.oninput = syncPreview;
-        if (!ta.value.trim()) ta.value = DRAFT;
-        syncPreview();
-        if (ta.focus) ta.focus();
-      }
-    }
-
-    function openCompose() {
-      var html =
-        '<div class="dma-field"><label>Audience</label>' +
-        '<div class="bc-audience-chips">' +
-          '<button type="button" class="bc-chip selected" data-v="ALL_PATIENTS">All patients</button>' +
-          '<button type="button" class="bc-chip" data-v="HOT_LEADS">Hot leads</button>' +
-          '<button type="button" class="bc-chip" data-v="NO_SHOW">No-show follow-up</button>' +
-          '<button type="button" class="bc-chip" data-v="INACTIVE">Inactive (90+ days)</button>' +
-        '</div></div>' +
-        '<div class="dma-field"><label>Message</label>' +
-        '<textarea id="bc-message" class="ds-input" rows="5" maxlength="4096" placeholder="Write the update patients will receive">' + DRAFT + '</textarea>' +
-        '<p class="dma-hint"><span id="bc-char">0</span>/4096 · Use {{name}} for the patient’s first name.</p></div>' +
-        '<div class="dma-field"><label>Preview</label><div class="bc-preview" id="bc-preview"></div></div>';
-      if (window.DmaUI && DmaUI.modal) {
-        composeModal = DmaUI.modal({
-          title: 'New broadcast',
-          html: html,
-          footer: '<button type="button" class="dma-btn dma-btn-ghost" data-close="1">Cancel</button>' +
-            '<button type="button" class="dma-btn dma-btn-primary" id="bc-send-btn">Send now</button>'
-        });
-      } else if (window.DmaApp) {
-        composeModal = { el: DmaApp.modal('New broadcast', html,
-          '<button type="button" class="dma-btn dma-btn-ghost" data-close>Cancel</button><button type="button" class="dma-btn dma-btn-primary" id="bc-send-btn">Send now</button>'),
-          close: function () { DmaApp.closeModal(); } };
-      }
-      selectedAudience = 'ALL_PATIENTS';
-      bindChips();
-      var send = composeRoot().querySelector('#bc-send-btn');
-      if (send) send.onclick = sendBroadcast;
-    }
-
-    function sendBroadcast() {
-      var root = composeRoot();
-      var msgEl = root.querySelector('#bc-message');
-      var msg = (msgEl && msgEl.value || '').trim();
-      if (!msg) { toast('Enter a message', 'err'); if (msgEl && msgEl.focus) msgEl.focus(); return; }
-      var btn = root.querySelector('#bc-send-btn');
-      if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
-      var payload = { messageBody: msg, targetGroup: selectedAudience, channel: 'WHATSAPP' };
-      var req = (window.DmaApp && DmaApp.post)
-        ? DmaApp.post('/api/messages/broadcast', payload)
-        : fetch('/api/messages/broadcast', {
-            method: 'POST', headers: ah(), credentials: 'include', body: JSON.stringify(payload)
-          }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); });
-      req.then(function (res) {
-        if (btn) { btn.disabled = false; btn.textContent = 'Send now'; }
-        if (!res.ok) {
-          toast((res.d && (res.d.error || res.d.message)) || 'Send failed', 'err');
-          return;
-        }
-        var n = (res.d && res.d.sentCount);
-        toast(n != null ? ('Broadcast sent to ' + n + ' patients') : 'Broadcast sent', 'ok');
-        if (composeModal && composeModal.close) composeModal.close();
-        else if (window.DmaApp) DmaApp.closeModal();
-        var hist = document.getElementById('bc-history');
-        var countEl = document.getElementById('bc-hist-count');
-        if (hist) {
-          var item = '<div class="bc-history-item">' +
-            '<div class="bc-history-body"><p class="bc-history-msg">' + (window.DmaApp ? DmaApp.esc(msg).slice(0, 120) : msg.slice(0, 120)) + '</p>' +
-            '<p class="bc-history-meta">Just now · ' + selectedAudience + '</p></div>' +
-            '<div class="bc-history-stat"><strong>' + (n != null ? n : '—') + '</strong><span>sent</span></div></div>';
-          var empty = hist.querySelector('.ds-empty-panel');
-          if (empty) hist.innerHTML = item;
-          else hist.insertAdjacentHTML('afterbegin', item);
-        }
-        if (countEl) countEl.textContent = 'Sent';
-      }).catch(function (err) {
-        if (btn) { btn.disabled = false; btn.textContent = 'Send now'; }
-        if (err && err.status === 401) return;
-        toast('Network error', 'err');
-      });
-    }
-
-    document.getElementById('bc-new').onclick = openCompose;
-    var emptyNew = document.getElementById('bc-empty-new');
-    if (emptyNew) emptyNew.onclick = openCompose;
-
-    fetch('/api/messages/broadcasts', { headers: ah(), credentials: 'include' })
-      .then(function (r) { return r.ok ? r.json() : []; })
-      .then(function (data) {
-        var list = data.broadcasts || data || [];
-        if (!Array.isArray(list)) list = [];
-        document.getElementById('bc-hist-count').textContent = list.length ? (list.length + ' sent') : 'No broadcasts yet';
-        if (!list.length) return;
-        document.getElementById('bc-history').innerHTML = list.slice(0, 40).map(function (b) {
-          var date = b.createdAt ? new Date(b.createdAt).toLocaleDateString() : ' - ';
-          var body = (b.messageBody || '').slice(0, 120);
-          return '<div class="bc-history-item">' +
-            '<div class="bc-history-body"><p class="bc-history-msg">' + body + '</p>' +
-            '<p class="bc-history-meta">' + date + ' · ' + (b.targetGroup || 'All patients') + '</p></div>' +
-            '<div class="bc-history-stat"><strong>' + (b.sentCount || 0) + '</strong><span>sent</span></div></div>';
-        }).join('');
-      }).catch(function () {
-        document.getElementById('bc-hist-count').textContent = 'Could not load broadcasts';
-      });
-  })();
-  </script>
 </body>
 </html>

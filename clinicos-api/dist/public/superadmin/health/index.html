@@ -1,47 +1,21 @@
-<!DOCTYPE html>
-<html lang="en" class="sa-static">
+<!doctype html>
+<html lang="en">
 <head>
-  <script>(function(){try{var r=document.documentElement;var c=r.className||"";var t;if(/\bdma-world-auth\b/.test(c))t="light";else if(/\bdma-world-public\b/.test(c)||/\bdoc-static\b/.test(c)||/\bsa-static\b/.test(c)){t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t="dark";}else{t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();</script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>System Health — Doctors My Agency</title>
-  <meta name="robots" content="noindex, nofollow" />
-  <link rel="icon" href="/favicon.svg" />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=60" />
-  <script src="/js/ds-theme.js?v=2"></script>
-  <script src="/js/ds-status.js?v=1"></script>
-  <script src="/js/ds-format.js?v=1"></script>
-  <script src="/js/ds-permissions.js?v=1"></script>
-  <script src="/js/ds-icons.js?v=1"></script>
-  <link rel="stylesheet" href="/superadmin-theme.css?v=19" />
-  <style>
-    .health-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem; }
-    @media(max-width:900px){ .health-grid{grid-template-columns:1fr 1fr;} }
-    @media(max-width:560px){ .health-grid{grid-template-columns:1fr;} }
-    .health-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:1.25rem; display:flex; align-items:center; gap:1rem; }
-    .health-icon { width:48px; height:48px; border-radius:var(--r-lg); display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
-    .health-label { font-size:.67rem; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); margin:0 0 4px; }
-    .health-value { font-family:'Montserrat',sans-serif; font-size:1.25rem; font-weight:800; color:var(--text-1); margin:0; line-height:1; }
-    .health-status { font-size:.72rem; font-weight:700; margin:4px 0 0; }
-    .ok { color:#16A34A; } .warn { color:#D97706; } .err { color:#DC2626; }
-
-    .check-list-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden; margin-bottom:1.25rem; }
-    .check-item { display:flex; align-items:center; gap:1rem; padding:.875rem 1.25rem; border-bottom:1px solid var(--border); }
-    .check-item:last-child { border-bottom:none; }
-    .check-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-    .check-dot.ok { background:#16A34A; } .check-dot.warn { background:#D97706; } .check-dot.err { background:#DC2626; } .check-dot.loading { background:#CBD5E1; } .check-dot.unknown { background:#94A3B8; }
-    .check-name { flex:1; font-size:var(--f-sm); font-weight:600; color:var(--text-2); }
-    .check-val { font-size:var(--f-sm); font-weight:700; color:var(--text-1); }
-    .check-desc { font-size:.72rem; color:var(--muted); }
-
-    .log-block { background:var(--sidebar-bg,#0F172A); color:#E2EAF4; border-radius:var(--r-lg); padding:1.25rem; font-family:'Courier New',monospace; font-size:.78rem; line-height:1.7; max-height:340px; overflow-y:auto; margin-top:1rem; white-space:pre-wrap; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14967F">
+<meta name="robots" content="noindex, nofollow">
+<title>health · Clinicos</title>
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/os.css?v=1">
+<link rel="stylesheet" href="/assets/os-live.css?v=1">
+<link rel="stylesheet" href="/superadmin-theme.css?v=20">
 </head>
-<body class="superadmin-app">
-  <div class="sa-layout">
-    <aside class="sa-sidebar" id="sa-sidebar"></aside>
-    <main class="sa-main">
+<body data-live="1" data-area="admin" data-route="superadmin/health">
+<div id="app"></div>
+<div id="os-live-preserve" hidden>
       <div class="sa-content-card">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
           <div>
@@ -78,13 +52,18 @@
           <div class="ds-log" id="log-wrap"><div class="log-block" id="startup-log">Loading startup log…</div></div>
         </div>
       </div>
-    </main>
-  </div>
-  <script src="/superadmin-admin-shell.js?v=20"></script>
-  <script src="/dma-ui.js?v=9"></script>
-  <script>
-  (function () {
-    if (!DmaAdminShell.initStaticPage('/superadmin/health/')) return;
+    </div>
+<script src="/assets/os.js?v=1"></script>
+<script src="/superadmin-admin-shell.js?v=20"></script>
+<script src="/js/ds-theme.js?v=2"></script>
+<script src="/js/ds-status.js?v=1"></script>
+<script src="/js/ds-format.js?v=1"></script>
+<script src="/dma-ui.js?v=10"></script>
+<script src="/assets/os-live.js?v=1"></script>
+<script src="/superadmin-admin-shell.js?v=20"></script>
+<script>window.__OS_LIVE_INIT__=function(){(function(){try{var r=document.documentElement;var c=r.className||"";var t;if(/\bdma-world-auth\b/.test(c))t="light";else if(/\bdma-world-public\b/.test(c)||/\bdoc-static\b/.test(c)||/\bsa-static\b/.test(c)){t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t="dark";}else{t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();
+(function () {
+    if(!window.DmaAdminShell||!DmaAdminShell.requireAuth())return;
 
     function safe(val, fallback) {
       if (window.DmaUI && typeof DmaUI.display === 'function') return DmaUI.display(val, fallback);
@@ -289,7 +268,6 @@
 
     runChecks();
     setTimeout(runChecks, 30000); // auto-refresh every 30s
-  })();
-  </script>
+  })();};</script>
 </body>
 </html>

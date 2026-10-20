@@ -1,151 +1,162 @@
-<!DOCTYPE html>
-<html lang="en" class="dma-world-auth">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Working Hours — Doctors My Agency</title>
-  <link rel="icon" href="/favicon.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=60" />
-  <link rel="stylesheet" href="/portal.css?v=5" />
-  <link rel="stylesheet" href="/platform-hovers.css" />
-  <link rel="stylesheet" href="/dma-theme.css" />
-  <script>
-    (function(){try{var t=localStorage.getItem('dma-theme');document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light');}catch(_){document.documentElement.setAttribute('data-theme','light');}})();
-  </script>
-  <script src="/api-shim.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#14967F">
+<title>Hours — Clinicos</title>
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/os.css?v=1">
+<link rel="stylesheet" href="/assets/os-register.css?v=1">
+<script src="/api-shim.js"></script>
+<script>document.documentElement.setAttribute('data-theme','light');</script>
 </head>
-<body class="portal-page">
-  <div class="glow glow-blue"></div>
-  <nav>
-    <div class="container nav-inner">
-      <a href="/" class="logo" style="text-decoration:none;color:inherit"><div class="logo-icon">DM</div> Doctors My Agency</a>
+<body>
+<div class="au">
+  <div class="lp">
+    <i class="blob" style="width:380px;height:380px;background:#BDEBDD;left:-80px;top:-60px"></i>
+    <i class="blob" style="width:320px;height:320px;background:#CFE2FA;right:-60px;bottom:40px;animation-delay:-4s"></i>
+    <a class="brand" href="/"><span class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2.2-6 4 12 2.2-6H21"/></svg></span><span><b>Doctors My Agency</b><small>Clinicos</small></span></a>
+    <div>
+      <h2>When are you open?</h2>
+      <p class="lede" style="margin-bottom:24px">You can change this later in Settings.</p>
+      <svg viewBox="0 0 400 80" width="100%" height="70" aria-hidden="true"><path class="ecg" d="M0 44h120l16-34 24 66 18-42 14 10h208" fill="none" stroke="#14967F" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
-  </nav>
-  <main class="portal-main">
-    <div class="container">
-      <a href="/register/clinic/" class="back-link">â† Back</a>
-      <div class="form-card wide">
-        <div class="step-dots" aria-hidden="true">
-          <span class="step-dot done">âœ“</span><span class="step-line"></span>
-          <span class="step-dot done">âœ“</span><span class="step-line"></span>
-          <span class="step-dot active">3</span><span class="step-line"></span>
-          <span class="step-dot">4</span>
-        </div>
-        <p class="dma-steps">1 Clinic → 2 Practice → <b>3 Hours</b> → 4 Launch</p>
-        <h1>Working hours</h1>
-        <p class="subtitle">AI books only during open hours. You can skip and set this later.</p>
-        <div id="error" class="alert alert-error" style="display:none"></div>
-        <div id="hoursList" class="hours-list"></div>
-        <div class="btn-row">
-          <button type="button" class="btn btn-secondary" id="skipBtn">Skip</button>
-          <button type="button" class="btn btn-primary" id="saveBtn">Save &amp; Continue →</button>
-        </div>
+    <div class="xs mut">© Clinicos · Doctors My Agency · 2026</div>
+  </div>
+  <div class="ra">
+    <div class="fm reg-fm-wide">
+      <div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+      <div class="xs mut b" style="margin-bottom:6px">Step 3 of 4</div>
+      <h1>Hours</h1>
+      <p class="mut">Opening hours for booking and the AI receptionist.</p>
+      <div id="error" class="reg-alert err" style="display:none" role="alert"></div>
+      <div id="hoursList" class="reg-hours"></div>
+      <div class="row" style="margin-top:8px;gap:10px;flex-wrap:wrap">
+        <a class="btn gh lg" href="/register/clinic/">Back</a>
+        <button type="button" class="btn gh lg" id="skipBtn">Skip</button>
+        <button type="button" class="btn pri lg sp" id="saveBtn">Continue</button>
       </div>
     </div>
-  </main>
-  <script src="/portal.js"></script>
-  <script>
-    if (!localStorage.getItem('token')) window.location.replace('/register/');
+  </div>
+</div>
+<script src="/portal.js?v=9"></script>
+<script src="/assets/os-register.js?v=1"></script>
+<script>
+if (!OsRegister.requireToken('/register/')) throw new Error('auth');
 
-    const DAYS = [
-      ['monday','Monday'], ['tuesday','Tuesday'], ['wednesday','Wednesday'],
-      ['thursday','Thursday'], ['friday','Friday'], ['saturday','Saturday'], ['sunday','Sunday'],
-    ];
-    const DEFAULT = {
-      monday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
-      tuesday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
-      wednesday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
-      thursday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
-      friday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
-      saturday: { isOpen: false, open: '09:00', close: '17:00', slotDuration: 30 },
-      sunday: { isOpen: false, open: '09:00', close: '17:00', slotDuration: 30 },
-    };
-    const hours = JSON.parse(JSON.stringify(DEFAULT));
-    const list = document.getElementById('hoursList');
+var DAYS = [
+  ['monday','Mon'], ['tuesday','Tue'], ['wednesday','Wed'], ['thursday','Thu'],
+  ['friday','Fri'], ['saturday','Sat'], ['sunday','Sun'],
+];
+var DEFAULT = {
+  monday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+  tuesday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+  wednesday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+  thursday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+  friday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+  saturday: { isOpen: false, open: '09:00', close: '17:00', slotDuration: 30 },
+  sunday: { isOpen: false, open: '09:00', close: '17:00', slotDuration: 30 },
+};
+var hours = JSON.parse(JSON.stringify(DEFAULT));
+var list = document.getElementById('hoursList');
 
-    function timeOptions() {
-      const o = [];
-      for (let h = 6; h <= 22; h++) {
-        ['00','30'].forEach(m => o.push(String(h).padStart(2,'0')+':'+m));
-      }
-      return o;
-    }
-    const times = timeOptions();
+function timeOptions() {
+  var o = [];
+  for (var h = 6; h <= 22; h++) {
+    ['00', '30'].forEach(function (m) { o.push(String(h).padStart(2, '0') + ':' + m); });
+  }
+  return o;
+}
+var times = timeOptions();
 
-    DAYS.forEach(([key, label]) => {
-      const row = document.createElement('div');
-      row.className = 'hours-row';
-      row.innerHTML = `
-        <label class="hours-toggle"><input type="checkbox" data-day="${key}" ${hours[key].isOpen?'checked':''}/> <span>${label}</span></label>
-        <select data-open="${key}">${times.map(t=>`<option value="${t}">${t}</option>`).join('')}</select>
-        <span class="hours-sep">to</span>
-        <select data-close="${key}">${times.map(t=>`<option value="${t}">${t}</option>`).join('')}</select>`;
-      list.appendChild(row);
-      row.querySelector(`[data-open="${key}"]`).value = hours[key].open;
-      row.querySelector(`[data-close="${key}"]`).value = hours[key].close;
-    });
+function toggleHtml(on, key) {
+  return '<span class="sw ' + (on ? 'on' : '') + '" role="switch" tabindex="0" aria-checked="' + !!on + '" data-sw-day="' + key + '"></span>';
+}
 
-    function collect() {
-      DAYS.forEach(([key]) => {
-        const row = list.querySelector(`[data-day="${key}"]`).closest('.hours-row');
-        hours[key].isOpen = row.querySelector(`[data-day="${key}"]`).checked;
-        hours[key].open = row.querySelector(`[data-open="${key}"]`).value;
-        hours[key].close = row.querySelector(`[data-close="${key}"]`).value;
-      });
-      return hours;
-    }
+DAYS.forEach(function (pair) {
+  var key = pair[0], label = pair[1];
+  var row = document.createElement('div');
+  row.className = 'reg-hours-row';
+  row.innerHTML =
+    '<span class="day">' + label + '</span>' +
+    toggleHtml(hours[key].isOpen, key) +
+    '<select class="sel sel-open" data-open="' + key + '">' + times.map(function (t) { return '<option value="' + t + '">' + t + '</option>'; }).join('') + '</select>' +
+    '<span class="sep">to</span>' +
+    '<select class="sel sel-close" data-close="' + key + '">' + times.map(function (t) { return '<option value="' + t + '">' + t + '</option>'; }).join('') + '</select>';
+  list.appendChild(row);
+  row.querySelector('[data-open="' + key + '"]').value = hours[key].open;
+  row.querySelector('[data-close="' + key + '"]').value = hours[key].close;
+});
 
-    function goNext() { window.location.href = '/register/plan/'; }
+list.addEventListener('click', function (e) {
+  var sw = e.target.closest('[data-sw-day]');
+  if (!sw) return;
+  sw.classList.toggle('on');
+  sw.setAttribute('aria-checked', sw.classList.contains('on'));
+});
 
-    function formatApiError(data, fallback) {
-      if (data.details && Array.isArray(data.details)) {
-        return data.details.map((d) => d.message || d.path?.join('.')).filter(Boolean).join(' · ') || fallback;
-      }
-      return data.error || data.message || fallback;
-    }
+function collect() {
+  DAYS.forEach(function (pair) {
+    var key = pair[0];
+    var row = list.querySelector('[data-open="' + key + '"]').closest('.reg-hours-row');
+    var sw = row.querySelector('[data-sw-day]');
+    hours[key].isOpen = sw.classList.contains('on');
+    hours[key].open = row.querySelector('[data-open="' + key + '"]').value;
+    hours[key].close = row.querySelector('[data-close="' + key + '"]').value;
+  });
+  return hours;
+}
 
-    async function saveHours(hoursData) {
-      const r = await fetch('/api/settings/hours', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('token'),
-        },
-        credentials: 'include',
-        body: JSON.stringify({ workingHours: JSON.stringify(hoursData) }),
-      });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(formatApiError(data, 'Could not save working hours'));
-      return data;
-    }
+function goNext() { location.href = '/register/plan/'; }
 
-    async function handleSave(useDefaults) {
-      const err = document.getElementById('error');
-      const saveBtn = document.getElementById('saveBtn');
-      const skipBtn = document.getElementById('skipBtn');
-      const activeBtn = useDefaults ? skipBtn : saveBtn;
-      err.style.display = 'none';
-      setBtnLoading(activeBtn, true, useDefaults ? 'Skipping…' : 'Saving…');
-      if (saveBtn && saveBtn !== activeBtn) saveBtn.disabled = true;
-      if (skipBtn && skipBtn !== activeBtn) skipBtn.disabled = true;
-      try {
-        const payload = useDefaults ? JSON.parse(JSON.stringify(DEFAULT)) : collect();
-        await saveHours(payload);
-        goNext();
-      } catch (ex) {
-        err.textContent = ex.message;
-        err.style.display = 'block';
-        setBtnLoading(activeBtn, false);
-        if (saveBtn) saveBtn.disabled = false;
-        if (skipBtn) skipBtn.disabled = false;
-      }
-    }
+function formatApiError(data, fallback) {
+  if (data.details && Array.isArray(data.details)) {
+    return data.details.map(function (d) { return d.message || (d.path && d.path.join('.')); }).filter(Boolean).join(' · ') || fallback;
+  }
+  return data.error || data.message || fallback;
+}
 
-    document.getElementById('skipBtn').onclick = () => handleSave(true);
-    document.getElementById('saveBtn').onclick = () => handleSave(false);
-  </script>
+async function saveHours(hoursData) {
+  var r = await fetch('/api/settings/hours', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + localStorage.getItem('token'),
+    },
+    credentials: 'include',
+    body: JSON.stringify({ workingHours: JSON.stringify(hoursData) }),
+  });
+  var data = await r.json().catch(function () { return {}; });
+  if (!r.ok) throw new Error(formatApiError(data, 'Could not save working hours'));
+}
+
+async function handleSave(useDefaults) {
+  var err = document.getElementById('error');
+  var saveBtn = document.getElementById('saveBtn');
+  var skipBtn = document.getElementById('skipBtn');
+  var activeBtn = useDefaults ? skipBtn : saveBtn;
+  err.style.display = 'none';
+  setBtnLoading(activeBtn, true, useDefaults ? 'Skipping…' : 'Saving…');
+  if (saveBtn !== activeBtn) saveBtn.disabled = true;
+  if (skipBtn !== activeBtn) skipBtn.disabled = true;
+  try {
+    var payload = useDefaults ? JSON.parse(JSON.stringify(DEFAULT)) : collect();
+    await saveHours(payload);
+    goNext();
+  } catch (ex) {
+    err.textContent = ex.message;
+    err.style.display = 'block';
+    setBtnLoading(activeBtn, false);
+    saveBtn.disabled = false;
+    skipBtn.disabled = false;
+  }
+}
+
+document.getElementById('skipBtn').onclick = function () { handleSave(true); };
+document.getElementById('saveBtn').onclick = function () { handleSave(false); };
+</script>
 </body>
 </html>

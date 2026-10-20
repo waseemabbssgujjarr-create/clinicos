@@ -1,39 +1,21 @@
-<!DOCTYPE html>
-<html lang="en" class="doc-static">
+<!doctype html>
+<html lang="en">
 <head>
-  <script>(function(){try{var r=document.documentElement;var c=r.className||"";var t;if(/\bdma-world-auth\b/.test(c))t="light";else if(/\bdma-world-public\b/.test(c)||/\bdoc-static\b/.test(c)||/\bsa-static\b/.test(c)){t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t="dark";}else{t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();</script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Leads  -  Doctors My Agency</title>
-  <meta name="robots" content="noindex, nofollow" />
-  <link rel="icon" href="/favicon.svg" />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/dma-design-system.css?v=60" />
-  <script src="/js/ds-theme.js?v=2"></script>
-  <script src="/js/ds-status.js?v=1"></script>
-  <script src="/js/ds-format.js?v=1"></script>
-  <script src="/js/ds-permissions.js?v=1"></script>
-  <script src="/js/ds-icons.js?v=1"></script>
-  <link rel="stylesheet" href="/dashboard-doctor-shell.css?v=24" />
-  <link rel="stylesheet" href="/dma-doctor-app.css?v=7" />
-  <link rel="stylesheet" href="/dma-doctor-pages.css?v=8" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#14967F">
+<meta name="robots" content="noindex, nofollow">
+<title>Clinicos · Clinicos</title>
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/os.css?v=1">
+<link rel="stylesheet" href="/assets/os-live.css?v=1">
+<link rel="stylesheet" href="/dma-doctor-pages.css?v=9">
 </head>
-<body>
-  <div class="doc-layout">
-    <aside class="doc-sidebar" id="doc-sidebar" aria-label="Clinic navigation"></aside>
-    <div class="doc-main-wrap">
-      <header class="doc-topbar">
-        <div style="display:flex;align-items:center;gap:12px">
-          <button type="button" class="doc-menu-btn" id="doc-menu-btn" aria-label="Open menu">
-            <span></span><span></span><span></span>
-          </button>
-          <h1 id="doc-page-title">Leads & Pipeline</h1>
-        </div>
-        <div class="doc-topbar-actions">
-          <span id="doc-user-label">Doctor</span>
-        </div>
-      </header>
-      <main class="doc-main dma-clinic-canvas">
+<body data-live="1" data-area="clinic" data-route="dashboard/leads">
+<div id="app"></div>
+<div id="os-live-preserve" hidden>
 
         <div class="dma-head dma-head-page">
           <div>
@@ -133,18 +115,22 @@
           </div>
         </div>
 
-      </main>
-    </div>
-  </div>
-  <div id="doc-sidebar-backdrop" class="doc-sidebar-backdrop"></div>
+      </div>
+<script src="/assets/os.js?v=1"></script>
+<script src="/dma-doctor-app.js?v=6"></script>
+<script src="/js/ds-theme.js?v=2"></script>
+<script src="/js/ds-status.js?v=1"></script>
+<script src="/js/ds-format.js?v=1"></script>
+<script src="/dma-clinicos-clinical.js?v=4"></script>
+<script src="/dma-ui.js?v=10"></script>
+<script src="/dma-doctor-pages.js?v=19"></script>
+<script src="/dma-clinicos-inner.js?v=14"></script>
+<script src="/assets/os-live.js?v=1"></script>
+<script src="/dashboard-bootstrap.js?v=7"></script>
 
-  <script src="/dashboard-doctor-shell.js?v=24"></script>
-  <script src="/dma-ui.js?v=9"></script>
-  <script src="/dma-doctor-app.js?v=5"></script>
-  <script src="/dashboard-bootstrap.js?v=7"></script>
-  <script>
-  (function () {
-    if (!DmaDoctorShell.initStaticPage('/dashboard/leads/', 'Leads & Pipeline')) return;
+<script>window.__OS_LIVE_INIT__=function(){(function(){try{var r=document.documentElement;var c=r.className||"";var t;if(/\bdma-world-auth\b/.test(c))t="light";else if(/\bdma-world-public\b/.test(c)||/\bdoc-static\b/.test(c)||/\bsa-static\b/.test(c)){t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t="dark";}else{t=localStorage.getItem("dma-theme");if(t!=="light"&&t!=="dark")t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}r.setAttribute("data-theme",t);}catch(e){}})();
+(function () {
+    if(!window.DmaApp||!DmaApp.requireAuth())return;
     try {
       var u = JSON.parse(localStorage.getItem('clinicos-store') || '{}').state.user;
       if (u && u.ownerName) document.getElementById('doc-user-label').textContent = u.ownerName;
@@ -334,7 +320,6 @@
     document.getElementById('leads-status-filter').addEventListener('change', renderList);
 
     loadLeads();
-  })();
-  </script>
+  })();};</script>
 </body>
 </html>
