@@ -1,5 +1,60 @@
 /* Live Clinicos: DMA page content inside OS prototype shell (light canvas + dark rail) */
 
+/* ── Prototype canvas lock: light OS tokens beat dma doc-static dark + os.css dark ── */
+html.os-live,
+html.os-live[data-theme="dark"],
+html.os-live[data-theme="light"] {
+  --bg: #f2f6f5;
+  --bg2: #e8efed;
+  --card: #fff;
+  --card2: #f8fbfa;
+  --ink: #0f1a24;
+  --ink2: #3e5063;
+  --mut: #667789;
+  --line: #e0e8e6;
+  --line2: #cbd7d4;
+  --teal-t: #eef8f5;
+  --teal-t2: #c6eae1;
+  --ok-b: #ddf3ec;
+  --warn-b: #ffefcf;
+  --bad-b: #fce4e1;
+  --info-b: #e0ecfb;
+  --vio-b: #ece5fa;
+  --neu-b: #ebf0f4;
+  --sh: 0 1px 2px rgba(15, 26, 36, 0.04), 0 6px 20px -8px rgba(15, 26, 36, 0.1);
+  --sh2: 0 2px 4px rgba(15, 26, 36, 0.05), 0 18px 40px -14px rgba(15, 26, 36, 0.22);
+  color-scheme: light;
+}
+
+html.os-live.doc-static[data-theme="dark"],
+html.os-live.doc-static[data-theme="dark"] body,
+html.os-live.sa-static[data-theme="dark"],
+html.os-live.sa-static[data-theme="dark"] body,
+html.os-live.doc-static[data-theme="light"],
+html.os-live.doc-static[data-theme="light"] body,
+html.os-live.sa-static[data-theme="light"],
+html.os-live.sa-static[data-theme="light"] body {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+}
+
+/* Beat dma-design-system doc-static dark canvas (#141C2B !important) */
+html.os-live.doc-static[data-theme="dark"] .doc-layout,
+html.os-live.doc-static[data-theme="dark"] .doc-main-wrap,
+html.os-live.doc-static[data-theme="dark"] .doc-main,
+html.os-live.doc-static[data-theme="dark"] #doc-page,
+html.os-live.doc-static[data-theme="dark"] .doc-page,
+html.os-live.sa-static[data-theme="dark"] .sa-layout,
+html.os-live.sa-static[data-theme="dark"] .sa-main,
+html.os-live.sa-static[data-theme="dark"] .sa-main-inner,
+html.os-live.doc-static .app > .main,
+html.os-live.sa-static .app > .main,
+html.os-live.doc-static .main,
+html.os-live.sa-static .main {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+}
+
 /* ── Canvas: OS tokens win over dma doc-static dark canvas ── */
 html.os-live.doc-static,
 html.os-live.doc-static body,
@@ -24,9 +79,9 @@ html.os-live.sa-static[data-theme="dark"] .pg.os-live-mount .sa-main,
 html.os-live.sa-static[data-theme="dark"] .pg.os-live-mount .sa-main-inner,
 html.os-live.sa-static[data-theme="light"] .pg.os-live-mount .sa-main,
 html.os-live.sa-static[data-theme="light"] .pg.os-live-mount .sa-main-inner,
-html.doc-static[data-theme="dark"] .pg.os-live-mount .doc-main,
-html.doc-static[data-theme="dark"] .pg.os-live-mount #doc-page,
-html.sa-static[data-theme="dark"] .pg.os-live-mount .sa-main-inner {
+html.os-live.doc-static[data-theme="dark"] .pg.os-live-mount .doc-main,
+html.os-live.doc-static[data-theme="dark"] .pg.os-live-mount #doc-page,
+html.os-live.sa-static[data-theme="dark"] .pg.os-live-mount .sa-main-inner {
   background: var(--bg) !important;
   color: var(--ink) !important;
 }
@@ -35,6 +90,7 @@ html.sa-static[data-theme="dark"] .pg.os-live-mount .sa-main-inner {
   max-width: var(--content, 1440px);
   padding: 6px 20px 28px;
   box-sizing: border-box;
+  background: var(--bg) !important;
 }
 
 .pg.os-live-mount .doc-main,
@@ -72,6 +128,13 @@ html.os-live .pg.os-live-mount {
   --sa-muted: var(--mut);
 }
 
+html.os-live .pg.os-live-mount,
+html.os-live #pg.os-live-mount {
+  --doc-bg: var(--bg);
+  --ds-bg: var(--bg);
+  --ds-surface: var(--card);
+}
+
 html.doc-static .pg.os-live-mount .doc-main,
 html.doc-static .pg.os-live-mount #doc-page {
   padding: 0 0 16px !important;
@@ -101,12 +164,26 @@ html.sa-static .pg.os-live-mount .sa-main-inner {
 .pg.os-live-mount .cos-card,
 .pg.os-live-mount .ds-section,
 .pg.os-live-mount .ds-card,
-.pg.os-live-mount .dma-card {
+.pg.os-live-mount .dma-card,
+html.os-live .pg.os-live-mount .cos-card--kpi,
+html.os-live .pg.os-live-mount .cos-card--feature,
+html.os-live .pg.os-live-mount .cos-card--data,
+html.os-live .pg.os-live-mount .cos-card--action,
+html.os-live .pg.os-live-mount .cos-card--status,
+html.os-live .pg.os-live-mount .cos-card--appt,
+html.os-live .pg.os-live-mount .dma-section,
+html.os-live .pg.os-live-mount .dma-panel,
+html.os-live .pg.os-live-mount .dma-kpi {
   background: var(--card) !important;
   border: 1px solid var(--line) !important;
   box-shadow: var(--sh);
   border-radius: var(--r, 16px);
-  color: var(--ink);
+  color: var(--ink) !important;
+  background-image: none !important;
+}
+
+html.os-live .pg.os-live-mount .cos-card--feature {
+  background: linear-gradient(165deg, #fff 0%, #eef8f5 58%, #fff8e8 140%) !important;
 }
 
 .pg.os-live-mount .dma-btn {
@@ -119,14 +196,19 @@ html.sa-static .pg.os-live-mount .sa-main-inner {
   border-radius: var(--rc, 14px);
 }
 
-.pg.os-live-mount .cos-empty {
+.pg.os-live-mount .cos-empty,
+html.os-live .pg.os-live-mount .cos-empty,
+html.os-live .pg.os-live-mount .dma-empty,
+html.os-live .pg.os-live-mount .ds-empty {
   background: var(--card) !important;
   border: 1px solid var(--line);
   padding: 28px 24px;
   text-align: center;
+  color: var(--mut) !important;
 }
 
-.pg.os-live-mount .cos-empty h2 {
+.pg.os-live-mount .cos-empty h2,
+html.os-live .pg.os-live-mount .cos-empty b {
   color: var(--ink);
 }
 
@@ -311,6 +393,11 @@ html.os-live .pg.os-live-mount .dma-wa-actions {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 16px;
+}
+
+/* Top bar stays prototype light glass on live shell */
+html.os-live .tb {
+  background: rgba(242, 246, 245, 0.82) !important;
 }
 
 /* Toasts above OS rail / dock */

@@ -14,35 +14,18 @@
   }
 
   function readLiveTheme() {
-    var t;
-    try {
-      t = localStorage.getItem('dma-theme');
-    } catch (_) {}
-    if (t === 'light' || t === 'dark') return t;
-    try {
-      var cl = localStorage.getItem('cl_theme');
-      if (cl != null) {
-        try {
-          cl = JSON.parse(cl);
-        } catch (_) {}
-        if (cl === 'light' || cl === 'dark') return cl;
-      }
-    } catch (_) {}
+    /* Match prototype: light main canvas; dark rail is fixed in os.css */
     return 'light';
   }
 
   function applyLiveTheme(theme, persist) {
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.style.colorScheme = theme;
-    OS.S.set('theme', theme);
-    if (persist) {
-      try {
-        localStorage.setItem('dma-theme', theme);
-      } catch (_) {}
-    }
+    var canvas = 'light';
+    document.documentElement.dataset.theme = canvas;
+    document.documentElement.style.colorScheme = canvas;
+    OS.S.set('theme', canvas);
     if (window.DmaTheme && DmaTheme.apply) {
       try {
-        DmaTheme.apply(theme, persist);
+        DmaTheme.apply(canvas, false);
       } catch (_) {}
     }
   }
@@ -53,8 +36,7 @@
     var orig = OS.A.theme;
     OS.A.theme = function () {
       if (orig) orig();
-      var t = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
-      applyLiveTheme(t, true);
+      applyLiveTheme('light', false);
     };
   }
 

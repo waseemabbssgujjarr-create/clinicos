@@ -49,10 +49,11 @@
 
   function resolve(explicit) {
     if (isAuth()) return "light";
+    /* Prototype live shell: light canvas + dark rail (ignore stored dma-theme=dark). */
+    if (isOsLive()) return "light";
     if (explicit === "light" || explicit === "dark") return explicit;
     var s = stored();
     if (s) return s;
-    if (isOsLive()) return "light";
     if (isPublic() || isApp()) return "dark";
     return systemTheme();
   }

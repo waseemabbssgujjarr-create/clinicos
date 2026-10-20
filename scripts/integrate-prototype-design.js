@@ -9,7 +9,7 @@ const ASSETS = "/assets";
 
 const SKIP_PROTO = new Set(["index.html", "widget.html"]);
 
-const THEME_BOOT = `<script>(function(){try{var r=document.documentElement;r.classList.add('os-live');var t=localStorage.getItem('dma-theme');if(t!=='light'&&t!=='dark'){var c=localStorage.getItem('cl_theme');if(c){try{c=JSON.parse(c)}catch(e){}if(c==='light'||c==='dark')t=c}}if(t!=='light'&&t!=='dark')t='light';r.setAttribute('data-theme',t);r.style.colorScheme=t;}catch(e){}})();</script>`;
+const THEME_BOOT = `<script>(function(){try{var r=document.documentElement;r.classList.add('os-live');var t='light';r.setAttribute('data-theme',t);r.style.colorScheme=t;}catch(e){}})();</script>`;
 
 const ROUTE_PAGE = {
   "dashboard/index.html": { route: "dashboard", page: "home", title: "Home" },
@@ -142,7 +142,7 @@ ${THEME_BOOT}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${ASSETS}/os.css?v=2">
-<link rel="stylesheet" href="${ASSETS}/os-live.css?v=4">
+<link rel="stylesheet" href="${ASSETS}/os-live.css?v=5">
 <link rel="stylesheet" href="/dma-design-system.css?v=61">
 <link rel="stylesheet" href="/dma-doctor-pages.css?v=10">
 </head>
@@ -193,7 +193,7 @@ ${THEME_BOOT}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${ASSETS}/os.css?v=2">
-<link rel="stylesheet" href="${ASSETS}/os-live.css?v=4">
+<link rel="stylesheet" href="${ASSETS}/os-live.css?v=5">
 <link rel="stylesheet" href="/dma-design-system.css?v=61">
 <link rel="stylesheet" href="/superadmin-theme.css?v=20">
 <link rel="stylesheet" href="/dma-doctor-pages.css?v=10">
