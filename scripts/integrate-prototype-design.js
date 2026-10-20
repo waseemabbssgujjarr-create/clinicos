@@ -128,7 +128,7 @@ function clinicShellHtml(meta, rel, preserve, extraScripts) {
     .join("\n");
 
   return `<!doctype html>
-<html lang="en">
+<html lang="en" class="doc-static">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -139,8 +139,9 @@ function clinicShellHtml(meta, rel, preserve, extraScripts) {
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${ASSETS}/os.css?v=2">
-<link rel="stylesheet" href="${ASSETS}/os-live.css?v=2">
-<link rel="stylesheet" href="/dma-doctor-pages.css?v=9">
+<link rel="stylesheet" href="/dma-design-system.css?v=61">
+<link rel="stylesheet" href="${ASSETS}/os-live.css?v=3">
+<link rel="stylesheet" href="/dma-doctor-pages.css?v=10">
 </head>
 <body ${attrs.join(" ")}>
 <div id="app"></div>
@@ -177,7 +178,7 @@ function adminShellHtml(meta, rel, preserve) {
     .join("\n");
 
   return `<!doctype html>
-<html lang="en">
+<html lang="en" class="sa-static">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -188,8 +189,10 @@ function adminShellHtml(meta, rel, preserve) {
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${ASSETS}/os.css?v=2">
-<link rel="stylesheet" href="${ASSETS}/os-live.css?v=2">
+<link rel="stylesheet" href="/dma-design-system.css?v=61">
+<link rel="stylesheet" href="${ASSETS}/os-live.css?v=3">
 <link rel="stylesheet" href="/superadmin-theme.css?v=20">
+<link rel="stylesheet" href="/dma-doctor-pages.css?v=10">
 </head>
 <body ${attrs.join(" ")}>
 <div id="app"></div>

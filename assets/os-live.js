@@ -5,6 +5,13 @@
 (function () {
   if (!window.OS) return;
 
+  function ensureLiveThemeClasses() {
+    var html = document.documentElement;
+    var area = document.body.getAttribute('data-area');
+    if (area === 'clinic') html.classList.add('doc-static');
+    else if (area === 'admin') html.classList.add('sa-static');
+  }
+
   var ROUTE_PAGE = {
     dashboard: 'home',
     'dashboard/appointments': 'appointments',
@@ -222,6 +229,7 @@
 
   window.addEventListener('DOMContentLoaded', function () {
     if (document.body.dataset.live !== '1') return;
+    ensureLiveThemeClasses();
     OS.route = document.body.getAttribute('data-route') || routeFromLocation();
     OS.area = document.body.getAttribute('data-area') || 'clinic';
     if (OS.area === 'clinic') bootClinic();

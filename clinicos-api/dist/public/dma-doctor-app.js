@@ -150,6 +150,9 @@
     if (!root) {
       root = document.createElement('div');
       root.id = 'dma-toast-root';
+      root.setAttribute('aria-live', 'polite');
+      root.style.cssText =
+        'position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:16px;z-index:10050;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:min(360px,calc(100vw - 32px));';
       document.body.appendChild(root);
     }
     var el = document.createElement('div');

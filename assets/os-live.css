@@ -1,32 +1,152 @@
 /* Live Clinicos: DMA page content inside OS prototype shell */
-.pg.os-live-mount { max-width: var(--content, 1440px); }
+.pg.os-live-mount {
+  max-width: var(--content, 1440px);
+  padding: 6px 20px 28px;
+  box-sizing: border-box;
+}
+
 .pg.os-live-mount .doc-main,
 .pg.os-live-mount #doc-page,
 .pg.os-live-mount .dma-clinic-canvas,
 .pg.os-live-mount .sa-main,
 .pg.os-live-mount .sa-main-inner {
-  padding: 0;
+  padding: 0 0 8px !important;
   max-width: none;
   background: var(--bg) !important;
   color: var(--ink);
+  box-sizing: border-box;
 }
+
+html.doc-static .pg.os-live-mount .doc-main,
+html.doc-static .pg.os-live-mount #doc-page {
+  padding: 0 0 16px !important;
+}
+
+html.sa-static .pg.os-live-mount .sa-main,
+html.sa-static .pg.os-live-mount .sa-main-inner {
+  padding: 0 0 16px !important;
+}
+
+.pg.os-live-mount .dma-head {
+  margin-bottom: 18px;
+  padding: 4px 0 0;
+}
+
 .pg.os-live-mount .dma-head-title,
-.pg.os-live-mount .dma-head h1 { color: var(--ink); }
+.pg.os-live-mount .dma-head h1 {
+  color: var(--ink);
+}
+
 .pg.os-live-mount .dma-prose,
-.pg.os-live-mount .dma-hint { color: var(--mut); }
-.pg.os-live-mount .dma-section {
+.pg.os-live-mount .dma-hint {
+  color: var(--mut);
+}
+
+.pg.os-live-mount .dma-section,
+.pg.os-live-mount .cos-card {
   background: var(--card);
   border: 1px solid var(--line);
   box-shadow: var(--sh);
+  border-radius: var(--r, 16px);
 }
-.pg.os-live-mount .dma-btn { border-radius: var(--r, 10px); }
+
+.pg.os-live-mount .dma-btn {
+  border-radius: var(--r2, 10px);
+}
+
 .pg.os-live-mount .dma-section,
 .pg.os-live-mount .cos-empty,
-.pg.os-live-mount .ds-section { border-radius: var(--rc, 14px); }
+.pg.os-live-mount .ds-section {
+  border-radius: var(--rc, 14px);
+}
+
 .pg.os-live-mount .doc-layout,
 .pg.os-live-mount .doc-sidebar,
 .pg.os-live-mount .doc-topbar,
 .pg.os-live-mount .sa-layout > .sa-sidebar,
 .pg.os-live-mount .sa-mobile-bar,
-.pg.os-live-mount .sa-nav-backdrop { display: none !important; }
-.pg.os-live-mount .ds-workspace-tabs { margin-bottom: 16px; }
+.pg.os-live-mount .sa-nav-backdrop {
+  display: none !important;
+}
+
+.pg.os-live-mount .ds-workspace-tabs {
+  margin-bottom: 16px;
+}
+
+/* KPI grids + pickers (need dma-design-system + doc-static on html) */
+html.doc-static .pg.os-live-mount .cos-kpi-row,
+html.doc-static .pg.os-live-mount .dma-kpis,
+html.doc-static .pg.os-live-mount .ds-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0 18px;
+}
+
+@media (max-width: 1024px) {
+  html.doc-static .pg.os-live-mount .cos-kpi-row,
+  html.doc-static .pg.os-live-mount .dma-kpis,
+  html.doc-static .pg.os-live-mount .ds-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+html.doc-static .pg.os-live-mount .cos-card--kpi {
+  padding: 16px 18px;
+  min-height: 0;
+}
+
+html.doc-static .pg.os-live-mount .cos-card--kpi span,
+html.doc-static .pg.os-live-mount .cos-card--kpi strong,
+html.doc-static .pg.os-live-mount .cos-card--kpi em {
+  display: block;
+}
+
+html.doc-static .pg.os-live-mount .cos-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+}
+
+html.doc-static .pg.os-live-mount .dma-grid-2,
+html.doc-static .pg.os-live-mount .ds-work-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  html.doc-static .pg.os-live-mount .dma-grid-2,
+  html.doc-static .pg.os-live-mount .ds-work-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Toasts above OS rail / dock (fixed root lives on body) */
+#dma-toast-root {
+  position: fixed !important;
+  top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+  right: 16px !important;
+  left: auto !important;
+  bottom: auto !important;
+  z-index: 10050 !important;
+  pointer-events: none;
+}
+
+.dma-toast {
+  pointer-events: auto;
+  box-shadow: var(--sh2, 0 8px 24px rgba(15, 26, 36, 0.18));
+}
+
+/* Modals / wizards above shell chrome */
+.dma-modal-bg,
+.ds-drawer-backdrop,
+.ds-modal-backdrop {
+  z-index: 10100 !important;
+}
+
+/* Shell footer spacing — keep OS foot inside main column only */
+.app > .main > .foot {
+  margin: 24px 20px 12px;
+}
