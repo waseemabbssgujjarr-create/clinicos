@@ -67,6 +67,13 @@ function slugify(text) {
 function authHeaders() {
   return { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('token') };
 }
+function apiErrorMessage(r, data, fallback) {
+  if (data && data.code === 'PROXY_ERROR') {
+    return 'Clinic API is temporarily unavailable. Wait a minute and refresh, or ask your host to run: bash clinicos-api/force-start-api.sh';
+  }
+  if (!r || !r.ok) return (data && (data.error || data.message)) || fallback;
+  return fallback;
+}
 function getStoredUser() {
   try {
     var raw = localStorage.getItem('clinicos-store');
@@ -78,7 +85,7 @@ var clinicData = { name: '', specialty: '', address: '', bookingSlug: '' };
 async function loadClinic() {
   var r = await fetch('/api/settings', { headers: authHeaders(), credentials: 'include' });
   var data = await r.json().catch(function () { return {}; });
-  if (!r.ok) throw new Error(data.error || 'Could not load clinic details');
+  if (!r.ok) throw new Error(apiErrorMessage(r, data, 'Could not load clinic details'));
   clinicData = {
     name: data.name || '',
     specialty: data.specialty || '',
@@ -113,7 +120,7 @@ async function saveClinic(payload) {
     body: JSON.stringify(payload),
   });
   var data = await r.json().catch(function () { return {}; });
-  if (!r.ok) throw new Error(data.error || 'Could not save clinic details');
+  if (!r.ok) throw new Error(apiErrorMessage(r, data, 'Could not save clinic details'));
 }
 function goNext() { location.href = '/register/hours/'; }
 

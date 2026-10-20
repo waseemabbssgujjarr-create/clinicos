@@ -1,13 +1,17 @@
 <?php
 /**
  * api-status.php — open in browser (no Node needed)
- * https://clinicos.aderalabs.com/api-status.php
+ * https://doctorsmyagency.com/api-status.php
  */
 header('Content-Type: application/json');
 
-$home = '/home2/cognitom';
-$apiRoot = $home . '/clinicos.aderalabs.com/clinicos-api';
-$webRoot = $home . '/clinicos.aderalabs.com';
+$webRoot = __DIR__;
+$apiRoot = is_dir($webRoot . '/clinicos-api') ? $webRoot . '/clinicos-api' : $webRoot;
+$home = getenv('HOME') ?: (preg_match('#^(/home[^/]*/[^/]+)#', $webRoot, $m) ? $m[1] : dirname($webRoot));
+$siteDomain = basename($webRoot);
+$publicHost = $_SERVER['HTTP_HOST'] ?? $siteDomain;
+$publicScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+$publicBase = $publicScheme . '://' . $publicHost;
 
 function tail_file($path, $lines = 30) {
     if (!file_exists($path)) return null;
@@ -79,9 +83,6 @@ function db_probe($apiRoot) {
     ];
 }
 
-$webRoot = $home . '/clinicos.aderalabs.com';
-$apiRoot = $webRoot . '/clinicos-api';
-
 $socketCandidates = [
     $webRoot . '/tmp/sockets/passenger.socket',
     $webRoot . '/tmp/sockets/passenger.sock',
@@ -96,8 +97,8 @@ foreach ($socketCandidates as $p) {
 }
 
 $scanned = array_merge(
-    scan_sockets($home . '/nodevenv/clinicos.aderalabs.com'),
-    scan_sockets($home . '/nodevenv/clinicos.aderalabs.com/clinicos-api'),
+    scan_sockets($home . '/nodevenv/' . $siteDomain),
+    scan_sockets($home . '/nodevenv/' . $siteDomain . '/clinicos-api'),
     scan_sockets($webRoot . '/tmp'),
     scan_sockets($apiRoot . '/tmp')
 );
@@ -134,8 +135,8 @@ foreach ($passengerLogs as $p) {
     }
 }
 
-$nodeVersions = glob($home . '/nodevenv/clinicos.aderalabs.com/*') ?: [];
-$nodeVersionsSub = glob($home . '/nodevenv/clinicos.aderalabs.com/clinicos-api/*') ?: [];
+$nodeVersions = glob($home . '/nodevenv/' . $siteDomain . '/*') ?: [];
+$nodeVersionsSub = glob($home . '/nodevenv/' . $siteDomain . '/clinicos-api/*') ?: [];
 
 $hasRootModules = $files['node_modules (site root)'];
 $hasLogs = !empty(tail_file($apiRoot . '/logs/root-server.log')) || !empty(tail_file($apiRoot . '/logs/minimal.log'));
@@ -163,12 +164,12 @@ if (!$hasNodeModules || !$hasExpress) {
 }
 
 $nextSteps = [
-    'Upload server.js to site root, set app root = clinicos.aderalabs.com, Node 20, NPM Install, START',
+    'Upload clinicos-api/dist to ' . $apiRoot . ', Node 20, npm install in clinicos-api, then start-node.sh',
 ];
 if ($diagnosis === 'NPM_INSTALL_REQUIRED') {
     $nextSteps = [
         '1. cPanel → Terminal (or SSH)',
-        '2. cd ~/clinicos.aderalabs.com/clinicos-api',
+        '2. cd ' . $apiRoot,
         '3. npm install --omit=dev',
         '4. npx prisma generate',
         '5. /bin/bash start-node.sh',
@@ -184,7 +185,7 @@ if ($diagnosis === 'NPM_INSTALL_REQUIRED') {
     ];
 } elseif ($diagnosis === 'PASSENGER_NEVER_STARTED') {
     $nextSteps = [
-        '1. Confirm Application root = clinicos.aderalabs.com',
+        '1. Confirm Application root = ' . $webRoot,
         '2. STOP APP → wait 10 sec → START APP',
         '3. Click OPEN button in cPanel Node.js page',
         '4. If root-server.log still empty → contact PakHosting support',
@@ -243,9 +244,10 @@ echo json_encode([
             'old_suspended_bug' => strpos($publicRoutesSrc, 'SUSPENDED') !== false,
             'modified' => file_exists($publicRoutesPath) ? date('c', filemtime($publicRoutesPath)) : null,
         ],
-        'deploy_check_php' => 'https://clinicos.aderalabs.com/api/public/deploy-check.php',
-        'running_api_check' => 'https://clinicos.aderalabs.com/api/leads/deploy-check',
-        'force_restart' => 'https://clinicos.aderalabs.com/force-restart.php?key=DMA-SETUP-2026',
+        'deploy_check_php' => $publicBase . '/api/public/deploy-check.php',
+        'running_api_check' => $publicBase . '/api/leads/deploy-check',
+        'force_restart' => $publicBase . '/force-restart.php?key=DMA-SETUP-2026',
+        'live_health' => $publicBase . '/api/health',
     ],
     'database' => db_probe($apiRoot),
     'node_app' => [
@@ -270,7 +272,8 @@ echo json_encode([
         'api-proxy.log'  => tail_file($webRoot . '/logs/api-proxy.log'),
         'passenger_errors'=> $passengerLogContent ?: ['none found'],
     ],
-    'cron_command' => '/bin/bash /home2/cognitom/clinicos.aderalabs.com/clinicos-api/start-node.sh',
+    'cron_command' => '/bin/bash ' . $apiRoot . '/start-node.sh',
+    'force_start_command' => '/bin/bash ' . $apiRoot . '/force-start-api.sh',
     'cron_note' => 'Browser cron-start.php will NOT work — use shell Cron command above',
     'next_steps' => $nextSteps,
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
