@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const supertest_1 = __importDefault(require("supertest"));
 const app_1 = require("../app");
 const prisma_1 = require("../lib/prisma");
+const schedule_service_1 = require("../services/schedule.service");
 let token;
 let clinicId;
 let patientId;
@@ -119,6 +120,31 @@ describe('GET /api/appointments/slots', () => {
         expect(res.body.closed).toBe(true);
         expect(String(res.body.message || '')).toMatch(/closed on Saturdays/i);
         expect(String(res.body.message || '')).not.toMatch(/fully booked/i);
+    });
+    it('Thursday 2026-10-22 honors 09:00–22:00 hours (9 AM first slot, ~9:30 PM last)', async () => {
+        await prisma_1.prisma.clinic.update({
+            where: { id: clinicId },
+            data: {
+                workingHours: JSON.stringify({
+                    monday: { isOpen: true, open: '09:00', close: '22:00', slotDuration: 30 },
+                    tuesday: { isOpen: true, open: '09:00', close: '22:00', slotDuration: 30 },
+                    wednesday: { isOpen: true, open: '09:00', close: '22:00', slotDuration: 30 },
+                    thursday: { isOpen: true, open: '09:00', close: '22:00', slotDuration: 30 },
+                    friday: { isOpen: true, open: '09:00', close: '22:00', slotDuration: 30 },
+                    saturday: { isOpen: true, open: '09:00', close: '22:00', slotDuration: 30 },
+                    sunday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+                }),
+            },
+        });
+        const res = await (0, supertest_1.default)(app_1.app)
+            .get('/api/appointments/slots?date=2026-10-22&duration=30')
+            .set('Authorization', `Bearer ${token}`);
+        expect(res.status).toBe(200);
+        expect(res.body.slots.length).toBe(26);
+        const first = new Date(res.body.slots[0]);
+        const last = new Date(res.body.slots[res.body.slots.length - 1]);
+        expect(first.getHours() * 60 + first.getMinutes()).toBe(540);
+        expect(last.getHours() * 60 + last.getMinutes()).toBe(1290);
     });
     it('returns slots when Sunday is open (closed flag only)', async () => {
         await prisma_1.prisma.clinic.update({

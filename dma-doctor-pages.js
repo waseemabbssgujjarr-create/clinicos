@@ -10,6 +10,40 @@
   function esc(s) { return A().esc(s); }
   function failMsg(r, fb) { return (A().friendlyError && A().friendlyError(r, fb)) || fb || "Couldn't complete that request."; }
 
+  /** Normalize settings hour strings to HH:mm (24h) for type="time" inputs and API storage. */
+  function normalizeHourTime(raw) {
+    var s = String(raw == null ? '' : raw).trim();
+    if (!s) return '09:00';
+    var ampm = s.match(/\s*(A\.?M\.?|P\.?M\.?)\s*$/i);
+    var isPm = false;
+    if (ampm) {
+      isPm = ampm[1].replace(/\./g, '').toUpperCase().indexOf('P') === 0;
+      s = s.slice(0, ampm.index).trim();
+    }
+    var parts = /^(\d{1,2}):(\d{2})(?::\d{2})?$/.exec(s);
+    if (!parts) return '09:00';
+    var h = Number(parts[1]);
+    var mi = Number(parts[2]);
+    if (!isFinite(h) || !isFinite(mi) || mi < 0 || mi > 59) return '09:00';
+    if (ampm) {
+      if (h < 1 || h > 12) return '09:00';
+      if (!isPm && h === 12) h = 0;
+      else if (isPm && h !== 12) h += 12;
+    } else if (h === 24 && mi === 0) {
+      return '24:00';
+    } else if (h < 0 || h > 23) {
+      return '09:00';
+    }
+    return String(h).padStart(2, '0') + ':' + String(mi).padStart(2, '0');
+  }
+
+  function hourTimeToMinutes(raw) {
+    var norm = normalizeHourTime(raw);
+    if (norm === '24:00') return 1440;
+    var p = norm.split(':');
+    return Number(p[0]) * 60 + Number(p[1]);
+  }
+
   function greeting() {
     var h = new Date().getHours();
     if (h < 12) return 'Good morning';
@@ -127,12 +161,10 @@
     }).length;
     if (!h) return { booked: booked, slots: 0, label: booked + ' booked · working hours not set' };
     if (h.isOpen === false || h.closed === true) return { booked: booked, slots: 0, label: 'Clinic closed today' };
-    function mins(t) {
-      var p = String(t || '09:00').split(':');
-      return (Number(p[0]) || 0) * 60 + (Number(p[1]) || 0);
-    }
     var slot = Number(h.slotDuration || 30) || 30;
-    var slots = Math.max(0, Math.floor((mins(h.close || h.end) - mins(h.open || h.start)) / slot));
+    var openM = hourTimeToMinutes(h.open || h.start);
+    var closeM = hourTimeToMinutes(h.close || h.end);
+    var slots = closeM > openM ? Math.max(0, Math.floor((closeM - openM) / slot)) : 0;
     return { booked: booked, slots: slots, label: booked + ' of ' + slots + ' slots booked today' };
   }
 
@@ -1748,13 +1780,16 @@
             days.map(function (d) {
               var row = wh[d] || hoursDefaults[d] || { open: '09:00', close: '17:00', isOpen: true };
               if (typeof row === 'string') row = { open: '09:00', close: '17:00', isOpen: true };
+              var openVal = normalizeHourTime(row.open || row.start || '09:00');
+              var closeVal = normalizeHourTime(row.close || row.end || '17:00');
+              if (closeVal === '24:00') closeVal = '23:59';
               var isClosed = row.closed === true || row.isOpen === false;
               var label = d.charAt(0).toUpperCase() + d.slice(1);
               return '<div class="ds-hours-row' + (isClosed ? ' is-closed' : '') + '"><strong>' + label + '</strong>' +
                 '<span class="ds-hours-state">' + (isClosed ? 'Closed' : 'Open') + '</span>' +
-                '<input type="time" aria-label="' + label + ' open" data-d="' + d + '" data-k="open" value="' + esc(row.open || '09:00') + '"' + (isClosed ? ' disabled' : '') + '>' +
+                '<input type="time" aria-label="' + label + ' open" data-d="' + d + '" data-k="open" value="' + esc(openVal) + '"' + (isClosed ? ' disabled' : '') + '>' +
                 '<span class="dma-hint">—</span>' +
-                '<input type="time" aria-label="' + label + ' close" data-d="' + d + '" data-k="close" value="' + esc(row.close || '17:00') + '"' + (isClosed ? ' disabled' : '') + '>' +
+                '<input type="time" aria-label="' + label + ' close" data-d="' + d + '" data-k="close" value="' + esc(closeVal) + '"' + (isClosed ? ' disabled' : '') + '>' +
                 '<label><input type="checkbox" data-d="' + d + '" data-k="closed"' + (isClosed ? ' checked' : '') + '> Closed</label></div>';
             }).join('') + '<p class="dma-hint">Booking uses hours for the day you pick — opening Sunday does not open other weekdays.</p>' +
             '<button class="dma-btn dma-btn-primary" id="hrs-save">Save changes</button></div></section>';
@@ -1773,9 +1808,11 @@
           el('hrs-save').onclick = function () {
             var out = {};
             days.forEach(function (d) {
+              var openRaw = document.querySelector('input[data-d="' + d + '"][data-k="open"]').value;
+              var closeRaw = document.querySelector('input[data-d="' + d + '"][data-k="close"]').value;
               out[d] = {
-                open: document.querySelector('input[data-d="' + d + '"][data-k="open"]').value,
-                close: document.querySelector('input[data-d="' + d + '"][data-k="close"]').value,
+                open: normalizeHourTime(openRaw),
+                close: normalizeHourTime(closeRaw),
                 closed: document.querySelector('input[data-d="' + d + '"][data-k="closed"]').checked,
                 isOpen: !document.querySelector('input[data-d="' + d + '"][data-k="closed"]').checked,
                 slotDuration: 30

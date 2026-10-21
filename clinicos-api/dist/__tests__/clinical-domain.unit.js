@@ -63,4 +63,36 @@ var mergedHours = schedule.resolveWorkingHours("{}");
 assert.equal(schedule.isDayOpen(mergedHours.thursday), true);
 assert.equal(schedule.isDayOpen(mergedHours.sunday), false);
 
+assert.equal(schedule.parseTimeToMinutes("09:00"), 540);
+assert.equal(schedule.parseTimeToMinutes("9:00 AM"), 540);
+assert.equal(schedule.parseTimeToMinutes("10:00 PM"), 1320);
+assert.equal(schedule.parseTimeToMinutes("22:00"), 1320);
+assert.equal(schedule.parseTimeToMinutes("21:00"), 1260);
+assert.equal(schedule.formatMinutesAsHHMM(1320), "22:00");
+
+var thursdayHours = {
+  isOpen: true,
+  open: "09:00",
+  close: "22:00",
+  slotDuration: 30,
+};
+var thSlots = schedule.computeSlotStartMinutes(thursdayHours, 30);
+assert.equal(thSlots.starts[0], 540);
+assert.equal(thSlots.starts[thSlots.starts.length - 1], 1290);
+assert.equal(thSlots.starts.length, 26);
+assert.ok(!thSlots.starts.some(function (m) { return m >= 1320; }));
+
+var thAmPm = schedule.computeSlotStartMinutes(
+  { isOpen: true, open: "09:00 AM", close: "10:00 PM", slotDuration: 30 },
+  30
+);
+assert.equal(thAmPm.starts[0], 540);
+assert.equal(thAmPm.starts[thAmPm.starts.length - 1], 1290);
+
+var noonBug = schedule.computeSlotStartMinutes(
+  { isOpen: true, open: "09:00 AM", close: "10:00 PM", slotDuration: 30 },
+  30
+);
+assert.equal(noonBug.starts[0], 540);
+
 console.log("clinical-domain.unit.js ok");

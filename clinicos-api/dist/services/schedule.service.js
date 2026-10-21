@@ -6,6 +6,9 @@ exports.listBlocksForDay = listBlocksForDay;
 exports.findSlotConflict = findSlotConflict;
 exports.buildDaySlots = buildDaySlots;
 exports.parseWorkingHours = parseWorkingHours;
+exports.parseTimeToMinutes = parseTimeToMinutes;
+exports.formatMinutesAsHHMM = formatMinutesAsHHMM;
+exports.computeSlotStartMinutes = computeSlotStartMinutes;
 exports.isDayOpen = isDayOpen;
 exports.parseCalendarDate = parseCalendarDate;
 exports.dayNameForDate = dayNameForDate;
@@ -48,6 +51,12 @@ function canonicalDayKey(key) {
 
 function normalizeDayConfig(dayConfig) {
   if (!dayConfig || typeof dayConfig !== "object") return dayConfig;
+  if (dayConfig.start && !dayConfig.open) dayConfig.open = dayConfig.start;
+  if (dayConfig.end && !dayConfig.close) dayConfig.close = dayConfig.end;
+  if (dayConfig.from && !dayConfig.open) dayConfig.open = dayConfig.from;
+  if (dayConfig.to && !dayConfig.close) dayConfig.close = dayConfig.to;
+  if (dayConfig.open) dayConfig.open = formatMinutesAsHHMM(parseTimeToMinutes(dayConfig.open)) || String(dayConfig.open).trim();
+  if (dayConfig.close) dayConfig.close = formatMinutesAsHHMM(parseTimeToMinutes(dayConfig.close)) || String(dayConfig.close).trim();
   if (dayConfig.isOpen === true) {
     dayConfig.closed = false;
   } else if (dayConfig.isOpen === false || dayConfig.closed === true) {
@@ -57,6 +66,81 @@ function normalizeDayConfig(dayConfig) {
     dayConfig.isOpen = true;
   }
   return dayConfig;
+}
+
+/** Minutes from local midnight (0–1439). Supports HH:mm, HH:mm:ss, 9:00 AM, 10:00 PM, 21:00, 24:00 (midnight end). */
+function parseTimeToMinutes(raw) {
+  if (raw == null || raw === "") return null;
+  if (typeof raw === "number" && Number.isFinite(raw)) {
+    const n = Math.floor(raw);
+    if (n >= 0 && n < 1440) return n;
+    return null;
+  }
+  let s = String(raw).trim();
+  if (!s) return null;
+  const upper = s.toUpperCase();
+  const ampm = upper.match(/\s*(A\.?M\.?|P\.?M\.?)\s*$/);
+  let isPm = false;
+  let isAm = false;
+  if (ampm) {
+    isPm = ampm[1].replace(/\./g, "").startsWith("P");
+    isAm = !isPm;
+    s = s.slice(0, ampm.index).trim();
+  }
+  const m = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(s);
+  if (!m) return null;
+  let h = Number(m[1]);
+  let min = Number(m[2]);
+  if (!Number.isFinite(h) || !Number.isFinite(min) || min < 0 || min > 59) return null;
+  if (ampm) {
+    if (h < 1 || h > 12) return null;
+    if (isAm) {
+      if (h === 12) h = 0;
+    } else if (h !== 12) {
+      h += 12;
+    }
+  } else if (h === 24 && min === 0) {
+    return 1440;
+  } else if (h < 0 || h > 23) {
+    return null;
+  }
+  return h * 60 + min;
+}
+
+function formatMinutesAsHHMM(minutes) {
+  if (minutes == null || !Number.isFinite(minutes)) return null;
+  if (minutes === 1440) return "24:00";
+  const m = ((minutes % 1440) + 1440) % 1440;
+  const h = Math.floor(m / 60);
+  const min = m % 60;
+  return String(h).padStart(2, "0") + ":" + String(min).padStart(2, "0");
+}
+
+function dateAtLocalMinutes(calendarDay, minutesFromMidnight) {
+  const y = calendarDay.getFullYear();
+  const mo = calendarDay.getMonth();
+  const d = calendarDay.getDate();
+  if (minutesFromMidnight >= 1440) {
+    return new Date(y, mo, d + 1, 0, 0, 0, 0);
+  }
+  const h = Math.floor(minutesFromMidnight / 60);
+  const min = minutesFromMidnight % 60;
+  return new Date(y, mo, d, h, min, 0, 0);
+}
+
+function computeSlotStartMinutes(dayConfig, durationMin) {
+  const slotStep = Number(dayConfig.slotDuration || durationMin || 30) || 30;
+  const useDuration = Number(durationMin || slotStep) || 30;
+  const openMin = parseTimeToMinutes(dayConfig.open || DEFAULT_DAY.open);
+  let closeMin = parseTimeToMinutes(dayConfig.close || DEFAULT_DAY.close);
+  if (openMin == null || closeMin == null) return { starts: [], slotStep, useDuration, openMin, closeMin };
+  if (closeMin <= openMin && closeMin !== 1440) return { starts: [], slotStep, useDuration, openMin, closeMin };
+  const effectiveClose = closeMin === 1440 ? 1440 : closeMin;
+  const starts = [];
+  for (let m = openMin; m + useDuration <= effectiveClose; m += slotStep) {
+    starts.push(m);
+  }
+  return { starts, slotStep, useDuration, openMin, closeMin: effectiveClose };
 }
 
 function resolveWorkingHours(raw) {
@@ -216,8 +300,6 @@ async function buildDaySlots(clinic, date, durationMin, opts) {
   const targetDate = parseCalendarDate(date);
   const dayName = dayNameForDate(targetDate);
   const dayConfig = hours[dayName];
-  const slotStep = Number(dayConfig.slotDuration || durationMin || 30) || 30;
-  const useDuration = Number(durationMin || slotStep) || 30;
   if (!isDayOpen(dayConfig)) {
     return {
       slots: [],
@@ -226,8 +308,22 @@ async function buildDaySlots(clinic, date, durationMin, opts) {
       message: closedDayMessage(dayName),
     };
   }
-  const [openH, openM] = (dayConfig.open || "09:00").split(":").map(Number);
-  const [closeH, closeM] = (dayConfig.close || "17:00").split(":").map(Number);
+  const { starts, useDuration, openMin, closeMin } = computeSlotStartMinutes(dayConfig, durationMin);
+  if (!starts.length && openMin != null && closeMin != null && openMin < closeMin) {
+    return {
+      slots: [],
+      day: dayName,
+      message: "No open slots on " + dayLabel(dayName) + ". Visits may be fully booked or blocked.",
+    };
+  }
+  if (!starts.length && (openMin == null || closeMin == null || openMin >= closeMin)) {
+    return {
+      slots: [],
+      closed: true,
+      day: dayName,
+      message: closedDayMessage(dayName),
+    };
+  }
   const booked = await prisma_1.prisma.appointment.findMany({
     where: {
       clinicId: clinic.id,
@@ -241,10 +337,9 @@ async function buildDaySlots(clinic, date, durationMin, opts) {
   const multi = practitionerCount > 1;
   const slots = [];
   const now = new Date();
-  let slotTime = (0, date_fns_1.setMinutes)((0, date_fns_1.setHours)(targetDate, openH), openM);
-  const closeTime = (0, date_fns_1.setMinutes)((0, date_fns_1.setHours)(targetDate, closeH), closeM);
   let openSlotCount = 0;
-  while ((0, date_fns_1.isBefore)(slotTime, closeTime)) {
+  for (const startMin of starts) {
+    const slotTime = dateAtLocalMinutes(targetDate, startMin);
     const slotEnd = (0, date_fns_1.addMinutes)(slotTime, useDuration);
     const isBooked = booked.some((b) => {
       const bEnd = (0, date_fns_1.addMinutes)(b.dateTime, b.durationMin);
@@ -260,11 +355,11 @@ async function buildDaySlots(clinic, date, durationMin, opts) {
         slots.push(slotTime.toISOString());
       }
     }
-    slotTime = (0, date_fns_1.addMinutes)(slotTime, slotStep);
   }
   if (slots.length) return { slots, day: dayName };
   const label = dayLabel(dayName);
-  if (sameCalendarDay(targetDate, now) && (0, date_fns_1.isAfter)(now, closeTime)) {
+  const dayEnd = dateAtLocalMinutes(targetDate, closeMin === 1440 ? 1439 : closeMin);
+  if (sameCalendarDay(targetDate, now) && (0, date_fns_1.isAfter)(now, dayEnd)) {
     return {
       slots: [],
       day: dayName,
