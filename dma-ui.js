@@ -118,7 +118,10 @@
 
   function closeExisting(id) {
     var existing = document.getElementById(id);
-    if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+    if (existing && existing.parentNode) {
+      existing.parentNode.removeChild(existing);
+      if (id === "ds-drawer") document.body.classList.remove("ds-drawer-open");
+    }
   }
 
   function drawer(opts) {

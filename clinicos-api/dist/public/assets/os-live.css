@@ -1303,64 +1303,20 @@ html.os-live.doc-static .cos-drawer-h strong {
   color: var(--ink) !important;
 }
 
-html.os-live.doc-static body.ds-drawer-open .doc-main-wrap,
-html.os-live.doc-static body.ds-drawer-open .sa-main,
-html.os-live.doc-static body.ds-drawer-open .app > .main {
+/* v14: docked rail inset — page content only (not .app > .main / topbar) */
+html.os-live.doc-static body.ds-drawer-open .pg.os-live-mount,
+html.os-live.doc-static body.ds-drawer-open #doc-page.cos-pt-page,
+html.os-live.doc-static body.ds-drawer-open .sa-main.os-live-mount {
   padding-right: 0 !important;
   box-sizing: border-box;
   transition: padding-right 180ms ease;
 }
 
 @media (min-width: 1024px) {
-  html.os-live.doc-static body.ds-drawer-open .doc-main-wrap,
-  html.os-live.doc-static body.ds-drawer-open .sa-main,
-  html.os-live.doc-static body.ds-drawer-open .app > .main {
+  html.os-live.doc-static body.ds-drawer-open:has(#ds-drawer.open) .pg.os-live-mount,
+  html.os-live.doc-static body.ds-drawer-open:has(#ds-drawer.open) #doc-page.cos-pt-page,
+  html.os-live.doc-static body.ds-drawer-open:has(#ds-drawer.open) .sa-main.os-live-mount {
     padding-right: min(400px, 38vw) !important;
-  }
-}
-
-/* v13: docked preview rail — beat dma-design-system inset:auto (top:auto chip) */
-@media (min-width: 1024px) {
-  html.os-live.doc-static .ds-drawer,
-  html.os-live.doc-static .ds-drawer.ds-drawer-dock,
-  html.os-live.doc-static .ds-drawer.open,
-  html.os-live.doc-static .cos-drawer,
-  html.os-live.doc-static .cos-drawer.open {
-    position: fixed !important;
-    top: var(--tb, var(--ds-h-header, 66px)) !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    left: auto !important;
-    width: min(400px, 38vw) !important;
-    min-width: min(380px, 36vw) !important;
-    max-width: 420px !important;
-    height: auto !important;
-    inset: unset !important;
-    transform: none !important;
-  }
-
-  html.os-live.doc-static .ds-drawer-bg,
-  html.os-live.doc-static .cos-drawer-bg {
-    display: none !important;
-  }
-
-  html.os-live.doc-static .ds-drawer-panel,
-  html.os-live.doc-static .cos-drawer-panel,
-  html.os-live.doc-static .ds-drawer.open .ds-drawer-panel,
-  html.os-live.doc-static .cos-drawer.open .cos-drawer-panel {
-    position: relative !important;
-    top: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    left: auto !important;
-    width: 100% !important;
-    max-width: none !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    transform: none !important;
-    translate: none !important;
-    border-radius: 0 !important;
-    pointer-events: auto !important;
   }
 }
 
