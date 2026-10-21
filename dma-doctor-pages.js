@@ -761,17 +761,66 @@
     if (then) then(p);
   }
 
-  function openPatientModal(onSaved) {
-    A().modal('Add patient',
+  function jwtPayload() {
+    try {
+      var t = A().token && A().token();
+      if (!t) return {};
+      return JSON.parse(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function isDoctorUser() {
+    var u = A().user() || {};
+    if (u.role === 'DOCTOR') return true;
+    return jwtPayload().role === 'DOCTOR';
+  }
+
+  function canEditPatient() {
+    var u = A().user() || {};
+    var role = u.role || jwtPayload().role;
+    return role === 'DOCTOR' || role === 'STAFF';
+  }
+
+  function canDeactivatePatient() {
+    return isDoctorUser();
+  }
+
+  function dobInputValue(p) {
+    if (!p || !p.dateOfBirth) return '';
+    var d = new Date(p.dateOfBirth);
+    if (isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 10);
+  }
+
+  function openPatientModal(onSaved, existing) {
+    var edit = existing && existing.id;
+    if (typeof onSaved === 'object' && onSaved && onSaved.id) {
+      existing = onSaved;
+      edit = true;
+      onSaved = null;
+    }
+    A().modal(edit ? 'Edit patient' : 'Add patient',
       '<div class="dma-field"><label>Full name</label><input id="pt-name" required></div>' +
       '<div class="dma-row"><div class="dma-field"><label>Phone</label><input id="pt-phone" placeholder="+92…"></div>' +
       '<div class="dma-field"><label>Email</label><input id="pt-email" type="email"></div></div>' +
       '<div class="dma-row"><div class="dma-field"><label>Gender</label><select id="pt-gender"><option value="">—</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>' +
       '<div class="dma-field"><label>Date of birth</label><input id="pt-dob" type="date"></div></div>' +
       '<div class="dma-field"><label>Medical notes</label><textarea id="pt-notes" rows="2"></textarea></div>',
-      '<button class="dma-btn dma-btn-ghost" data-close>Cancel</button><button class="dma-btn dma-btn-primary" id="pt-save">Save patient</button>'
+      '<button class="dma-btn dma-btn-ghost" data-close>Cancel</button><button class="dma-btn dma-btn-primary" id="pt-save">' +
+        (edit ? 'Save changes' : 'Save patient') + '</button>'
     );
-    bindNewPatientModalDismiss();
+    if (edit) {
+      el('pt-name').value = existing.fullName || '';
+      el('pt-phone').value = existing.phone || '';
+      el('pt-email').value = existing.email || '';
+      el('pt-gender').value = existing.gender || '';
+      el('pt-dob').value = dobInputValue(existing);
+      el('pt-notes').value = existing.medicalNotes || '';
+    } else {
+      bindNewPatientModalDismiss();
+    }
     el('pt-save').onclick = function () {
       var body = {
         fullName: el('pt-name').value.trim(),
@@ -782,23 +831,79 @@
         medicalNotes: el('pt-notes').value || undefined,
       };
       if (!body.fullName || !body.phone) { A().toast('Name and phone are required', 'err'); return; }
+      if (edit && !canEditPatient()) {
+        A().toast("You don't have permission to edit patients.", 'err');
+        return;
+      }
       el('pt-save').disabled = true;
-      A().post('/api/patients', body).then(function (r) {
+      var req = edit
+        ? A().patch('/api/patients/' + existing.id, body)
+        : A().post('/api/patients', body);
+      req.then(function (r) {
         el('pt-save').disabled = false;
         if (!r.ok) { A().toast(failMsg(r, "Couldn't save those details."), 'err'); return; }
         A().closeModal();
-        A().toast('Patient added', 'ok');
+        A().toast(edit ? 'Patient updated' : 'Patient added', 'ok');
         if (onSaved) onSaved(r.d);
       });
     };
   }
 
-  function openPatientDrawer(p) {
+  function deactivatePatient(p, onDone) {
+    if (!p || !p.id) return;
+    if (!canDeactivatePatient()) {
+      A().toast('Only the clinic doctor can deactivate patients.', 'err');
+      return;
+    }
+    var name = p.fullName || 'this patient';
+    if (!confirm('Deactivate ' + name + '?\n\nThey will be hidden from active lists. Visit history is kept.')) return;
+    A().del('/api/patients/' + p.id).then(function (r) {
+      if (!r.ok) {
+        A().toast(failMsg(r, "Couldn't deactivate this patient."), 'err');
+        return;
+      }
+      A().toast('Patient deactivated', 'ok');
+      if (activePatientDrawer && activePatientDrawer.close) {
+        try { activePatientDrawer.close(); } catch (_) { /* drawer already torn down */ }
+      }
+      clearPatientQuery();
+      if (onDone) onDone();
+    });
+  }
+
+  function closePatientRowMenus(except) {
+    document.querySelectorAll('.cos-row-menu').forEach(function (m) {
+      if (except && m === except) return;
+      m.hidden = true;
+    });
+  }
+
+  function patientRowMenuHtml(i, p) {
+    var editDis = canEditPatient() ? '' : ' disabled title="Staff role cannot edit patient records"';
+    var delDis = canDeactivatePatient() ? '' : ' disabled title="Only the clinic doctor can deactivate patients"';
+    return '<div class="cos-row-actions">' +
+      '<button type="button" class="dma-btn dma-btn-ghost dma-btn-sm cos-row-menu-btn" aria-label="Patient actions" aria-haspopup="menu" data-menu-i="' + i + '">···</button>' +
+      '<div class="cos-row-menu" role="menu" hidden>' +
+        '<button type="button" role="menuitem" data-act="view" data-i="' + i + '">View chart</button>' +
+        '<button type="button" role="menuitem" data-act="edit" data-i="' + i + '"' + editDis + '>Edit</button>' +
+        '<button type="button" role="menuitem" class="danger" data-act="delete" data-i="' + i + '"' + delDis + '>Deactivate</button>' +
+      '</div></div>';
+  }
+
+  function openPatientDrawer(p, opts) {
+    opts = opts || {};
     if (!p || !p.id) return null;
     if (activePatientDrawer && activePatientDrawer.close) {
       try { activePatientDrawer.close(); } catch (_) { /* drawer already torn down */ }
     }
     var last = (p.appointments && p.appointments[0]) || {};
+    var onListChange = opts.onListChange;
+    var editBtn = canEditPatient()
+      ? '<button type="button" class="dma-btn dma-btn-ghost" id="pt-drawer-edit">Edit</button>'
+      : '';
+    var delBtn = canDeactivatePatient()
+      ? '<button type="button" class="dma-btn dma-btn-danger dma-btn-ghost" id="pt-drawer-delete">Deactivate</button>'
+      : '';
     var d = drawer({
       title: p.fullName || 'Patient',
       subtitle: p.phone || '',
@@ -814,6 +919,8 @@
       ],
       footer:
         '<a class="dma-btn dma-btn-ghost" href="/dashboard/patients/detail/?id=' + esc(p.id) + '">Open full chart</a>' +
+        editBtn +
+        delBtn +
         '<a class="dma-btn dma-btn-ghost" href="/dashboard/messages/?patient=' + esc(p.id) + '">Message</a>' +
         '<a class="dma-btn dma-btn-primary" href="/dashboard/appointments/?action=book&patient=' + esc(p.id) + '">Book</a>',
       onTab: function (tab, api) {
@@ -868,23 +975,44 @@
     });
     activePatientDrawer = d;
     A().setQs({ action: null, id: p.id }, true);
+    if (d && d.el) {
+      var editEl = d.el.querySelector('#pt-drawer-edit');
+      if (editEl) {
+        editEl.onclick = function () {
+          openPatientModal(function (updated) {
+            if (!updated) return;
+            Object.keys(updated).forEach(function (k) { p[k] = updated[k]; });
+            if (d.setTitle) d.setTitle(updated.fullName || p.fullName, updated.phone || p.phone);
+            if (onListChange) onListChange();
+          }, p);
+        };
+      }
+      var delEl = d.el.querySelector('#pt-drawer-delete');
+      if (delEl) {
+        delEl.onclick = function () {
+          deactivatePatient(p, onListChange);
+        };
+      }
+    }
     return d;
   }
 
   /* ── PATIENTS ─────────────────────────────────────────────────────────── */
   function patients() {
     var root = page();
+    root.classList.add('cos-pt-page');
     var filter = 'all';
     root.innerHTML =
       pageHead('Patients', "Search and manage your clinic's patient records.",
         '<button class="dma-btn dma-btn-primary" id="pt-add">+ New patient</button>') +
+      '<div class="cos-pt-workspace">' +
       '<div class="cos-pt-toolbar"><input class="dma-search" id="pt-search" placeholder="Search patients..." aria-label="Search patients">' +
       '<div class="dma-tabs" id="pt-filters" role="tablist">' +
         '<button type="button" data-f="all" class="active">All</button>' +
         '<button type="button" data-f="active">Active</button>' +
         '<button type="button" data-f="recent">Recent</button>' +
       '</div></div>' +
-      '<section class="dma-section"><div class="dma-table-wrap"><table class="dma-table dma-table--patients"><thead><tr><th>Patient</th><th>Contact</th><th>Last visit</th><th>Next appointment</th><th></th></tr></thead><tbody id="pt-body"><tr><td colspan="5">' + A().spinner() + '</td></tr></tbody></table></div><div class="ds-card-list" id="pt-cards" hidden></div></section>';
+      '<section class="dma-section"><div class="dma-table-wrap"><table class="dma-table dma-table--patients"><thead><tr><th>Patient</th><th>Contact</th><th>Last visit</th><th>Next appointment</th><th></th></tr></thead><tbody id="pt-body"><tr><td colspan="5">' + A().spinner() + '</td></tr></tbody></table></div><div class="ds-card-list" id="pt-cards" hidden></div></section></div>';
 
     var rows = [];
     function visible() {
@@ -922,10 +1050,7 @@
           '<td>' + esc(p.phone || p.email || '—') + '</td>' +
           '<td>' + lastLabel + '</td>' +
           '<td>' + nextLabel + '</td>' +
-          '<td style="white-space:nowrap">' +
-            '<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/messages/?patient=' + esc(p.id) + '">Message</a> ' +
-            '<a class="dma-btn dma-btn-ghost dma-btn-sm" href="/dashboard/appointments/?action=book&patient=' + esc(p.id) + '">Book</a>' +
-          '</td></tr>';
+          '<td style="white-space:nowrap;text-align:right">' + patientRowMenuHtml(i, p) + '</td></tr>';
       }).join('');
       if (el('pt-cards')) {
         el('pt-cards').innerHTML = list.map(function (p) {
@@ -949,7 +1074,7 @@
       var pid = A().qs('id');
       if (!pid || A().qs('action') === 'new') return;
       var p = rows.filter(function (x) { return x.id === pid; })[0];
-      if (p) openPatientDrawer(p);
+      if (p) openPatientDrawer(p, { onListChange: function () { load(el('pt-search').value); } });
     }
     if (el('pt-filters')) {
       el('pt-filters').onclick = function (e) {
@@ -960,18 +1085,53 @@
       };
     }
     el('pt-body').onclick = function (e) {
+      var menuBtn = e.target.closest('[data-menu-i]');
+      if (menuBtn) {
+        e.stopPropagation();
+        var wrap = menuBtn.closest('.cos-row-actions');
+        var menu = wrap && wrap.querySelector('.cos-row-menu');
+        if (!menu) return;
+        var open = menu.hidden;
+        closePatientRowMenus();
+        menu.hidden = !open;
+        return;
+      }
+      var menuAct = e.target.closest('.cos-row-menu [data-act]');
+      if (menuAct) {
+        e.stopPropagation();
+        if (menuAct.disabled) return;
+        closePatientRowMenus();
+        var idx = Number(menuAct.getAttribute('data-i'));
+        var row = rows[idx];
+        if (!row) return;
+        var act = menuAct.getAttribute('data-act');
+        if (act === 'view') {
+          openPatientDrawer(row, { onListChange: function () { load(el('pt-search').value); } });
+        } else if (act === 'edit') {
+          openPatientModal(function (updated) {
+            if (updated) load(el('pt-search').value, function () { openPatientDrawer(rows.filter(function (x) { return x.id === updated.id; })[0] || updated); });
+          }, row);
+        } else if (act === 'delete') {
+          deactivatePatient(row, function () { load(el('pt-search').value); });
+        }
+        return;
+      }
+      if (e.target.closest('.cos-row-actions')) return;
       if (e.target.closest('a, button')) return;
-      var tr = e.target.closest('[data-i]');
+      var tr = e.target.closest('tr[data-i]');
       if (!tr) return;
-      openPatientDrawer(rows[Number(tr.getAttribute('data-i'))]);
+      openPatientDrawer(rows[Number(tr.getAttribute('data-i'))], { onListChange: function () { load(el('pt-search').value); } });
     };
     if (el('pt-cards')) {
       el('pt-cards').onclick = function (e) {
         var card = e.target.closest('[data-i]');
         if (!card) return;
-        openPatientDrawer(rows[Number(card.getAttribute('data-i'))]);
+        openPatientDrawer(rows[Number(card.getAttribute('data-i'))], { onListChange: function () { load(el('pt-search').value); } });
       };
     }
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.cos-row-actions')) closePatientRowMenus();
+    });
     var t;
     el('pt-search').oninput = function () {
       clearTimeout(t);
@@ -983,7 +1143,7 @@
         afterPatientCreated(p, function (pt) {
           if (!pt || !pt.id) return;
           var row = rows.filter(function (x) { return x.id === pt.id; })[0];
-          openPatientDrawer(row || pt);
+          openPatientDrawer(row || pt, { onListChange: function () { load(el('pt-search').value); } });
         });
       });
     }

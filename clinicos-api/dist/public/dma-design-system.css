@@ -8701,7 +8701,7 @@ html.sa-static .ds-btn-primary {
     left: auto;
     width: min(400px, 36vw);
     height: auto;
-    inset: auto 0 0 auto;
+    inset: var(--ds-h-header, 64px) 0 0 auto;
     z-index: 35;
     pointer-events: none;
   }

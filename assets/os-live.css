@@ -1237,13 +1237,14 @@ html.os-live.doc-static .cos-drawer.open {
 @media (min-width: 1024px) {
   html.os-live.doc-static .ds-drawer.ds-drawer-dock,
   html.os-live.doc-static .cos-drawer {
-    top: var(--tb, 66px) !important;
+    top: var(--tb, var(--ds-h-header, 66px)) !important;
     right: 0 !important;
     bottom: 0 !important;
     left: auto !important;
-    width: min(420px, 38vw) !important;
+    width: min(400px, 38vw) !important;
+    min-width: min(380px, 36vw) !important;
+    max-width: 420px !important;
     height: auto !important;
-    inset: auto 0 0 auto !important;
   }
 
   html.os-live.doc-static .ds-drawer.ds-drawer-dock.open,
@@ -1314,8 +1315,127 @@ html.os-live.doc-static body.ds-drawer-open .app > .main {
   html.os-live.doc-static body.ds-drawer-open .doc-main-wrap,
   html.os-live.doc-static body.ds-drawer-open .sa-main,
   html.os-live.doc-static body.ds-drawer-open .app > .main {
-    padding-right: min(420px, 38vw) !important;
+    padding-right: min(400px, 38vw) !important;
   }
+}
+
+/* v13: docked preview rail — beat dma-design-system inset:auto (top:auto chip) */
+@media (min-width: 1024px) {
+  html.os-live.doc-static .ds-drawer,
+  html.os-live.doc-static .ds-drawer.ds-drawer-dock,
+  html.os-live.doc-static .ds-drawer.open,
+  html.os-live.doc-static .cos-drawer,
+  html.os-live.doc-static .cos-drawer.open {
+    position: fixed !important;
+    top: var(--tb, var(--ds-h-header, 66px)) !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: auto !important;
+    width: min(400px, 38vw) !important;
+    min-width: min(380px, 36vw) !important;
+    max-width: 420px !important;
+    height: auto !important;
+    inset: unset !important;
+    transform: none !important;
+  }
+
+  html.os-live.doc-static .ds-drawer-bg,
+  html.os-live.doc-static .cos-drawer-bg {
+    display: none !important;
+  }
+
+  html.os-live.doc-static .ds-drawer-panel,
+  html.os-live.doc-static .cos-drawer-panel,
+  html.os-live.doc-static .ds-drawer.open .ds-drawer-panel,
+  html.os-live.doc-static .cos-drawer.open .cos-drawer-panel {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    transform: none !important;
+    translate: none !important;
+    border-radius: 0 !important;
+    pointer-events: auto !important;
+  }
+}
+
+html.os-live.doc-static #doc-page.cos-pt-page,
+html.os-live .pg.os-live-mount:has(#doc-page.cos-pt-page) {
+  max-width: min(var(--ds-content, var(--content, 1440px)), 100%) !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+html.os-live.doc-static #doc-page.cos-pt-page .cos-pt-workspace {
+  width: 100%;
+  min-width: 0;
+}
+
+html.os-live.doc-static #doc-page.cos-pt-page .cos-pt-workspace .dma-table-wrap {
+  overflow-x: auto;
+}
+
+html.os-live.doc-static .cos-row-actions {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+html.os-live.doc-static .cos-row-menu-btn {
+  min-width: 36px;
+  padding: 0 8px;
+  letter-spacing: 0.12em;
+}
+
+html.os-live.doc-static .cos-row-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 40;
+  min-width: 168px;
+  padding: 6px;
+  background: var(--card, var(--ds-surface));
+  border: 1px solid var(--line, var(--ds-border));
+  border-radius: var(--r, 12px);
+  box-shadow: var(--sh2, var(--ds-shadow-md));
+}
+
+html.os-live.doc-static .cos-row-menu[hidden] {
+  display: none !important;
+}
+
+html.os-live.doc-static .cos-row-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: inherit;
+}
+
+html.os-live.doc-static .cos-row-menu button:hover {
+  background: var(--card2, var(--ds-surface-2));
+}
+
+html.os-live.doc-static .cos-row-menu button.danger {
+  color: var(--ds-danger, #b42318);
+}
+
+html.os-live.doc-static .cos-row-menu button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* ── os-live: force light teleported modals (beat doc-static dark leaks) ── */
