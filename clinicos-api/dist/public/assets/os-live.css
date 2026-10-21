@@ -751,6 +751,166 @@ html.os-live[data-theme="light"] .ds-drawer-b {
   color: var(--ink) !important;
 }
 
+html.os-live[data-theme="light"] .ds-drawer-panel {
+  background: var(--card) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-drawer-h strong,
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-drawer-sub {
+  color: var(--ink) !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-drawer-sub {
+  color: var(--mut) !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-tabs,
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-drawer-tabs {
+  background: var(--card2) !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-tabs button,
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-drawer-tabs button {
+  background: transparent !important;
+  color: var(--ink2) !important;
+  border-color: transparent !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-tabs button:hover,
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-drawer-tabs button:hover,
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-tabs button.active,
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-drawer-tabs button.active {
+  background: var(--card) !important;
+  color: var(--teal-d, #0e7a68) !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-kv dt,
+html.os-live[data-theme="light"] .ds-drawer-panel .sa-info-list dt {
+  color: var(--mut) !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-kv dd,
+html.os-live[data-theme="light"] .ds-drawer-panel .sa-info-list dd {
+  color: var(--ink) !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel .dma-hint,
+html.os-live[data-theme="light"] .ds-drawer-panel .dma-prose,
+html.os-live[data-theme="light"] .ds-drawer-panel .dma-row-item .name {
+  color: var(--ink) !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel .dma-row-item .sub {
+  color: var(--mut) !important;
+}
+
+/* Beat doc-static in-page dock (bottom-right mini card) on live shell */
+html.os-live.doc-static .ds-drawer,
+html.os-live.doc-static .cos-drawer {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  z-index: 10150 !important;
+  pointer-events: none;
+}
+
+html.os-live.doc-static .ds-drawer.open,
+html.os-live.doc-static .cos-drawer.open {
+  pointer-events: auto !important;
+}
+
+html.os-live.doc-static .ds-drawer-bg,
+html.os-live.doc-static .cos-drawer-bg {
+  display: block !important;
+  background: rgba(15, 26, 36, 0.42) !important;
+}
+
+html.os-live.doc-static .ds-drawer-panel,
+html.os-live.doc-static .cos-drawer-panel {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: auto !important;
+  width: min(480px, 100vw) !important;
+  max-width: none !important;
+  height: 100% !important;
+  transform: translateX(100%) !important;
+  border-radius: 0 !important;
+  background: var(--card) !important;
+  color: var(--ink) !important;
+  border-left: 1px solid var(--line) !important;
+  box-shadow: var(--sh2) !important;
+  pointer-events: auto;
+}
+
+html.os-live.doc-static .ds-drawer.open .ds-drawer-panel,
+html.os-live.doc-static .cos-drawer.open .cos-drawer-panel {
+  transform: translateX(0) !important;
+}
+
+html.os-live.doc-static .ds-drawer-h,
+html.os-live.doc-static .ds-drawer-b,
+html.os-live.doc-static .ds-drawer-f,
+html.os-live.doc-static .cos-drawer-h,
+html.os-live.doc-static .cos-drawer-b,
+html.os-live.doc-static .cos-drawer-f {
+  background: var(--card) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+html.os-live.doc-static .ds-drawer-h,
+html.os-live.doc-static .cos-drawer-h {
+  background: var(--card2) !important;
+}
+
+html.os-live.doc-static .ds-drawer-f,
+html.os-live.doc-static .cos-drawer-f {
+  background: var(--card2) !important;
+}
+
+html.os-live.doc-static .ds-drawer-h strong,
+html.os-live.doc-static .cos-drawer-h strong {
+  color: var(--ink) !important;
+}
+
+html.os-live.doc-static body.ds-drawer-open .doc-main-wrap,
+html.os-live.doc-static body.ds-drawer-open .sa-main,
+html.os-live.doc-static body.ds-drawer-open .app > .main {
+  padding-right: 0 !important;
+}
+
+@media (max-width: 900px) {
+  html.os-live.doc-static .ds-drawer-panel,
+  html.os-live.doc-static .cos-drawer-panel {
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: min(440px, calc(100vw - 24px)) !important;
+    height: min(88vh, 680px) !important;
+    max-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 24px) !important;
+    transform: translate(-50%, calc(-50% + 12px)) !important;
+    border-radius: var(--r, 16px) !important;
+    border: 1px solid var(--line) !important;
+    box-shadow: var(--sh2) !important;
+  }
+
+  html.os-live.doc-static .ds-drawer.open .ds-drawer-panel,
+  html.os-live.doc-static .cos-drawer.open .cos-drawer-panel {
+    transform: translate(-50%, -50%) !important;
+  }
+}
+
 /* ── os-live: force light teleported modals (beat doc-static dark leaks) ── */
 html.os-live.doc-static .dma-modal,
 html.os-live.doc-static .dma-modal--wizard,
@@ -895,6 +1055,74 @@ html.os-live .pg.os-live-mount .dma-inbox--leads.is-empty .cos-empty {
 html.os-live .pg.os-live-mount .dma-inbox--leads .dma-inbox-list,
 html.os-live .pg.os-live-mount .dma-inbox--leads .dma-thread {
   min-width: 0;
+}
+
+/* Patients / messages list + preview rail inside live mount */
+html.os-live .pg.os-live-mount .dma-inbox--patients,
+html.os-live .pg.os-live-mount .dma-inbox--messages {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 400px);
+  gap: 16px;
+  align-items: start;
+  width: 100%;
+  min-height: min(560px, calc(100vh - 220px));
+}
+
+html.os-live .pg.os-live-mount .dma-inbox--patients .dma-inbox-list,
+html.os-live .pg.os-live-mount .dma-inbox--patients .dma-thread,
+html.os-live .pg.os-live-mount .dma-inbox--patients .cos-preview,
+html.os-live .pg.os-live-mount .dma-inbox--messages .dma-inbox-list,
+html.os-live .pg.os-live-mount .dma-inbox--messages .dma-thread {
+  min-width: 0;
+}
+
+html.os-live .pg.os-live-mount .dma-inbox--patients .cos-preview,
+html.os-live .pg.os-live-mount .dma-inbox--patients .dma-thread,
+html.os-live .pg.os-live-mount .dma-inbox--messages .dma-thread {
+  position: sticky;
+  top: 12px;
+  align-self: start;
+  max-height: calc(100vh - 140px);
+  overflow: auto;
+  background: var(--card) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--r, 16px) !important;
+  box-shadow: var(--sh);
+  color: var(--ink) !important;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-inbox--patients .cos-preview,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-inbox--patients .dma-thread,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-inbox--messages .dma-thread {
+  background: var(--card) !important;
+  color: var(--ink) !important;
+}
+
+@media (max-width: 1024px) {
+  html.os-live .pg.os-live-mount .dma-inbox--patients,
+  html.os-live .pg.os-live-mount .dma-inbox--messages {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  html.os-live .pg.os-live-mount .dma-inbox--patients .cos-preview,
+  html.os-live .pg.os-live-mount .dma-inbox--patients .dma-thread,
+  html.os-live .pg.os-live-mount .dma-inbox--messages .dma-thread {
+    position: fixed;
+    inset: 0;
+    z-index: 10140;
+    max-height: none;
+    border-radius: 0 !important;
+    transform: translateX(100%);
+    transition: transform 0.22s ease;
+  }
+
+  html.os-live .pg.os-live-mount .dma-inbox--patients.preview-open .cos-preview,
+  html.os-live .pg.os-live-mount .dma-inbox--patients.preview-open .dma-thread,
+  html.os-live .pg.os-live-mount .dma-inbox--patients.thread-open .dma-thread,
+  html.os-live .pg.os-live-mount .dma-inbox--messages.thread-open .dma-thread {
+    transform: translateX(0);
+  }
 }
 
 /* Settings working hours — 6-column row matches dma-doctor-pages markup */
