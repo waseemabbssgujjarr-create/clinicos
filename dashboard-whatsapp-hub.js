@@ -518,10 +518,10 @@
         '<section class="dma-wa-panel' + (connected ? '' : ' dma-wa-panel--wide') + '">' +
           '<h2>Quick actions</h2>' +
           '<div class="dma-wa-quick">' +
-            '<a href="/dashboard/messages/"     class="dma-wa-quick__item"><strong>Inbox</strong><span>Reply &amp; review escalations</span></a>' +
-            '<a href="/dashboard/appointments/" class="dma-wa-quick__item"><strong>Appointments</strong><span>AI-booked slots</span></a>' +
-            '<a href="/dashboard/ai/"           class="dma-wa-quick__item"><strong>AI settings</strong><span>Personality &amp; language</span></a>' +
-            '<a href="/dashboard/settings/"     class="dma-wa-quick__item"><strong>Clinic profile</strong><span>Treatments &amp; hours</span></a>' +
+            '<a href="/dashboard/messages/"     class="dma-wa-quick__item"><span class="dma-wa-quick__title">Inbox</span><span class="dma-wa-quick__desc">Reply &amp; review escalations</span></a>' +
+            '<a href="/dashboard/appointments/" class="dma-wa-quick__item"><span class="dma-wa-quick__title">Appointments</span><span class="dma-wa-quick__desc">AI-booked slots</span></a>' +
+            '<a href="/dashboard/ai/"           class="dma-wa-quick__item"><span class="dma-wa-quick__title">AI settings</span><span class="dma-wa-quick__desc">Personality &amp; language</span></a>' +
+            '<a href="/dashboard/settings/"     class="dma-wa-quick__item"><span class="dma-wa-quick__title">Clinic profile</span><span class="dma-wa-quick__desc">Treatments &amp; hours</span></a>' +
           '</div>' +
         '</section>' +
 

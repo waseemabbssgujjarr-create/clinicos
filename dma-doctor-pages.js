@@ -1064,7 +1064,7 @@
         owner ? '<a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">WhatsApp</a><a class="dma-btn dma-btn-primary" href="/dashboard/broadcasts/">New broadcast</a>' : '',
         '') +
       '<div id="msg-wa"></div>' +
-      '<div class="dma-inbox" id="msg-inbox"><div class="dma-inbox-list" id="msg-list">' + A().spinner() + '</div><div class="dma-thread" id="msg-thread"></div><aside class="dma-inbox-ctx" id="msg-ctx"></aside></div>';
+      '<div class="dma-inbox dma-inbox--messages" id="msg-inbox"><div class="dma-inbox-list" id="msg-list">' + A().spinner() + '</div><div class="dma-thread" id="msg-thread"></div><aside class="dma-inbox-ctx" id="msg-ctx"></aside></div>';
 
     if (owner) {
       A().waStatus().then(function (wa) {
