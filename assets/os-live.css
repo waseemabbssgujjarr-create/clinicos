@@ -542,3 +542,77 @@ html.os-live .wa-cc-hero {
     grid-template-columns: 1fr;
   }
 }
+
+/* Live auth: force readable inputs (ignore stored dark prototype theme) */
+html.os-live-auth,
+html.os-live-auth body {
+  background: #f2f6f5 !important;
+  color: #0f1a24 !important;
+  color-scheme: light;
+}
+
+html.os-live-auth .inp,
+html.os-live-auth .sel,
+html.os-live-auth .txt,
+html.os-live-auth input,
+html.os-live-auth select,
+html.os-live-auth textarea {
+  background: #fff !important;
+  color: #0f1a24 !important;
+  border-color: #cbd7d4 !important;
+  -webkit-text-fill-color: #0f1a24 !important;
+}
+
+html.os-live-auth input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 40px #fff inset !important;
+  -webkit-text-fill-color: #0f1a24 !important;
+}
+
+/* Forms, filters, modals inside live DMA mount */
+html.os-live .pg.os-live-mount .inp,
+html.os-live .pg.os-live-mount .sel,
+html.os-live .pg.os-live-mount .txt,
+html.os-live .pg.os-live-mount input:not([type="checkbox"]):not([type="radio"]),
+html.os-live .pg.os-live-mount select,
+html.os-live .pg.os-live-mount textarea,
+html.os-live .mo .inp,
+html.os-live .mo .sel,
+html.os-live .mo .txt,
+html.os-live .dma-modal input,
+html.os-live .dma-modal select,
+html.os-live .dma-modal textarea,
+html.os-live .ds-modal input,
+html.os-live .ds-modal select,
+html.os-live .ds-modal textarea {
+  background: var(--card) !important;
+  color: var(--ink) !important;
+  border-color: var(--line2) !important;
+  -webkit-text-fill-color: var(--ink) !important;
+}
+
+html.os-live .pg.os-live-mount .cos-filterbar,
+html.os-live .pg.os-live-mount .dma-filters,
+html.os-live .pg.os-live-mount .dma-filter-row {
+  background: var(--card) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+
+html.os-live .pg.os-live-mount .cos-filterbar button,
+html.os-live .pg.os-live-mount .dma-filters button,
+html.os-live .pg.os-live-mount .dma-filter-row button {
+  background: var(--card2) !important;
+  color: var(--ink2) !important;
+  border-color: var(--line) !important;
+}
+
+html.os-live .app > .main > .foot {
+  background: transparent !important;
+  color: var(--mut) !important;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+html.os-live .app > .main > .foot a {
+  color: var(--ink2) !important;
+}

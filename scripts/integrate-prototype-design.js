@@ -113,10 +113,8 @@ function clinicShellHtml(meta, rel, preserve, extraScripts) {
     "/dma-ui.js?v=10",
     "/dma-doctor-pages.js?v=19",
     "/dma-clinicos-inner.js?v=14",
-    "/assets/clinic.js?v=2",
-    "/assets/clinic2.js?v=2",
-    "/assets/os-live-pages.js?v=1",
-    "/assets/os-live.js?v=4",
+    "/assets/os-live-pages.js?v=2",
+    "/assets/os-live.js?v=5",
   ];
 
   const waExtra =
@@ -150,7 +148,7 @@ ${THEME_BOOT}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${ASSETS}/os.css?v=2">
-<link rel="stylesheet" href="${ASSETS}/os-live.css?v=6">
+<link rel="stylesheet" href="${ASSETS}/os-live.css?v=7">
 <link rel="stylesheet" href="/dma-design-system.css?v=61">
 <link rel="stylesheet" href="/dma-doctor-pages.css?v=10">
 </head>
@@ -202,7 +200,7 @@ ${THEME_BOOT}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${ASSETS}/os.css?v=2">
-<link rel="stylesheet" href="${ASSETS}/os-live.css?v=6">
+<link rel="stylesheet" href="${ASSETS}/os-live.css?v=7">
 <link rel="stylesheet" href="/dma-design-system.css?v=61">
 <link rel="stylesheet" href="/superadmin-theme.css?v=20">
 <link rel="stylesheet" href="/dma-doctor-pages.css?v=10">
@@ -360,5 +358,7 @@ for (const rel of protoFiles) {
   mirrorHtml(rel);
 }
 mirrorHtml("index.html");
+mirrorHtml("widget.html");
+["doctor-login/index.html", "staff-login/index.html", "admin-login/index.html"].forEach(mirrorHtml);
 
 console.log("Prototype integration: wrote", written, "HTML shells; home theme -> light; assets synced to dist/public");

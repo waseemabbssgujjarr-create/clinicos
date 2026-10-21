@@ -14,7 +14,8 @@ const S=OS.S={get(k,d){try{const v=localStorage.getItem('cl_'+k);return v===null
 const qs=new URLSearchParams(location.search);
 if(qs.get('role'))S.set('role',qs.get('role'));
 OS.role=()=>S.get('role','owner');
-document.documentElement.dataset.theme=S.get('theme','light');
+if(document.body&&document.body.dataset.live==='1'){document.documentElement.dataset.theme='light';document.documentElement.style.colorScheme='light';S.set('theme','light');}
+else document.documentElement.dataset.theme=S.get('theme','light');
 const esc=OS.esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 /* icons */
 const P={
@@ -160,10 +161,19 @@ function navHtml(groups,cur){const w=wsOf(cur),all=groups.flatMap(g=>g[1]),exact
 function tray(){return `<div class="tray"><button aria-label="Prototype tools" data-act="tray">${ic('sliders')}</button><div class="box"><h4>Prototype tools</h4><div class="field"><label>View as</label><select class="sel" data-act="role">${Object.entries(OS.ROLES).map(([k,v])=>`<option value="${k}" ${OS.role()===k?'selected':''}>${v}</option>`).join('')}</select></div><div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="sm b">WhatsApp connected</span>${OS.sw(S.get('wa',true),'wa')}</div><div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="sm b">AI published</span>${OS.sw(S.get('ai',true),'ai')}</div><div class="field"><label>Plan</label><select class="sel" data-act="plan">${['Starter','Pro','Enterprise'].map(p=>`<option ${S.get('plan','Pro')===p?'selected':''}>${p}</option>`).join('')}</select></div><div class="xs mut">Sample data only. These switches change this prototype, not a live clinic.</div></div></div>`}
 function foot(){return `<footer class="foot"><span>© Clinicos · Doctors My Agency · 2026</span><span class="row" style="gap:16px"><a href="${U('privacy')}">Privacy</a><a href="${U('terms')}">Terms</a><a href="${U('security')}">Security</a></span></footer>`}
 function dockHtml(groups,cur){const it=flat(groups).slice(0,4);return `<nav class="dock" aria-label="Quick links">${it.map(i=>`<a href="${U(i[1])}" class="${i[1]===cur?'on':''}">${ic(i[2])}${i[0].split(' ')[0]}</a>`).join('')}<button data-act="menu">${ic('menu')}More</button></nav>`}
+function liveChipUser(role){
+ const isLive=document.body&&document.body.dataset.live==='1';
+ if(isLive&&window.DmaApp){const u=DmaApp.user()||{};const name=(u.ownerName||u.name||'Account').trim();const ini=DmaApp.initials?DmaApp.initials(name):name.slice(0,2).toUpperCase();return {ini,label:name};}
+ const isO=role==='owner';
+ return {ini:null,label:isO?'Dr. Hina Malik':OS.ROLES[role],avName:isO?'Hina Malik':'Sadia Karim'};
+}
 function clinicShell(title,body){
- const role=OS.role(),groups=NAV[role]||NAV.owner,wa=S.get('wa',true),isO=role==='owner';
+ const role=OS.role(),groups=NAV[role]||NAV.owner,wa=S.get('wa',true),isO=role==='owner',live=document.body&&document.body.dataset.live==='1',chip=liveChipUser(role);
+ const chipHtml=chip.ini?`<span class="av">${esc(chip.ini)}</span><span>${esc(chip.label)}</span>`:`${OS.av(chip.avName,null)}<span>${chip.label}</span>`;
+ const trayBlock=live?'':tray();
+ const themeBtn=live?'':`<button class="tbtn" data-act="theme" aria-label="Toggle theme">${ic(S.get('theme','light')==='dark'?'sun':'moon')}</button>`;
  return `<div class="app"><aside class="rail" id="rail" aria-label="Main navigation"><div class="rb">${LOGO}<div><b>Clinicos</b><small>${OS.CLINIC}</small></div></div><nav class="rnav">${navHtml(groups,ROUTE)}</nav>${isO?`<div class="rf"><div class="plan"><small>Current plan</small><b>${S.get('plan','Pro')}</b><a class="btn" href="${U('dashboard/billing')}">Manage subscription</a></div></div>`:`<div class="rf"><div class="plan"><small>Signed in as</small><b>${OS.ROLES[role]}</b><a class="btn" href="${U('staff-login')}">Switch account</a></div></div>`}</aside><div class="scrim" data-act="scrim"></div>
- <div class="main"><header class="tb"><button class="tbtn hb" data-act="menu" aria-label="Open menu">${ic('menu')}</button><h1>${title}</h1><div class="sp"></div><div class="tbs">${isO?`<a class="tbtn wachip ${wa?'':'off'} hide-m" href="${U('dashboard/whatsapp')}">${ic('phone')}<span>WhatsApp ${wa?'connected':'not connected'}</span></a>`:''}<button class="tbtn srch" data-act="pal" aria-label="Search pages">${ic('search')}<span>Search pages</span><kbd>Ctrl K</kbd></button><a class="tbtn" href="${U('dashboard/notifications')}" aria-label="Updates">${ic('bell')}<em class="nb">4</em></a><button class="tbtn" data-act="theme" aria-label="Toggle theme">${ic(S.get('theme','light')==='dark'?'sun':'moon')}</button><a class="btn pri bk" href="${U('dashboard/appointments')}?action=book" style="height:40px">${ic('plus')}<span>Book</span></a><a class="uchip" href="${U('dashboard/settings')}?tab=profile" title="Profile">${OS.av(isO?'Hina Malik':'Sadia Karim',null)}<span>${isO?'Dr. Hina Malik':OS.ROLES[role]}</span></a><a class="tbtn hide-m" href="${U(isO?'doctor-login':'staff-login')}" aria-label="Logout">${ic('logout')}</a></div></header><main class="pg" id="pg">${body}</main>${foot()}</div>${dockHtml(groups,ROUTE)}${tray()}</div>`}
+ <div class="main"><header class="tb"><button class="tbtn hb" data-act="menu" aria-label="Open menu">${ic('menu')}</button><h1>${title}</h1><div class="sp"></div><div class="tbs">${isO?`<a class="tbtn wachip ${wa?'':'off'} hide-m" href="${U('dashboard/whatsapp')}">${ic('phone')}<span>WhatsApp ${wa?'connected':'not connected'}</span></a>`:''}<button class="tbtn srch" data-act="pal" aria-label="Search pages">${ic('search')}<span>Search pages</span><kbd>Ctrl K</kbd></button><a class="tbtn" href="${U('dashboard/notifications')}" aria-label="Updates">${ic('bell')}<em class="nb">4</em></a>${themeBtn}<a class="btn pri bk" href="${U('dashboard/appointments')}?action=book" style="height:40px">${ic('plus')}<span>Book</span></a><a class="uchip" href="${U('dashboard/settings')}?tab=profile" title="Profile">${chipHtml}</a><a class="tbtn hide-m" href="${U(isO?'doctor-login':'staff-login')}" aria-label="Logout">${ic('logout')}</a></div></header><main class="pg" id="pg">${body}</main>${foot()}</div>${dockHtml(groups,ROUTE)}${trayBlock}</div>`}
 function adminShell(title,body){
  return `<div class="app"><aside class="rail" id="rail" aria-label="Main navigation"><div class="rb">${LOGO}<div><b>Control Center</b><small>Doctors My Agency</small></div></div><nav class="rnav">${navHtml(SA_NAV,ROUTE)}</nav><div class="rf"><div class="plan"><small>Platform process</small><b><i class="dot live"></i> API reachable</b><a class="btn" href="${U('superadmin/health')}">Open health</a></div></div></aside><div class="scrim" data-act="scrim"></div><div class="main"><header class="tb"><button class="tbtn hb" data-act="menu" aria-label="Open menu">${ic('menu')}</button><h1>${title}</h1><div class="sp"></div><div class="tbs"><button class="tbtn srch" data-act="pal">${ic('search')}<span>Search pages</span><kbd>Ctrl K</kbd></button><button class="tbtn" data-act="theme" aria-label="Toggle theme">${ic(S.get('theme','light')==='dark'?'sun':'moon')}</button><a class="tbtn" href="${U('admin-login')}" aria-label="Logout">${ic('logout')}</a></div></header><main class="pg" id="pg">${body}</main>${foot()}</div>${dockHtml(SA_NAV,ROUTE)}</div>`}
 /* page registry */
@@ -183,14 +193,18 @@ function openPal(){OS.close();const items=OS.palette();const p=document.createEl
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'&&(AREA==='clinic'||AREA==='admin')){e.preventDefault();openPal()}if(e.key==='Escape')OS.close()});
 document.addEventListener('click',e=>{
  const t=e.target;
+ const live=document.body&&document.body.dataset.live==='1';
  const b=t.closest('.btn');if(b&&!b.querySelector('.rip')){const r=document.createElement('span');r.className='rip';const bb=b.getBoundingClientRect();const s=Math.max(bb.width,bb.height);r.style.cssText=`width:${s}px;height:${s}px;left:${e.clientX-bb.left-s/2}px;top:${e.clientY-bb.top-s/2}px`;b.appendChild(r);setTimeout(()=>r.remove(),600)}
  let el;
- if(el=t.closest('[data-close]')){if(el.dataset.toast)OS.toast(el.dataset.toast);OS.close();return}
- if(el=t.closest('[data-act]')){const f=OS.A[el.dataset.act];if(f&&el.tagName!=='SELECT'){f(el,e);}return}
+ if(el=t.closest('[data-close]')){if(!live&&el.dataset.toast)OS.toast(el.dataset.toast);OS.close();return}
+ if(live&&t.closest('[data-toast]'))return;
+ if(live&&t.closest('[data-open]'))return;
+ if(live&&t.closest('[data-sw]'))return;
+ if(el=t.closest('[data-act]')){const act=el.dataset.act;if(live&&act==='theme')return;const f=OS.A[act];if(f&&el.tagName!=='SELECT'){f(el,e);}return}
  if(el=t.closest('[data-open]')){const f=OS.M[el.dataset.open];if(f)f(el);return}
  if(el=t.closest('[data-tab]')){const[g,i]=el.dataset.tab.split(':');$$(`[data-tab^="${g}:"]`).forEach(x=>x.classList.toggle('on',x===el));$$(`[data-panel^="${g}:"]`).forEach(x=>x.classList.toggle('on',x.dataset.panel===el.dataset.tab));return}
  if(el=t.closest('[data-sw]')){el.classList.toggle('on');el.setAttribute('aria-checked',el.classList.contains('on'));const k=el.dataset.sw;if(k==='wa'||k==='ai'){S.set(k,el.classList.contains('on'));OS.toast((k==='wa'?'WhatsApp ':'AI ')+(el.classList.contains('on')?'on':'off'));setTimeout(()=>location.reload(),500)}return}
- if(el=t.closest('[data-toast]')){OS.toast(el.dataset.toast);if(!el.dataset.keep&&el.closest('.mo')&&el.dataset.close!==undefined)OS.close();return}
+ if(el=t.closest('[data-toast]')){if(!live)OS.toast(el.dataset.toast);if(!el.dataset.keep&&el.closest('.mo')&&el.dataset.close!==undefined)OS.close();return}
  if(el=t.closest('tr[data-go],[data-go]')){if(!t.closest('a,button,input,select'))location.href=U(el.dataset.go);return}
 });
 document.addEventListener('change',e=>{const el=e.target.closest('select[data-act]');if(el&&OS.A[el.dataset.act])OS.A[el.dataset.act](el)});

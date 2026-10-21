@@ -1,5 +1,6 @@
 /* Clinic pages part 2: AI, care, team, operations, insights, setup, misc */
 (function(){
+if(document.body&&document.body.dataset.live==='1')return;
 const {ic,chip,card,head,tbl,av,empty,tabs,panel,wtabs,field,inp,sel,sw,prog,D,reg,S,toast,modal,close,U,$,$$,A,M,esc}=Object.assign({},OS);
 const W=k=>OS.WS[k];
 const own=()=>OS.role()==='owner';

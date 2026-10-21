@@ -1,5 +1,6 @@
 /* Clinic pages part 1: dashboard, schedule, waiting, patients, inbox, whatsapp, broadcasts */
 (function(){
+if(document.body&&document.body.dataset.live==='1')return;
 const {ic,chip,kpi,card,head,tbl,av,empty,tabs,panel,wtabs,field,inp,sel,sw,prog,D,reg,S,toast,modal,close,U,$,$$,A,M,esc}=Object.assign({},OS,{reg:OS.reg,A:OS.A,M:OS.M,toast:OS.toast,modal:OS.modal,close:OS.close,S:OS.S,U:OS.U,$:OS.$,$$:OS.$$,D:OS.D});
 const greet=()=>{const h=new Date().getHours();return h<12?'Good morning':h<17?'Good afternoon':'Good evening'};
 const apRow=a=>`<div class="slot rv"><span class="tm">${a[0]}</span>${av(a[1])}<div class="sp"><div class="b">${a[1]}</div><div class="xs mut">${a[2]} · ${a[3]}</div></div>${chip(a[4])}</div>`;

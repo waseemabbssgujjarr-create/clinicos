@@ -2,6 +2,13 @@
  * Real auth/register API wiring for prototype auth pages (site.js layout).
  */
 (function () {
+  try {
+    document.documentElement.classList.add('os-live-auth');
+    document.documentElement.dataset.theme = 'light';
+    document.documentElement.style.colorScheme = 'light';
+    if (window.OS && OS.S) OS.S.set('theme', 'light');
+  } catch (_) {}
+
   function $(s, r) {
     return (r || document).querySelector(s);
   }

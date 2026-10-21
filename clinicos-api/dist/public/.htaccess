@@ -53,8 +53,11 @@ RewriteRule ^ %1 [R=301,L]
 # ── Fix mistaken nested dashboard links from old relative URLs ───────────────
 RewriteRule ^dashboard/[^/]+/dashboard/.* /dashboard/ [R=301,L]
 
+# ── widget.html trailing slash (not a directory) ─────────────────────────────
+RewriteRule ^widget\.html/$ /widget.html [R=301,L]
+
 # ── Never SPA-fallback real scripts / diagnostics ───────────────────────────
-RewriteRule \.(php|js|css|map|json|svg|png|jpg|jpeg|gif|webp|ico|txt|xml|woff2?)$ - [L]
+RewriteRule \.(php|js|css|map|json|svg|png|jpg|jpeg|gif|webp|ico|txt|xml|woff2?|html)$ - [L]
 
 # ── Trailing slash for section directories (DirectoryIndex serves index.html) ─
 RewriteCond %{REQUEST_FILENAME} -d

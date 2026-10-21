@@ -153,9 +153,13 @@
     if (window.DmaPages && DmaPages.mount) DmaPages.mount();
   }
 
+  function isLiveWiredRoute(route) {
+    return !!(OS.LIVE_WIRED && OS.LIVE_WIRED.indexOf(route) >= 0);
+  }
+
   function mountPrototype(route) {
     var pg = document.getElementById('pg');
-    if (!pg || !OS.pages[route] || DMA_FALLBACK_ROUTES[route]) return false;
+    if (!pg || !isLiveWiredRoute(route) || !OS.pages[route] || DMA_FALLBACK_ROUTES[route]) return false;
     pg.classList.add('os-live-mount');
     try {
       pg.innerHTML = OS.pages[route]() || '';
@@ -196,10 +200,9 @@
     var name = u.ownerName || u.name || '';
     var chipEl = document.querySelector('.uchip');
     if (chipEl && name) {
-      var av = chipEl.querySelector('.av');
-      if (av && DmaApp.initials) av.textContent = DmaApp.initials(name);
-      var sp = chipEl.querySelector('span');
-      if (sp) sp.textContent = name;
+      var ini = DmaApp.initials ? DmaApp.initials(name) : name.slice(0, 2).toUpperCase();
+      chipEl.innerHTML =
+        '<span class="av">' + OS.esc(ini) + '</span><span>' + OS.esc(name) + '</span>';
     }
     DmaApp.waStatus()
       .catch(function () {
