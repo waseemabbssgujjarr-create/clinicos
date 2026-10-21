@@ -136,6 +136,8 @@ table.t{width:100%;border-collapse:collapse;min-width:620px}
 .plan{border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);padding:11px 12px}
 .plan small{color:var(--navy-mut);font-size:11px;font-weight:600}.plan b{display:block;color:#fff;font-family:var(--fh);font-size:14px;margin:0 0 8px}
 .plan .btn{width:100%;background:#2FD3B3;color:#06352D;height:32px;font-size:12.5px}.plan .btn:hover{background:#5EE3C8}
+.show-m-only{display:none}
+.rf .rail-logout{margin-top:10px;width:100%;min-height:44px;height:44px;justify-content:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-weight:700;font-size:13.5px;border-radius:12px}.rf .rail-logout:hover{background:rgba(255,255,255,.14);color:#fff;transform:none}
 .main{flex:1;min-width:0;margin-left:calc(var(--rail) + 24px);padding-bottom:24px;display:flex;flex-direction:column;min-height:100vh}.main .pg{flex:1;width:100%}
 .tb{position:sticky;top:0;z-index:40;height:var(--tb);display:flex;align-items:center;gap:10px;padding:0 24px 0 6px;background:rgba(242,246,245,.82);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4)}
 html[data-theme=dark] .tb{background:rgba(13,20,32,.8)}
@@ -312,6 +314,7 @@ html[data-theme=dark] .band{background:linear-gradient(100deg,var(--teal-t),var(
 .rail .rb div,.rail .ri span,.rail .rg,.rail .ri .bg,.rail .plan{display:revert}.rail .rb{justify-content:flex-start;padding:20px 18px 14px}.rail .ri{justify-content:flex-start;padding:0 12px}
 .main{margin-left:0;padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}.hb{display:inline-flex}.tb{padding:0 14px}.tb h1{font-size:17px}
 .tbs .hide-m,.uchip,.tbtn.srch,.tbtn.bk span{display:none}.band{flex-wrap:wrap}.tb h1{font-size:16px}
+.rf .show-m-only{display:flex}.tbtn-logout{min-width:44px;height:44px;padding:0;flex-shrink:0}
 .pg{padding:6px 14px calc(20px + env(safe-area-inset-bottom,0px))}.ph h2{font-size:21px}.foot{margin:20px 14px 0}
 .g2,.g3,.g4,.g21,.g12{grid-template-columns:1fr}.g4.keep2{grid-template-columns:1fr 1fr}
 .inbox{grid-template-columns:1fr;height:auto}.inbox>div+div{border-left:0;border-top:1px solid var(--line)}
