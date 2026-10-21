@@ -842,8 +842,10 @@ html.os-live[data-theme="light"] .pg.os-live-mount .ds-hours-row input[type="tim
 /* Modals / drawers (teleported to body) */
 html.os-live[data-theme="light"] .dma-modal-bg,
 html.os-live[data-theme="light"] .ds-drawer-backdrop,
+html.os-live[data-theme="light"] .ds-drawer-bg,
+html.os-live[data-theme="light"] .cos-drawer-bg,
 html.os-live[data-theme="light"] .ds-modal-backdrop {
-  background: rgba(15, 26, 36, 0.42) !important;
+  background: rgba(15, 26, 36, 0.32) !important;
 }
 
 html.os-live[data-theme="light"] .dma-modal,
@@ -974,54 +976,110 @@ html.os-live[data-theme="light"] .ds-drawer-panel .ds-drawer-tabs {
   box-sizing: border-box;
 }
 
-/* Beat doc-static in-page dock (bottom-right mini card) on live shell */
-html.os-live.doc-static .ds-drawer,
+/* Patient preview drawer: docked rail on desktop, sheet + scrim on smaller viewports */
+html.os-live.doc-static .ds-drawer.ds-drawer-dock,
 html.os-live.doc-static .cos-drawer {
   position: fixed !important;
-  inset: 0 !important;
-  top: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  width: auto !important;
-  height: auto !important;
   z-index: 10150 !important;
   pointer-events: none;
 }
 
-html.os-live.doc-static .ds-drawer.open,
+html.os-live.doc-static .ds-drawer.ds-drawer-dock.open,
 html.os-live.doc-static .cos-drawer.open {
   pointer-events: auto !important;
 }
 
-html.os-live.doc-static .ds-drawer-bg,
-html.os-live.doc-static .cos-drawer-bg {
-  display: block !important;
-  background: rgba(15, 26, 36, 0.42) !important;
+@media (max-width: 1023px) {
+  html.os-live.doc-static .ds-drawer.ds-drawer-dock,
+  html.os-live.doc-static .cos-drawer {
+    inset: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: auto !important;
+    height: auto !important;
+  }
+
+  html.os-live.doc-static .ds-drawer-bg,
+  html.os-live.doc-static .cos-drawer-bg {
+    display: block !important;
+    opacity: 0;
+    transition: opacity 180ms ease;
+  }
+
+  html.os-live.doc-static .ds-drawer.open .ds-drawer-bg,
+  html.os-live.doc-static .cos-drawer.open .cos-drawer-bg {
+    opacity: 1 !important;
+  }
+
+  html.os-live.doc-static .ds-drawer-panel,
+  html.os-live.doc-static .cos-drawer-panel {
+    position: absolute !important;
+    top: auto !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: min(92vh, 720px) !important;
+    max-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+    transform: translateY(100%) !important;
+    border-radius: var(--r, 16px) var(--r, 16px) 0 0 !important;
+    background: var(--card) !important;
+    color: var(--ink) !important;
+    border: 1px solid var(--line) !important;
+    border-bottom: none !important;
+    box-shadow: var(--sh2) !important;
+    pointer-events: auto;
+  }
+
+  html.os-live.doc-static .ds-drawer.open .ds-drawer-panel,
+  html.os-live.doc-static .cos-drawer.open .cos-drawer-panel {
+    transform: translateY(0) !important;
+  }
 }
 
-html.os-live.doc-static .ds-drawer-panel,
-html.os-live.doc-static .cos-drawer-panel {
-  position: absolute !important;
-  top: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  left: auto !important;
-  width: min(480px, 100vw) !important;
-  max-width: none !important;
-  height: 100% !important;
-  transform: translateX(100%) !important;
-  border-radius: 0 !important;
-  background: var(--card) !important;
-  color: var(--ink) !important;
-  border-left: 1px solid var(--line) !important;
-  box-shadow: var(--sh2) !important;
-  pointer-events: auto;
-}
+@media (min-width: 1024px) {
+  html.os-live.doc-static .ds-drawer.ds-drawer-dock,
+  html.os-live.doc-static .cos-drawer {
+    top: var(--tb, 66px) !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: auto !important;
+    width: min(420px, 38vw) !important;
+    height: auto !important;
+    inset: auto 0 0 auto !important;
+  }
 
-html.os-live.doc-static .ds-drawer.open .ds-drawer-panel,
-html.os-live.doc-static .cos-drawer.open .cos-drawer-panel {
-  transform: translateX(0) !important;
+  html.os-live.doc-static .ds-drawer.ds-drawer-dock.open,
+  html.os-live.doc-static .cos-drawer.open {
+    pointer-events: none !important;
+  }
+
+  html.os-live.doc-static .ds-drawer-bg,
+  html.os-live.doc-static .cos-drawer-bg {
+    display: none !important;
+  }
+
+  html.os-live.doc-static .ds-drawer-panel,
+  html.os-live.doc-static .cos-drawer-panel {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 100% !important;
+    transform: none !important;
+    border-radius: 0 !important;
+    background: var(--card) !important;
+    color: var(--ink) !important;
+    border-left: 1px solid var(--line) !important;
+    box-shadow: var(--sh2) !important;
+    pointer-events: auto;
+  }
 }
 
 html.os-live.doc-static .ds-drawer-h,
@@ -1054,27 +1112,15 @@ html.os-live.doc-static body.ds-drawer-open .doc-main-wrap,
 html.os-live.doc-static body.ds-drawer-open .sa-main,
 html.os-live.doc-static body.ds-drawer-open .app > .main {
   padding-right: 0 !important;
+  box-sizing: border-box;
+  transition: padding-right 180ms ease;
 }
 
-@media (max-width: 900px) {
-  html.os-live.doc-static .ds-drawer-panel,
-  html.os-live.doc-static .cos-drawer-panel {
-    top: 50% !important;
-    left: 50% !important;
-    right: auto !important;
-    bottom: auto !important;
-    width: min(440px, calc(100vw - 24px)) !important;
-    height: min(88vh, 680px) !important;
-    max-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 24px) !important;
-    transform: translate(-50%, calc(-50% + 12px)) !important;
-    border-radius: var(--r, 16px) !important;
-    border: 1px solid var(--line) !important;
-    box-shadow: var(--sh2) !important;
-  }
-
-  html.os-live.doc-static .ds-drawer.open .ds-drawer-panel,
-  html.os-live.doc-static .cos-drawer.open .cos-drawer-panel {
-    transform: translate(-50%, -50%) !important;
+@media (min-width: 1024px) {
+  html.os-live.doc-static body.ds-drawer-open .doc-main-wrap,
+  html.os-live.doc-static body.ds-drawer-open .sa-main,
+  html.os-live.doc-static body.ds-drawer-open .app > .main {
+    padding-right: min(420px, 38vw) !important;
   }
 }
 

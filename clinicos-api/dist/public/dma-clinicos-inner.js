@@ -890,6 +890,18 @@
         el('pt-retry').onclick = function () { load(); };
       });
     }
+    function bindAddPatientModalDismiss() {
+      var bg = document.getElementById('dma-modal-bg');
+      if (!bg || bg.dataset.ptNewBound === '1') return;
+      bg.dataset.ptNewBound = '1';
+      function onDismiss(e) {
+        if (e.target !== bg && e.target.getAttribute('data-close') == null) return;
+        if (A().qs('action') === 'new') A().setQs({ action: null }, true);
+        bg.removeEventListener('click', onDismiss);
+        bg.dataset.ptNewBound = '0';
+      }
+      bg.addEventListener('click', onDismiss);
+    }
     function addPt() {
       A().modal('New patient',
         '<div class="dma-field"><label for="np-name">Full name</label><input id="np-name" required aria-required="true"></div>' +
@@ -897,10 +909,13 @@
         '<div class="dma-field"><label for="np-email">Email</label><input id="np-email" type="email"></div>',
         '<button class="dma-btn dma-btn-ghost" data-close>Cancel</button><button class="dma-btn dma-btn-primary" id="np-save">Save</button>'
       );
+      bindAddPatientModalDismiss();
       el('np-save').onclick = function () {
         A().post('/api/patients', { fullName: el('np-name').value, phone: el('np-phone').value, email: el('np-email').value || undefined }).then(function (r) {
           if (!r.ok) { A().toast(failMsg(r, "Couldn't add this patient."), 'err'); return; }
-          A().closeModal(); A().toast('Patient added', 'ok'); load();
+          A().closeModal(); A().toast('Patient added', 'ok');
+          A().setQs({ action: null, id: r.d && r.d.id ? r.d.id : null }, true);
+          load();
           if (r.d && global.DmaPages && DmaPages.openPatientDrawer) DmaPages.openPatientDrawer(r.d);
         });
       };

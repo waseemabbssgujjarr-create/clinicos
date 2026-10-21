@@ -33,7 +33,7 @@
   function pageHead(title, desc, actionsHtml, kicker) {
     return '<div class="dma-head dma-head-page ds-page-enter"><div>' +
       (kicker ? '<div class="dma-head-kicker"><span class="ds-pill">' + kicker + '</span></div>' : '') +
-      '<h1>' + title + '</h1>' +
+      '<p class="dma-head-title">' + title + '</p>' +
       (desc ? '<p class="dma-prose">' + desc + '</p>' : '') +
       '</div>' +
       (actionsHtml ? '<div class="dma-head-actions">' + actionsHtml + '</div>' : '') + '</div>';
@@ -55,7 +55,8 @@
     var opts = ['PENDING', 'CONFIRMED', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED', 'NO_SHOW', 'CANCELLED'];
     return '<select class="dma-status-sel" ' + (onchangeAttr || '') + '>' +
       opts.map(function (s) {
-        return '<option value="' + s + '"' + (s === current ? ' selected' : '') + '>' + s.replace('_', ' ') + '</option>';
+        var label = (global.DmaStatus && DmaStatus.lookup("appointment", s).label) || s.replace(/_/g, " ");
+        return '<option value="' + s + '"' + (s === current ? ' selected' : '') + '>' + label + '</option>';
       }).join('') + '</select>';
   }
 
@@ -104,8 +105,8 @@
     var noshow = rows.filter(function (a) { return statusOf(a) === 'NO_SHOW'; }).length;
     return {
       completed: completed,
-      cancelRate: n ? Math.round((cancelled / n) * 100) : 0,
-      noShowRate: n ? Math.round((noshow / n) * 100) : 0,
+      cancelRate: n ? Math.round((cancelled / n) * 100) : null,
+      noShowRate: n ? Math.round((noshow / n) * 100) : null,
       revenue: rows.filter(function (a) { return statusOf(a) === 'COMPLETED'; }).reduce(function (s, a) { return s + feeOf(a); }, 0),
       waiting: rows.filter(function (a) { return statusOf(a) === 'ARRIVED' || statusOf(a) === 'IN_PROGRESS'; }).length,
       uniquePatients: Object.keys(rows.reduce(function (m, a) {
@@ -731,6 +732,35 @@
     });
   }
 
+  var activePatientDrawer = null;
+
+  function clearPatientQuery() {
+    A().setQs({ action: null, id: null }, true);
+  }
+
+  function bindNewPatientModalDismiss() {
+    var bg = document.getElementById('dma-modal-bg');
+    if (!bg || bg.dataset.ptNewBound === '1') return;
+    bg.dataset.ptNewBound = '1';
+    function onDismiss(e) {
+      if (e.target !== bg && e.target.getAttribute('data-close') == null) return;
+      if (A().qs('action') === 'new') A().setQs({ action: null }, true);
+      bg.removeEventListener('click', onDismiss);
+      bg.dataset.ptNewBound = '0';
+    }
+    bg.addEventListener('click', onDismiss);
+  }
+
+  function afterPatientCreated(p, then) {
+    if (!p || !p.id) {
+      A().setQs({ action: null }, true);
+      if (then) then(null);
+      return;
+    }
+    A().setQs({ action: null, id: p.id }, true);
+    if (then) then(p);
+  }
+
   function openPatientModal(onSaved) {
     A().modal('Add patient',
       '<div class="dma-field"><label>Full name</label><input id="pt-name" required></div>' +
@@ -741,6 +771,7 @@
       '<div class="dma-field"><label>Medical notes</label><textarea id="pt-notes" rows="2"></textarea></div>',
       '<button class="dma-btn dma-btn-ghost" data-close>Cancel</button><button class="dma-btn dma-btn-primary" id="pt-save">Save patient</button>'
     );
+    bindNewPatientModalDismiss();
     el('pt-save').onclick = function () {
       var body = {
         fullName: el('pt-name').value.trim(),
@@ -763,10 +794,18 @@
   }
 
   function openPatientDrawer(p) {
+    if (!p || !p.id) return null;
+    if (activePatientDrawer && activePatientDrawer.close) {
+      try { activePatientDrawer.close(); } catch (_) { /* drawer already torn down */ }
+    }
     var last = (p.appointments && p.appointments[0]) || {};
     var d = drawer({
       title: p.fullName || 'Patient',
       subtitle: p.phone || '',
+      onClose: function () {
+        activePatientDrawer = null;
+        clearPatientQuery();
+      },
       tabs: [
         { id: 'overview', label: 'Overview' },
         { id: 'appointments', label: 'Visits' },
@@ -827,6 +866,8 @@
         }
       }
     });
+    activePatientDrawer = d;
+    A().setQs({ action: null, id: p.id }, true);
     return d;
   }
 
@@ -897,11 +938,18 @@
         }).join('');
       }
     }
-    function load(q) {
+    function load(q, done) {
       A().get('/api/patients?limit=50' + (q ? '&search=' + encodeURIComponent(q) : '')).then(function (d) {
         rows = d.data || [];
         paint();
+        if (done) done();
       });
+    }
+    function openDrawerFromUrl() {
+      var pid = A().qs('id');
+      if (!pid || A().qs('action') === 'new') return;
+      var p = rows.filter(function (x) { return x.id === pid; })[0];
+      if (p) openPatientDrawer(p);
     }
     if (el('pt-filters')) {
       el('pt-filters').onclick = function (e) {
@@ -930,11 +978,21 @@
       var v = el('pt-search').value;
       t = setTimeout(function () { load(v); }, 250);
     };
-    el('pt-add').onclick = function () {
-      openPatientModal(function (p) { load(); if (p) openPatientDrawer(p); });
-    };
-    load();
-    if (A().qs('action') === 'new') openPatientModal(function (p) { load(); if (p) openPatientDrawer(p); });
+    function onPatientSaved(p) {
+      load('', function () {
+        afterPatientCreated(p, function (pt) {
+          if (!pt || !pt.id) return;
+          var row = rows.filter(function (x) { return x.id === pt.id; })[0];
+          openPatientDrawer(row || pt);
+        });
+      });
+    }
+    el('pt-add').onclick = function () { openPatientModal(onPatientSaved); };
+    if (A().qs('action') === 'new') {
+      openPatientModal(onPatientSaved);
+    } else {
+      load(openDrawerFromUrl);
+    }
   }
 
   function patientDetail() {
