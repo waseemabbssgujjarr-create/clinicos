@@ -10,6 +10,28 @@
   function esc(s) { return A().esc(s); }
   function failMsg(r, fb) { return (A().friendlyError && A().friendlyError(r, fb)) || fb || "Couldn't complete that request."; }
 
+  var STAFF_ROLE_ALIASES = { receptionist: 'RECEPTIONIST', nurse: 'NURSE', assistant: 'ASSISTANT', manager: 'MANAGER' };
+  function normalizeStaffRole(raw) {
+    var s = String(raw == null ? '' : raw).trim();
+    if (!s) return 'RECEPTIONIST';
+    var alias = STAFF_ROLE_ALIASES[s.toLowerCase()];
+    if (alias) return alias;
+    return s.toUpperCase();
+  }
+
+  function failMsgInvite(r, fb) {
+    var msg = failMsg(r, fb);
+    if (msg !== fb) return msg;
+    try {
+      if (/localhost|127\.0\.0\.1/.test(location.hostname) && r && r.d) {
+        var detail = r.d.error;
+        if (r.d.details && r.d.details[0] && r.d.details[0].message) detail = r.d.details[0].message;
+        if (detail && String(detail).length <= 200) return String(detail);
+      }
+    } catch (_) {}
+    return msg;
+  }
+
   /** Normalize settings hour strings to HH:mm (24h) for type="time" inputs and API storage. */
   function normalizeHourTime(raw) {
     var s = String(raw == null ? '' : raw).trim();
@@ -1578,7 +1600,7 @@
             var save = document.getElementById('st-save-role');
             if (save) save.onclick = function () {
               var sel = document.getElementById('st-edit-role');
-              A().patch('/api/staff/' + s.id, { role: sel ? sel.value : s.role }).then(function (r) {
+              A().patch('/api/staff/' + s.id, { role: normalizeStaffRole(sel ? sel.value : s.role) }).then(function (r) {
                 if (r.ok) { A().toast('Staff updated', 'ok'); if (d && d.close) d.close(); else A().closeModal(); load(); }
                 else A().toast(failMsg(r, "Couldn't update this team member."), 'err');
               });
@@ -1744,8 +1766,13 @@
         '<button class="dma-btn dma-btn-ghost" data-close>Cancel</button><button class="dma-btn dma-btn-primary" id="st-save">Send invite</button>'
       );
       el('st-save').onclick = function () {
-        A().post('/api/staff/invite', { name: el('st-name').value, email: el('st-email').value, role: el('st-role').value }).then(function (r) {
-          if (!r.ok) { A().toast(failMsg(r, "Couldn't send that invite."), 'err'); return; }
+        var roleEl = el('st-role');
+        A().post('/api/staff/invite', {
+          name: el('st-name').value,
+          email: el('st-email').value,
+          role: normalizeStaffRole(roleEl && roleEl.value)
+        }).then(function (r) {
+          if (!r.ok) { A().toast(failMsgInvite(r, "Couldn't send that invite."), 'err'); return; }
           A().closeModal(); A().toast('Invite sent', 'ok'); load();
         });
       };

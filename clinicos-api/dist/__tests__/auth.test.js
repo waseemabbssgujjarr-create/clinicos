@@ -147,4 +147,19 @@ describe('POST /api/auth/accept-invite', () => {
         expect(res.body.details?.[0]?.message).toMatch(/8 characters/i);
     });
 });
+describe('InviteStaffSchema role normalization', () => {
+    const staff_schemas_1 = require('../schemas/staff.schemas');
+    it('accepts ASSISTANT and lowercase assistant', () => {
+        expect(staff_schemas_1.InviteStaffSchema.parse({
+            name: 'A',
+            email: 'a@test.clinicos.ai',
+            role: 'ASSISTANT',
+        }).role).toBe('ASSISTANT');
+        expect(staff_schemas_1.InviteStaffSchema.parse({
+            name: 'A',
+            email: 'b@test.clinicos.ai',
+            role: 'assistant',
+        }).role).toBe('ASSISTANT');
+    });
+});
 //# sourceMappingURL=auth.test.js.map

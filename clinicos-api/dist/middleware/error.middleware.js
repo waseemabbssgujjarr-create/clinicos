@@ -24,9 +24,14 @@ _next) {
         return;
     }
     // Known application error
-    const statusCode = err.statusCode ?? 500;
+    let statusCode = err.statusCode ?? 500;
     let code = err.code ?? 'SERVER_ERROR';
     let message = err.message ?? 'An unexpected error occurred';
+    if (/Invalid\s+`?prisma\.`?\.StaffRole|enum StaffRole|Data truncated for column 'role'|Incorrect enum value.*role/i.test(message)) {
+        statusCode = 400;
+        code = 'INVALID_STAFF_ROLE';
+        message = 'Assistant role is not enabled in the database yet. Run clinicos-api/prisma/migrations/add_staff_role_assistant.sql in phpMyAdmin, then try again.';
+    }
     // Hide raw Prisma connection strings from end users
     // Maps: P1001 (unreachable), P1000 (auth), "Access denied", generic prisma engine text
     if (/Can't reach database server|P1001|P1000|P1017|Access denied for user|Server has gone away|prisma\./i.test(message)) {

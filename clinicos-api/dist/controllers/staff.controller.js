@@ -11,6 +11,16 @@ const asyncHandler_1 = require("../lib/asyncHandler");
 const error_middleware_1 = require("../middleware/error.middleware");
 const email_service_1 = require("../services/email.service");
 const date_fns_1 = require("date-fns");
+const staff_schemas_1 = require("../schemas/staff.schemas");
+async function hasStaffEmailVerificationColumns() {
+    try {
+        await prisma_1.prisma.$queryRaw `SELECT emailVerified FROM StaffMember LIMIT 1`;
+        return true;
+    }
+    catch {
+        return false;
+    }
+}
 const PLAN_STAFF_LIMITS = {
     TRIAL: 2,
     STARTER: 1,
@@ -39,7 +49,7 @@ exports.listStaff = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
 });
 // POST /api/staff/invite
 exports.inviteStaff = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const { name, email, role } = req.body;
+    const { name, email, role } = staff_schemas_1.InviteStaffSchema.parse(req.body);
     const clinicId = req.clinicId;
     const clinic = await prisma_1.prisma.clinic.findUnique({
         where: { id: clinicId },
@@ -88,16 +98,18 @@ exports.inviteStaff = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const appUrl = process.env.APP_URL || 'https://doctorsmyagency.com';
     const inviteLink = `${appUrl}/accept-invite/?token=${inviteToken}`;
     await (0, email_service_1.sendStaffInviteEmail)(email, name, clinic.name, inviteLink).catch(() => null);
-    const verifyToken = crypto_1.default.randomBytes(32).toString('hex');
-    const verifyExpires = (0, date_fns_1.addHours)(new Date(), VERIFY_HOURS);
-    await prisma_1.prisma.$executeRaw `UPDATE StaffMember SET emailVerified = 0, emailVerifyToken = ${verifyToken}, emailVerifyExpires = ${verifyExpires} WHERE id = ${staff.id}`;
-    const verifyUrl = `${appUrl}/verify-email/?token=${verifyToken}&email=${encodeURIComponent(email)}`;
-    await (0, email_service_1.sendVerificationEmail)(email, name, verifyUrl).catch(() => null);
+    if (await hasStaffEmailVerificationColumns()) {
+        const verifyToken = crypto_1.default.randomBytes(32).toString('hex');
+        const verifyExpires = (0, date_fns_1.addHours)(new Date(), VERIFY_HOURS);
+        await prisma_1.prisma.$executeRaw `UPDATE StaffMember SET emailVerified = 0, emailVerifyToken = ${verifyToken}, emailVerifyExpires = ${verifyExpires} WHERE id = ${staff.id}`;
+        const verifyUrl = `${appUrl}/verify-email/?token=${verifyToken}&email=${encodeURIComponent(email)}`;
+        await (0, email_service_1.sendVerificationEmail)(email, name, verifyUrl).catch(() => null);
+    }
     res.status(201).json({ id: staff.id, name, email, role, status: 'PENDING' });
 });
 // PATCH /api/staff/:id
 exports.updateStaff = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const { role, isActive } = req.body;
+    const { role, isActive } = staff_schemas_1.UpdateStaffSchema.parse(req.body);
     const existing = await prisma_1.prisma.staffMember.findFirst({
         where: { id: req.params.id, clinicId: req.clinicId },
     });
