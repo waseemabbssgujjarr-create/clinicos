@@ -1733,11 +1733,20 @@
           };
         } else if (tab === 'hours') {
           var days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+          var hoursDefaults = {
+            monday: { open: '09:00', close: '17:00', isOpen: true },
+            tuesday: { open: '09:00', close: '17:00', isOpen: true },
+            wednesday: { open: '09:00', close: '17:00', isOpen: true },
+            thursday: { open: '09:00', close: '17:00', isOpen: true },
+            friday: { open: '09:00', close: '17:00', isOpen: true },
+            saturday: { open: '09:00', close: '17:00', isOpen: false },
+            sunday: { open: '09:00', close: '17:00', isOpen: false }
+          };
           var wh = A().parseJson(s.workingHours, {}) || {};
           if (typeof wh !== 'object' || Array.isArray(wh)) wh = {};
           el('st-body').innerHTML = '<section class="dma-section"><header class="dma-section-h"><h2>Working hours</h2></header><div class="dma-section-b" id="hrs">' +
             days.map(function (d) {
-              var row = wh[d] || { open: '09:00', close: '17:00', isOpen: true };
+              var row = wh[d] || hoursDefaults[d] || { open: '09:00', close: '17:00', isOpen: true };
               if (typeof row === 'string') row = { open: '09:00', close: '17:00', isOpen: true };
               var isClosed = row.closed === true || row.isOpen === false;
               var label = d.charAt(0).toUpperCase() + d.slice(1);

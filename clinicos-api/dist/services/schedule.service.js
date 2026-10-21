@@ -17,6 +17,18 @@ const prisma_1 = require("../lib/prisma");
 const INACTIVE = ["CANCELLED", "NO_SHOW", "RESCHEDULED"];
 const DAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 const WEEKDAY_KEYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+const DAY_ALIASES = {
+  mon: "monday",
+  tue: "tuesday",
+  tues: "tuesday",
+  wed: "wednesday",
+  thu: "thursday",
+  thur: "thursday",
+  thurs: "thursday",
+  fri: "friday",
+  sat: "saturday",
+  sun: "sunday",
+};
 const DEFAULT_DAY = { isOpen: true, open: "09:00", close: "17:00", slotDuration: 30 };
 const DEFAULT_WORKING_HOURS = {
   monday: { ...DEFAULT_DAY },
@@ -28,6 +40,25 @@ const DEFAULT_WORKING_HOURS = {
   sunday: { isOpen: false, closed: true, open: "09:00", close: "17:00", slotDuration: 30 },
 };
 
+function canonicalDayKey(key) {
+  if (!key) return null;
+  const k = String(key).toLowerCase();
+  return DAY_ALIASES[k] || (WEEKDAY_KEYS.includes(k) ? k : null);
+}
+
+function normalizeDayConfig(dayConfig) {
+  if (!dayConfig || typeof dayConfig !== "object") return dayConfig;
+  if (dayConfig.isOpen === true) {
+    dayConfig.closed = false;
+  } else if (dayConfig.isOpen === false || dayConfig.closed === true) {
+    dayConfig.isOpen = false;
+    dayConfig.closed = true;
+  } else if (dayConfig.closed === false && dayConfig.open && dayConfig.close) {
+    dayConfig.isOpen = true;
+  }
+  return dayConfig;
+}
+
 function resolveWorkingHours(raw) {
   const parsed = parseWorkingHours(raw);
   const merged = {};
@@ -35,21 +66,32 @@ function resolveWorkingHours(raw) {
     const base = DEFAULT_WORKING_HOURS[key] ? { ...DEFAULT_WORKING_HOURS[key] } : { ...DEFAULT_DAY };
     const row = parsed[key];
     if (row && typeof row === "object") Object.assign(base, row);
-    merged[key] = base;
+    merged[key] = normalizeDayConfig(base);
   }
   return merged;
 }
 
 function parseWorkingHours(raw) {
   if (!raw) return {};
-  if (typeof raw === "object" && !Array.isArray(raw)) return raw;
-  try {
-    let parsed = JSON.parse(raw);
-    if (typeof parsed === "string") parsed = JSON.parse(parsed);
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
-  } catch {
-    return {};
+  let obj = raw;
+  if (typeof raw !== "object" || Array.isArray(raw)) {
+    try {
+      let parsed = JSON.parse(raw);
+      if (typeof parsed === "string") parsed = JSON.parse(parsed);
+      obj = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+      return {};
+    }
   }
+  const out = {};
+  for (const [key, val] of Object.entries(obj)) {
+    const canon = canonicalDayKey(key);
+    if (!canon) continue;
+    if (val && typeof val === "object" && !Array.isArray(val)) {
+      out[canon] = out[canon] ? Object.assign(out[canon], val) : { ...val };
+    }
+  }
+  return out;
 }
 
 function parseCalendarDate(date) {
@@ -70,14 +112,24 @@ function dayNameForDate(d) {
 
 function isDayOpen(dayConfig) {
   if (!dayConfig || typeof dayConfig !== "object") return false;
-  if (dayConfig.closed === true) return false;
-  if (dayConfig.isOpen === false) return false;
-  if (dayConfig.isOpen === true || dayConfig.closed === false) return true;
-  return !!(dayConfig.open && dayConfig.close);
+  const cfg = normalizeDayConfig({ ...dayConfig });
+  if (cfg.closed === true || cfg.isOpen === false) return false;
+  if (cfg.isOpen === true) {
+    const open = cfg.open || DEFAULT_DAY.open;
+    const close = cfg.close || DEFAULT_DAY.close;
+    return open !== close;
+  }
+  if (cfg.closed === false && cfg.open && cfg.close) return true;
+  return false;
 }
 
 function dayLabel(dayName) {
   return dayName.charAt(0).toUpperCase() + dayName.slice(1);
+}
+
+function closedDayMessage(dayName) {
+  const label = dayLabel(dayName);
+  return "Clinic closed on " + label + "s — open this day under Settings → Hours";
 }
 
 function sameCalendarDay(a, b) {
@@ -171,7 +223,7 @@ async function buildDaySlots(clinic, date, durationMin, opts) {
       slots: [],
       closed: true,
       day: dayName,
-      message: "Clinic closed this day. Update hours in Settings or pick another date.",
+      message: closedDayMessage(dayName),
     };
   }
   const [openH, openM] = (dayConfig.open || "09:00").split(":").map(Number);

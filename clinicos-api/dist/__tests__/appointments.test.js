@@ -96,6 +96,30 @@ describe('GET /api/appointments/slots', () => {
         expect(res.body.closed).toBe(true);
         expect(String(res.body.message || '')).toMatch(/closed/i);
     });
+    it('returns closed message for Saturday (not fully booked)', async () => {
+        await prisma_1.prisma.clinic.update({
+            where: { id: clinicId },
+            data: {
+                workingHours: JSON.stringify({
+                    monday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+                    tuesday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+                    wednesday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+                    thursday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+                    friday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+                    saturday: { isOpen: false, closed: true },
+                    sunday: { isOpen: true, open: '10:00', close: '16:00', slotDuration: 30 },
+                }),
+            },
+        });
+        const res = await (0, supertest_1.default)(app_1.app)
+            .get('/api/appointments/slots?date=2026-10-24&duration=30')
+            .set('Authorization', `Bearer ${token}`);
+        expect(res.status).toBe(200);
+        expect(res.body.slots).toHaveLength(0);
+        expect(res.body.closed).toBe(true);
+        expect(String(res.body.message || '')).toMatch(/closed on Saturdays/i);
+        expect(String(res.body.message || '')).not.toMatch(/fully booked/i);
+    });
     it('returns slots when Sunday is open (closed flag only)', async () => {
         await prisma_1.prisma.clinic.update({
             where: { id: clinicId },

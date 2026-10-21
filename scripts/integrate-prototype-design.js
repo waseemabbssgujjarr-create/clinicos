@@ -112,7 +112,7 @@ function clinicShellHtml(meta, rel, preserve, extraScripts) {
     "/dma-clinicos-clinical.js?v=4",
     "/dma-ui.js?v=10",
     "/dma-doctor-pages.js?v=19",
-    "/dma-clinicos-inner.js?v=18",
+    "/dma-clinicos-inner.js?v=19",
     "/assets/os-live-pages.js?v=2",
     "/assets/os-live.js?v=6",
   ];

@@ -50,9 +50,13 @@ assert.equal(notBlocked, false);
 
 assert.equal(schedule.isDayOpen({ isOpen: true }), true);
 assert.equal(schedule.isDayOpen({ isOpen: false }), false);
-assert.equal(schedule.isDayOpen({ closed: true, isOpen: true }), false);
+assert.equal(schedule.isDayOpen({ closed: true, isOpen: true, open: "09:00", close: "17:00" }), true);
 assert.equal(schedule.isDayOpen({ open: "09:00", close: "17:00", closed: false }), true);
+assert.equal(schedule.isDayOpen({ isOpen: true, closed: true, open: "09:00", close: "17:00" }), true);
+var satAlias = schedule.resolveWorkingHours(JSON.stringify({ sat: { isOpen: true, open: "10:00", close: "14:00" } }));
+assert.equal(schedule.isDayOpen(satAlias.saturday), true);
 assert.equal(schedule.dayNameForDate(schedule.parseCalendarDate("2026-10-23")), "friday");
+assert.equal(schedule.dayNameForDate(schedule.parseCalendarDate("2026-10-24")), "saturday");
 assert.equal(schedule.dayNameForDate(schedule.parseCalendarDate("2026-10-22")), "thursday");
 
 var mergedHours = schedule.resolveWorkingHours("{}");

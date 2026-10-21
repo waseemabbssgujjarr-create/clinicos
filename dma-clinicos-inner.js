@@ -321,7 +321,7 @@
       }
       var hintClass = 'dma-hint' + (slotsError ? ' dma-hint--err' : '');
       var msg = slotsMessage;
-      if (!msg && slotsClosed) msg = 'Clinic closed this day. Change the date or update Settings → Hours.';
+      if (!msg && slotsClosed) msg = 'Clinic closed on this weekday — open it under Settings → Hours.';
       if (!msg && slotsError) msg = "Couldn't load slots. Check your connection and try again.";
       if (!msg) msg = 'No open slots on this day. Pick a date when the clinic is open in Settings → Hours.';
       host.innerHTML = '<p class="' + hintClass + '">' + esc(msg) + '</p>';
@@ -467,7 +467,7 @@
           return isNaN(dt.getTime()) ? { value: String(s), label: String(s) } : { value: dt.toISOString(), label: dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
         });
         slotsMessage = parsed.message;
-        slotsClosed = parsed.closed;
+        slotsClosed = parsed.closed || (/closed on/i.test(parsed.message) && !/fully booked/i.test(parsed.message));
         slotsError = false;
         renderSlots();
       }).catch(function () {
