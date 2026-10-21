@@ -57,6 +57,13 @@
         return Promise.reject(res);
       }
       return res;
+    }).catch(function () {
+      var unreachable = {
+        ok: false,
+        status: 0,
+        d: { error: 'API server unreachable', code: 'PROXY_ERROR', _network: true },
+      };
+      return Promise.reject(unreachable);
     });
   }
 
@@ -145,6 +152,13 @@
     else history.pushState(null, '', url);
   }
 
+  function toastTopOffset() {
+    var live = document.documentElement.classList.contains('os-live');
+    return live
+      ? 'calc(var(--tb, 66px) + 12px + env(safe-area-inset-top,0px))'
+      : 'calc(12px + env(safe-area-inset-top,0px))';
+  }
+
   function toast(msg, kind) {
     var root = document.getElementById('dma-toast-root');
     if (!root) {
@@ -152,8 +166,10 @@
       root.id = 'dma-toast-root';
       root.setAttribute('aria-live', 'polite');
       root.style.cssText =
-        'position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:16px;z-index:10050;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:min(360px,calc(100vw - 32px));';
+        'position:fixed;top:' + toastTopOffset() + ';right:16px;z-index:10050;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:min(360px,calc(100vw - 32px));';
       document.body.appendChild(root);
+    } else {
+      root.style.top = toastTopOffset();
     }
     var el = document.createElement('div');
     el.className = 'dma-toast ' + (kind || '');
@@ -198,6 +214,12 @@
     if (status === 403) return "You don't have permission to perform this action.";
     if (status === 404) return "We couldn't find that record.";
     if (status === 409) return 'That time conflicts with another visit.';
+    if (status === 502 || status === 0) {
+      if (res && res.d && (res.d.code === 'PROXY_ERROR' || /API server unreachable/i.test(String(res.d.error || '')))) {
+        return 'Clinic API is not running. Wait a minute, refresh, or ask your host to run: bash clinicos-api/force-start-api.sh';
+      }
+      if (status === 502) return 'Clinic API is not running. Try again in a minute.';
+    }
     if (res && res.d && (res.d.code === 'PROXY_ERROR' || /API server unreachable/i.test(String(res.d.error || '')))) {
       return 'Clinic API is not running. Try again after the server is back.';
     }

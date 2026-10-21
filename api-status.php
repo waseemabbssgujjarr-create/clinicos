@@ -103,8 +103,10 @@ $scanned = array_merge(
     scan_sockets($apiRoot . '/tmp')
 );
 
-$hasNodeModules = is_dir($apiRoot . '/node_modules') && file_exists($apiRoot . '/node_modules/dotenv/package.json');
-$hasExpress = file_exists($apiRoot . '/node_modules/express/package.json');
+$nmPath = $apiRoot . '/node_modules';
+$hasNodeModules = (is_dir($nmPath) || is_link($nmPath)) && file_exists($nmPath . '/dotenv/package.json');
+$hasExpress = file_exists($nmPath . '/express/package.json');
+$tcp3002Open = tcp_probe(3002) === 'open';
 
 $files = [
     'server.js (site root)' => file_exists($webRoot . '/server.js'),
@@ -143,7 +145,9 @@ $hasLogs = !empty(tail_file($apiRoot . '/logs/root-server.log')) || !empty(tail_
 $noSockets = empty($scanned);
 
 $diagnosis = 'unknown';
-if (!$hasNodeModules || !$hasExpress) {
+if ($tcp3002Open) {
+    $diagnosis = 'CRON_TCP_3002';
+} elseif (!$hasNodeModules || !$hasExpress) {
     $diagnosis = 'NPM_INSTALL_REQUIRED';
 } elseif (!$hasLogs && $noSockets && tcp_probe(3001) === 'open') {
     $diagnosis = 'CRON_TCP_WORKING';

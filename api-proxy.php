@@ -206,7 +206,7 @@ header('Content-Type: application/json');
 echo json_encode([
     'error'   => 'API server unreachable',
     'detail'  => 'Node.js did not respond on TCP 3002 or 3001. '
-               . 'In Hostinger Terminal run: bash clinicos-api/force-start-api.sh',
+               . 'In cPanel Terminal run: bash clinicos-api/force-start-api.sh',
     'errors'  => $errors,
     'code'    => 'PROXY_ERROR',
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);

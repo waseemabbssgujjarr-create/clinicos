@@ -78,9 +78,14 @@ elif [ -f "$BOOT_MARK" ]; then
 fi
 
 if [ "$FORCE_RESTART" -eq 0 ] && command -v curl >/dev/null 2>&1; then
-  RESP=$(curl -s --max-time 3 "http://127.0.0.1:$PORT/api/leads/features" 2>/dev/null)
+  RESP=$(curl -s --max-time 5 "http://127.0.0.1:$PORT/api/health" 2>/dev/null)
+  if echo "$RESP" | grep -q '"api":"healthy"'; then
+    echo "$(date -Iseconds) full API OK on port $PORT (health)" >> "$LOG"
+    exit 0
+  fi
+  RESP=$(curl -s --max-time 5 "http://127.0.0.1:$PORT/api/leads/features" 2>/dev/null)
   if echo "$RESP" | grep -q '"features"' && ! echo "$RESP" | grep -q 'php-fallback'; then
-    echo "$(date -Iseconds) full API OK on port $PORT" >> "$LOG"
+    echo "$(date -Iseconds) full API OK on port $PORT (features)" >> "$LOG"
     exit 0
   fi
 fi
