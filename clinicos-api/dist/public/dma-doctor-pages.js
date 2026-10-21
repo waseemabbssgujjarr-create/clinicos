@@ -809,6 +809,10 @@
     return jwtPayload().role === 'DOCTOR';
   }
 
+  function canManageTeam() {
+    return isDoctorUser();
+  }
+
   function canEditPatient() {
     var u = A().user() || {};
     var role = u.role || jwtPayload().role;
@@ -1589,16 +1593,41 @@
     var group = 'all';
     var staffList = [];
     var doctors = [];
+    function staffStatusUpper(s) {
+      return String(s.status || '').toUpperCase();
+    }
+
+    function staffManageButtons(s, i) {
+      if (!canManageTeam()) return '';
+      var st = staffStatusUpper(s);
+      var acts = '';
+      if (st === 'INACTIVE') {
+        acts += '<button type="button" class="dma-btn dma-btn-ghost dma-btn-sm" data-reactivate="' + esc(s.id) + '">Reactivate</button>';
+      } else {
+        acts += '<button type="button" class="dma-btn dma-btn-ghost dma-btn-sm" data-deactivate="' + esc(s.id) + '">Deactivate</button>';
+      }
+      acts += '<button type="button" class="dma-btn dma-btn-danger dma-btn-sm" data-remove="' + esc(s.id) + '">Delete</button>';
+      return acts;
+    }
+
     function paintTeam() {
       var showDocs = group !== 'staff';
       var showStaff = group !== 'doctors';
       var html = '';
       if (showDocs) {
         html += doctors.map(function (pr, i) {
+          var inactive = pr.isActive === false;
+          var docActs = '';
+          if (canManageTeam() && !pr.isPrimary) {
+            docActs = '<div class="dma-head-actions" style="margin-top:8px">' +
+              (inactive ? '' : '<button type="button" class="dma-btn dma-btn-danger dma-btn-sm" data-pr-remove="' + esc(pr.id) + '">Delete</button>') +
+              '</div>';
+          }
           return '<div class="dma-person-card">' +
             '<div class="dma-avatar">' + A().initials(pr.name) + '</div>' +
             '<strong>' + esc(pr.name) + '</strong><div class="dma-hint">' + esc(pr.specialty || 'Doctor') + '</div>' +
-            '<div style="margin:8px 0">' + A().chip('Doctor') + '</div></div>';
+            '<div style="margin:8px 0">' + A().chip('Doctor') + (inactive ? ' ' + A().chip('INACTIVE') : '') + '</div>' +
+            docActs + '</div>';
         }).join('');
       }
       if (showStaff) {
@@ -1609,8 +1638,8 @@
             '<div style="margin:8px 0">' + A().chip(s.status) + '</div>' +
             '<div class="dma-head-actions" style="margin-top:8px">' +
               '<button type="button" class="dma-btn dma-btn-ghost dma-btn-sm" data-view="' + i + '">View</button>' +
-              '<button type="button" class="dma-btn dma-btn-ghost dma-btn-sm" data-edit="' + i + '">Edit</button>' +
-              '<button type="button" class="dma-btn dma-btn-danger dma-btn-sm" data-id="' + esc(s.id) + '">Deactivate</button>' +
+              (canManageTeam() ? '<button type="button" class="dma-btn dma-btn-ghost dma-btn-sm" data-edit="' + i + '">Edit</button>' : '') +
+              staffManageButtons(s, i) +
             '</div></div>';
         }).join('');
       }
@@ -1628,11 +1657,48 @@
           if (s) openStaff(s, load);
         };
       });
-      el('st-body').querySelectorAll('button[data-id]').forEach(function (b) {
+      el('st-body').querySelectorAll('[data-deactivate]').forEach(function (b) {
         b.onclick = function () {
-          A().del('/api/staff/' + b.getAttribute('data-id')).then(function (r) {
-            if (r.ok) { A().toast('Staff updated', 'ok'); load(); }
-            else A().toast(failMsg(r, "Couldn't update that team member."), 'err');
+          var id = b.getAttribute('data-deactivate');
+          var row = staffList.find(function (s) { return s.id === id; });
+          var name = row && row.name ? row.name : 'this team member';
+          if (!confirm('Deactivate ' + name + '?\n\nThey will lose clinic access. You can reactivate them later.')) return;
+          A().del('/api/staff/' + id).then(function (r) {
+            if (r.ok) { A().toast('Team member deactivated', 'ok'); load(); }
+            else A().toast(failMsg(r, "Couldn't deactivate that team member."), 'err');
+          });
+        };
+      });
+      el('st-body').querySelectorAll('[data-reactivate]').forEach(function (b) {
+        b.onclick = function () {
+          var id = b.getAttribute('data-reactivate');
+          A().patch('/api/staff/' + id, { isActive: true }).then(function (r) {
+            if (r.ok) { A().toast('Team member reactivated', 'ok'); load(); }
+            else A().toast(failMsg(r, "Couldn't reactivate that team member."), 'err');
+          });
+        };
+      });
+      el('st-body').querySelectorAll('[data-remove]').forEach(function (b) {
+        b.onclick = function () {
+          var id = b.getAttribute('data-remove');
+          var row = staffList.find(function (s) { return s.id === id; });
+          var name = row && row.name ? row.name : 'this team member';
+          if (!confirm('Remove ' + name + ' from the clinic permanently?\n\nTheir account will be deleted from your team. This cannot be undone.')) return;
+          A().post('/api/staff/' + id + '/remove', {}).then(function (r) {
+            if (r.ok) { A().toast('Team member removed', 'ok'); load(); }
+            else A().toast(failMsg(r, "Couldn't remove that team member."), 'err');
+          });
+        };
+      });
+      el('st-body').querySelectorAll('[data-pr-remove]').forEach(function (b) {
+        b.onclick = function () {
+          var id = b.getAttribute('data-pr-remove');
+          var row = doctors.find(function (p) { return p.id === id; });
+          var name = row && row.name ? row.name : 'this doctor';
+          if (!confirm('Remove ' + name + ' from your clinic team?\n\nThey will be hidden from the roster. Past appointments are kept.')) return;
+          A().del('/api/practitioners/' + id).then(function (r) {
+            if (r.ok) { A().toast('Doctor removed from team', 'ok'); load(); }
+            else A().toast(failMsg(r, "Couldn't remove that doctor."), 'err');
           });
         };
       });
@@ -1661,7 +1727,9 @@
       };
     }
     load();
-    el('st-add').onclick = function () {
+    if (el('st-add')) {
+      if (!canManageTeam()) el('st-add').style.display = 'none';
+      el('st-add').onclick = function () {
       A().modal('Invite staff',
         '<div class="dma-field"><label>Name</label><input id="st-name"></div>' +
         '<div class="dma-field"><label>Email</label><input id="st-email" type="email"></div>' +
@@ -1674,7 +1742,8 @@
           A().closeModal(); A().toast('Invite sent', 'ok'); load();
         });
       };
-    };
+      };
+    }
   }
 
   /* ── BILLING ──────────────────────────────────────────────────────────── */

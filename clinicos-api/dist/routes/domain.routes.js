@@ -8,6 +8,7 @@ router.use(auth_middleware_1.authMiddleware, auth_middleware_1.doctorOrStaff);
 
 router.get("/roster", c.roster);
 router.post("/practitioners", auth_middleware_1.doctorOnly, c.createPractitioner);
+router.delete("/practitioners/:id", auth_middleware_1.doctorOnly, c.deactivatePractitioner);
 router.post("/locations", auth_middleware_1.doctorOnly, c.createLocation);
 
 router.get("/leave", c.listLeave);

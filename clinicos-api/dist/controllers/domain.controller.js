@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.roster = exports.createPractitioner = exports.createLocation = exports.listLeave = exports.createLeave = exports.deleteLeave = exports.listBlocks = exports.createBlock = exports.deleteBlock = exports.listRooms = exports.createRoom = exports.patchRoom = exports.listInvoices = exports.createInvoice = exports.recordPayment = exports.voidInvoice = exports.listDocuments = exports.createDocumentMeta = exports.getDocumentFile = exports.listLabOrders = exports.createLabOrder = exports.patchLabOrder = exports.addLabResult = exports.listSkus = exports.createSku = exports.moveStock = exports.stockBalance = exports.listTele = exports.createTele = exports.patchTele = exports.listCoverages = exports.createCoverage = exports.listClaims = exports.createClaim = void 0;
+exports.deactivatePractitioner = exports.roster = exports.createPractitioner = exports.createLocation = exports.listLeave = exports.createLeave = exports.deleteLeave = exports.listBlocks = exports.createBlock = exports.deleteBlock = exports.listRooms = exports.createRoom = exports.patchRoom = exports.listInvoices = exports.createInvoice = exports.recordPayment = exports.voidInvoice = exports.listDocuments = exports.createDocumentMeta = exports.getDocumentFile = exports.listLabOrders = exports.createLabOrder = exports.patchLabOrder = exports.addLabResult = exports.listSkus = exports.createSku = exports.moveStock = exports.stockBalance = exports.listTele = exports.createTele = exports.patchTele = exports.listCoverages = exports.createCoverage = exports.listClaims = exports.createClaim = void 0;
 
 const crypto = require("crypto");
 const prisma_1 = require("../lib/prisma");
@@ -43,6 +43,22 @@ exports.createPractitioner = (0, asyncHandler_1.asyncHandler)(async (req, res) =
   });
   await (0, audit_1.writeAudit)({ ...(0, audit_1.actorOf)(req), clinicId: req.clinicId, action: "practitioner.created", entityType: "Practitioner", entityId: row.id, success: true });
   res.status(201).json(row);
+});
+
+exports.deactivatePractitioner = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+  const existing = await prisma_1.prisma.practitioner.findFirst({
+    where: { id: req.params.id, clinicId: req.clinicId },
+  });
+  if (!existing) throw (0, error_middleware_1.createError)("Practitioner not found", 404, "NOT_FOUND");
+  if (existing.isPrimary) {
+    throw (0, error_middleware_1.createError)("The primary clinic doctor cannot be removed from the team", 403, "FORBIDDEN");
+  }
+  await prisma_1.prisma.practitioner.update({
+    where: { id: req.params.id },
+    data: { isActive: false },
+  });
+  await (0, audit_1.writeAudit)({ ...(0, audit_1.actorOf)(req), clinicId: req.clinicId, action: "practitioner.deactivated", entityType: "Practitioner", entityId: existing.id, success: true });
+  res.json({ message: "Doctor removed from team roster" });
 });
 
 exports.createLocation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {

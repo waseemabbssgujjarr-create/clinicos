@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deactivateStaff = exports.updateStaff = exports.inviteStaff = exports.listStaff = void 0;
+exports.removeStaff = exports.deactivateStaff = exports.updateStaff = exports.inviteStaff = exports.listStaff = void 0;
 const bcrypt_1 = __importDefault(require("bcryptjs"));
 const crypto_1 = __importDefault(require("crypto"));
 const prisma_1 = require("../lib/prisma");
@@ -124,5 +124,15 @@ exports.deactivateStaff = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         data: { isActive: false },
     });
     res.json({ message: 'Staff member deactivated' });
+});
+// POST /api/staff/:id/remove — permanently remove from clinic
+exports.removeStaff = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const existing = await prisma_1.prisma.staffMember.findFirst({
+        where: { id: req.params.id, clinicId: req.clinicId },
+    });
+    if (!existing)
+        throw (0, error_middleware_1.createError)('Staff member not found', 404, 'NOT_FOUND');
+    await prisma_1.prisma.staffMember.delete({ where: { id: req.params.id } });
+    res.json({ message: 'Staff member removed' });
 });
 //# sourceMappingURL=staff.controller.js.map

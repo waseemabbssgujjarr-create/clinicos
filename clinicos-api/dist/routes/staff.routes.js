@@ -9,5 +9,6 @@ router.get('/', staff_controller_1.listStaff);
 router.post('/invite', staff_controller_1.inviteStaff);
 router.patch('/:id', staff_controller_1.updateStaff);
 router.delete('/:id', staff_controller_1.deactivateStaff);
+router.post('/:id/remove', staff_controller_1.removeStaff);
 exports.default = router;
 //# sourceMappingURL=staff.routes.js.map
