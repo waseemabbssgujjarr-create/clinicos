@@ -308,7 +308,8 @@
       var lab = patientPickLabel(p);
       return '<button type="button" class="cos-pick-item' + (state.patientId === p.id ? ' on' : '') + '" data-pid="' + esc(p.id) + '" data-pn="' + esc(lab.title) + '">' +
         '<span class="dma-avatar" aria-hidden="true">' + A().initials(lab.title) + '</span>' +
-        '<span class="cos-pick-copy"><strong>' + esc(lab.title) + '</strong>' + (lab.sub ? '<span>' + esc(lab.sub) + '</span>' : '') + '</span></button>';
+        '<span class="cos-pick-copy"><strong class="cos-pick-name">' + esc(lab.title) + '</strong>' +
+        (lab.sub ? '<span class="cos-pick-sub">' + esc(lab.sub) + '</span>' : '') + '</span></button>';
     }
 
     function paint() {
@@ -318,13 +319,15 @@
         '<div class="cos-stepper-bar" role="progressbar" aria-valuemin="1" aria-valuemax="' + labels.length + '" aria-valuenow="' + step + '"><i style="width:' + Math.round((step / labels.length) * 100) + '%"></i></div></div>';
       var body = '';
       if (step === 1) {
-        body = '<div class="dma-field"><label for="w-q">Search patients</label><input id="w-q" class="dma-search" placeholder="Name or phone" autocomplete="off"></div>' +
+        body = '<div class="cos-book-search dma-field"><label for="w-q">Search patients</label>' +
+          '<div class="cos-book-search-wrap"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>' +
+          '<input id="w-q" class="dma-search" placeholder="Name or phone" autocomplete="off"></div></div>' +
           '<div id="w-pts" class="cos-pick-list">' + (patients.length ? patients.slice(0, 12).map(patientPickHtml).join('') : '<p class="dma-hint">No patients yet. Add a chart first.</p>') + '</div>' +
           '<p class="dma-hint">Need a new chart? <a href="/dashboard/patients/?action=new">Add patient</a></p>';
       } else if (step === 2) {
         var practs = Clin() ? Clin().listPractitioners() : [{ name: ownerName() }];
         body = '<div class="cos-pick-list">' + practs.map(function (pr) {
-          return '<button type="button" class="cos-pick-item" data-pr="' + esc(pr.id || '') + '"><span class="dma-avatar">' + A().initials(pr.name) + '</span><span class="cos-pick-copy"><strong>' + esc(pr.name) + '</strong><span>' + esc(pr.specialty || clinicName()) + '</span></span></button>';
+          return '<button type="button" class="cos-pick-item" data-pr="' + esc(pr.id || '') + '"><span class="dma-avatar">' + A().initials(pr.name) + '</span><span class="cos-pick-copy"><strong class="cos-pick-name">' + esc(pr.name) + '</strong><span class="cos-pick-sub">' + esc(pr.specialty || clinicName()) + '</span></span></button>';
         }).join('') + '</div>' + (practs.length < 2 ? '<p class="dma-hint">Additional clinicians can be assigned when they are added to this clinic.</p>' : '');
       } else if (step === 3) {
         body = treatments.length
@@ -352,7 +355,7 @@
       }
       var footer = (step > 1 ? '<button type="button" class="dma-btn dma-btn-ghost" id="w-back">Back</button>' : '') +
         (step < 7 ? '<button type="button" class="dma-btn dma-btn-primary" id="w-next">Continue</button>' : '<button type="button" class="dma-btn dma-btn-primary" id="w-save">Confirm booking</button>');
-      el('wiz-b').innerHTML = '<div class="cos-wizard">' + steps + body + '</div>';
+      el('wiz-b').innerHTML = '<div class="cos-wizard cos-book">' + steps + body + '</div>';
       if (el('wiz-f')) el('wiz-f').innerHTML = footer;
       wire();
     }
@@ -1690,7 +1693,7 @@
       '<button type="button" data-f="HOT">Hot</button>' +
       '<button type="button" data-f="WARM">Warm</button>' +
       '</div></div>' +
-      '<div class="dma-inbox" id="ld-inbox"><div class="dma-inbox-list" id="ld-list">' +
+      '<div class="dma-inbox dma-inbox--leads" id="ld-inbox"><div class="dma-inbox-list" id="ld-list">' +
       skel() +
       '</div><div class="dma-thread" id="ld-detail"></div></div>';
 
@@ -1788,6 +1791,7 @@
     function paintList() {
       var list = visible();
       if (!rows.length) {
+        el('ld-inbox').classList.add('is-empty');
         el('ld-list').innerHTML = empty(
           'No leads yet',
           'When patients message WhatsApp or your widget, new leads appear here.',
@@ -1797,6 +1801,7 @@
         el('ld-detail').innerHTML = '';
         return;
       }
+      el('ld-inbox').classList.remove('is-empty');
       if (!list.length) {
         el('ld-list').innerHTML = '<p class="dma-hint">No leads match this filter.</p>';
         return;

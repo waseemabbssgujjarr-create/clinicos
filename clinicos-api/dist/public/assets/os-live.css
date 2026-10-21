@@ -750,3 +750,296 @@ html.os-live[data-theme="light"] .dma-modal-b,
 html.os-live[data-theme="light"] .ds-drawer-b {
   color: var(--ink) !important;
 }
+
+/* ── os-live: force light teleported modals (beat doc-static dark leaks) ── */
+html.os-live.doc-static .dma-modal,
+html.os-live.doc-static .dma-modal--wizard,
+html.os-live.doc-static .ds-modal,
+html.os-live.doc-static[data-theme="dark"] .dma-modal,
+html.os-live.doc-static[data-theme="dark"] .dma-modal--wizard,
+html.os-live.doc-static[data-theme="dark"] .ds-modal {
+  background: var(--card) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+html.os-live.doc-static .dma-modal-h,
+html.os-live.doc-static .dma-modal-f,
+html.os-live.doc-static .dma-modal-b,
+html.os-live.doc-static[data-theme="dark"] .dma-modal-h,
+html.os-live.doc-static[data-theme="dark"] .dma-modal-f,
+html.os-live.doc-static[data-theme="dark"] .dma-modal-b {
+  background: var(--card) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+html.os-live.doc-static .dma-modal-f,
+html.os-live.doc-static[data-theme="dark"] .dma-modal-f {
+  background: var(--card2) !important;
+}
+
+html.os-live .cos-book .cos-stepper-meta,
+html.os-live .cos-wizard.cos-book .cos-stepper-meta {
+  color: var(--ink2) !important;
+}
+
+html.os-live .cos-book .cos-pick-item,
+html.os-live.doc-static[data-theme="dark"] .cos-book .cos-pick-item,
+html.os-live.doc-static[data-theme="dark"] .cos-wizard .cos-pick-item {
+  background: var(--card) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+
+html.os-live .cos-book .cos-pick-item:hover,
+html.os-live .cos-book .cos-pick-item.on,
+html.os-live.doc-static[data-theme="dark"] .cos-book .cos-pick-item:hover,
+html.os-live.doc-static[data-theme="dark"] .cos-book .cos-pick-item.on {
+  background: var(--teal-t, #eef8f5) !important;
+  border-color: var(--teal-d, #0e7a68) !important;
+}
+
+html.os-live .cos-book .cos-pick-name,
+html.os-live .cos-book .cos-pick-copy strong,
+html.os-live.doc-static[data-theme="dark"] .cos-book .cos-pick-name,
+html.os-live.doc-static[data-theme="dark"] .cos-book .cos-pick-copy strong {
+  color: var(--ink) !important;
+  -webkit-text-fill-color: var(--ink) !important;
+  opacity: 1 !important;
+}
+
+html.os-live .cos-book .cos-pick-sub,
+html.os-live .cos-book .cos-pick-copy span,
+html.os-live.doc-static[data-theme="dark"] .cos-book .cos-pick-sub,
+html.os-live.doc-static[data-theme="dark"] .cos-book .cos-pick-copy span {
+  color: var(--mut) !important;
+  -webkit-text-fill-color: var(--mut) !important;
+  opacity: 1 !important;
+}
+
+html.os-live .cos-book-search-wrap {
+  position: relative;
+}
+
+html.os-live .cos-book-search-wrap > svg.i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--mut);
+  pointer-events: none;
+}
+
+html.os-live .cos-book-search-wrap .dma-search {
+  width: 100%;
+  padding-left: 40px !important;
+  background: var(--card) !important;
+  color: var(--ink) !important;
+  -webkit-text-fill-color: var(--ink) !important;
+}
+
+html.os-live .mo .md,
+html.os-live .mo .mbd {
+  background: var(--card) !important;
+  color: var(--ink) !important;
+}
+
+html.os-live .mo .iw .inp {
+  padding-left: 38px !important;
+}
+
+html.os-live .mo .iw > svg.i {
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+html.os-live .mo .slot .b,
+html.os-live .mo .slot .sm {
+  color: var(--ink) !important;
+}
+
+html.os-live .mo .slot .xs.mut {
+  color: var(--mut) !important;
+}
+
+/* Leads list + preview — full width empty state */
+html.os-live .pg.os-live-mount .dma-inbox--leads {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  width: 100%;
+  min-height: min(560px, calc(100vh - 220px));
+}
+
+html.os-live .pg.os-live-mount .dma-inbox--leads.is-empty {
+  grid-template-columns: 1fr;
+  min-height: auto;
+}
+
+html.os-live .pg.os-live-mount .dma-inbox--leads.is-empty .dma-thread {
+  display: none !important;
+}
+
+html.os-live .pg.os-live-mount .dma-inbox--leads.is-empty .dma-inbox-list {
+  border-right: none;
+}
+
+html.os-live .pg.os-live-mount .dma-inbox--leads.is-empty .cos-empty {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+html.os-live .pg.os-live-mount .dma-inbox--leads .dma-inbox-list,
+html.os-live .pg.os-live-mount .dma-inbox--leads .dma-thread {
+  min-width: 0;
+}
+
+/* Settings working hours — 6-column row matches dma-doctor-pages markup */
+html.os-live[data-theme="light"] .pg.os-live-mount .ds-hours-row,
+html.os-live .pg.os-live-mount .ds-hours-row {
+  display: grid;
+  grid-template-columns: minmax(88px, 112px) minmax(48px, 64px) minmax(7.5rem, 1fr) auto minmax(7.5rem, 1fr) auto;
+  gap: 8px 12px;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: var(--card) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--r2, 10px);
+}
+
+html.os-live .pg.os-live-mount .ds-hours-row strong {
+  grid-column: auto;
+}
+
+html.os-live .pg.os-live-mount .ds-hours-row .dma-hint {
+  text-align: center;
+  padding: 0 4px;
+}
+
+html.os-live .pg.os-live-mount .ds-hours-row input[type="time"] {
+  min-width: 0;
+  width: 100%;
+  max-width: 9rem;
+}
+
+html.os-live .pg.os-live-mount .ds-hours-row label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  font-size: 0.8125rem;
+  color: var(--ink2);
+}
+
+/* Denser workspace tabs + filter pills */
+html.os-live .pg.os-live-mount .ds-workspace-tabs,
+html.os-live .pg.os-live-mount .wtabs {
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+html.os-live .pg.os-live-mount .ds-workspace-tabs a,
+html.os-live .pg.os-live-mount .ds-workspace-tabs button,
+html.os-live .pg.os-live-mount .wtabs a,
+html.os-live .pg.os-live-mount .wtabs button {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 12.5px;
+}
+
+html.os-live .pg.os-live-mount .dma-tabs {
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+html.os-live .pg.os-live-mount .dma-tabs button {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 12.5px;
+}
+
+html.os-live .pg.os-live-mount .cos-pt-toolbar {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+}
+
+html.os-live .pg.os-live-mount .dma-kpi-grid,
+html.os-live .pg.os-live-mount .cos-kpi-grid,
+html.os-live .pg.os-live-mount .dma-grid-4 {
+  gap: 10px;
+}
+
+@media (max-width: 900px) {
+  html.os-live .pg.os-live-mount .dma-inbox--leads {
+    grid-template-columns: 1fr;
+    min-height: calc(100vh - 180px);
+  }
+
+  html.os-live .pg.os-live-mount .ds-hours-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  html.os-live .pg.os-live-mount .ds-hours-row strong {
+    grid-column: 1 / -1;
+  }
+
+  html.os-live .pg.os-live-mount .ds-hours-row .ds-hours-state {
+    grid-column: 1 / -1;
+  }
+
+  html.os-live .pg.os-live-mount .ds-hours-row label {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .pg.os-live-mount {
+    padding: 4px 12px 20px;
+  }
+
+  html.os-live .pg.os-live-mount .dma-head {
+    margin-bottom: 12px;
+  }
+
+  html.os-live .pg.os-live-mount .dma-section,
+  html.os-live .pg.os-live-mount .dma-section-b {
+    padding: 12px 14px;
+  }
+
+  html.os-live .pg.os-live-mount .ds-workspace-tabs a,
+  html.os-live .pg.os-live-mount .ds-workspace-tabs button,
+  html.os-live .pg.os-live-mount .wtabs a,
+  html.os-live .pg.os-live-mount .wtabs button,
+  html.os-live .pg.os-live-mount .dma-tabs button {
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  html.os-live .pg.os-live-mount .cos-empty {
+    padding: 20px 16px;
+  }
+
+  html.os-live.doc-static .dma-modal--wizard {
+    width: calc(100vw - 16px);
+    max-height: 92vh;
+  }
+
+  html.os-live .cos-book .cos-pick-list {
+    max-height: min(280px, 38vh);
+  }
+}
+
+@media (min-width: 768px) {
+  html.os-live .pg.os-live-mount .dma-kpi-grid,
+  html.os-live .pg.os-live-mount .cos-kpi-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
