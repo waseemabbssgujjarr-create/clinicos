@@ -204,10 +204,9 @@ document.addEventListener('click',e=>{
  let el;
  if(el=t.closest('[data-close]')){if(!live&&el.dataset.toast)OS.toast(el.dataset.toast);OS.close();return}
  if(live&&t.closest('[data-toast]'))return;
- if(live&&t.closest('[data-open]'))return;
  if(live&&t.closest('[data-sw]'))return;
  if(el=t.closest('[data-act]')){const act=el.dataset.act;if(live&&act==='theme')return;const f=OS.A[act];if(f&&el.tagName!=='SELECT'){f(el,e);}return}
- if(el=t.closest('[data-open]')){const f=OS.M[el.dataset.open];if(f)f(el);return}
+ if(el=t.closest('[data-open]')){const f=OS.M[el.dataset.open];if(f){f(el);return}}
  if(el=t.closest('[data-tab]')){const[g,i]=el.dataset.tab.split(':');$$(`[data-tab^="${g}:"]`).forEach(x=>x.classList.toggle('on',x===el));$$(`[data-panel^="${g}:"]`).forEach(x=>x.classList.toggle('on',x.dataset.panel===el.dataset.tab));return}
  if(el=t.closest('[data-sw]')){el.classList.toggle('on');el.setAttribute('aria-checked',el.classList.contains('on'));const k=el.dataset.sw;if(k==='wa'||k==='ai'){S.set(k,el.classList.contains('on'));OS.toast((k==='wa'?'WhatsApp ':'AI ')+(el.classList.contains('on')?'on':'off'));setTimeout(()=>location.reload(),500)}return}
  if(el=t.closest('[data-toast]')){if(!live)OS.toast(el.dataset.toast);if(!el.dataset.keep&&el.closest('.mo')&&el.dataset.close!==undefined)OS.close();return}

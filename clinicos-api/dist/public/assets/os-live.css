@@ -403,12 +403,16 @@ html.os-live .tb {
 /* Toasts above OS rail / dock */
 #dma-toast-root {
   position: fixed !important;
-  top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+  top: calc(var(--tb, 66px) + 12px + env(safe-area-inset-top, 0px)) !important;
   right: 16px !important;
   left: auto !important;
   bottom: auto !important;
   z-index: 10050 !important;
   pointer-events: none;
+}
+
+html:not(.os-live) #dma-toast-root {
+  top: calc(12px + env(safe-area-inset-top, 0px)) !important;
 }
 
 .dma-toast {

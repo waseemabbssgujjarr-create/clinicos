@@ -274,10 +274,13 @@
   /* ── Book wizard ────────────────────────────────────────────────────── */
   function bookWizard(presetPatient) {
     var step = 1;
-    var state = { patientId: presetPatient || '', treatment: '', date: '', time: '', durationMin: 30, notes: '', fee: '', patientName: '' };
+    var state = { patientId: presetPatient || '', practitionerId: '', treatment: '', date: '', time: '', durationMin: 30, notes: '', fee: '', patientName: '' };
     var treatments = [];
     var patients = [];
     var slots = [];
+    var slotsLoading = false;
+    var slotsMessage = '';
+    var slotsLoadedFor = '';
     var wrap = document.createElement('div');
     wrap.className = 'dma-modal-bg';
     wrap.innerHTML = '<div class="dma-modal dma-modal--wizard" role="dialog" aria-modal="true" aria-labelledby="wiz-title"><div class="dma-modal-h"><h3 id="wiz-title">New appointment</h3><button type="button" class="dma-btn dma-btn-ghost" data-x aria-label="Close">Close</button></div><div class="dma-modal-b" id="wiz-b">' + skel() + '</div><div class="dma-modal-f" id="wiz-f"></div></div>';
@@ -326,8 +329,10 @@
           '<p class="dma-hint">Need a new chart? <a href="/dashboard/patients/?action=new">Add patient</a></p>';
       } else if (step === 2) {
         var practs = Clin() ? Clin().listPractitioners() : [{ name: ownerName() }];
+        if (!state.practitionerId && practs.length === 1) state.practitionerId = practs[0].id || '';
         body = '<div class="cos-pick-list">' + practs.map(function (pr) {
-          return '<button type="button" class="cos-pick-item" data-pr="' + esc(pr.id || '') + '"><span class="dma-avatar">' + A().initials(pr.name) + '</span><span class="cos-pick-copy"><strong class="cos-pick-name">' + esc(pr.name) + '</strong><span class="cos-pick-sub">' + esc(pr.specialty || clinicName()) + '</span></span></button>';
+          var pid = pr.id || '';
+          return '<button type="button" class="cos-pick-item' + (state.practitionerId === pid ? ' on' : '') + '" data-pr="' + esc(pid) + '"><span class="dma-avatar">' + A().initials(pr.name) + '</span><span class="cos-pick-copy"><strong class="cos-pick-name">' + esc(pr.name) + '</strong><span class="cos-pick-sub">' + esc(pr.specialty || clinicName()) + '</span></span></button>';
         }).join('') + '</div>' + (practs.length < 2 ? '<p class="dma-hint">Additional clinicians can be assigned when they are added to this clinic.</p>' : '');
       } else if (step === 3) {
         body = treatments.length
@@ -337,11 +342,12 @@
             }).join('') + '</div>'
           : '<div class="dma-field"><label for="w-tx">Appointment type</label><input id="w-tx" value="' + esc(state.treatment) + '" placeholder="Consultation"></div>';
       } else if (step === 4) {
-        body = '<div class="dma-field"><label for="w-date">Date</label><input id="w-date" type="date" value="' + esc(state.date) + '"></div><div id="w-slots" class="cos-slot-wrap">' + (slots.length ? slots.map(function (s) {
+        var slotBody = slots.length ? slots.map(function (s) {
           var val = s.value || s.time || s;
           var lab = s.label || s.time || s;
           return '<button type="button" class="cos-slot' + (state.time === val ? ' on' : '') + '" data-tm="' + esc(val) + '">' + esc(lab) + '</button>';
-        }).join('') : '<p class="dma-hint">Pick a date to see open slots.</p>') + '</div>';
+        }).join('') : (slotsLoading ? '<p class="dma-hint">Loading open slots…</p>' : (state.date ? '<p class="dma-hint">' + esc(slotsMessage || 'No open slots on this day. Try another date or check opening hours in Settings.') + '</p>' : '<p class="dma-hint">Pick a date to see open slots.</p>'));
+        body = '<div class="dma-field"><label for="w-date">Date</label><input id="w-date" type="date" value="' + esc(state.date) + '"></div><div id="w-slots" class="cos-slot-wrap">' + slotBody + '</div>';
       } else if (step === 5) {
         body = '<div class="dma-field"><label>Duration (minutes)</label><input id="w-dur" type="number" min="15" max="120" value="' + esc(state.durationMin) + '"></div>' +
           '<div class="dma-field"><label>Reason / notes</label><textarea id="w-notes" rows="3">' + esc(state.notes) + '</textarea></div>';
@@ -360,15 +366,48 @@
       wire();
     }
 
+    function syncDateFromInput() {
+      var dateEl = el('w-date');
+      if (!dateEl) return;
+      var v = dateEl.value || '';
+      if (v === state.date) return;
+      state.date = v;
+      state.time = '';
+      slotsLoadedFor = '';
+      loadSlots();
+    }
+
     function loadSlots() {
-      if (!state.date) return;
-      A().get('/api/appointments/slots?date=' + encodeURIComponent(state.date) + '&duration=' + state.durationMin).then(function (d) {
+      if (!state.date) {
+        slots = [];
+        slotsMessage = '';
+        slotsLoadedFor = '';
+        return;
+      }
+      var reqDate = state.date;
+      slotsLoading = true;
+      slotsMessage = '';
+      var slotHost = el('w-slots');
+      if (slotHost) slotHost.innerHTML = '<p class="dma-hint">Loading open slots…</p>';
+      var path = '/api/appointments/slots?date=' + encodeURIComponent(reqDate) + '&duration=' + encodeURIComponent(state.durationMin || 30);
+      if (state.practitionerId) path += '&practitionerId=' + encodeURIComponent(state.practitionerId);
+      A().get(path).then(function (d) {
+        slotsLoading = false;
+        if (state.date !== reqDate) return;
+        slotsLoadedFor = reqDate;
         slots = ((d && d.slots) || []).map(function (s) {
           var dt = new Date(s);
           return isNaN(dt.getTime()) ? { value: s, label: String(s) } : { value: dt.toISOString(), label: dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
         });
+        slotsMessage = (d && d.message) ? String(d.message) : '';
         paint();
-      }).catch(function () { slots = []; paint(); });
+      }).catch(function () {
+        slotsLoading = false;
+        if (state.date !== reqDate) return;
+        slots = [];
+        slotsMessage = "Couldn't load slots. Check your connection and try again.";
+        paint();
+      });
     }
 
     function wire() {
@@ -380,7 +419,15 @@
           if (tx) state.treatment = tx.value;
           if (!state.treatment) { A().toast('Choose a type', 'err'); return; }
         }
-        if (step === 4 && (!state.date || !state.time)) { A().toast('Pick date and a slot', 'err'); return; }
+        if (step === 4) {
+          syncDateFromInput();
+          if (!state.date) { A().toast('Pick a date', 'err'); return; }
+          if (slotsLoading) { A().toast('Still loading open slots…', 'err'); return; }
+          if (!state.time) {
+            A().toast(slots.length ? 'Pick a time slot' : (slotsMessage || 'No open slots on this day'), 'err');
+            return;
+          }
+        }
         if (step === 5) {
           state.durationMin = Number(el('w-dur').value) || 30;
           state.notes = el('w-notes').value;
@@ -392,6 +439,15 @@
       el('wiz-b').querySelectorAll('[data-pid]').forEach(function (b) {
         b.onclick = function () { state.patientId = b.getAttribute('data-pid'); state.patientName = b.getAttribute('data-pn'); step = 2; paint(); };
       });
+      el('wiz-b').querySelectorAll('[data-pr]').forEach(function (b) {
+        b.onclick = function () {
+          state.practitionerId = b.getAttribute('data-pr') || '';
+          slotsLoadedFor = '';
+          el('wiz-b').querySelectorAll('[data-pr]').forEach(function (x) {
+            x.classList.toggle('on', x === b);
+          });
+        };
+      });
       el('wiz-b').querySelectorAll('[data-tx]').forEach(function (b) {
         b.onclick = function () { state.treatment = b.getAttribute('data-tx'); paint(); };
       });
@@ -399,7 +455,11 @@
         b.onclick = function () { state.time = b.getAttribute('data-tm'); paint(); };
       });
       var date = el('w-date');
-      if (date) date.onchange = function () { state.date = date.value; loadSlots(); };
+      if (date) {
+        date.onchange = syncDateFromInput;
+        date.oninput = syncDateFromInput;
+      }
+      if (step === 4 && state.date && slotsLoadedFor !== state.date && !slotsLoading) loadSlots();
       var q = el('w-q');
       if (q) q.oninput = function () {
         var v = q.value.toLowerCase();
@@ -520,12 +580,21 @@
 
     function bindCards() {
       var rows = filtered();
+      function openRow(id) {
+        var a = rows.filter(function (x) { return x.id === id; })[0];
+        if (a) apptDrawer(a, load);
+      }
+      el('ap-body').querySelectorAll('button[data-open]').forEach(function (btn) {
+        btn.onclick = function (e) {
+          e.stopPropagation();
+          openRow(btn.getAttribute('data-open'));
+        };
+      });
       el('ap-body').querySelectorAll('[data-open], [data-appt]').forEach(function (n) {
+        if (n.tagName === 'BUTTON') return;
         n.onclick = function (e) {
           if (e.target.closest('button, a, select')) return;
-          var id = n.getAttribute('data-open') || n.getAttribute('data-appt');
-          var a = rows.filter(function (x) { return x.id === id; })[0];
-          if (a) apptDrawer(a, load);
+          openRow(n.getAttribute('data-open') || n.getAttribute('data-appt'));
         };
       });
       rows.forEach(function (a) { bindActions(el('ap-body'), a, load); });

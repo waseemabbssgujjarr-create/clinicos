@@ -63,6 +63,17 @@
     });
   }
 
+  function webhookGuidance(errText) {
+    var msg = String(errText || '');
+    if (/does not exist|missing permissions|Unsupported post request/i.test(msg)) {
+      return 'Meta cannot access this WhatsApp Business Account from the connected app. Use Reconnect to run Embedded Signup again, or Disconnect and connect with the Meta account that owns this number.';
+    }
+    if (/Re-subscription failed/i.test(msg)) {
+      return msg.replace(/^Re-subscription failed:\s*/i, '') + ' Use Reconnect or Disconnect, then connect again.';
+    }
+    return msg;
+  }
+
   function apiDownMessage(d) {
     if (d && (d.code === 'PROXY_ERROR' || /API server unreachable|PROXY_ERROR|_nonJson/i.test(String(d.error || '')))) {
       return 'Clinic API is not running, so WhatsApp did not connect. Retry after the server is back — do not assume Meta finished.';
@@ -407,8 +418,9 @@
           resultEl.innerHTML = '<p style="color:#15803d;font-weight:600">✓ Subscribed — inbound messages active.</p>';
           fixBtn.style.display = 'none';
         } else {
+          var hint = webhookGuidance(data.error || data.message);
           resultEl.innerHTML = '<p style="color:#b91c1c;font-weight:600">✗ Not subscribed — inbound messages will not arrive.</p>' +
-            (data.error ? '<p class="dma-wa-muted">' + esc(data.error) + '</p>' : '');
+            (hint ? '<p class="dma-wa-muted">' + esc(hint) + '</p>' : '');
           fixBtn.style.display = '';
         }
       }).catch(function () {
@@ -548,12 +560,15 @@
       verifyBtn.onclick = function () {
         verifyBtn.disabled = true; verifyBtn.textContent = 'Checking…';
         var resultEl = document.getElementById('dma-wa-webhook-result');
-        apiPost('/api/whatsapp/verify-waba', {}).then(function (res) {
+        apiGet('/api/whatsapp/verify-waba').then(function (data) {
           verifyBtn.disabled = false; verifyBtn.textContent = 'Check Webhook';
           if (!resultEl) return;
-          resultEl.innerHTML = res.d.subscribed
-            ? '<span style="color:#15803d">✓ Webhook subscribed — inbound messages active</span>'
-            : '<span style="color:#b91c1c">✗ ' + esc(res.d.message || res.d.error || 'Not subscribed') + '</span>';
+          if (data.subscribed) {
+            resultEl.innerHTML = '<span style="color:#15803d">✓ Webhook subscribed — inbound messages active</span>';
+            return;
+          }
+          var hint = webhookGuidance(data.error || data.message || 'Not subscribed');
+          resultEl.innerHTML = '<span style="color:#b91c1c">✗ ' + esc(hint) + '</span>';
         }).catch(function () { verifyBtn.disabled = false; verifyBtn.textContent = 'Check Webhook'; });
       };
     }
