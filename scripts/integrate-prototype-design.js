@@ -104,22 +104,22 @@ function clinicShellHtml(meta, rel, preserve, extraScripts) {
   if (meta.title) attrs.push(`data-title="${meta.title}"`);
 
   const liveScripts = [
-    "/assets/os.js?v=2",
-    "/dma-doctor-app.js?v=6",
+    "/assets/os.js?v=3",
+    "/dma-doctor-app.js?v=7",
     "/js/ds-theme.js?v=2",
     "/js/ds-status.js?v=1",
     "/js/ds-format.js?v=1",
     "/dma-clinicos-clinical.js?v=4",
     "/dma-ui.js?v=10",
     "/dma-doctor-pages.js?v=19",
-    "/dma-clinicos-inner.js?v=14",
+    "/dma-clinicos-inner.js?v=17",
     "/assets/os-live-pages.js?v=2",
-    "/assets/os-live.js?v=5",
+    "/assets/os-live.js?v=6",
   ];
 
   const waExtra =
     meta.route === "dashboard/whatsapp"
-      ? `\n<script src="/dashboard-whatsapp-hub.js?v=8"></script>`
+      ? `\n<script src="/dashboard-whatsapp-hub.js?v=9"></script>`
       : "";
 
   const preserveBlock = preserve
