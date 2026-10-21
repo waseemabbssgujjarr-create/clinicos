@@ -673,6 +673,138 @@ html.os-live[data-theme="light"] .pg.os-live-mount .dma-tabs button.active {
   border-color: var(--line2) !important;
 }
 
+/* ── os-live light: inner card/section spacing (beats missing dma-design-system + doc-static resets) ── */
+html.os-live[data-theme="light"] .pg.os-live-mount {
+  --ds-space-3: 12px;
+  --ds-space-4: 16px;
+  --ds-space-5: 20px;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-section,
+html.os-live[data-theme="light"] .pg.os-live-mount .ds-section,
+html.os-live[data-theme="light"] .pg.os-live-mount .doc-section,
+html.os-live[data-theme="light"] .pg.os-live-mount .ds-section-card,
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-section {
+  margin-bottom: var(--ds-space-4);
+  overflow: hidden;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-section-h,
+html.os-live[data-theme="light"] .pg.os-live-mount .ds-section-h,
+html.os-live[data-theme="light"] .pg.os-live-mount .doc-section-h,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-panel-h {
+  padding: var(--ds-space-4) var(--ds-space-5) var(--ds-space-3);
+  box-sizing: border-box;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-section-h h2,
+html.os-live[data-theme="light"] .pg.os-live-mount .ds-section-h h2 {
+  margin: 0;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-section-b,
+html.os-live[data-theme="light"] .pg.os-live-mount .ds-section-b,
+html.os-live[data-theme="light"] .pg.os-live-mount .doc-section-b,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-panel-b {
+  padding: var(--ds-space-3) var(--ds-space-5) var(--ds-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-4);
+  box-sizing: border-box;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-section:not(:has(.dma-section-h)),
+html.os-live[data-theme="light"] .pg.os-live-mount .ds-section:not(:has(.ds-section-h)) {
+  padding: var(--ds-space-3);
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-card:not([class*="cos-card--"]) {
+  padding: var(--ds-space-4) var(--ds-space-5);
+  box-sizing: border-box;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-card--data,
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-card--action,
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-card--status,
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-card--alert {
+  padding: var(--ds-space-4) var(--ds-space-5);
+  box-sizing: border-box;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-panel {
+  overflow: hidden;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-profile-hero {
+  padding: var(--ds-space-5);
+  margin-bottom: var(--ds-space-4);
+  gap: var(--ds-space-4);
+  box-sizing: border-box;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-meta {
+  padding: 2px 0;
+  margin-top: 4px;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .ds-kv,
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-kv {
+  padding: var(--ds-space-3) 0;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .ds-kv dt,
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-kv dt {
+  margin: 0 0 4px;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .ds-kv dd,
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-kv dd {
+  margin: 0 0 var(--ds-space-3);
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-section-b .dma-field {
+  margin-bottom: 0;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-section-b .dma-field label {
+  margin-bottom: 6px;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-head {
+  padding: var(--ds-space-3) 0 0;
+  margin-bottom: var(--ds-space-5);
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-tabs,
+html.os-live[data-theme="light"] .pg.os-live-mount .wtabs,
+html.os-live[data-theme="light"] .pg.os-live-mount .ds-workspace-tabs {
+  gap: 8px;
+  margin-bottom: var(--ds-space-4);
+  padding: var(--ds-space-3) 0;
+  box-sizing: border-box;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-inbox--patients .cos-preview,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-inbox--patients .dma-thread,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-inbox--messages .dma-thread {
+  padding: var(--ds-space-4) var(--ds-space-5);
+  box-sizing: border-box;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-inbox--patients .cos-preview .dma-tabs,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-inbox--patients .cos-preview .ds-tabs {
+  margin-left: calc(-1 * var(--ds-space-5));
+  margin-right: calc(-1 * var(--ds-space-5));
+  padding-left: var(--ds-space-5);
+  padding-right: var(--ds-space-5);
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-empty,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-empty,
+html.os-live[data-theme="light"] .pg.os-live-mount .ds-empty {
+  padding: var(--ds-space-5) var(--ds-space-5);
+}
+
 html.os-live[data-theme="light"] .pg.os-live-mount .cos-input,
 html.os-live[data-theme="light"] .pg.os-live-mount .dma-field input,
 html.os-live[data-theme="light"] .pg.os-live-mount .dma-field select,
@@ -805,6 +937,37 @@ html.os-live[data-theme="light"] .ds-drawer-panel .dma-row-item .name {
 
 html.os-live[data-theme="light"] .ds-drawer-panel .dma-row-item .sub {
   color: var(--mut) !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-h,
+html.os-live.doc-static .ds-drawer-h,
+html.os-live.doc-static .cos-drawer-h,
+html.os-live[data-theme="light"] .dma-modal-h {
+  padding: var(--ds-space-4, 16px) var(--ds-space-5, 20px);
+  box-sizing: border-box;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-b,
+html.os-live.doc-static .ds-drawer-b,
+html.os-live.doc-static .cos-drawer-b,
+html.os-live[data-theme="light"] .dma-modal-b {
+  padding: var(--ds-space-4, 16px) var(--ds-space-5, 20px);
+  box-sizing: border-box;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-f,
+html.os-live.doc-static .ds-drawer-f,
+html.os-live.doc-static .cos-drawer-f,
+html.os-live[data-theme="light"] .dma-modal-f {
+  padding: var(--ds-space-3, 12px) var(--ds-space-5, 20px) var(--ds-space-4, 16px);
+  gap: var(--ds-space-3, 12px);
+  box-sizing: border-box;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-tabs,
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-drawer-tabs {
+  padding: 0 var(--ds-space-5, 20px);
+  box-sizing: border-box;
 }
 
 /* Beat doc-static in-page dock (bottom-right mini card) on live shell */
@@ -1236,8 +1399,25 @@ html.os-live .pg.os-live-mount .dma-grid-4 {
     margin-bottom: 12px;
   }
 
-  html.os-live .pg.os-live-mount .dma-section,
-  html.os-live .pg.os-live-mount .dma-section-b {
+  html.os-live[data-theme="light"] .pg.os-live-mount .dma-section-h,
+  html.os-live[data-theme="light"] .pg.os-live-mount .ds-section-h,
+  html.os-live[data-theme="light"] .pg.os-live-mount .dma-panel-h {
+    padding: 12px 14px 10px;
+  }
+
+  html.os-live[data-theme="light"] .pg.os-live-mount .dma-section-b,
+  html.os-live[data-theme="light"] .pg.os-live-mount .ds-section-b,
+  html.os-live[data-theme="light"] .pg.os-live-mount .dma-panel-b {
+    padding: 10px 14px 14px;
+    gap: 12px;
+  }
+
+  html.os-live[data-theme="light"] .pg.os-live-mount .cos-profile-hero {
+    padding: 14px 16px;
+  }
+
+  html.os-live[data-theme="light"] .pg.os-live-mount .dma-inbox--patients .cos-preview,
+  html.os-live[data-theme="light"] .pg.os-live-mount .dma-inbox--patients .dma-thread {
     padding: 12px 14px;
   }
 
