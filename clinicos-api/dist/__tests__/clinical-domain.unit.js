@@ -48,4 +48,15 @@ const notBlocked = schedule.slotIsBlocked(a0, a1, {
 }, { practitionerId: "p1" });
 assert.equal(notBlocked, false);
 
+assert.equal(schedule.isDayOpen({ isOpen: true }), true);
+assert.equal(schedule.isDayOpen({ isOpen: false }), false);
+assert.equal(schedule.isDayOpen({ closed: true, isOpen: true }), false);
+assert.equal(schedule.isDayOpen({ open: "09:00", close: "17:00", closed: false }), true);
+assert.equal(schedule.dayNameForDate(schedule.parseCalendarDate("2026-10-23")), "friday");
+assert.equal(schedule.dayNameForDate(schedule.parseCalendarDate("2026-10-22")), "thursday");
+
+var mergedHours = schedule.resolveWorkingHours("{}");
+assert.equal(schedule.isDayOpen(mergedHours.thursday), true);
+assert.equal(schedule.isDayOpen(mergedHours.sunday), false);
+
 console.log("clinical-domain.unit.js ok");

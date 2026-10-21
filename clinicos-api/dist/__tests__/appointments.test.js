@@ -93,6 +93,36 @@ describe('GET /api/appointments/slots', () => {
             .set('Authorization', `Bearer ${token}`);
         expect(res.status).toBe(200);
         expect(res.body.slots).toHaveLength(0);
+        expect(res.body.closed).toBe(true);
+        expect(String(res.body.message || '')).toMatch(/closed/i);
+    });
+    it('returns slots when Sunday is open (closed flag only)', async () => {
+        await prisma_1.prisma.clinic.update({
+            where: { id: clinicId },
+            data: {
+                workingHours: JSON.stringify({
+                    monday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+                    tuesday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+                    wednesday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+                    thursday: { isOpen: true, open: '09:00', close: '17:00', slotDuration: 30 },
+                    friday: { isOpen: false },
+                    saturday: { isOpen: false },
+                    sunday: { open: '10:00', close: '16:00', closed: false, slotDuration: 30 },
+                }),
+            },
+        });
+        const d = new Date();
+        d.setHours(12, 0, 0, 0);
+        while (d.getDay() !== 0)
+            d.setDate(d.getDate() + 1);
+        if (d <= new Date())
+            d.setDate(d.getDate() + 7);
+        const res = await (0, supertest_1.default)(app_1.app)
+            .get(`/api/appointments/slots?date=${d.toISOString().slice(0, 10)}&duration=30`)
+            .set('Authorization', `Bearer ${token}`);
+        expect(res.status).toBe(200);
+        expect(res.body.closed).not.toBe(true);
+        expect(res.body.slots.length).toBeGreaterThan(0);
     });
 });
 //# sourceMappingURL=appointments.test.js.map

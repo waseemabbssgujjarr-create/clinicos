@@ -46,5 +46,6 @@ exports.SlotsQuerySchema = zod_1.z.object({
     practitionerId: zod_1.z.string().optional(),
     locationId: zod_1.z.string().optional(),
     roomId: zod_1.z.string().optional(),
+    includePast: zod_1.z.enum(['1', '0', 'true', 'false']).optional(),
 });
 //# sourceMappingURL=appointment.schemas.js.map

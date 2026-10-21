@@ -218,10 +218,12 @@ exports.getAvailableSlots = (0, asyncHandler_1.asyncHandler)(async (req, res) =>
         where: { id: clinicId },
         select: { id: true, workingHours: true },
     });
+    const includePast = req.query.includePast === '1' || req.query.includePast === 'true';
     const built = await (0, schedule_service_1.buildDaySlots)({ id: clinicId, workingHours: clinic?.workingHours }, date, durationMin, {
         practitionerId: req.query.practitionerId,
         locationId: req.query.locationId,
         roomId: req.query.roomId,
+        includePast,
     });
     res.json(built);
 });

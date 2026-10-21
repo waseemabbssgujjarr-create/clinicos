@@ -5,11 +5,84 @@ exports.slotIsBlocked = slotIsBlocked;
 exports.listBlocksForDay = listBlocksForDay;
 exports.findSlotConflict = findSlotConflict;
 exports.buildDaySlots = buildDaySlots;
+exports.parseWorkingHours = parseWorkingHours;
+exports.isDayOpen = isDayOpen;
+exports.parseCalendarDate = parseCalendarDate;
+exports.dayNameForDate = dayNameForDate;
+exports.resolveWorkingHours = resolveWorkingHours;
 
 const date_fns_1 = require("date-fns");
 const prisma_1 = require("../lib/prisma");
 
 const INACTIVE = ["CANCELLED", "NO_SHOW", "RESCHEDULED"];
+const DAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+const WEEKDAY_KEYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+const DEFAULT_DAY = { isOpen: true, open: "09:00", close: "17:00", slotDuration: 30 };
+const DEFAULT_WORKING_HOURS = {
+  monday: { ...DEFAULT_DAY },
+  tuesday: { ...DEFAULT_DAY },
+  wednesday: { ...DEFAULT_DAY },
+  thursday: { ...DEFAULT_DAY },
+  friday: { ...DEFAULT_DAY },
+  saturday: { isOpen: false, closed: true, open: "09:00", close: "17:00", slotDuration: 30 },
+  sunday: { isOpen: false, closed: true, open: "09:00", close: "17:00", slotDuration: 30 },
+};
+
+function resolveWorkingHours(raw) {
+  const parsed = parseWorkingHours(raw);
+  const merged = {};
+  for (const key of WEEKDAY_KEYS) {
+    const base = DEFAULT_WORKING_HOURS[key] ? { ...DEFAULT_WORKING_HOURS[key] } : { ...DEFAULT_DAY };
+    const row = parsed[key];
+    if (row && typeof row === "object") Object.assign(base, row);
+    merged[key] = base;
+  }
+  return merged;
+}
+
+function parseWorkingHours(raw) {
+  if (!raw) return {};
+  if (typeof raw === "object" && !Array.isArray(raw)) return raw;
+  try {
+    let parsed = JSON.parse(raw);
+    if (typeof parsed === "string") parsed = JSON.parse(parsed);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function parseCalendarDate(date) {
+  if (date instanceof Date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0);
+  }
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(date));
+  if (m) {
+    return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12, 0, 0, 0);
+  }
+  const d = (0, date_fns_1.parseISO)(date);
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0, 0);
+}
+
+function dayNameForDate(d) {
+  return DAY_NAMES[d.getDay()];
+}
+
+function isDayOpen(dayConfig) {
+  if (!dayConfig || typeof dayConfig !== "object") return false;
+  if (dayConfig.closed === true) return false;
+  if (dayConfig.isOpen === false) return false;
+  if (dayConfig.isOpen === true || dayConfig.closed === false) return true;
+  return !!(dayConfig.open && dayConfig.close);
+}
+
+function dayLabel(dayName) {
+  return dayName.charAt(0).toUpperCase() + dayName.slice(1);
+}
+
+function sameCalendarDay(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
 
 function overlaps(aStart, aEnd, bStart, bEnd) {
   return aStart < bEnd && aEnd > bStart;
@@ -87,12 +160,19 @@ async function findSlotConflict(clinicId, start, durationMin, opts) {
 
 async function buildDaySlots(clinic, date, durationMin, opts) {
   opts = opts || {};
-  const hours = JSON.parse(clinic.workingHours || "{}");
-  const targetDate = date instanceof Date ? date : (0, date_fns_1.parseISO)(date);
-  const dayName = targetDate.toLocaleDateString("en-US", { weekday: "long" }).toLowerCase();
+  const hours = resolveWorkingHours(clinic.workingHours);
+  const targetDate = parseCalendarDate(date);
+  const dayName = dayNameForDate(targetDate);
   const dayConfig = hours[dayName];
-  if (!dayConfig || !dayConfig.isOpen) {
-    return { slots: [], message: "Clinic is closed on this day" };
+  const slotStep = Number(dayConfig.slotDuration || durationMin || 30) || 30;
+  const useDuration = Number(durationMin || slotStep) || 30;
+  if (!isDayOpen(dayConfig)) {
+    return {
+      slots: [],
+      closed: true,
+      day: dayName,
+      message: "Clinic closed this day. Update hours in Settings or pick another date.",
+    };
   }
   const [openH, openM] = (dayConfig.open || "09:00").split(":").map(Number);
   const [closeH, closeM] = (dayConfig.close || "17:00").split(":").map(Number);
@@ -108,10 +188,12 @@ async function buildDaySlots(clinic, date, durationMin, opts) {
   const practitionerCount = await prisma_1.prisma.practitioner.count({ where: { clinicId: clinic.id, isActive: true } }).catch(() => 1);
   const multi = practitionerCount > 1;
   const slots = [];
+  const now = new Date();
   let slotTime = (0, date_fns_1.setMinutes)((0, date_fns_1.setHours)(targetDate, openH), openM);
   const closeTime = (0, date_fns_1.setMinutes)((0, date_fns_1.setHours)(targetDate, closeH), closeM);
+  let openSlotCount = 0;
   while ((0, date_fns_1.isBefore)(slotTime, closeTime)) {
-    const slotEnd = (0, date_fns_1.addMinutes)(slotTime, durationMin);
+    const slotEnd = (0, date_fns_1.addMinutes)(slotTime, useDuration);
     const isBooked = booked.some((b) => {
       const bEnd = (0, date_fns_1.addMinutes)(b.dateTime, b.durationMin);
       if (!overlaps(slotTime, slotEnd, b.dateTime, bEnd)) return false;
@@ -120,10 +202,33 @@ async function buildDaySlots(clinic, date, durationMin, opts) {
       return (opts.practitionerId || null) === (b.practitionerId || null);
     });
     const blocked = slotIsBlocked(slotTime, slotEnd, dayBlocks, opts);
-    if (!isBooked && !blocked && (0, date_fns_1.isAfter)(slotTime, new Date())) {
-      slots.push(slotTime.toISOString());
+    if (!isBooked && !blocked) {
+      openSlotCount += 1;
+      if (opts.includePast || (0, date_fns_1.isAfter)(slotTime, now)) {
+        slots.push(slotTime.toISOString());
+      }
     }
-    slotTime = (0, date_fns_1.addMinutes)(slotTime, durationMin);
+    slotTime = (0, date_fns_1.addMinutes)(slotTime, slotStep);
   }
-  return { slots };
+  if (slots.length) return { slots, day: dayName };
+  const label = dayLabel(dayName);
+  if (sameCalendarDay(targetDate, now) && (0, date_fns_1.isAfter)(now, closeTime)) {
+    return {
+      slots: [],
+      day: dayName,
+      message: "Clinic hours ended for " + label + ". Pick another date.",
+    };
+  }
+  if (sameCalendarDay(targetDate, now) && openSlotCount > 0) {
+    return {
+      slots: [],
+      day: dayName,
+      message: "No remaining open slots today. Try another date or adjust hours in Settings.",
+    };
+  }
+  return {
+    slots: [],
+    day: dayName,
+    message: "No open slots on " + label + ". Visits may be fully booked or blocked.",
+  };
 }

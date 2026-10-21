@@ -126,7 +126,7 @@
       return s !== 'CANCELLED' && s !== 'NO_SHOW';
     }).length;
     if (!h) return { booked: booked, slots: 0, label: booked + ' booked · working hours not set' };
-    if (h.isOpen === false) return { booked: booked, slots: 0, label: 'Clinic closed today' };
+    if (h.isOpen === false || h.closed === true) return { booked: booked, slots: 0, label: 'Clinic closed today' };
     function mins(t) {
       var p = String(t || '09:00').split(':');
       return (Number(p[0]) || 0) * 60 + (Number(p[1]) || 0);
@@ -1737,16 +1737,18 @@
           if (typeof wh !== 'object' || Array.isArray(wh)) wh = {};
           el('st-body').innerHTML = '<section class="dma-section"><header class="dma-section-h"><h2>Working hours</h2></header><div class="dma-section-b" id="hrs">' +
             days.map(function (d) {
-              var row = wh[d] || { open: '09:00', close: '17:00', closed: false };
-              if (typeof row === 'string') row = { open: '09:00', close: '17:00', closed: false };
+              var row = wh[d] || { open: '09:00', close: '17:00', isOpen: true };
+              if (typeof row === 'string') row = { open: '09:00', close: '17:00', isOpen: true };
+              var isClosed = row.closed === true || row.isOpen === false;
               var label = d.charAt(0).toUpperCase() + d.slice(1);
-              return '<div class="ds-hours-row' + (row.closed ? ' is-closed' : '') + '"><strong>' + label + '</strong>' +
-                '<span class="ds-hours-state">' + (row.closed ? 'Closed' : 'Open') + '</span>' +
-                '<input type="time" aria-label="' + label + ' open" data-d="' + d + '" data-k="open" value="' + esc(row.open || '09:00') + '"' + (row.closed ? ' disabled' : '') + '>' +
+              return '<div class="ds-hours-row' + (isClosed ? ' is-closed' : '') + '"><strong>' + label + '</strong>' +
+                '<span class="ds-hours-state">' + (isClosed ? 'Closed' : 'Open') + '</span>' +
+                '<input type="time" aria-label="' + label + ' open" data-d="' + d + '" data-k="open" value="' + esc(row.open || '09:00') + '"' + (isClosed ? ' disabled' : '') + '>' +
                 '<span class="dma-hint">—</span>' +
-                '<input type="time" aria-label="' + label + ' close" data-d="' + d + '" data-k="close" value="' + esc(row.close || '17:00') + '"' + (row.closed ? ' disabled' : '') + '>' +
-                '<label><input type="checkbox" data-d="' + d + '" data-k="closed"' + (row.closed ? ' checked' : '') + '> Closed</label></div>';
-            }).join('') + '<button class="dma-btn dma-btn-primary" id="hrs-save">Save changes</button></div></section>';
+                '<input type="time" aria-label="' + label + ' close" data-d="' + d + '" data-k="close" value="' + esc(row.close || '17:00') + '"' + (isClosed ? ' disabled' : '') + '>' +
+                '<label><input type="checkbox" data-d="' + d + '" data-k="closed"' + (isClosed ? ' checked' : '') + '> Closed</label></div>';
+            }).join('') + '<p class="dma-hint">Booking uses hours for the day you pick — opening Sunday does not open other weekdays.</p>' +
+            '<button class="dma-btn dma-btn-primary" id="hrs-save">Save changes</button></div></section>';
           document.querySelectorAll('#hrs input[data-k="closed"]').forEach(function (cb) {
             cb.onchange = function () {
               var row = cb.closest('.ds-hours-row');
