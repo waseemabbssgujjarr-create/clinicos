@@ -21,30 +21,91 @@
     }
   }
 
+  function apiErrorMessage(d) {
+    if (d && d.details && d.details.length) {
+      return d.details.map(function (x) {
+        return x.message;
+      }).join(' ');
+    }
+    return (d && (d.error || d.message)) || 'Request failed';
+  }
+
+  function inviteTokenFromUrl() {
+    try {
+      return new URLSearchParams(location.search).get('token') || '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  var STAFF_ROLE_LABEL = {
+    RECEPTIONIST: 'receptionist',
+    NURSE: 'nurse',
+    ASSISTANT: 'assistant',
+    MANAGER: 'manager',
+  };
+
+  function loadInvitePreview() {
+    if (!document.body || document.body.dataset.route !== 'accept-invite') return;
+    var token = inviteTokenFromUrl();
+    var sub = $('#accept-invite-sub');
+    if (!token) {
+      if (sub) sub.textContent = 'This invite link is missing a token. Open the link from your email.';
+      if (window.OS && OS.toast) OS.toast('Invite link is invalid.', 'alert');
+      return;
+    }
+    fetch('/api/auth/invite-preview?token=' + encodeURIComponent(token), { credentials: 'same-origin' })
+      .then(function (r) {
+        return r.json().then(function (d) {
+          return { ok: r.ok, d: d };
+        });
+      })
+      .then(function (res) {
+        if (!res.ok) throw new Error(apiErrorMessage(res.d));
+        var roleLabel = STAFF_ROLE_LABEL[res.d.role] || String(res.d.role || 'staff member').toLowerCase();
+        if (sub) {
+          sub.textContent =
+            (res.d.clinicName || 'Your clinic') + ' invited you as ' + (roleLabel === 'assistant' ? 'an' : 'a') + ' ' + roleLabel + '.';
+        }
+        var nameInp = $('#invite-name');
+        if (nameInp && res.d.name && !nameInp.value) nameInp.value = res.d.name;
+      })
+      .catch(function (err) {
+        if (sub) sub.textContent = err.message || 'Could not load this invitation.';
+        if (window.OS && OS.toast) OS.toast(err.message || 'Could not load invitation', 'alert');
+      });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadInvitePreview);
+  } else {
+    loadInvitePreview();
+  }
+
   document.addEventListener(
     'submit',
     function (e) {
       var f = e.target;
       if (!f || !f.dataset) return;
-      if (f.dataset.act === 'login') {
+      if (f.dataset.act === 'accept-invite') {
         e.preventDefault();
         e.stopImmediatePropagation();
-        var role = f.dataset.role;
-        var btn = f.querySelector('[type="submit"]');
-        if (typeof setBtnLoading === 'function') setBtnLoading(btn, true, 'Signing in…');
-        var emailInp = f.querySelector('input[type="email"]');
-        var passInp = f.querySelector('input[type="password"]');
-        var email = emailInp ? emailInp.value : '';
-        var password = passInp ? passInp.value : '';
-        var path = role === 'admin' ? '/api/auth/superadmin/login' : '/api/auth/login';
-        if (role === 'staff') {
-          /* staff uses same login endpoint with staff credentials */
+        var token = inviteTokenFromUrl();
+        if (!token) {
+          if (window.OS && OS.toast) OS.toast('Invite link is missing or invalid.', 'alert');
+          return;
         }
-        fetch(path, {
+        var btn = f.querySelector('[type="submit"]');
+        if (typeof setBtnLoading === 'function') setBtnLoading(btn, true, 'Joining…');
+        var nameInp = f.querySelector('#invite-name') || f.querySelector('input[type="text"]');
+        var passInp = f.querySelector('input[type="password"]');
+        var name = nameInp ? String(nameInp.value || '').trim() : '';
+        var password = passInp ? passInp.value : '';
+        fetch('/api/auth/accept-invite', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ email: email, password: password }),
+          body: JSON.stringify({ token: token, password: password, name: name || undefined }),
         })
           .then(function (r) {
             return r.json().then(function (d) {
@@ -52,7 +113,48 @@
             });
           })
           .then(function (res) {
-            if (!res.ok) throw new Error(res.d.error || res.d.message || 'Sign in failed');
+            if (!res.ok) throw new Error(apiErrorMessage(res.d));
+            if (window.OS && OS.toast) OS.toast(res.d.message || 'Account activated.', 'ok');
+            location.href = '/staff-login/?accepted=1';
+          })
+          .catch(function (err) {
+            if (window.OS && OS.toast) OS.toast(err.message || 'Could not accept invite', 'alert');
+            else alert(err.message || 'Could not accept invite');
+          })
+          .finally(function () {
+            if (typeof setBtnLoading === 'function') setBtnLoading(btn, false);
+          });
+        return;
+      }
+      if (f.dataset.act === 'login') {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        var role = f.dataset.role;
+        var btnLogin = f.querySelector('[type="submit"]');
+        if (typeof setBtnLoading === 'function') setBtnLoading(btnLogin, true, 'Signing in…');
+        var emailInp = f.querySelector('input[type="email"]');
+        var passInpLogin = f.querySelector('input[type="password"]');
+        var email = emailInp ? emailInp.value : '';
+        var passwordLogin = passInpLogin ? passInpLogin.value : '';
+        var path =
+          role === 'admin'
+            ? '/api/auth/superadmin/login'
+            : role === 'staff'
+              ? '/api/auth/staff/login'
+              : '/api/auth/login';
+        fetch(path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email: email, password: passwordLogin }),
+        })
+          .then(function (r) {
+            return r.json().then(function (d) {
+              return { ok: r.ok, d: d };
+            });
+          })
+          .then(function (res) {
+            if (!res.ok) throw new Error(apiErrorMessage(res.d));
             syncStore(res.d.user, res.d.token);
             if (role === 'admin') location.href = '/superadmin/';
             else if (role === 'staff') location.href = '/dashboard/';
@@ -63,7 +165,7 @@
             else alert(err.message || 'Sign in failed');
           })
           .finally(function () {
-            if (typeof setBtnLoading === 'function') setBtnLoading(btn, false);
+            if (typeof setBtnLoading === 'function') setBtnLoading(btnLogin, false);
           });
         return;
       }

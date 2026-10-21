@@ -63,6 +63,19 @@ export declare const ForgotPasswordSchema: z.ZodObject<{
 }, {
     email?: string;
 }>;
+export declare const AcceptInviteSchema: z.ZodObject<{
+    token: z.ZodString;
+    password: z.ZodString;
+    name: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    password?: string;
+    token?: string;
+    name?: string;
+}, {
+    password?: string;
+    token?: string;
+    name?: string;
+}>;
 export declare const ResetPasswordSchema: z.ZodObject<{
     token: z.ZodString;
     password: z.ZodString;

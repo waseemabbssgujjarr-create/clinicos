@@ -8,4 +8,5 @@ export declare const updateMe: (req: Request, res: Response, next: import("expre
 export declare const forgotPassword: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const resetPassword: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const logout: (req: Request, res: Response, next: import("express").NextFunction) => void;
+export declare const getInvitePreview: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const acceptInvite: (req: Request, res: Response, next: import("express").NextFunction) => void;

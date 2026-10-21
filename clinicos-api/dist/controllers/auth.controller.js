@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.acceptInvite = exports.logout = exports.resetPassword = exports.forgotPassword = exports.updateMe = exports.getMe = exports.resendVerificationEmail = exports.verifyEmail = exports.superadminLogin = exports.staffLogin = exports.login = exports.register = void 0;
+exports.acceptInvite = exports.getInvitePreview = exports.logout = exports.resetPassword = exports.forgotPassword = exports.updateMe = exports.getMe = exports.resendVerificationEmail = exports.verifyEmail = exports.superadminLogin = exports.staffLogin = exports.login = exports.register = void 0;
 const crypto_1 = __importDefault(require("crypto"));
 const prisma_1 = require("../lib/prisma");
 const jwt_1 = require("../lib/jwt");
@@ -548,19 +548,45 @@ exports.logout = (0, asyncHandler_1.asyncHandler)(async (_req, res) => {
     res.clearCookie('token');
     res.json({ message: 'Logged out successfully' });
 });
-// ─── POST /api/auth/accept-invite ────────────────────────────────────────────
-exports.acceptInvite = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const { token, password } = req.body;
-    const staff = await prisma_1.prisma.staffMember.findUnique({ where: { inviteToken: token } });
+// ─── GET /api/auth/invite-preview ───────────────────────────────────────────
+exports.getInvitePreview = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const token = typeof req.query.token === 'string' ? req.query.token : '';
+    if (!token)
+        throw (0, error_middleware_1.createError)('Invite token is required', 400, 'VALIDATION_ERROR');
+    const staff = await prisma_1.prisma.staffMember.findUnique({
+        where: { inviteToken: token },
+        include: { clinic: { select: { name: true } } },
+    });
     if (!staff)
         throw (0, error_middleware_1.createError)('Invalid or expired invite link', 400, 'INVALID_TOKEN');
     if (staff.inviteExpiry && staff.inviteExpiry < new Date()) {
         throw (0, error_middleware_1.createError)('This invite link has expired. Ask your clinic to resend it.', 400, 'TOKEN_EXPIRED');
     }
-    const passwordHash = await (0, password_1.hashPassword)(password);
+    res.json({
+        clinicName: staff.clinic.name,
+        role: staff.role,
+        name: staff.name,
+    });
+});
+// ─── POST /api/auth/accept-invite ────────────────────────────────────────────
+exports.acceptInvite = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const data = auth_schemas_1.AcceptInviteSchema.parse(req.body);
+    const staff = await prisma_1.prisma.staffMember.findUnique({ where: { inviteToken: data.token } });
+    if (!staff)
+        throw (0, error_middleware_1.createError)('Invalid or expired invite link', 400, 'INVALID_TOKEN');
+    if (staff.inviteExpiry && staff.inviteExpiry < new Date()) {
+        throw (0, error_middleware_1.createError)('This invite link has expired. Ask your clinic to resend it.', 400, 'TOKEN_EXPIRED');
+    }
+    const passwordHash = await (0, password_1.hashPassword)(data.password);
     await prisma_1.prisma.staffMember.update({
         where: { id: staff.id },
-        data: { passwordHash, inviteToken: null, inviteExpiry: null, isActive: true },
+        data: {
+            passwordHash,
+            inviteToken: null,
+            inviteExpiry: null,
+            isActive: true,
+            ...(data.name ? { name: data.name } : {}),
+        },
     });
     if (await hasEmailVerificationColumns()) {
         await prisma_1.prisma.$executeRaw `UPDATE StaffMember SET emailVerified = 1, emailVerifyToken = NULL, emailVerifyExpires = NULL WHERE id = ${staff.id}`;

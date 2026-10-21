@@ -10,6 +10,7 @@ router.post('/staff/login', auth_controller_1.staffLogin);
 router.post('/superadmin/login', auth_controller_1.superadminLogin);
 router.post('/forgot-password', auth_controller_1.forgotPassword);
 router.post('/reset-password', auth_controller_1.resetPassword);
+router.get('/invite-preview', auth_controller_1.getInvitePreview);
 router.post('/accept-invite', auth_controller_1.acceptInvite);
 router.post('/verify-email', auth_controller_1.verifyEmail);
 router.post('/resend-verification', auth_controller_1.resendVerificationEmail);
