@@ -14,7 +14,12 @@ const S=OS.S={get(k,d){try{const v=localStorage.getItem('cl_'+k);return v===null
 const qs=new URLSearchParams(location.search);
 if(qs.get('role'))S.set('role',qs.get('role'));
 OS.role=()=>S.get('role','owner');
+var AUTH_ROUTES={'doctor-login':1,'staff-login':1,'admin-login':1,'register':1,'forgot-password':1,'accept-invite':1,'reset-password':1};
 if(document.body&&document.body.dataset.live==='1'){document.documentElement.dataset.theme='light';document.documentElement.style.colorScheme='light';S.set('theme','light');}
+else if(AREA==='public'){
+document.documentElement.dataset.theme='light';document.documentElement.style.colorScheme='light';
+if(ROUTE&&AUTH_ROUTES[ROUTE])document.documentElement.classList.add('os-live-auth');
+}
 else document.documentElement.dataset.theme=S.get('theme','light');
 const esc=OS.esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 /* icons */

@@ -1,0 +1,93 @@
+/**
+ * Live auth + public landing: light readable inputs (ignore stored dark theme / dma leaks).
+ */
+html.os-live-auth,
+html.os-live-auth body,
+body[data-area="public"] .au,
+body[data-area="public"] .au .ra {
+  color-scheme: light;
+}
+
+html.os-live-auth,
+html.os-live-auth body {
+  background: #f2f6f5 !important;
+  color: #191919 !important;
+}
+
+body[data-area="public"] .au .ra {
+  background: #fff !important;
+  color: #191919 !important;
+}
+
+html.os-live-auth .fm,
+html.os-live-auth .fm h1,
+html.os-live-auth .fm h2,
+body[data-area="public"] .au .fm,
+body[data-area="public"] .au .fm h1,
+body[data-area="public"] .au .fm h2 {
+  color: #191919 !important;
+}
+
+html.os-live-auth .inp,
+html.os-live-auth .sel,
+html.os-live-auth .txt,
+html.os-live-auth input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+html.os-live-auth select,
+html.os-live-auth textarea,
+body[data-area="public"] .au .inp,
+body[data-area="public"] .au .sel,
+body[data-area="public"] .au .txt,
+body[data-area="public"] .au input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+body[data-area="public"] .au select,
+body[data-area="public"] .au textarea {
+  background: #fff !important;
+  color: #191919 !important;
+  border-color: #cbd7d4 !important;
+  -webkit-text-fill-color: #191919 !important;
+}
+
+html.os-live-auth .inp::placeholder,
+html.os-live-auth input::placeholder,
+html.os-live-auth textarea::placeholder,
+body[data-area="public"] .au .inp::placeholder,
+body[data-area="public"] .au input::placeholder,
+body[data-area="public"] .au textarea::placeholder {
+  color: #667789 !important;
+  opacity: 1;
+}
+
+html.os-live-auth input:-webkit-autofill,
+html.os-live-auth input:-webkit-autofill:focus,
+body[data-area="public"] .au input:-webkit-autofill,
+body[data-area="public"] .au input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 40px #fff inset !important;
+  -webkit-text-fill-color: #191919 !important;
+  caret-color: #191919 !important;
+}
+
+html.os-live-auth .iw > svg.i,
+body[data-area="public"] .au .iw > svg.i {
+  color: #667789 !important;
+}
+
+/* Public landing shell: keep header CTAs readable when dashboard dark theme is stored */
+body[data-area="public"] .pub {
+  background: #fff !important;
+  color: #191919 !important;
+}
+
+body[data-area="public"] .pub .ph-h {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #191919 !important;
+}
+
+body[data-area="public"] .pub .ph-h .btn.gh {
+  background: #fff !important;
+  border-color: #cbd7d4 !important;
+  color: #191919 !important;
+}
+
+body[data-area="public"] .pub .pn a,
+body[data-area="public"] .pub .brand b {
+  color: inherit;
+}

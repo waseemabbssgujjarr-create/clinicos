@@ -8,11 +8,20 @@ function isClinicosPublicWorld() {
   }
 }
 
+function isOsPublicShell() {
+  try {
+    return document.body && document.body.dataset.area === 'public';
+  } catch (_) {
+    return false;
+  }
+}
+
 (function applySavedThemeEarly() {
   try {
     var root = document.documentElement;
-    if (isClinicosPublicWorld()) {
+    if (isClinicosPublicWorld() || isOsPublicShell()) {
       root.setAttribute('data-theme', 'light');
+      root.style.colorScheme = 'light';
       return;
     }
     if (localStorage.getItem('dma-theme') === 'light') {
@@ -90,8 +99,9 @@ function ensureThemeToggleInNav() {
 
 /** Theme toggle (dark default, light = white base) */
 function initThemeToggle() {
-  if (isClinicosPublicWorld()) {
+  if (isClinicosPublicWorld() || isOsPublicShell()) {
     document.documentElement.setAttribute('data-theme', 'light');
+    document.documentElement.style.colorScheme = 'light';
     return;
   }
   const KEY = 'dma-theme';

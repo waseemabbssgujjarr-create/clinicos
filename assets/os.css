@@ -329,7 +329,7 @@ html[data-theme=dark] .dock{background:rgba(21,31,49,.9)}
 .pub{padding-bottom:84px}.sec{padding-top:80px}.hero{padding-top:100px}.fc{display:none}.fnav .fg{grid-template-columns:1fr}.fnav{margin-bottom:-84px;padding-bottom:110px}
 .demo-st{grid-template-columns:1fr}
 }
-@media (max-width:480px){.g4{grid-template-columns:1fr}.kpi .v{font-size:28px}.pcta .btn.gh{display:none}.hero .row.wrap .btn{width:100%}}
+@media (max-width:480px){.g4{grid-template-columns:1fr}.kpi .v{font-size:28px}.ph-h .pcta .btn.gh{display:inline-flex}.ph-h .pcta .btn.pri{padding:0 10px;font-size:11.5px}.hero .row.wrap .btn{width:100%}}
 @media (max-width:1023px){
 html.os-live .main,html.os-live .pg{max-width:100vw;min-width:0;overflow-x:clip}
 html.os-live .pg.os-live-mount .doc-main,html.os-live .pg.os-live-mount #doc-page{min-width:0;max-width:100%}
