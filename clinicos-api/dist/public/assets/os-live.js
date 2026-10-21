@@ -71,6 +71,8 @@
     'dashboard/reports': 'reports',
     'dashboard/operations': 'operations',
     'dashboard/communication': 'messages',
+    'dashboard/leads': 'leads',
+    'dashboard/broadcasts': 'broadcasts',
   };
 
   var DMA_FALLBACK_ROUTES = {
@@ -182,8 +184,10 @@
     var box = document.getElementById('os-live-preserve');
     var pg = document.getElementById('pg');
     if (!box || !pg) return false;
+    var html = (box.innerHTML || '').trim();
+    if (!html) return false;
     pg.classList.add('os-live-mount', 'sa-main');
-    pg.innerHTML = box.innerHTML;
+    pg.innerHTML = html;
     box.remove();
     return true;
   }

@@ -1646,6 +1646,311 @@
     });
   }
 
+  function commTabs(cur) {
+    var tabs = [
+      ['Inbox', '/dashboard/messages/'],
+      ['WhatsApp', '/dashboard/whatsapp/'],
+      ['Broadcasts', '/dashboard/broadcasts/'],
+    ];
+    var norm = function (p) {
+      return String(p || '').replace(/\/index\.html$/i, '').replace(/\/+$/, '');
+    };
+    var here = norm(cur || location.pathname);
+    return (
+      '<nav class="dma-tabs dma-tabs--comm ds-page-enter" aria-label="Communication">' +
+      tabs
+        .map(function (t) {
+          var href = t[1];
+          var on = norm(href) === here;
+          return (
+            '<a class="dma-tab' +
+            (on ? ' active' : '') +
+            '" href="' +
+            href +
+            '"' +
+            (on ? ' aria-current="page"' : '') +
+            '>' +
+            t[0] +
+            '</a>'
+          );
+        })
+        .join('') +
+      '</nav>'
+    );
+  }
+
+  function leads() {
+    var root = page();
+    var selected = A().qs('id');
+    root.innerHTML =
+      pageHead('Leads', 'WhatsApp and web inquiries before they become patient charts.', '', 'Grow') +
+      '<div class="cos-pt-toolbar"><div class="dma-tabs" id="ld-filters" role="tablist">' +
+      '<button type="button" data-f="" class="active">All</button>' +
+      '<button type="button" data-f="NEW">New</button>' +
+      '<button type="button" data-f="HOT">Hot</button>' +
+      '<button type="button" data-f="WARM">Warm</button>' +
+      '</div></div>' +
+      '<div class="dma-inbox" id="ld-inbox"><div class="dma-inbox-list" id="ld-list">' +
+      skel() +
+      '</div><div class="dma-thread" id="ld-detail"></div></div>';
+
+    var rows = [];
+    var filterScore = '';
+
+    function scoreChip(s) {
+      return A().chip ? A().chip(s || 'NEW') : esc(s || 'NEW');
+    }
+
+    function paintDetail(lead) {
+      if (!lead) {
+        el('ld-detail').innerHTML = empty('Select a lead', 'Choose someone from the list to update status or interest.');
+        return;
+      }
+      var stOpts = ['NEW', 'CONTACTED', 'QUALIFIED', 'CONVERTED', 'LOST'];
+      el('ld-detail').innerHTML =
+        '<div class="dma-thread-h"><div class="dma-avatar">' +
+        A().initials(lead.fullName || lead.phone || '?') +
+        '</div><div style="flex:1"><div class="name" style="font-weight:800">' +
+        esc(lead.fullName || 'Lead') +
+        '</div><div class="dma-hint">' +
+        esc(lead.phone || '—') +
+        '</div></div>' +
+        scoreChip(lead.leadScore) +
+        '</div>' +
+        '<div class="dma-section-b" style="padding:16px">' +
+        '<div class="dma-field"><label for="ld-status">Status</label><select id="ld-status" class="dma-status-sel">' +
+        stOpts
+          .map(function (s) {
+            return (
+              '<option value="' +
+              s +
+              '"' +
+              (String(lead.status || 'NEW').toUpperCase() === s ? ' selected' : '') +
+              '>' +
+              s.replace(/_/g, ' ') +
+              '</option>'
+            );
+          })
+          .join('') +
+        '</select></div>' +
+        '<div class="dma-field"><label for="ld-score">Lead score</label><select id="ld-score" class="dma-status-sel">' +
+        ['HOT', 'WARM', 'COLD']
+          .map(function (s) {
+            return (
+              '<option value="' +
+              s +
+              '"' +
+              (String(lead.leadScore || '').toUpperCase() === s ? ' selected' : '') +
+              '>' +
+              s +
+              '</option>'
+            );
+          })
+          .join('') +
+        '</select></div>' +
+        '<div class="dma-field"><label for="ld-int">Treatment interest</label><input id="ld-int" value="' +
+        esc(lead.treatmentInterest || lead.intent || '') +
+        '"></div>' +
+        '<p class="dma-hint">Updated ' +
+        (lead.updatedAt ? A().ago(lead.updatedAt) : '—') +
+        '</p>' +
+        '<div class="dma-btn-row"><button type="button" class="dma-btn dma-btn-primary" id="ld-save">Save</button>' +
+        (lead.patientId
+          ? '<a class="dma-btn dma-btn-ghost" href="/dashboard/patients/detail/?id=' + esc(lead.patientId) + '">Open chart</a>'
+          : '<a class="dma-btn dma-btn-ghost" href="/dashboard/patients/?action=new">Add patient</a>') +
+        '</div></div>';
+      el('ld-save').onclick = function () {
+        A()
+          .patch('/api/leads/' + lead.id, {
+            status: el('ld-status').value,
+            leadScore: el('ld-score').value,
+            treatmentInterest: el('ld-int').value || undefined,
+          })
+          .then(function (r) {
+            if (!r.ok) {
+              A().toast(failMsg(r, "Couldn't update this lead."), 'err');
+              return;
+            }
+            A().toast('Lead updated', 'ok');
+            load();
+          });
+      };
+    }
+
+    function visible() {
+      if (!filterScore) return rows;
+      return rows.filter(function (l) {
+        if (filterScore === 'NEW') return String(l.status || 'NEW').toUpperCase() === 'NEW';
+        return String(l.leadScore || '').toUpperCase() === filterScore;
+      });
+    }
+
+    function paintList() {
+      var list = visible();
+      if (!rows.length) {
+        el('ld-list').innerHTML = empty(
+          'No leads yet',
+          'When patients message WhatsApp or your widget, new leads appear here.',
+          '/dashboard/whatsapp/',
+          'Open WhatsApp'
+        );
+        el('ld-detail').innerHTML = '';
+        return;
+      }
+      if (!list.length) {
+        el('ld-list').innerHTML = '<p class="dma-hint">No leads match this filter.</p>';
+        return;
+      }
+      if (!selected || !list.some(function (l) {
+        return l.id === selected;
+      })) {
+        selected = list[0].id;
+        A().setQs({ id: selected }, true);
+      }
+      el('ld-list').innerHTML = list
+        .map(function (l) {
+          var on = l.id === selected;
+          return (
+            '<div class="dma-inbox-item' +
+            (on ? ' on' : '') +
+            '" data-id="' +
+            esc(l.id) +
+            '"><div class="name">' +
+            esc(l.fullName || l.phone || 'Lead') +
+            '</div><div class="sub">' +
+            esc(l.treatmentInterest || l.intent || l.status || '—') +
+            '</div><div class="dma-hint">' +
+            A().ago(l.updatedAt) +
+            ' · ' +
+            esc(l.leadScore || '—') +
+            '</div></div>'
+          );
+        })
+        .join('');
+      el('ld-list').querySelectorAll('.dma-inbox-item').forEach(function (n) {
+        n.onclick = function () {
+          selected = n.getAttribute('data-id');
+          A().setQs({ id: selected }, true);
+          paintList();
+          var lead = rows.find(function (x) {
+            return x.id === selected;
+          });
+          paintDetail(lead);
+        };
+      });
+      var cur = rows.find(function (x) {
+        return x.id === selected;
+      });
+      paintDetail(cur);
+    }
+
+    function load() {
+      el('ld-list').innerHTML = skel();
+      A()
+        .get('/api/leads?limit=50')
+        .then(function (d) {
+          rows = (d && d.leads) || [];
+          paintList();
+        })
+        .catch(function () {
+          el('ld-list').innerHTML = errBox('Leads could not load.', 'ld-retry');
+          el('ld-retry').onclick = load;
+        });
+    }
+
+    el('ld-filters').onclick = function (e) {
+      var b = e.target.closest('[data-f]');
+      if (!b) return;
+      filterScore = b.getAttribute('data-f') || '';
+      el('ld-filters').querySelectorAll('button').forEach(function (x) {
+        x.classList.toggle('active', x === b);
+      });
+      paintList();
+    };
+
+    load();
+  }
+
+  function broadcasts() {
+    if (identity() !== 'OWNER') {
+      page().innerHTML = unavailable(
+        'Broadcasts',
+        'Only the clinic owner can send broadcast messages.',
+        '/dashboard/messages/',
+        'Back to inbox'
+      );
+      return;
+    }
+    var root = page();
+    var audience = 'all';
+    root.innerHTML =
+      commTabs('/dashboard/broadcasts/') +
+      pageHead(
+        'Broadcasts',
+        'Send one WhatsApp message to a group of patients. Use {{name}} for a first-name greeting.',
+        '<a class="dma-btn dma-btn-ghost" href="/dashboard/messages/">Inbox</a>',
+        'Communication'
+      ) +
+      '<div class="grid g2 dma-grid-2" style="gap:18px">' +
+      '<section class="dma-section"><header class="dma-section-h"><h2>New broadcast</h2></header><div class="dma-section-b">' +
+      '<p class="dma-hint">Messages send through your connected WhatsApp number.</p>' +
+      '<div class="dma-tabs" id="bc-aud" role="tablist" style="margin:12px 0">' +
+      '<button type="button" data-a="all" class="active">All patients</button>' +
+      '<button type="button" data-a="recent">Recent visits (30 days)</button>' +
+      '</div>' +
+      '<div class="dma-field"><label for="bc-msg">Message</label><textarea id="bc-msg" rows="5" class="dma-search" style="width:100%;min-height:120px">Hi {{name}}, we have openings this week. Reply to book a visit.</textarea></div>' +
+      '<div class="dma-btn-row"><button type="button" class="dma-btn dma-btn-primary" id="bc-send">Send broadcast</button></div>' +
+      '<p class="dma-hint" id="bc-result"></p>' +
+      '</div></section>' +
+      '<section class="dma-section"><header class="dma-section-h"><h2>Before you send</h2></header><div class="dma-section-b">' +
+      '<p class="dma-prose">Broadcasts create outbound WhatsApp threads for each recipient. Confirm your message complies with clinic policy and patient consent.</p>' +
+      '<a class="dma-btn dma-btn-ghost" href="/dashboard/whatsapp/">Check WhatsApp connection</a>' +
+      '</div></section></div>';
+
+    el('bc-aud').onclick = function (e) {
+      var b = e.target.closest('[data-a]');
+      if (!b) return;
+      audience = b.getAttribute('data-a') || 'all';
+      el('bc-aud').querySelectorAll('button').forEach(function (x) {
+        x.classList.toggle('active', x === b);
+      });
+    };
+
+    el('bc-send').onclick = function () {
+      var body = (el('bc-msg').value || '').trim();
+      if (!body) {
+        A().toast('Write a message first', 'err');
+        return;
+      }
+      el('bc-send').disabled = true;
+      el('bc-result').textContent = 'Sending…';
+      A()
+        .post('/api/messages/broadcast', {
+          channel: 'WHATSAPP',
+          targetGroup: audience === 'recent' ? 'recent' : 'all',
+          messageBody: body,
+        })
+        .then(function (r) {
+          el('bc-send').disabled = false;
+          if (!r.ok) {
+            el('bc-result').textContent = '';
+            A().toast(failMsg(r, "Couldn't send this broadcast."), 'err');
+            return;
+          }
+          var d = r.d || r;
+          var sent = d.sentCount != null ? d.sentCount : '—';
+          var failed = d.failedCount != null ? d.failedCount : '—';
+          el('bc-result').textContent = 'Sent to ' + sent + ' patients' + (failed ? ' (' + failed + ' failed)' : '') + '.';
+          A().toast('Broadcast sent', 'ok');
+        })
+        .catch(function () {
+          el('bc-send').disabled = false;
+          el('bc-result').textContent = '';
+          A().toast("Couldn't send this broadcast.", 'err');
+        });
+    };
+  }
+
   function operations() {
     location.replace('/dashboard/rooms/' + (location.search || ''));
   }
@@ -1676,7 +1981,9 @@
     reports: reports,
     operations: operations,
     communication: communication,
-    consult: clinical
+    consult: clinical,
+    leads: leads,
+    broadcasts: broadcasts,
   };
 
   function mountPage(id) {
