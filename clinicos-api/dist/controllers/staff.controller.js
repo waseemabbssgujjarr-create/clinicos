@@ -112,13 +112,19 @@ exports.updateStaff = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     });
     res.json(updated);
 });
-// DELETE /api/staff/:id — deactivate
+// DELETE /api/staff/:id — deactivate (or ?permanent=1 to hard-delete)
 exports.deactivateStaff = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const permanent = req.query.permanent === '1' || req.query.permanent === 'true';
     const existing = await prisma_1.prisma.staffMember.findFirst({
         where: { id: req.params.id, clinicId: req.clinicId },
     });
     if (!existing)
         throw (0, error_middleware_1.createError)('Staff member not found', 404, 'NOT_FOUND');
+    if (permanent) {
+        await prisma_1.prisma.staffMember.delete({ where: { id: req.params.id } });
+        res.json({ message: 'Staff member removed' });
+        return;
+    }
     await prisma_1.prisma.staffMember.update({
         where: { id: req.params.id },
         data: { isActive: false },

@@ -1684,9 +1684,16 @@
           var row = staffList.find(function (s) { return s.id === id; });
           var name = row && row.name ? row.name : 'this team member';
           if (!confirm('Remove ' + name + ' from the clinic permanently?\n\nTheir account will be deleted from your team. This cannot be undone.')) return;
-          A().post('/api/staff/' + id + '/remove', {}).then(function (r) {
-            if (r.ok) { A().toast('Team member removed', 'ok'); load(); }
-            else A().toast(failMsg(r, "Couldn't remove that team member."), 'err');
+          var sid = encodeURIComponent(id);
+          A().del('/api/staff/' + sid + '?permanent=1').then(function (r) {
+            if (r.ok) { A().toast('Team member removed', 'ok'); load(); return; }
+            if (r.status === 404) {
+              return A().post('/api/staff/' + sid + '/remove', {}).then(function (r2) {
+                if (r2.ok) { A().toast('Team member removed', 'ok'); load(); }
+                else A().toast(failMsg(r2, "Couldn't remove that team member."), 'err');
+              });
+            }
+            A().toast(failMsg(r, "Couldn't remove that team member."), 'err');
           });
         };
       });
