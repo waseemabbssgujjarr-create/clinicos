@@ -351,13 +351,24 @@
           }
         };
       }
-      if (!slug) {
-        A().get("/api/settings").then(function (s) {
-          if (!s || !s.bookingSlug) return;
-          clinic.bookingSlug = s.bookingSlug;
-          renderWidget(body);
-        }).catch(function () {});
-      }
+      A().get("/api/settings")
+        .catch(function () {
+          return {};
+        })
+        .then(function (s) {
+          if (s && s.bookingSlug) {
+            clinic.bookingSlug = s.bookingSlug;
+            slug = s.bookingSlug;
+            var ta = el("wg-embed");
+            if (ta) ta.value = snippet(slug);
+            var note = el("wg-slug-note");
+            if (note) {
+              note.innerHTML = slug
+                ? "Booking slug: <strong>" + esc(slug) + "</strong>"
+                : "Set a booking slug in Settings so the embed can reach your clinic.";
+            }
+          }
+        });
     }
 
     function renderTest(body) {
@@ -490,10 +501,18 @@
     };
 
     drawTabs();
-    A().get("/api/ai/training-profile").then(function (d) {
+    Promise.all([
+      A().get("/api/ai/training-profile"),
+      A().get("/api/settings").catch(function () {
+        return {};
+      }),
+    ]).then(function (parts) {
+      var d = parts[0] || {};
+      var settings = parts[1] || {};
       draft = d.profile || {};
       meta = d.meta || {};
       clinic = d.clinic || {};
+      if (settings.bookingSlug) clinic.bookingSlug = settings.bookingSlug;
       setMeta();
       renderTab();
     }).catch(function () {

@@ -161,9 +161,15 @@ function navHtml(groups,cur){const w=wsOf(cur),all=groups.flatMap(g=>g[1]),exact
 function tray(){return `<div class="tray"><button aria-label="Prototype tools" data-act="tray">${ic('sliders')}</button><div class="box"><h4>Prototype tools</h4><div class="field"><label>View as</label><select class="sel" data-act="role">${Object.entries(OS.ROLES).map(([k,v])=>`<option value="${k}" ${OS.role()===k?'selected':''}>${v}</option>`).join('')}</select></div><div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="sm b">WhatsApp connected</span>${OS.sw(S.get('wa',true),'wa')}</div><div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="sm b">AI published</span>${OS.sw(S.get('ai',true),'ai')}</div><div class="field"><label>Plan</label><select class="sel" data-act="plan">${['Starter','Pro','Enterprise'].map(p=>`<option ${S.get('plan','Pro')===p?'selected':''}>${p}</option>`).join('')}</select></div><div class="xs mut">Sample data only. These switches change this prototype, not a live clinic.</div></div></div>`}
 function foot(){return `<footer class="foot"><span>© Clinicos · Doctors My Agency · 2026</span><span class="row" style="gap:16px"><a href="${U('privacy')}">Privacy</a><a href="${U('terms')}">Terms</a><a href="${U('security')}">Security</a></span></footer>`}
 function dockHtml(groups,cur){const it=flat(groups).slice(0,4);return `<nav class="dock" aria-label="Quick links">${it.map(i=>`<a href="${U(i[1])}" class="${i[1]===cur?'on':''}">${ic(i[2])}${i[0].split(' ')[0]}</a>`).join('')}<button data-act="menu">${ic('menu')}More</button></nav>`}
+function liveUserLabel(u){
+ u=u||{};let name=String(u.name||'').trim();const owner=String(u.ownerName||'').trim();
+ if(name.indexOf('|')>=0){let parts=name.split('|').map(s=>s.trim()).filter(Boolean);const seen={};parts=parts.filter(p=>{const k=p.toLowerCase();if(seen[k])return false;seen[k]=true;return true});if(parts.length===1)name=parts[0];else if(parts.length)name=parts.reduce((a,b)=>b.length>a.length?b:a,parts[0])}
+ if(owner&&name&&owner!==name){if(name.toLowerCase().includes(owner.toLowerCase()))return name;if(owner.toLowerCase().includes(name.toLowerCase()))return owner}
+ return (name||owner||'Account').trim();
+}
 function liveChipUser(role){
  const isLive=document.body&&document.body.dataset.live==='1';
- if(isLive&&window.DmaApp){const u=DmaApp.user()||{};const name=(u.ownerName||u.name||'Account').trim();const ini=DmaApp.initials?DmaApp.initials(name):name.slice(0,2).toUpperCase();return {ini,label:name};}
+ if(isLive&&window.DmaApp){const u=DmaApp.user()||{};const name=liveUserLabel(u);const ini=DmaApp.initials?DmaApp.initials(name):name.slice(0,2).toUpperCase();return {ini,label:name};}
  const isO=role==='owner';
  return {ini:null,label:isO?'Dr. Hina Malik':OS.ROLES[role],avName:isO?'Hina Malik':'Sadia Karim'};
 }

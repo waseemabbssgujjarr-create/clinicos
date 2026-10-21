@@ -616,3 +616,137 @@ html.os-live .app > .main > .foot {
 html.os-live .app > .main > .foot a {
   color: var(--ink2) !important;
 }
+
+/* ── os-live light canvas: beat dma-doctor-pages html[data-theme="dark"] leaks ── */
+html.os-live[data-theme="light"] .pg.os-live-mount .doc-main,
+html.os-live[data-theme="light"] .pg.os-live-mount #doc-page {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-section,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-table-wrap,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-panel,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-filters,
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-pt-toolbar {
+  background: var(--card) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+  box-shadow: var(--sh);
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-table thead th {
+  background: var(--card2) !important;
+  color: var(--mut) !important;
+  border-color: var(--line) !important;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-table tbody td {
+  background: var(--card) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-table tbody td strong,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-pt-identity strong {
+  color: var(--ink) !important;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-table tbody tr:hover td {
+  background: var(--teal-t, #eef8f5) !important;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-tabs {
+  border-bottom-color: var(--line) !important;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-tabs button {
+  background: var(--card2) !important;
+  color: var(--ink2) !important;
+  border-color: var(--line) !important;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-tabs button:hover,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-tabs button.active {
+  background: var(--card) !important;
+  color: var(--teal-d, #0e7a68) !important;
+  border-color: var(--line2) !important;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-input,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-field input,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-field select,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-field textarea,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-search,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-status-sel,
+html.os-live[data-theme="light"] .pg.os-live-mount select,
+html.os-live[data-theme="light"] .pg.os-live-mount textarea {
+  background: var(--card) !important;
+  color: var(--ink) !important;
+  border-color: var(--line2) !important;
+  -webkit-text-fill-color: var(--ink) !important;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-field label,
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-label {
+  color: var(--ink2) !important;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-hint,
+html.os-live[data-theme="light"] .pg.os-live-mount .cos-hint,
+html.os-live[data-theme="light"] .pg.os-live-mount .dma-prose {
+  color: var(--mut) !important;
+}
+
+html.os-live[data-theme="light"] .pg.os-live-mount .ds-hours-row input[type="time"] {
+  min-width: 8.75rem;
+  padding-right: 10px;
+}
+
+/* Modals / drawers (teleported to body) */
+html.os-live[data-theme="light"] .dma-modal-bg,
+html.os-live[data-theme="light"] .ds-drawer-backdrop,
+html.os-live[data-theme="light"] .ds-modal-backdrop {
+  background: rgba(15, 26, 36, 0.42) !important;
+}
+
+html.os-live[data-theme="light"] .dma-modal,
+html.os-live[data-theme="light"] .ds-drawer,
+html.os-live[data-theme="light"] .ds-modal {
+  background: var(--card) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: var(--sh2);
+}
+
+html.os-live[data-theme="light"] .dma-modal-h,
+html.os-live[data-theme="light"] .dma-modal-f,
+html.os-live[data-theme="light"] .ds-drawer-h,
+html.os-live[data-theme="light"] .ds-drawer-f,
+html.os-live[data-theme="light"] .ds-modal-h,
+html.os-live[data-theme="light"] .ds-modal-f {
+  background: var(--card2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+
+html.os-live[data-theme="light"] .dma-modal-h h3,
+html.os-live[data-theme="light"] .ds-drawer-h h3,
+html.os-live[data-theme="light"] .ds-modal-h h3 {
+  color: var(--ink) !important;
+}
+
+html.os-live[data-theme="light"] .dma-modal .dma-btn-ghost,
+html.os-live[data-theme="light"] .dma-modal-f .dma-btn-ghost,
+html.os-live[data-theme="light"] .ds-drawer-f .dma-btn-ghost,
+html.os-live[data-theme="light"] .ds-modal-f .dma-btn-ghost {
+  background: var(--card) !important;
+  color: var(--teal-d, #0e7a68) !important;
+  border: 1.5px solid var(--line2) !important;
+}
+
+html.os-live[data-theme="light"] .dma-modal .dma-field label,
+html.os-live[data-theme="light"] .dma-modal-b,
+html.os-live[data-theme="light"] .ds-drawer-b {
+  color: var(--ink) !important;
+}

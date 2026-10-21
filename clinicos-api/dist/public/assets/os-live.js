@@ -192,6 +192,38 @@
     return true;
   }
 
+  function liveUserLabel(u) {
+    u = u || {};
+    var name = String(u.name || '').trim();
+    var owner = String(u.ownerName || '').trim();
+    if (name.indexOf('|') >= 0) {
+      var parts = name
+        .split('|')
+        .map(function (s) {
+          return s.trim();
+        })
+        .filter(Boolean);
+      var seen = {};
+      parts = parts.filter(function (p) {
+        var k = p.toLowerCase();
+        if (seen[k]) return false;
+        seen[k] = true;
+        return true;
+      });
+      if (parts.length === 1) name = parts[0];
+      else if (parts.length) {
+        name = parts.reduce(function (a, b) {
+          return b.length > a.length ? b : a;
+        }, parts[0]);
+      }
+    }
+    if (owner && name && owner !== name) {
+      if (name.toLowerCase().indexOf(owner.toLowerCase()) >= 0) return name;
+      if (owner.toLowerCase().indexOf(name.toLowerCase()) >= 0) return owner;
+    }
+    return name || owner || 'Account';
+  }
+
   function patchLiveChrome() {
     if (!window.DmaApp) return;
     var u = DmaApp.user() || {};
@@ -201,12 +233,23 @@
       var rb = document.querySelector('.rb small');
       if (rb) rb.textContent = clinic;
     }
-    var name = u.ownerName || u.name || '';
+    var name = liveUserLabel(u);
     var chipEl = document.querySelector('.uchip');
     if (chipEl && name) {
+      var labelEl = chipEl.querySelector('span:not(.av)');
       var ini = DmaApp.initials ? DmaApp.initials(name) : name.slice(0, 2).toUpperCase();
-      chipEl.innerHTML =
-        '<span class="av">' + OS.esc(ini) + '</span><span>' + OS.esc(name) + '</span>';
+      var avEl = chipEl.querySelector('.av');
+      if (avEl) avEl.textContent = ini;
+      else {
+        chipEl.insertAdjacentHTML(
+          'afterbegin',
+          '<span class="av">' + OS.esc(ini) + '</span>'
+        );
+      }
+      if (labelEl) labelEl.textContent = name;
+      else {
+        chipEl.insertAdjacentHTML('beforeend', '<span>' + OS.esc(name) + '</span>');
+      }
     }
     DmaApp.waStatus()
       .catch(function () {
