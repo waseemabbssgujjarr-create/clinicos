@@ -972,7 +972,7 @@
             ((Clin() && Clin().canPrescribe()) ? '<a class="dma-btn dma-btn-primary" href="/dashboard/prescriptions/?patient=' + esc(p.id) + '">Prescription</a>' : '') +
           '</div></div>' +
           (p.allergies ? '<div class="dma-alert">Allergy alert: ' + esc(p.allergies) + '</div>' : '') +
-          '<div class="dma-tabs" id="pt-tabs" role="tablist" aria-label="Patient record">' + tabs.map(function (t) {
+          '<div class="dma-tabs cos-wtabs" id="pt-tabs" role="tablist" aria-label="Patient record">' + tabs.map(function (t) {
             return '<button type="button" role="tab" aria-selected="' + (tab === t[0] ? 'true' : 'false') + '" data-t="' + t[0] + '" class="' + (tab === t[0] ? 'active' : '') + '">' + t[1] + '</button>';
           }).join('') + '</div><div id="pt-pane" role="tabpanel"></div>';
         var pane = el('pt-pane');

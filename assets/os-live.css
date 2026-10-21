@@ -1969,3 +1969,224 @@ html.os-live .pg.os-live-mount .dma-grid-4 {
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   }
 }
+
+/* ═══ v18: mobile density — overflow guard + scrollable tab rows ═══ */
+html.os-live {
+  overflow-x: clip;
+  max-width: 100vw;
+}
+
+html.os-live .app,
+html.os-live.doc-static .app,
+html.os-live.sa-static .app {
+  max-width: 100vw;
+  overflow-x: clip;
+}
+
+html.os-live .app > .main,
+html.os-live.doc-static .main,
+html.os-live.sa-static .main,
+html.os-live .pg,
+html.os-live #pg,
+html.os-live .pg.os-live-mount,
+html.os-live .pg.os-live-mount .doc-main,
+html.os-live .pg.os-live-mount #doc-page,
+html.os-live .pg.os-live-mount .dma-clinic-canvas {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+html.os-live .pg.os-live-mount .doc-main > *,
+html.os-live .pg.os-live-mount #doc-page > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html.os-live .pg.os-live-mount .cos-profile-hero,
+html.os-live .pg.os-live-mount .cos-profile-hero .dma-head-actions {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html.os-live .pg.os-live-mount .cos-profile-hero .dma-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+html.os-live .pg.os-live-mount .cos-profile-hero .dma-head-actions .dma-btn {
+  min-height: 36px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+@media (max-width: 1023px) {
+  html.os-live .pg.os-live-mount {
+    padding: 4px 12px calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  html.os-live .pg.os-live-mount .dma-head {
+    margin-bottom: 10px;
+  }
+
+  html.os-live .pg.os-live-mount .cos-profile-hero {
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    gap: 10px;
+    border-radius: var(--r, 14px);
+  }
+
+  html.os-live .pg.os-live-mount .cos-profile-hero .dma-avatar {
+    width: 52px;
+    height: 52px;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  html.os-live .pg.os-live-mount .cos-profile-hero h1,
+  html.os-live .pg.os-live-mount .cos-profile-hero h2 {
+    font-size: 1.125rem !important;
+    line-height: 1.25;
+    margin: 4px 0 2px !important;
+  }
+
+  html.os-live .pg.os-live-mount .cos-profile-hero .dma-hint {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  html.os-live .pg.os-live-mount .dma-section-h,
+  html.os-live .pg.os-live-mount .ds-section-h {
+    padding: 10px 12px 8px;
+  }
+
+  html.os-live .pg.os-live-mount .dma-section-b,
+  html.os-live .pg.os-live-mount .ds-section-b {
+    padding: 8px 12px 12px;
+    gap: 10px;
+  }
+
+  html.os-live .pg.os-live-mount .dma-section-b .dma-field label {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+
+  html.os-live .pg.os-live-mount .dma-section-b .dma-field > div {
+    font-size: 13px;
+  }
+
+  /* Horizontal scroll tab rows + right fade */
+  html.os-live .pg.os-live-mount .cos-wtabs,
+  html.os-live .pg.os-live-mount .ds-workspace-tabs,
+  html.os-live .pg.os-live-mount .wtabs,
+  html.os-live .pg.os-live-mount .cos-settings-nav,
+  html.os-live .pg.os-live-mount .dma-tabs,
+  html.os-live .pg.os-live-mount nav.dma-tabs {
+    position: relative;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: 2px 0 6px;
+    box-sizing: border-box;
+    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 22px), transparent 100%);
+    mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 22px), transparent 100%);
+  }
+
+  html.os-live .pg.os-live-mount .cos-wtabs::-webkit-scrollbar,
+  html.os-live .pg.os-live-mount .ds-workspace-tabs::-webkit-scrollbar,
+  html.os-live .pg.os-live-mount .wtabs::-webkit-scrollbar,
+  html.os-live .pg.os-live-mount .cos-settings-nav::-webkit-scrollbar,
+  html.os-live .pg.os-live-mount .dma-tabs::-webkit-scrollbar,
+  html.os-live .pg.os-live-mount nav.dma-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  html.os-live .pg.os-live-mount .cos-wtabs a,
+  html.os-live .pg.os-live-mount .cos-wtabs button,
+  html.os-live .pg.os-live-mount .ds-workspace-tabs a,
+  html.os-live .pg.os-live-mount .ds-workspace-tabs button,
+  html.os-live .pg.os-live-mount .wtabs a,
+  html.os-live .pg.os-live-mount .wtabs button,
+  html.os-live .pg.os-live-mount .cos-settings-nav button,
+  html.os-live .pg.os-live-mount .dma-tabs button,
+  html.os-live .pg.os-live-mount .dma-tabs a.dma-tab,
+  html.os-live .pg.os-live-mount nav.dma-tabs a.dma-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    min-height: 32px;
+    height: auto;
+    padding: 8px 12px;
+    font-size: 12.5px;
+  }
+
+  html.os-live .pg.os-live-mount .cos-pt-toolbar {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  html.os-live .pg.os-live-mount .cos-pt-toolbar .dma-tabs {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  html.os-live .pg.os-live-mount {
+    padding: 2px 10px calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+
+  html.os-live .pg.os-live-mount .cos-profile-hero {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  html.os-live .pg.os-live-mount .cos-profile-hero .dma-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 0.875rem;
+  }
+
+  html.os-live .pg.os-live-mount .cos-profile-hero h1,
+  html.os-live .pg.os-live-mount .cos-profile-hero h2 {
+    font-size: 1.0625rem !important;
+  }
+
+  html.os-live .pg.os-live-mount .cos-wtabs,
+  html.os-live .pg.os-live-mount .ds-workspace-tabs,
+  html.os-live .pg.os-live-mount .wtabs,
+  html.os-live .pg.os-live-mount .cos-settings-nav,
+  html.os-live .pg.os-live-mount .dma-tabs,
+  html.os-live .pg.os-live-mount nav.dma-tabs {
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 10px;
+    gap: 4px;
+    padding-bottom: 4px;
+  }
+
+  html.os-live .pg.os-live-mount .cos-wtabs a,
+  html.os-live .pg.os-live-mount .cos-wtabs button,
+  html.os-live .pg.os-live-mount .ds-workspace-tabs a,
+  html.os-live .pg.os-live-mount .ds-workspace-tabs button,
+  html.os-live .pg.os-live-mount .wtabs a,
+  html.os-live .pg.os-live-mount .wtabs button,
+  html.os-live .pg.os-live-mount .cos-settings-nav button,
+  html.os-live .pg.os-live-mount .dma-tabs button,
+  html.os-live .pg.os-live-mount .dma-tabs a.dma-tab,
+  html.os-live .pg.os-live-mount nav.dma-tabs a.dma-tab {
+    scroll-snap-align: start;
+    min-height: 30px;
+    padding: 8px;
+    font-size: 12px;
+    font-weight: 650;
+  }
+}
