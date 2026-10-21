@@ -45,12 +45,22 @@
     MANAGER: 'manager',
   };
 
+  function invitePasswordInput(form) {
+    if (!form) return null;
+    return (
+      form.querySelector('#ip') ||
+      form.querySelector('input[autocomplete="new-password"]') ||
+      form.querySelector('.field .iw input')
+    );
+  }
+
   function loadInvitePreview() {
     if (!document.body || document.body.dataset.route !== 'accept-invite') return;
     var token = inviteTokenFromUrl();
     var sub = $('#accept-invite-sub');
+    if (!sub) return;
     if (!token) {
-      if (sub) sub.textContent = 'This invite link is missing a token. Open the link from your email.';
+      sub.textContent = 'This invite link is missing a token. Open the link from your email.';
       if (window.OS && OS.toast) OS.toast('Invite link is invalid.', 'alert');
       return;
     }
@@ -63,23 +73,24 @@
       .then(function (res) {
         if (!res.ok) throw new Error(apiErrorMessage(res.d));
         var roleLabel = STAFF_ROLE_LABEL[res.d.role] || String(res.d.role || 'staff member').toLowerCase();
-        if (sub) {
-          sub.textContent =
+        var subEl = $('#accept-invite-sub');
+        if (subEl) {
+          subEl.textContent =
             (res.d.clinicName || 'Your clinic') + ' invited you as ' + (roleLabel === 'assistant' ? 'an' : 'a') + ' ' + roleLabel + '.';
         }
         var nameInp = $('#invite-name');
         if (nameInp && res.d.name && !nameInp.value) nameInp.value = res.d.name;
       })
       .catch(function (err) {
-        if (sub) sub.textContent = err.message || 'Could not load this invitation.';
+        var subEl = $('#accept-invite-sub');
+        if (subEl) subEl.textContent = err.message || 'Could not load this invitation.';
         if (window.OS && OS.toast) OS.toast(err.message || 'Could not load invitation', 'alert');
       });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadInvitePreview);
-  } else {
-    loadInvitePreview();
+  if (window.OS) {
+    OS.init = OS.init || {};
+    OS.init['accept-invite'] = loadInvitePreview;
   }
 
   document.addEventListener(
@@ -98,9 +109,19 @@
         var btn = f.querySelector('[type="submit"]');
         if (typeof setBtnLoading === 'function') setBtnLoading(btn, true, 'Joining…');
         var nameInp = f.querySelector('#invite-name') || f.querySelector('input[type="text"]');
-        var passInp = f.querySelector('input[type="password"]');
+        var passInp = invitePasswordInput(f);
         var name = nameInp ? String(nameInp.value || '').trim() : '';
-        var password = passInp ? passInp.value : '';
+        var password = passInp ? String(passInp.value || '') : '';
+        if (password.length < 8) {
+          if (window.OS && OS.toast) OS.toast('Password must be at least 8 characters.', 'alert');
+          if (typeof setBtnLoading === 'function') setBtnLoading(btn, false);
+          return;
+        }
+        if (name && name.length < 2) {
+          if (window.OS && OS.toast) OS.toast('Name must be at least 2 characters.', 'alert');
+          if (typeof setBtnLoading === 'function') setBtnLoading(btn, false);
+          return;
+        }
         fetch('/api/auth/accept-invite', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
