@@ -1235,15 +1235,20 @@ html.os-live.doc-static .cos-drawer.open {
 }
 
 @media (min-width: 1024px) {
+  html.os-live.doc-static {
+    --os-drawer-rail-w: min(400px, 36vw);
+    --os-drawer-gutter: 20px;
+  }
+
   html.os-live.doc-static .ds-drawer.ds-drawer-dock,
   html.os-live.doc-static .cos-drawer {
-    top: var(--tb, var(--ds-h-header, 66px)) !important;
-    right: 0 !important;
-    bottom: 0 !important;
+    top: calc(var(--tb, var(--ds-h-header, 66px)) + 12px) !important;
+    right: var(--os-drawer-gutter, 20px) !important;
+    bottom: var(--os-drawer-gutter, 20px) !important;
     left: auto !important;
-    width: min(400px, 38vw) !important;
-    min-width: min(380px, 36vw) !important;
-    max-width: 420px !important;
+    width: var(--os-drawer-rail-w, min(400px, 36vw)) !important;
+    min-width: 0 !important;
+    max-width: 400px !important;
     height: auto !important;
   }
 
@@ -1267,13 +1272,31 @@ html.os-live.doc-static .cos-drawer.open {
     width: 100% !important;
     max-width: none !important;
     height: 100% !important;
+    max-height: 100% !important;
     transform: none !important;
-    border-radius: 0 !important;
+    border-radius: var(--r, var(--ds-radius-lg, 16px)) !important;
     background: var(--card) !important;
     color: var(--ink) !important;
-    border-left: 1px solid var(--line) !important;
+    border: 1px solid var(--line) !important;
     box-shadow: var(--sh2) !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
     pointer-events: auto;
+  }
+
+  html.os-live.doc-static .ds-drawer-b,
+  html.os-live.doc-static .cos-drawer-b {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: auto !important;
+  }
+
+  html.os-live.doc-static .ds-drawer-f,
+  html.os-live.doc-static .cos-drawer-f {
+    flex-shrink: 0 !important;
+    padding: 12px 16px !important;
+    box-sizing: border-box !important;
   }
 }
 
@@ -1303,7 +1326,7 @@ html.os-live.doc-static .cos-drawer-h strong {
   color: var(--ink) !important;
 }
 
-/* v14: docked rail inset — page content only (not .app > .main / topbar) */
+/* v15: floating preview rail — reserve panel width + right gutter only */
 html.os-live.doc-static body.ds-drawer-open .pg.os-live-mount,
 html.os-live.doc-static body.ds-drawer-open #doc-page.cos-pt-page,
 html.os-live.doc-static body.ds-drawer-open .sa-main.os-live-mount {
@@ -1316,7 +1339,7 @@ html.os-live.doc-static body.ds-drawer-open .sa-main.os-live-mount {
   html.os-live.doc-static body.ds-drawer-open:has(#ds-drawer.open) .pg.os-live-mount,
   html.os-live.doc-static body.ds-drawer-open:has(#ds-drawer.open) #doc-page.cos-pt-page,
   html.os-live.doc-static body.ds-drawer-open:has(#ds-drawer.open) .sa-main.os-live-mount {
-    padding-right: min(400px, 38vw) !important;
+    padding-right: calc(var(--os-drawer-rail-w, min(400px, 36vw)) + var(--os-drawer-gutter, 20px)) !important;
   }
 }
 
