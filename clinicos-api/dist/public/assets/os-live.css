@@ -1355,6 +1355,98 @@ html.os-live.doc-static #doc-page.cos-pt-page .cos-pt-workspace .dma-table-wrap 
   overflow-x: auto;
 }
 
+/* v17: patient preview drawer — 400px rail tab row + close control (light) */
+html.os-live.doc-static .ds-drawer-panel > .ds-tabs.ds-drawer-tabs {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  flex-shrink: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line2, var(--ds-border-2)) transparent;
+  gap: 4px;
+  margin-bottom: 0;
+  padding: 6px 12px 8px;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--line, var(--ds-border));
+}
+
+html.os-live.doc-static .ds-drawer-panel > .ds-tabs.ds-drawer-tabs::-webkit-scrollbar {
+  display: block;
+  height: 4px;
+}
+
+html.os-live.doc-static .ds-drawer-panel > .ds-tabs.ds-drawer-tabs::-webkit-scrollbar-thumb {
+  background: var(--line2, var(--ds-border-2));
+  border-radius: 999px;
+}
+
+html.os-live.doc-static .ds-drawer-panel > .ds-tabs.ds-drawer-tabs button {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  min-height: 36px;
+  height: 36px;
+  padding: 0 10px;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  white-space: nowrap;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  box-shadow: none;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel > .ds-tabs.ds-drawer-tabs {
+  background: var(--card2) !important;
+  border-bottom-color: var(--line) !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel > .ds-tabs.ds-drawer-tabs button {
+  background: transparent !important;
+  color: var(--ink2) !important;
+  border-color: transparent !important;
+  -webkit-text-fill-color: var(--ink2) !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel > .ds-tabs.ds-drawer-tabs button:hover {
+  background: var(--card) !important;
+  color: var(--ink) !important;
+  -webkit-text-fill-color: var(--ink) !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel > .ds-tabs.ds-drawer-tabs button.active {
+  background: var(--teal-t, #eef8f5) !important;
+  color: var(--teal-d, #0e7a68) !important;
+  -webkit-text-fill-color: var(--teal-d, #0e7a68) !important;
+  font-weight: 700;
+  box-shadow: none;
+  border-color: var(--teal-t2, #c6eae1) !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-drawer-h .ds-btn[data-close],
+html.os-live[data-theme="light"] .ds-drawer-h > .ds-btn.ds-btn-outline[data-close] {
+  background: var(--card) !important;
+  color: var(--ink2) !important;
+  border: 1.5px solid var(--line2) !important;
+  -webkit-text-fill-color: var(--ink2) !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-drawer-h .ds-btn[data-close]:hover:not(:disabled),
+html.os-live[data-theme="light"] .ds-drawer-h > .ds-btn.ds-btn-outline[data-close]:hover:not(:disabled) {
+  background: var(--teal-t, #eef8f5) !important;
+  color: var(--teal-d, #0e7a68) !important;
+  border-color: var(--teal, #14967f) !important;
+  -webkit-text-fill-color: var(--teal-d, #0e7a68) !important;
+}
+
+html.os-live[data-theme="light"] .ds-drawer-panel .ds-drawer-h .ds-btn[data-close]:focus-visible,
+html.os-live[data-theme="light"] .ds-drawer-h > .ds-btn.ds-btn-outline[data-close]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(20, 150, 127, 0.28);
+}
+
 html.os-live.doc-static .cos-row-actions {
   position: relative;
   display: inline-flex;
